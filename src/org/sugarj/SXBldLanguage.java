@@ -77,7 +77,7 @@ public class SXBldLanguage extends AbstractBaseLanguage {
 
 	@Override
 	public String getInitTransModuleName() {
-		return "org/sugarj/sxbld/initGrammar";
+		return "org/sugarj/sxbld/initTrans";
 	}
 
 	@Override
@@ -99,7 +99,7 @@ public class SXBldLanguage extends AbstractBaseLanguage {
 
 	@Override
 	public boolean isExtensionDecl(IStrategoTerm decl) {
-		if (isApplication(decl, "SXBldExtensionsDecls"))
+		if (isApplication(decl, "SXBldExtensionDecl"))
 			return true;
 		return false;
 	}
@@ -111,8 +111,7 @@ public class SXBldLanguage extends AbstractBaseLanguage {
 
 	@Override
 	public boolean isBaseDecl(IStrategoTerm decl) {
-		return isApplication(decl, "SXBldExtensibleFileExt")
-				|| isApplication(decl, "SXBldBaseFileExt")
+		return isApplication(decl, "SXBldBaseDecl")
 				|| isNamespaceDec(decl);
 	}
 

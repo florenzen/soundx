@@ -68,6 +68,16 @@ exports
 
     "base" "file" "extension" SXBldNONEMPTYSTRING -> SXBldBaseFileExt {cons("SXBldBaseFileExt")}
 
+  sorts
+  	SXBldJudgementForms SXBldJudgementForms SXJudgment
+  	
+  context-free syntax
+  	"judgement" "forms" SXBldJudgementForm+ -> ToplevelDeclaration {cons("SXBldJudgementForms")}
+  	
+  	"{" Sdf2Symbols "}" -> SXBldJudgementForm {cons("SXBldJudgementForm")}
+  	
+  	"(" SXJudgement ")" -> SXBldDecl {cons("SXJudg")}
+  	
   context-free start-symbols
     SXBld
 
@@ -76,5 +86,7 @@ exports
 
   context-free syntax
   	SXBldHeader -> ToplevelDeclaration
-  	SXBldDecl   -> ToplevelDeclaration
-  	Grammar+    -> ToplevelDeclaration {cons("SXBldExtensionElems")}
+  	SXBldDecl   -> ToplevelDeclaration {cons("SXBldBaseDecl")}
+  	
+  	Grammar           -> SXBldGrammarElem    {cons("grammar-elem")}
+  	SXBldGrammarElem+ -> ToplevelDeclaration {cons("SXBldExtensionDecl")}

@@ -80,7 +80,7 @@ public class SXBldProcessor extends AbstractBaseProcessor {
 		this.environment = environment;
 		this.sourceFile = sourceFiles.iterator().next();
 		outFile = environment.createOutPath(FileCommands
-				.dropExtension(sourceFile.getRelativePath()) + ".sxbldi.src");
+				.dropExtension(sourceFile.getRelativePath()) + ".sxbldi-src");
 	}
 
 	private void processNamespaceDecl(IStrategoTerm toplevelDecl)
@@ -163,7 +163,7 @@ public class SXBldProcessor extends AbstractBaseProcessor {
 			RelativePath relOut = (RelativePath) out;
 			Path compilePath = new RelativePath(bin,
 					FileCommands.dropExtension(relOut.getRelativePath())
-							+ ".bldi");
+							+ ".sxbldi");
 			FileCommands.copyFile(out, compilePath);
 			generatedFiles.add(compilePath);
 		}
@@ -183,6 +183,6 @@ public class SXBldProcessor extends AbstractBaseProcessor {
 
 	@Override
 	public IStrategoTerm getExtensionBody(IStrategoTerm decl) {
-		return getApplicationSubterm(decl, "SXBldExtensionElems", 0);
+		return getApplicationSubterm(decl, "SXBldExtensionDecl", 0);
 	}
 }

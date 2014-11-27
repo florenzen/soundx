@@ -1,7 +1,26 @@
 module org/sugarj/languages/SXBld
 
+imports org/sugarj/languages/Sdf2
+        org/sugarj/stdlib/StdTrans
+
 signature constructors
 	SXBld: SXBldHeader * List(SXBldDecl) -> SXBld
 	SXBldHeader: SXBldNAME -> SXBldHeader
 	SXBldExtensibleFileExt: SXBldNONEMPTYSTRING -> SXBldExtensibleFileExt
-	SXBldbaseFileExt: SXBldNONEMPTYSTRING -> SXBldBaseFileExt
+	SXBldBaseFileExt: SXBldNONEMPTYSTRING -> SXBldBaseFileExt
+	SXBldExtensionDecl: List(SXBldGrammarElem) -> ToplevelDeclaration
+    SXBldBaseDecl: SXBldDecl -> TopLevelDeclaration
+    SXBldJudgementForms: List(SXBldJudgementForms) -> SXBldJudgemenForms
+    SXBldJudgementForm: Symbols -> SXBldJudgementForm
+
+rules
+	sxbld-desugar-judgement-form:
+		SXBldJudgementForm(symbols) ->
+		prod(symbols, sort("SXJudgement"), no-attrs())
+
+	sxbld-desugar-judgement-forms:
+		SXBldJudgementForms(judgement-forms) -> SXBldExtensionDecl([grammar-elem(context-free-syntax(productions))])
+		where <map(sxbld-desugar-judgement-form)> judgement-forms => productions
+
+strategies
+	desugar = changed-tree(sxbld-desugar-judgement-forms)
