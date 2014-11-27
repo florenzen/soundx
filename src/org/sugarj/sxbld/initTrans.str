@@ -1,0 +1,3 @@
+module org/sugar/sxbld/initTrans
+
+imports org/sugarj/stdlib/StdTrans

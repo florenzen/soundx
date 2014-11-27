@@ -1,0 +1,7 @@
+module org/sugarj/languages/SXBld
+
+signature constructors
+	SXBld: SXBldHeader * List(SXBldDecl) -> SXBld
+	SXBldHeader: SXBldNAME -> SXBldHeader
+	SXBldExtensibleFileExt: SXBldNONEMPTYSTRING -> SXBldExtensibleFileExt
+	SXBldbaseFileExt: SXBldNONEMPTYSTRING -> SXBldBaseFileExt

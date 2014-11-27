@@ -1,0 +1,80 @@
+definition
+
+module org/sugarj/languages/SXBld
+
+imports org/sugarj/languages/Sugar
+
+exports
+	
+  sorts
+	SXBldComment SCBldCommentPart SXBldMinus SXBldEOF
+
+  lexical syntax
+    [\ \t\r\n] -> LAYOUT
+
+  context-free restrictions
+    LAYOUT? -/- [\ \t\r\n]
+
+  lexical syntax
+    SXBldComment                      -> LAYOUT
+    "--" ~[\n\r]* ([\n\r] | SXBldEOF) -> SXBldComment
+    "{-" SXBldCommentPart* "-}"       -> SXBldComment
+    ~[\{]                             -> SXBldCommentPart
+    SXBldMinus                        -> SXBldCommentPart
+    "-"                               -> SXBldMinus
+                                      -> SXBldEOF
+
+  lexical restrictions
+    "{-"       -/- [\-]
+    SXBldMinus -/- [\}]
+    SXBldEOF   -/- ~[]
+
+  context-free restrictions
+    LAYOUT? -/- [\-] . [\-]
+    LAYOUT? -/- [\{] . [\-]
+
+  sorts
+  	SXBldNAME SXBldKeyword SXBldNONEMPTYSTRING
+
+  lexical syntax
+  	[a-zA-Z][a-zA-Z0-9]* -> SXBldNAME
+ 
+    SXBldKeyword -> SXBldNAME {reject}
+
+    "base"       -> SXBldKeyword
+    "language"   -> SXBldKeyword
+    "definition" -> SXBldKeyword
+    "extensible" -> SXBldKeyword
+    "base"       -> SXBldKeyword
+    "file"       -> SXBldKeyword
+    "extension"  -> SXBldKeyword
+
+    [a-zA-Z0-9]+ -> SXBldNONEMPTYSTRING
+
+  sorts
+  	SXBld SXBldHeader SXBldDecl
+  	SXBldExtensibleFileExt SXBldBaseFileExt
+
+  context-free syntax
+  	SXBldHeader SXBldDecl* -> SXBld {cons("SXBld")}
+  	
+  	"base" "language" "definition" SXBldNAME -> SXBldHeader {cons("SXBldHeader")}
+
+
+  	SXBldExtensibleFileExt -> SXBldDecl
+  	SXBldBaseFileExt       -> SXBldDecl
+  	
+  	"extensible" "file" "extension" SXBldNONEMPTYSTRING -> SXBldExtensibleFileExt {cons("SXBldExtensibleFileExt")}
+
+    "base" "file" "extension" SXBldNONEMPTYSTRING -> SXBldBaseFileExt {cons("SXBldBaseFileExt")}
+
+  context-free start-symbols
+    SXBld
+
+  sorts
+    ToplevelDeclaration
+
+  context-free syntax
+  	SXBldHeader -> ToplevelDeclaration
+  	SXBldDecl   -> ToplevelDeclaration
+  	Grammar+    -> ToplevelDeclaration {cons("SXBldExtensionElems")}

@@ -3,6 +3,6 @@
 <plugin>
    <extension
          point="org.sugarj.language">
-      <languagePlugin id="org.sugarj.language.bld" />
+      <languagePlugin id="org.sugarj.language.sxbld" />
    </extension>
 </plugin>
