@@ -12,6 +12,7 @@ signature constructors
     SXBldBaseDecl: SXBldDecl -> TopLevelDeclaration
     SXBldJudgementForms: List(SXBldJudgementForms) -> SXBldJudgemenForms
     SXBldJudgementForm: Symbols -> SXBldJudgementForm
+    SXBldInductiveDefinitions: List(SXBldNamedInferenceRule) -> SXBldInductiveDefinitions
 
 rules
 	sxbld-desugar-judgement-form:
@@ -22,5 +23,9 @@ rules
 		SXBldJudgementForms(judgement-forms) -> SXBldExtensionDecl([grammar-elem(context-free-syntax(productions))])
 		where <map(sxbld-desugar-judgement-form)> judgement-forms => productions
 
+    sxbld-desugar-inductive-definitions:
+    	SXBldInductiveDefinitions(inductive-defs) -> SXBldExtensionDecl([])
+
 strategies
 	desugar = changed-tree(sxbld-desugar-judgement-forms)
+	desugar = changed-tree(sxbld-desugar-inductive-definitions)

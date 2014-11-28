@@ -35,8 +35,8 @@ language
   fences : { }
   fences : [ ]
   
-  line comment                           : "--"
-  block comment                          : "{-" * "-}"
+  line comment                           : "//"
+  block comment                          : "/*" * "/*"
 
 folding
   ToplevelDeclaration
