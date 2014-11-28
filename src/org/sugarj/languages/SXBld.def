@@ -96,32 +96,27 @@ exports
   	SXBldRULESEP -/- [\-]
 
   context-free syntax
-  	"inductive" "definitions" SXBldNamedInferenceRule+ -> ToplevelDeclaration {cons("SXBldInductiveDefinitions")}
+  	"inductive" "definitions" SXBldNamedInferenceRule+ ->
+  	  ToplevelDeclaration {cons("SXBldInductiveDefinitions")}
   	
   	SXBldINFRULENAME ":" SXBldInferenceRule ->
   	  SXBldNamedInferenceRule {cons("SXBldNamedInferenceRule")}
 
-    SXBldInfRulePremises 
-    SXBldRULESEP
-    SXBldInfRuleConclusion 
-    ->
+    SXBldInfRulePremises SXBldRULESEP SXJudgement ->
       SXBldInferenceRule {cons("SXBldInferenceRule"),
                           layout("1.first.col == 2.first.col && 2.first.col == 3.first.col")}
 
     SXBldParenInfRulePremiseParen+ -> SXBldInfRulePremisesEnum {cons("SXBldInfRulePremiseEnum")}
-    SXBldInfRulePremise -> SXBldInfRulePremisesEnum {cons("SXBldInfRulePremise")}
+    SXBldInfRulePremise            -> SXBldInfRulePremisesEnum {cons("SXBldInfRulePremise")}
     
-    SXJudgement -> SXBldInfRulePremise {layout("1.first.col < 1.left.col")}
+    SXJudgement         -> SXBldInfRulePremise {layout("1.first.col < 1.left.col")}
     "(" SXJudgement ")" -> SXBldParenInfRulePremiseParen {bracket}
     
-    -> SXBldInfRulePremises {cons("SXBldInfRulePremisesNil")}
+                                                  -> SXBldInfRulePremises {cons("SXBldInfRulePremisesNil")}
     SXBldInfRulePremisesEnum SXBldInfRulePremises ->
       SXBldInfRulePremises {cons("SXBldInfRulePremisesCons"),
                             layout("1.first.col == 2.first.col")}
     
-    SXJudgement -> SXBldInfRuleConclusion
-    
-
   context-free start-symbols
     SXBld
 
