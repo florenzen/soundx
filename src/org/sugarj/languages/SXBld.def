@@ -17,21 +17,22 @@ exports
 
   lexical syntax
     SXBldComment                      -> LAYOUT
-    "--" ~[\n\r]* ([\n\r] | SXBldEOF) -> SXBldComment
-    "{-" SXBldCommentPart* "-}"       -> SXBldComment
-    ~[\{]                             -> SXBldCommentPart
-    SXBldMinus                        -> SXBldCommentPart
-    "-"                               -> SXBldMinus
+    "//" ~[\n\r]* ([\n\r] | SXBldEOF) -> SXBldComment
+    "/*" SXBldCommentPart* "*/"       -> SXBldComment
+    ~[\*]                             -> SXBldCommentPart
+    SXBldAsterisk                     -> SXBldCommentPart
+    "*"                               -> SXBldAsterisk
                                       -> SXBldEOF
 
   lexical restrictions
-    "{-"       -/- [\-]
-    SXBldMinus -/- [\}]
-    SXBldEOF   -/- ~[]
+    "/**"         -/- [\/]
+    "/*"          -/- [\*]
+    SXBldAsterisk -/- [\/]
+    SXBldEOF      -/- ~[]
 
   context-free restrictions
-    LAYOUT? -/- [\-] . [\-]
-    LAYOUT? -/- [\{] . [\-]
+    LAYOUT? -/- [\/] . [\/]
+    LAYOUT? -/- [\/] . [\*]
 
   sorts
   	SXBldNAME SXBldKeyword SXBldNONEMPTYSTRING
@@ -71,13 +72,57 @@ exports
   sorts
   	SXBldJudgementForms SXBldJudgementForms SXJudgment
   	
+  lexical syntax
+  	"judgement" -> SXBldKeyword
+  	"forms"     -> SXBldKeyword
+
   context-free syntax
+
   	"judgement" "forms" SXBldJudgementForm+ -> ToplevelDeclaration {cons("SXBldJudgementForms")}
   	
   	"{" Sdf2Symbols "}" -> SXBldJudgementForm {cons("SXBldJudgementForm")}
   	
   	"(" SXJudgement ")" -> SXBldDecl {cons("SXJudg")}
+
+  sorts
+  	SXBldInferenceRule
+
+  lexical syntax
+  	"---" "-"* -> SXBldRULESEP
+  	[a-zA-Z][a-zA-Z0-9\-\_]* -> SXBldINFRULENAME
   	
+  	"inductive"   -> SXBldKeyword
+  	"definitions" -> SXBldKeyword
+
+  lexical restrictions
+  	SXBldRULESEP -/- [\-]
+
+  context-free syntax
+  	"inductive" "definitions" SXBldNamedInferenceRule+ -> ToplevelDeclaration {cons("SXBldInductiveDefinitions")}
+  	
+  	SXBldINFRULENAME ":" SXBldInferenceRule ->
+  	  SXBldNamedInferenceRule {cons("SXBldNamedInferenceRule")}
+
+    SXBldInfRulePremises 
+    SXBldRULESEP
+    SXBldInfRuleConclusion 
+    ->
+      SXBldInferenceRule {cons("SXBldInferenceRule"),
+                          layout("1.first.col == 2.first.col && 2.first.col == 3.first.col")}
+
+    %%SXBldParenInfRulePremise+ -> SXBldInfRulePremisesEnum {cons("SXBldInfRulePremiseEnum")}
+    SXBldInfRulePremise -> SXBldInfRulePremisesEnum {cons("SXBldInfRulePremise")}
+    
+    SXJudgement -> SXBldInfRulePremise %%{layout("1.first.col < 1.left.col")}
+    "(" SXBldInfRulePremise ")" -> SXBldParenInfRulePremise {bracket}
+    
+    -> SXBldInfRulePremises {cons("SXBldInfRulePremisesNil")}
+    SXJudgement SXBldInfRulePremises ->
+      SXBldInfRulePremises {cons("SXBldInfRulePremisesCons"),
+                            layout("1.first.col == 2.first.col")}
+    
+    SXJudgement -> SXBldInfRuleConclusion
+
   context-free start-symbols
     SXBld
 
