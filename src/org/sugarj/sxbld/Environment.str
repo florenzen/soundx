@@ -1,5 +1,7 @@
 module org/sugarj/sxbld/Environment
 
+imports org/sugarj/languages/Stratego
+
 imports org/sugarj/languages/SXBld
 
 strategies
@@ -13,7 +15,8 @@ strategies
 
   sxbld-new-env-hashtable =
   	new-hashtable;
-  	hashtable-put(|"grammar-elems", [])
+  	hashtable-put(|"grammar-elems", []);
+  	hashtable-put(|"inference-rules", [])
 
   sxbld-env-get:
   	key -> value
@@ -38,6 +41,23 @@ strategies
   	sxbld-env-get-grammar-elems => grammar-elems-old;
   	<sxbld-env-set-grammar-elems> (<conc> (grammar-elems-new, grammar-elems-old))
 
+  sxbld-env-get-inference-rules =
+  	<sxbld-env-get> "inference-rules"
+  
+  sxbld-env-set-inference-rules =
+  	?inference-rules-new;
+  	<sxbld-env-set> ("inference-rules", inference-rules-new)
+
+  sxbld-env-add-inference-rules =
+  	?inference-rules-new;
+  	sxbld-env-get-inference-rules => inference-rules-old;
+  	<sxbld-env-set-inference-rules> (<conc> (inference-rules-new, inference-rules-old))
+
   sxbld-env-extract-extension-decls =
   	sxbld-env-get-grammar-elems => grammar-elems;
-  	!SXBldExtensionDecl(grammar-elems)
+  	sxbld-env-get-inference-rules => inference-rules;
+  	// !transformation-elem(Rules([RDefNoArgs("infrules",
+  	//   RuleNoCond(Tuple([]), inference-rules))
+  	// ])) 
+  	![] => transformation-elems;
+  	!SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems))

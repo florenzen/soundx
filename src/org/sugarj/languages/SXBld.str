@@ -13,3 +13,4 @@ signature constructors
     SXBldBaseDecl: SXBldDecl -> TopLevelDeclaration
     SXBldJudgementForms: List(SXBldJudgementForms) -> SXBldJudgemenForms
     SXBldJudgementForm: Symbols -> SXBldJudgementForm
+    SXBldGrammarElems: List(Grammar) -> ToplevelDeclaration

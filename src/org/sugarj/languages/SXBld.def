@@ -96,5 +96,5 @@ exports
   	SXBldHeader -> ToplevelDeclaration
   	SXBldDecl   -> ToplevelDeclaration {cons("SXBldBaseDecl")}
   	
-  	Grammar           -> SXBldGrammarElem    {cons("grammar-elem")}
-  	SXBldGrammarElem+ -> ToplevelDeclaration {cons("SXBldExtensionDecl")}
+  	Grammar+ -> ToplevelDeclaration {cons("SXBldGrammarElems")}
+  	%%SXBldGrammarElem+ -> ToplevelDeclaration {cons("SXBldExtensionDecl")}
