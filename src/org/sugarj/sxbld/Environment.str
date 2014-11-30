@@ -1,0 +1,43 @@
+module org/sugarj/sxbld/Environment
+
+imports org/sugarj/languages/SXBld
+
+strategies
+  sxbld-env-hashtable = fail
+  
+  sxbld-get-env-hashtable =
+  	sxbld-env-hashtable <+
+  	(sxbld-new-env-hashtable => ht;
+  	 rules(sxbld-env-hashtable: () -> ht);
+  	 !ht)
+
+  sxbld-new-env-hashtable =
+  	new-hashtable;
+  	hashtable-put(|"grammar-elems", [])
+
+  sxbld-env-get:
+  	key -> value
+  	where
+  		<sxbld-get-env-hashtable> ();
+  		hashtable-get(|key) => value
+
+  sxbld-env-set =
+  	?(key, value);
+  	<sxbld-get-env-hashtable> ();
+  	hashtable-put(|key, value)
+
+  sxbld-env-get-grammar-elems =
+  	<sxbld-env-get> "grammar-elems"
+  
+  sxbld-env-set-grammar-elems =
+  	?grammar-elems-new;
+  	<sxbld-env-set> ("grammar-elems", grammar-elems-new)
+
+  sxbld-env-add-grammar-elems =
+  	?grammar-elems-new;
+  	sxbld-env-get-grammar-elems => grammar-elems-old;
+  	<sxbld-env-set-grammar-elems> (<conc> (grammar-elems-new, grammar-elems-old))
+
+  sxbld-env-extract-extension-decls =
+  	sxbld-env-get-grammar-elems => grammar-elems;
+  	!SXBldExtensionDecl(grammar-elems)

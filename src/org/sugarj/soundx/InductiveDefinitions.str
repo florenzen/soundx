@@ -1,4 +1,4 @@
-module org/sugarj/soundx/SXInductiveDefinitions
+module org/sugarj/soundx/InductiveDefinitions
 
 signature constructors
 	SXInductiveDefinitions: List(SXNamedInferenceRule) -> SXInductiveDefinitions

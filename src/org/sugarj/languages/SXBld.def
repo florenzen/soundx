@@ -4,7 +4,7 @@ module org/sugarj/languages/SXBld
 
 imports org/sugarj/languages/Sugar
 
-imports org/sugarj/soundx/SXInductiveDefinitions
+imports org/sugarj/soundx/InductiveDefinitions
 
 exports
 	

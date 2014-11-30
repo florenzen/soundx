@@ -2,22 +2,35 @@ module org/sugar/sxbld/ConcreteSyntax
 
 imports org/sugarj/languages/Sdf2
 
-imports org/sugarj/soundx/SXInductiveDefinitions
+imports org/sugarj/soundx/InductiveDefinitions
+
+imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/languages/SXBld
 
+
 rules
-	sxbld-desugar-judgement-form:
+	sxbld-judgement-form-to-prod:
 		SXBldJudgementForm(symbols) ->
 		prod(symbols, sort("SXJudgement"), no-attrs())
 
-	sxbld-desugar-judgement-forms:
-		SXBldJudgementForms(judgement-forms) -> SXBldExtensionDecl([grammar-elem(context-free-syntax(productions))])
-		where <map(sxbld-desugar-judgement-form)> judgement-forms => productions
+	sxbld-judgement-forms-to-prods:
+		judgement-forms -> [grammar-elem(context-free-syntax(productions))]
+		where <map(sxbld-judgement-form-to-prod)> judgement-forms => productions
 
-    sxbld-desugar-inductive-definitions:
-    	SXInductiveDefinitions(inductive-defs) -> SXBldExtensionDecl([])
+    sxbld-handle-judgement-forms:
+    	SXBldJudgementForms(judgement-forms) -> extension-decls
+    	where
+    		<sxbld-judgement-forms-to-prods> judgement-forms => grammar-elems;
+    		<sxbld-env-add-grammar-elems> grammar-elems;
+    		sxbld-env-extract-extension-decls => extension-decls
+    	
+    sxbld-handle-inductive-definitions:
+    	SXInductiveDefinitions(inductive-defs) -> extension-decls
+    	where
+    		sxbld-env-extract-extension-decls => extension-decls
+    		
 
 strategies
-	desugar = changed-tree(sxbld-desugar-judgement-forms)
-	desugar = changed-tree(sxbld-desugar-inductive-definitions)
+	desugar = changed-tree(sxbld-handle-judgement-forms)
+	desugar = changed-tree(sxbld-handle-inductive-definitions)

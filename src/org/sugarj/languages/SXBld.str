@@ -2,7 +2,7 @@ module org/sugarj/languages/SXBld
 
 imports org/sugarj/stdlib/StdTrans
 
-imports org/sugarj/soundx/SXInductiveDefinitions
+imports org/sugarj/soundx/InductiveDefinitions
 
 signature constructors
 	SXBld: SXBldHeader * List(SXBldDecl) -> SXBld
