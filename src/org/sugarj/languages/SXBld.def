@@ -4,6 +4,8 @@ module org/sugarj/languages/SXBld
 
 imports org/sugarj/languages/Sugar
 
+imports org/sugarj/soundx/SXInductiveDefinitions
+
 exports
 	
   sorts
@@ -77,45 +79,12 @@ exports
   	"forms"     -> SXBldKeyword
 
   context-free syntax
-
   	"judgement" "forms" SXBldJudgementForm+ -> ToplevelDeclaration {cons("SXBldJudgementForms")}
   	
   	"{" Sdf2Symbols "}" -> SXBldJudgementForm {cons("SXBldJudgementForm")}
   	
-  sorts
-  	SXBldInferenceRule
-
-  lexical syntax
-  	"---" "-"* -> SXBldRULESEP
-  	[a-zA-Z][a-zA-Z0-9\-\_]* -> SXBldINFRULENAME
-  	
-  	"inductive"   -> SXBldKeyword
-  	"definitions" -> SXBldKeyword
-
-  lexical restrictions
-  	SXBldRULESEP -/- [\-]
-
   context-free syntax
-  	"inductive" "definitions" SXBldNamedInferenceRule+ ->
-  	  ToplevelDeclaration {cons("SXBldInductiveDefinitions")}
-  	
-  	SXBldINFRULENAME ":" SXBldInferenceRule ->
-  	  SXBldNamedInferenceRule {cons("SXBldNamedInferenceRule")}
-
-    SXBldInfRulePremises SXBldRULESEP SXJudgement ->
-      SXBldInferenceRule {cons("SXBldInferenceRule"),
-                          layout("1.first.col == 2.first.col && 2.first.col == 3.first.col")}
-
-    SXBldParenInfRulePremiseParen+ -> SXBldInfRulePremisesEnum {cons("SXBldInfRulePremiseEnum")}
-    SXBldInfRulePremise            -> SXBldInfRulePremisesEnum {cons("SXBldInfRulePremise")}
-    
-    SXJudgement         -> SXBldInfRulePremise {layout("1.first.col < 1.left.col")}
-    "(" SXJudgement ")" -> SXBldParenInfRulePremiseParen {bracket}
-    
-                                                  -> SXBldInfRulePremises {cons("SXBldInfRulePremisesNil")}
-    SXBldInfRulePremisesEnum SXBldInfRulePremises ->
-      SXBldInfRulePremises {cons("SXBldInfRulePremisesCons"),
-                            layout("1.first.col == 2.first.col")}
+  	SXInductiveDefinitions -> ToplevelDeclaration
     
   context-free start-symbols
     SXBld

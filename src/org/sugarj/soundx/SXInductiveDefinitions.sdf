@@ -1,0 +1,37 @@
+module org/sugarj/soundx/SXInductiveDefinitions
+
+exports
+  sorts
+  	SXInferenceRule
+
+  lexical syntax
+  	"---" "-"* -> SXRULESEP
+  	[a-zA-Z][a-zA-Z0-9\-\_]* -> SXINFRULENAME
+  	
+  	"inductive"   -> SXIndDefKeyword
+  	"definitions" -> SXIndDefKeyword
+
+  lexical restrictions
+  	SXRULESEP -/- [\-]
+
+  context-free syntax
+  	"inductive" "definitions" SXNamedInferenceRule+ ->
+  	  SXInductiveDefinitions {cons("SXInductiveDefinitions")}
+  	
+  	SXINFRULENAME ":" SXInferenceRule ->
+  	  SXNamedInferenceRule {cons("SXNamedInferenceRule")}
+
+    SXInfRulePremises SXRULESEP SXJudgement ->
+      SXInferenceRule {cons("SXInferenceRule"),
+                       layout("1.first.col == 2.first.col && 2.first.col == 3.first.col")}
+
+    SXInfRulePremiseParen+ -> SXInfRulePremisesEnum {cons("SXInfRulePremiseEnum")}
+    SXInfRulePremise            -> SXInfRulePremisesEnum {cons("SXInfRulePremise")}
+    
+    SXJudgement         -> SXInfRulePremise {layout("1.first.col < 1.left.col")}
+    "(" SXJudgement ")" -> SXInfRulePremiseParen {bracket}
+    
+                                            -> SXInfRulePremises {cons("SXInfRulePremisesNil")}
+    SXInfRulePremisesEnum SXInfRulePremises ->
+      SXInfRulePremises {cons("SXInfRulePremisesCons"),
+                         layout("1.first.col == 2.first.col")}

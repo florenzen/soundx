@@ -1,0 +1,23 @@
+module org/sugar/sxbld/ConcreteSyntax
+
+imports org/sugarj/languages/Sdf2
+
+imports org/sugarj/soundx/SXInductiveDefinitions
+
+imports org/sugarj/languages/SXBld
+
+rules
+	sxbld-desugar-judgement-form:
+		SXBldJudgementForm(symbols) ->
+		prod(symbols, sort("SXJudgement"), no-attrs())
+
+	sxbld-desugar-judgement-forms:
+		SXBldJudgementForms(judgement-forms) -> SXBldExtensionDecl([grammar-elem(context-free-syntax(productions))])
+		where <map(sxbld-desugar-judgement-form)> judgement-forms => productions
+
+    sxbld-desugar-inductive-definitions:
+    	SXInductiveDefinitions(inductive-defs) -> SXBldExtensionDecl([])
+
+strategies
+	desugar = changed-tree(sxbld-desugar-judgement-forms)
+	desugar = changed-tree(sxbld-desugar-inductive-definitions)

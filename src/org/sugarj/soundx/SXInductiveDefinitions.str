@@ -1,0 +1,10 @@
+module org/sugarj/soundx/SXInductiveDefinitions
+
+signature constructors
+	SXInductiveDefinitions: List(SXNamedInferenceRule) -> SXInductiveDefinitions
+	SXNamedInferenceRule: SXINFRULENAME * SXInferenceRule -> SXNamedInferenceRule
+	SXInferenceRule: SXInfRulePremises * SXRULESEP * SXJudgement -> SXInferenceRule
+	SXInfRulePremiseEnum: List(SXPArenInfRulePremise) -> SXInfRulePremisesEnum
+	SXInfRulePremise: SXInfRulePremise -> SXInfRulePremisesEnum
+	SXInfRulePremisesNul: SXInfRulePremises
+	SXInfRulepremisesCons: SXInfRulePremisesEnum * SXInfRulePremises -> SXInfRulePremises
