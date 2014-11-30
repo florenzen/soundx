@@ -55,9 +55,8 @@ strategies
 
   sxbld-env-extract-extension-decls =
   	sxbld-env-get-grammar-elems => grammar-elems;
-  	sxbld-env-get-inference-rules => inference-rules;
+  	// sxbld-env-get-inference-rules => inference-rules;
   	// !transformation-elem(Rules([RDefNoArgs("infrules",
   	//   RuleNoCond(Tuple([]), inference-rules))
-  	// ])) 
-  	![] => transformation-elems;
+  	// ])) => transformation-elems;
   	!SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems))

@@ -29,7 +29,7 @@ rules
     	SXBldGrammarElems(grammars) -> extension-decls
     	where
     		<map(\grm -> grammar-elem(grm)\)> grammars => grammar-elems;
-    		<debug(!"IN ");sxbld-env-add-grammar-elems;debug(!"OUT ")> grammar-elems;
+    		<sxbld-env-add-grammar-elems> grammar-elems;
     		sxbld-env-extract-extension-decls => extension-decls
 
     sxbld-handle-inductive-definitions:
