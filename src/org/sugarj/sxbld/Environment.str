@@ -59,4 +59,4 @@ strategies
   	// !transformation-elem(Rules([RDefNoArgs("infrules",
   	//   RuleNoCond(Tuple([]), inference-rules))
   	// ])) => transformation-elems;
-  	!SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems))
+  	!SXBldExtensionDecl(grammar-elems)
