@@ -1,0 +1,7 @@
+/**
+ * Signature of SoundX abstract syntax
+ */
+module org/sugarj/soundx/AbstractSyntax
+
+signature constructors
+	SXAbsJudgementForm: List(String) * String -> SXAbsJudgementForm
