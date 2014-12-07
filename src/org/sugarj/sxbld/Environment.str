@@ -46,7 +46,8 @@ strategies
   	    new-hashtable;
   	    hashtable-put(|"grammar-elems", []);
   	    hashtable-put(|"inference-rules", []);
-  	    hashtable-put(|"base-language-name", "")
+  	    hashtable-put(|"base-language-name", "");
+  	    hashtable-put(|"name-counter", 0)
 
     /**
      * Looks up a key in the environment
@@ -151,6 +152,48 @@ strategies
     sxbld-env-set-base-language-name =
   	    ?name;
   	    <sxbld-env-set> ("base-language-name", name)
+
+/**
+ * Fresh names
+ */
+strategies
+	/**
+	 * Gets name-counter
+	 *
+	 * @type _ -> integer
+	 */
+	sxbld-env-get-name-counter =
+		<sxbld-env-get> "name-counter"
+
+    /**
+     * Sets name-counter
+     *
+     * @type integer -> HashTable(String, V)
+     */
+    sxbld-env-set-name-counter =
+    	?counter;
+    	<sxbld-env-set> ("name-counter", counter)
+
+    /**
+     * Generates a fresh name with the given prefix
+     *
+     * @type String -> String
+     */
+    sxbld-env-fresh-name:
+    	prefix -> fresh-name
+    	where
+    		<sxbld-env-get-name-counter> () => counter;
+    	    <sxbld-env-set-name-counter> (<add> (counter, 1));
+    	    <int-to-string> counter => suffix;
+    	    <conc-strings> (prefix, suffix) => fresh-name
+
+    /**
+     * Generates a fresh name for a judgement
+     *
+     * @type _ -> String
+     */
+    sxbld-env-fresh-judgement-name =
+    	<sxbld-env-fresh-name> "Judgement"
 
 /**
  * Extraction of extension-decls from environment

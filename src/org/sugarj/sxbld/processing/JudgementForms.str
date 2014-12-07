@@ -6,32 +6,36 @@ module org/sugarj/sxbld/processing/JudgementForms
 imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/sxbld/processing/SortRenaming
+        org/sugarj/sxbld/processing/SDF2Terms
 
 imports org/sugarj/languages/SXBld
 
 strategies
 	/**
-	 * Translates one judgement form to an SDF2 production
+	 * Translates a judgement form to a context-free grammar
 	 *
-	 * Sort names are prefixed with the base language name.
+	 * A production for the SXJudgement nonterminal is generated
+	 * with the given cons-attribute.
 	 *
-	 * @type SXBldJudgementForm -> Sdf2Production
+	 * @type (List(Symbols), String) -> Sdf2Grammar
 	 */
-	sxbld-judgement-form-to-prod:
-		SXBldJudgementForm(symbols) ->
-		prod(renamed-symbols, sort("SXJudgement"), no-attrs())
+	sxbld-symbols-to-cf-syntax:
+		(symbols, cons-name) -> context-free-syntax(production)
 		where
-			<map(sxbld-rename-all-sorts)> symbols => renamed-symbols
+			<sxbld-sdf2-cons-attribute> cons-name => cons-attribute;
+			!prod(symbols, sort("SXJudgement"), [cons-attribute]) => production
 
-    /**
-     * Translates list of judgement forms to context-free syntax section
-     *
-     * @type List(SXBldJudgementForm) -> Sdf2Grammar
-     */
-	sxbld-judgement-forms-to-cf-syntax:
-		judgement-forms -> [grammar-elem(context-free-syntax(productions))]
-		where
-			<map(sxbld-judgement-form-to-prod)> judgement-forms => productions
+	/**
+	 * Processes a single judgement form
+	 *
+	 * @type SXBldJudgementForm -> HashTable(String, V)
+	 */
+    sxbld-process-judgement-form =
+    	?SXBldJudgementForm(symbols);
+    	<map(sxbld-rename-all-sorts)> symbols => renamed-symbols;
+    	<sxbld-env-fresh-judgement-name> () => judgement-name;
+    	<sxbld-symbols-to-cf-syntax> (renamed-symbols, judgement-name) => grammar;
+    	<sxbld-env-add-grammar-elems> [grammar-elem(grammar)]
 
     /**
      * Process judgement forms section
@@ -44,6 +48,5 @@ strategies
     sxbld-process-judgement-forms:
     	SXBldJudgementForms(judgement-forms) -> extension-decls
     	where
-    		<sxbld-judgement-forms-to-cf-syntax> judgement-forms => grammar-elems;
-    		<sxbld-env-add-grammar-elems> grammar-elems;
+    		<map(sxbld-process-judgement-form)> judgement-forms;
     		sxbld-env-extract-extension-decls => extension-decls

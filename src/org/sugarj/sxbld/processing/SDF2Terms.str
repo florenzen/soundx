@@ -1,0 +1,30 @@
+/**
+ * Generation of SDF2 term
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/sxbld/processing/SDF2Terms
+
+imports org/sugarj/languages/Sdf2
+
+strategies
+	/**
+	 * Generate the SDF2 cons attribute as ATerm
+	 *
+	 * @type String -> Sdf2Attribute
+	 */
+	sxbld-sdf2-cons-attribute:
+		cons-name -> attribute
+		where 
+			<sxbld-quote-string> cons-name => cons-name-quoted;
+			!term(default(appl(unquoted("cons"),
+			  [fun(quoted(cons-name-quoted))]))) => attribute
+
+    /**
+     * Encloses a string in double quotes
+     *
+     * @type String -> String
+     */
+    sxbld-quote-string =
+    	?string;
+    	<conc-strings> ("\"", string, "\"")
