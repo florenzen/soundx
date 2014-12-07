@@ -10,6 +10,7 @@ imports org/sugarj/soundx/InductiveDefinitions
 signature constructors
 	SXBld:                  SXBldHeader * List(SXBldDecl) -> SXBld
 	SXBldHeader:            SXBldNAME                     -> SXBldHeader
+	SXBldNamespaceDec:      SXBldName                     -> SXBldNamespaceDef
 	SXBldExtensibleFileExt: SXBldNONEMPTYSTRING           -> SXBldExtensibleFileExt
 	SXBldBaseFileExt:       SXBldNONEMPTYSTRING           -> SXBldBaseFileExt
 	SXBldExtensionDecl:     List(SXBldGrammarElem)        -> ToplevelDeclaration

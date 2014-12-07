@@ -121,6 +121,6 @@ public class SXBldLanguage extends AbstractBaseLanguage {
 	}
 
 	public boolean isNamespaceDec(IStrategoTerm decl) {
-		return isApplication(decl, "SXBldHeader");
+		return isApplication(decl, "SXBldNamespaceDec");
 	}
 }

@@ -132,6 +132,27 @@ strategies
   	    <sxbld-env-set-inference-rules> (<conc> (inference-rules-new, inference-rules-old))
 
 /**
+ * Handling of base-language-name
+ */
+strategies
+	/**
+	 * Gets base-language-name
+	 *
+	 * @type _ -> String
+	 */
+    sxbld-env-get-base-language-name =
+  	    <sxbld-env-get> "base-language-name"
+
+    /**
+     * Sets base-language-name
+     *
+     * @type String -> HashTable(String, V)
+     */  
+    sxbld-env-set-base-language-name =
+  	    ?name;
+  	    <sxbld-env-set> ("base-language-name", name)
+
+/**
  * Extraction of extension-decls from environment
  */
 strategies

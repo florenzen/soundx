@@ -1,0 +1,15 @@
+/**
+ * Processing of BLD header
+ */
+module org/sugarj/sxbld/processing/Header
+
+imports org/sugarj/sxbld/Environment
+
+imports org/sugarj/languages/SXBld
+
+strategies
+	sxbld-process-header:
+		SXBldHeader(name) -> SXBldNamespaceDec(name1)
+		where
+			<sxbld-env-set-base-language-name> name;
+			<sxbld-env-get-base-language-name> () => name1

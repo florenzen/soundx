@@ -86,7 +86,7 @@ public class SXBldProcessor extends AbstractBaseProcessor {
 	private void processNamespaceDecl(IStrategoTerm toplevelDecl)
 			throws IOException {
 		String qualifiedModuleName = prettyPrint(getApplicationSubterm(
-				toplevelDecl, "SXBldHeader", 0));
+				toplevelDecl, "SXBldNamespaceDec", 0));
 		String declaredModuleName = FileCommands.fileName(qualifiedModuleName);
 		moduleName = FileCommands.dropExtension(FileCommands
 				.fileName(sourceFile.getRelativePath()));

@@ -9,6 +9,8 @@ imports org/sugarj/stdlib/StdTrans
 
 imports org/sugarj/sxbld/ProcessBLD
 
+imports org/sugarj/sxbld/processing/Header
+
 /**
  * All processing strategies are collected here
  */
@@ -19,6 +21,7 @@ strategies
 	sxbld-desugaring = sxbld-process-judgement-forms
 	sxbld-desugaring = sxbld-process-inductive-definitions
 	sxbld-desugaring = sxbld-process-grammar-elem
+	sxbld-desugaring = sxbld-process-header
 
     /**
      * The main desugaring strategy
