@@ -1,0 +1,26 @@
+/**
+ * Desugarings to hook BLD processing into SugarJ
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/sxbld/Desugaring
+
+imports org/sugarj/stdlib/StdTrans
+
+imports org/sugarj/sxbld/ProcessBLD
+
+/**
+ * All processing strategies are collected here
+ */
+strategies
+	/**
+	 * Register BLD processing as SugarJ desugarings
+	 */
+	sxbld-desugaring = sxbld-process-judgement-forms
+	sxbld-desugaring = sxbld-process-inductive-definitions
+	sxbld-desugaring = sxbld-process-grammar-elem
+
+    /**
+     * The main desugaring strategy
+     */
+	desugar = changed-tree(sxbld-desugaring)

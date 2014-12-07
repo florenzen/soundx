@@ -1,10 +1,13 @@
+/**
+ * Signature for the constructors of InductiveDefinitions.sdf
+ */
 module org/sugarj/soundx/InductiveDefinitions
 
 signature constructors
-	SXInductiveDefinitions: List(SXNamedInferenceRule) -> SXInductiveDefinitions
-	SXNamedInferenceRule: SXINFRULENAME * SXInferenceRule -> SXNamedInferenceRule
-	SXInferenceRule: SXInfRulePremises * SXRULESEP * SXJudgement -> SXInferenceRule
-	SXInfRulePremiseEnum: List(SXPArenInfRulePremise) -> SXInfRulePremisesEnum
-	SXInfRulePremise: SXInfRulePremise -> SXInfRulePremisesEnum
-	SXInfRulePremisesNul: SXInfRulePremises
-	SXInfRulepremisesCons: SXInfRulePremisesEnum * SXInfRulePremises -> SXInfRulePremises
+	SXInductiveDefinitions: List(SXNamedInferenceRule)                  -> SXInductiveDefinitions
+	SXNamedInferenceRule:   SXINFRULENAME * SXInferenceRule             -> SXNamedInferenceRule
+	SXInferenceRule:        SXInfRulePremises * SXRULESEP * SXJudgement -> SXInferenceRule
+	SXInfRulePremiseEnum:   List(SXPArenInfRulePremise)                 -> SXInfRulePremisesEnum
+	SXInfRulePremise:       SXInfRulePremise                            -> SXInfRulePremisesEnum
+	SXInfRulePremisesNil:                                                  SXInfRulePremises
+	SXInfRulepremisesCons:  SXInfRulePremisesEnum * SXInfRulePremises   -> SXInfRulePremises

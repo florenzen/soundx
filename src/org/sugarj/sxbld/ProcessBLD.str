@@ -1,4 +1,9 @@
-module org/sugar/sxbld/ConcreteSyntax
+/**
+ * Process base language definition
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de
+ */
+module org/sugar/sxbld/ProcessBLD
 
 imports org/sugarj/languages/Sdf2
 
@@ -8,8 +13,10 @@ imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/languages/SXBld
 
-
-rules
+/**
+ * Process judgement form sections
+ */
+strategies
 	sxbld-judgement-form-to-prod:
 		SXBldJudgementForm(symbols) ->
 		prod(symbols, sort("SXJudgement"), no-attrs())
@@ -18,28 +25,30 @@ rules
 		judgement-forms -> [grammar-elem(context-free-syntax(productions))]
 		where <map(sxbld-judgement-form-to-prod)> judgement-forms => productions
 
-    sxbld-handle-judgement-forms:
+    sxbld-process-judgement-forms:
     	SXBldJudgementForms(judgement-forms) -> extension-decls
     	where
     		<sxbld-judgement-forms-to-prods> judgement-forms => grammar-elems;
     		<sxbld-env-add-grammar-elems> grammar-elems;
     		sxbld-env-extract-extension-decls => extension-decls
 
-    sxbld-handle-grammar-elem:
+/**
+ * Process SDF2 sections
+ */
+strategies
+    sxbld-process-grammar-elem:
     	SXBldGrammarElems(grammars) -> extension-decls
     	where
     		<map(\grm -> grammar-elem(grm)\)> grammars => grammar-elems;
     		<sxbld-env-add-grammar-elems> grammar-elems;
     		sxbld-env-extract-extension-decls => extension-decls
 
-    sxbld-handle-inductive-definitions:
+/**
+ * Process inductive definition sections
+ */
+strategies
+    sxbld-process-inductive-definitions:
     	SXInductiveDefinitions(inference-rules) -> extension-decls
     	where
     		<sxbld-env-add-inference-rules> inference-rules;
     		sxbld-env-extract-extension-decls => extension-decls
-    		
-
-strategies
-	desugar = changed-tree(sxbld-handle-judgement-forms)
-	desugar = changed-tree(sxbld-handle-inductive-definitions)
-	desugar = changed-tree(sxbld-handle-grammar-elem)

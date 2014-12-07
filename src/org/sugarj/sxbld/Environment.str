@@ -1,62 +1,144 @@
+/**
+ * SoundX Base Language Definition environment
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
 module org/sugarj/sxbld/Environment
 
 imports org/sugarj/languages/Stratego
 
 imports org/sugarj/languages/SXBld
 
+/**
+ * Basic handling of the environment hash table
+ *
+ * The environment is a hash table from Strings to values V.
+ */
 strategies
-  sxbld-env-hashtable = fail
-  
-  sxbld-get-env-hashtable =
-  	sxbld-env-hashtable <+
-  	(sxbld-new-env-hashtable => ht;
-  	 rules(sxbld-env-hashtable: () -> ht);
-  	 !ht)
+	/**
+	 * The environment hash table
+	 *
+	 * Do not call directly, use sxbld-get-env-hashtable instead.
+	 *
+	 * @type _ -> HashTable(String, V)
+	 */
+    sxbld-env-hashtable = fail
 
-  sxbld-new-env-hashtable =
-  	new-hashtable;
-  	hashtable-put(|"grammar-elems", []);
-  	hashtable-put(|"inference-rules", [])
+    /**
+     * Returns the environment
+     *
+     * Creates an empty hash table if called for the first time.
+     *
+     * @type _ -> HashTable(String, V)
+     */
+    sxbld-get-env-hashtable =
+  	    sxbld-env-hashtable <+
+  	    (sxbld-new-env-hashtable => ht;
+  	    rules(sxbld-env-hashtable: () -> ht);
+  	    !ht)
 
-  sxbld-env-get:
-  	key -> value
-  	where
-  		<sxbld-get-env-hashtable> ();
-  		hashtable-get(|key) => value
+    /**
+     * Creates empty environment containing all keys
+     *
+     * @type _ -> HashTable(String, V)
+     */
+    sxbld-new-env-hashtable =
+  	    new-hashtable;
+  	    hashtable-put(|"grammar-elems", []);
+  	    hashtable-put(|"inference-rules", []);
+  	    hashtable-put(|"base-language-name", "")
 
-  sxbld-env-set =
-  	?(key, value);
-  	<sxbld-get-env-hashtable> ();
-  	hashtable-put(|key, value)
+    /**
+     * Looks up a key in the environment
+     *
+     * @type String -> V
+     */
+    sxbld-env-get:
+  	    key -> value
+  	    where
+  		    <sxbld-get-env-hashtable> ();
+  		    hashtable-get(|key) => value
 
-  sxbld-env-get-grammar-elems =
-  	<sxbld-env-get> "grammar-elems"
-  
-  sxbld-env-set-grammar-elems =
-  	?grammar-elems-new;
-  	<sxbld-env-set> ("grammar-elems", grammar-elems-new)
+    /**
+     * Sets a key to a value in the environment
+     *
+     * @type (String, V) -> HashTable(String, V)
+     */
+    sxbld-env-set =
+        ?(key, value);
+  	    <sxbld-get-env-hashtable> ();
+  	    hashtable-put(|key, value)
 
-  sxbld-env-add-grammar-elems =
-  	?grammar-elems-new;
-  	sxbld-env-get-grammar-elems => grammar-elems-old;
-  	<sxbld-env-set-grammar-elems> (<conc> (grammar-elems-new, grammar-elems-old))
+/**
+ * Handling of grammar-elems
+ */
+strategies
+	/**
+	 * Gets grammar-elems
+	 *
+	 * @type _ -> List(Grammar)
+	 */
+    sxbld-env-get-grammar-elems =
+        <sxbld-env-get> "grammar-elems"
 
-  sxbld-env-get-inference-rules =
-  	<sxbld-env-get> "inference-rules"
-  
-  sxbld-env-set-inference-rules =
-  	?inference-rules-new;
-  	<sxbld-env-set> ("inference-rules", inference-rules-new)
+    /**
+     * Sets grammar-elems
+     *
+     * @type List(Grammar) -> HashTable(String, V)
+     */
+    sxbld-env-set-grammar-elems =
+        ?grammar-elems-new;
+  	    <sxbld-env-set> ("grammar-elems", grammar-elems-new)
 
-  sxbld-env-add-inference-rules =
-  	?inference-rules-new;
-  	sxbld-env-get-inference-rules => inference-rules-old;
-  	<sxbld-env-set-inference-rules> (<conc> (inference-rules-new, inference-rules-old))
+    /**
+     * Adds grammar-elems
+     *
+     * @type List(Grammar) -> HashTable(String, V)
+     */
+    sxbld-env-add-grammar-elems =
+  	    ?grammar-elems-new;
+  	    sxbld-env-get-grammar-elems => grammar-elems-old;
+  	    <sxbld-env-set-grammar-elems> (<conc> (grammar-elems-new, grammar-elems-old))
 
-  sxbld-env-extract-extension-decls =
-  	sxbld-env-get-grammar-elems => grammar-elems;
-  	// sxbld-env-get-inference-rules => inference-rules;
-  	// !transformation-elem(Rules([RDefNoArgs("infrules",
-  	//   RuleNoCond(Tuple([]), inference-rules))
-  	// ])) => transformation-elems;
-  	!SXBldExtensionDecl(grammar-elems)
+/**
+ * Handling of inference rules
+ */
+strategies
+    /**
+	 * Gets all inference-rules
+	 *
+	 * @type _ -> List(SXNamedInferenceRule)
+	 */
+    sxbld-env-get-inference-rules =
+  	    <sxbld-env-get> "inference-rules"
+
+    /**
+     * Sets inference-rules
+     *
+     * @type List(SXNamedInferenceRule) -> HashTable(String, V)
+     */  
+    sxbld-env-set-inference-rules =
+  	    ?inference-rules-new;
+  	    <sxbld-env-set> ("inference-rules", inference-rules-new)
+
+    /**
+     * Adds inference-rules
+     *
+     * @type List(SXNamedInferenceRule) -> HashTable(String, V)
+     */
+    sxbld-env-add-inference-rules =
+  	    ?inference-rules-new;
+  	    sxbld-env-get-inference-rules => inference-rules-old;
+  	    <sxbld-env-set-inference-rules> (<conc> (inference-rules-new, inference-rules-old))
+
+/**
+ * Extraction of extension-decls from environment
+ */
+strategies
+    sxbld-env-extract-extension-decls =
+  	    sxbld-env-get-grammar-elems => grammar-elems;
+  	    // sxbld-env-get-inference-rules => inference-rules;
+  	    // !transformation-elem(Rules([RDefNoArgs("infrules",
+  	    //   RuleNoCond(Tuple([]), inference-rules))
+  	    // ])) => transformation-elems;
+  	    !SXBldExtensionDecl(grammar-elems)
