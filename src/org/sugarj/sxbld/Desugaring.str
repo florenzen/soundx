@@ -10,6 +10,7 @@ imports org/sugarj/stdlib/StdTrans
 imports org/sugarj/sxbld/ProcessBLD
 
 imports org/sugarj/sxbld/processing/Header
+        org/sugarj/sxbld/processing/JudgementForms
 
 /**
  * All processing strategies are collected here

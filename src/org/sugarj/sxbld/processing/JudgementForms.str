@@ -1,0 +1,24 @@
+/**
+ * Process judgement forms sections
+ */
+module org/sugarj/sxbld/processing/JudgementForms
+
+imports org/sugarj/sxbld/Environment
+
+imports org/sugarj/languages/SXBld
+
+strategies
+	sxbld-judgement-form-to-prod:
+		SXBldJudgementForm(symbols) ->
+		prod(symbols, sort("SXJudgement"), no-attrs())
+
+	sxbld-judgement-forms-to-prods:
+		judgement-forms -> [grammar-elem(context-free-syntax(productions))]
+		where <map(sxbld-judgement-form-to-prod)> judgement-forms => productions
+
+    sxbld-process-judgement-forms:
+    	SXBldJudgementForms(judgement-forms) -> extension-decls
+    	where
+    		<sxbld-judgement-forms-to-prods> judgement-forms => grammar-elems;
+    		<sxbld-env-add-grammar-elems> grammar-elems;
+    		sxbld-env-extract-extension-decls => extension-decls
