@@ -3,6 +3,8 @@
  */
 module org/sugarj/sxbld/processing/JudgementForms
 
+imports org/sugarj/soundx/AbstractSyntax
+
 imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/sxbld/processing/SortRenaming
@@ -25,6 +27,16 @@ strategies
 			<sxbld-sdf2-cons-attribute> cons-name => cons-attribute;
 			!prod(symbols, sort("SXJudgement"), attrs([cons-attribute])) => production
 
+    /**
+     * Extracts a form declaration from the symbols of a judgment form
+     *
+     * @type (List(Symbol), String) -> SXAbsJudgementForm
+     */
+    sxbld-extract-form-declaration =
+    	?(symbols, name);
+    	<mapconcat(\sort(sort-name) -> [sort-name]\ <+ ![])> symbols => sort-names;
+        !SXAbsJudgementForm(sort-names, name)
+
 	/**
 	 * Processes a single judgement form
 	 *
@@ -34,6 +46,8 @@ strategies
     	?SXBldJudgementForm(symbols);
     	<map(sxbld-rename-all-sorts)> symbols => renamed-symbols;
     	<sxbld-env-fresh-judgement-name> () => judgement-name;
+    	<sxbld-extract-form-declaration> (renamed-symbols, judgement-name) => form-declaration;
+    	<sxbld-env-add-form-declaration> form-declaration;
     	<sxbld-symbols-to-cf-syntax> (renamed-symbols, judgement-name) => grammar;
     	<sxbld-env-add-grammar-elems> [grammar-elem(grammar)]
 
@@ -41,7 +55,7 @@ strategies
      * Process judgement forms section
      *
      * Transforms judgement forms section to SDF2 and Stratego.
-     * Stores the syntax, the sorts, and the form declaration in the environment.
+     * Stores the syntax and the form declaration in the environment.
      *
      * @type SXBldJudgementForms -> ToplevelDeclaration
      */

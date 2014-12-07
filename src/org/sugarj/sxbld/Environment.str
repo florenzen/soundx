@@ -47,7 +47,8 @@ strategies
   	    hashtable-put(|"grammar-elems", []);
   	    hashtable-put(|"inference-rules", []);
   	    hashtable-put(|"base-language-name", "");
-  	    hashtable-put(|"name-counter", 0)
+  	    hashtable-put(|"name-counter", 0);
+  	    hashtable-put(|"form-declarations", [])
 
     /**
      * Looks up a key in the environment
@@ -194,6 +195,37 @@ strategies
      */
     sxbld-env-fresh-judgement-name =
     	<sxbld-env-fresh-name> "Judgement"
+
+/**
+ * Handling of form-declarations
+ */
+strategies
+	/**
+	 * Gets form-declarations
+	 *
+	 * @type _ -> List(SXAbsJudgementForm)
+	 */
+    sxbld-env-get-form-declarations =
+        <sxbld-env-get> "form-declarations"
+
+    /**
+     * Sets form-declarations
+     *
+     * @type List(SXAbsJudgementForm) -> HashTable(String, V)
+     */
+    sxbld-env-set-form-declarations =
+        ?form-declarations-new;
+  	    <sxbld-env-set> ("form-declaration", form-declarations-new)
+
+    /**
+     * Adds a form-declaration
+     *
+     * @type SXAbsJudgementForm -> HashTable(String, V)
+     */
+    sxbld-env-add-form-declaration =
+  	    ?form-declaration-new;
+  	    sxbld-env-get-form-declarations => form-declarations-old;
+  	    <sxbld-env-set-form-declarations> [form-declaration-new|form-declarations-old]
 
 /**
  * Extraction of extension-decls from environment
