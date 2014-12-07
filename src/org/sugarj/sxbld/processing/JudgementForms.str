@@ -23,7 +23,7 @@ strategies
 		(symbols, cons-name) -> context-free-syntax(production)
 		where
 			<sxbld-sdf2-cons-attribute> cons-name => cons-attribute;
-			!prod(symbols, sort("SXJudgement"), [cons-attribute]) => production
+			!prod(symbols, sort("SXJudgement"), attrs([cons-attribute])) => production
 
 	/**
 	 * Processes a single judgement form
