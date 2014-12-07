@@ -5,20 +5,45 @@ module org/sugarj/sxbld/processing/JudgementForms
 
 imports org/sugarj/sxbld/Environment
 
+imports org/sugarj/sxbld/processing/SortRenaming
+
 imports org/sugarj/languages/SXBld
 
 strategies
+	/**
+	 * Translates one judgement form to an SDF2 production
+	 *
+	 * Sort names are prefixed with the base language name.
+	 *
+	 * @type SXBldJudgementForm -> Sdf2Production
+	 */
 	sxbld-judgement-form-to-prod:
 		SXBldJudgementForm(symbols) ->
-		prod(symbols, sort("SXJudgement"), no-attrs())
+		prod(renamed-symbols, sort("SXJudgement"), no-attrs())
+		where
+			<map(sxbld-rename-all-sorts)> symbols => renamed-symbols
 
-	sxbld-judgement-forms-to-prods:
+    /**
+     * Translates list of judgement forms to context-free syntax section
+     *
+     * @type List(SXBldJudgementForm) -> Sdf2Grammar
+     */
+	sxbld-judgement-forms-to-cf-syntax:
 		judgement-forms -> [grammar-elem(context-free-syntax(productions))]
-		where <map(sxbld-judgement-form-to-prod)> judgement-forms => productions
+		where
+			<map(sxbld-judgement-form-to-prod)> judgement-forms => productions
 
+    /**
+     * Process judgement forms section
+     *
+     * Transforms judgement forms section to SDF2 and Stratego.
+     * Stores the syntax, the sorts, and the form declaration in the environment.
+     *
+     * @type SXBldJudgementForms -> ToplevelDeclaration
+     */
     sxbld-process-judgement-forms:
     	SXBldJudgementForms(judgement-forms) -> extension-decls
     	where
-    		<sxbld-judgement-forms-to-prods> judgement-forms => grammar-elems;
+    		<sxbld-judgement-forms-to-cf-syntax> judgement-forms => grammar-elems;
     		<sxbld-env-add-grammar-elems> grammar-elems;
     		sxbld-env-extract-extension-decls => extension-decls
