@@ -40,7 +40,7 @@ strategies
 	/**
 	 * Processes a single judgement form
 	 *
-	 * @type SXBldJudgementForm -> HashTable(String, V)
+	 * @type SXBldJudgementForm -> SXEnv
 	 */
     sxbld-process-judgement-form =
     	?SXBldJudgementForm(symbols);
@@ -57,10 +57,8 @@ strategies
      * Transforms judgement forms section to SDF2 and Stratego.
      * Stores the syntax and the form declaration in the environment.
      *
-     * @type SXBldJudgementForms -> ToplevelDeclaration
+     * @type SXBldJudgementForms -> SXEnv
      */
-    sxbld-process-judgement-forms:
-    	SXBldJudgementForms(judgement-forms) -> extension-decls
-    	where
-    		<map(sxbld-process-judgement-form)> judgement-forms;
-    		sxbld-env-extract-extension-decls => extension-decls
+    sxbld-process-judgement-forms =
+    	?SXBldJudgementForms(judgement-forms);
+    	<map(sxbld-process-judgement-form)> judgement-forms

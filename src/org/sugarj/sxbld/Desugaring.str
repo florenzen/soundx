@@ -7,7 +7,8 @@ module org/sugarj/sxbld/Desugaring
 
 imports org/sugarj/stdlib/StdTrans
 
-imports org/sugarj/sxbld/ProcessBLD
+imports org/sugarj/sxbld/Environment
+        org/sugarj/sxbld/ProcessBLD
 
 imports org/sugarj/sxbld/processing/Header
         org/sugarj/sxbld/processing/JudgementForms
@@ -17,14 +18,32 @@ imports org/sugarj/sxbld/processing/Header
  */
 strategies
 	/**
+	 * Collects all processing strategies that only affect the environment
+	 *
+	 * @type a -> SXEnv
+	 */
+	sxbld-process-to-env = sxbld-process-judgement-forms
+
+    /**
+     * Process declaration and return extension-elem from environment
+     *
+     * @type a -> List(ExtensionElem)
+     */
+	sxbld-process-env-to-extension-elem =
+		sxbld-process-to-env;
+		sxbld-env-extract-extension-decls
+		
+	/**
 	 * Register BLD processing as SugarJ desugarings
 	 */
-	sxbld-desugaring = sxbld-process-judgement-forms
-	sxbld-desugaring = sxbld-process-inductive-definitions
-	sxbld-desugaring = sxbld-process-grammar-elem
-	sxbld-desugaring = sxbld-process-header
+	sxbld-desugaring = sxbld-process-env-to-extension-elem
+	sxbld-desugaring = sxbld-process-inductive-definitions // TODO: move upwards
+	sxbld-desugaring = sxbld-process-grammar-elem // TODO: move upwards
+	sxbld-desugaring = sxbld-process-header // TODO: put into desugar and remove sxbld-desugaring-strategy
 
     /**
      * The main desugaring strategy
+     *
+     * @type a -> a
      */
 	desugar = changed-tree(sxbld-desugaring)
