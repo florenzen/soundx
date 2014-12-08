@@ -3,18 +3,26 @@
  */
 module org/sugarj/languages/SXBld
 
-imports org/sugarj/stdlib/StdTrans
+imports org/sugarj/languages/Sugar
 
 imports org/sugarj/soundx/InductiveDefinitions
 
+/**
+ * Constructors of the concrete input
+ */
 signature constructors
 	SXBld:                  SXBldHeader * List(SXBldDecl) -> SXBld
-	SXBldHeader:            SXBldNAME                     -> SXBldHeader
-	SXBldNamespaceDec:      SXBldName                     -> SXBldNamespaceDef
+	SXBldHeader:            SXBldNAME                     -> SXBldHeader	
 	SXBldExtensibleFileExt: SXBldNONEMPTYSTRING           -> SXBldExtensibleFileExt
 	SXBldBaseFileExt:       SXBldNONEMPTYSTRING           -> SXBldBaseFileExt
-	SXBldExtensionDecl:     List(SXBldGrammarElem)        -> ToplevelDeclaration
     SXBldBaseDecl:          SXBldDecl                     -> TopLevelDeclaration
     SXBldJudgementForms:    List(SXBldJudgementForms)     -> SXBldJudgemenForms
     SXBldJudgementForm:     Symbols                       -> SXBldJudgementForm
     SXBldGrammarElems:      List(Grammar)                 -> ToplevelDeclaration
+
+/**
+ * Constructors for the SugarJ compiler
+ */    
+signature constructors
+	SXBldNamespaceDecl: SXBldName           -> SXBldNamespaceDef
+	SXBldExtensionDecl: List(ExtensionElem) -> SXBldExtensionDecl
