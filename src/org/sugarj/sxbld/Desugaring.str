@@ -12,6 +12,7 @@ imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/sxbld/processing/Header
         org/sugarj/sxbld/processing/JudgementForms
+        org/sugarj/sxbld/processing/GrammarElems
 
 /**
  * All processing strategies are collected here
@@ -23,6 +24,7 @@ strategies
 	 * @type a -> SXEnv
 	 */
 	sxbld-process-to-env = sxbld-process-judgement-forms
+	sxbld-process-to-env = sxbld-process-grammar-elems
 
     /**
      * Process declaration and return extension-elem from environment
@@ -38,7 +40,6 @@ strategies
 	 */
 	sxbld-desugaring = sxbld-process-env-to-extension-elem
 	sxbld-desugaring = sxbld-process-inductive-definitions // TODO: move upwards
-	sxbld-desugaring = sxbld-process-grammar-elem // TODO: move upwards
 	sxbld-desugaring = sxbld-process-header // TODO: put into desugar and remove sxbld-desugaring-strategy
 
     /**

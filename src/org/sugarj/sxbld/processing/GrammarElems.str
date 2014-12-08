@@ -1,0 +1,23 @@
+/**
+ * Processing of SDF2 sections
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/sxbld/processing/GrammarElems
+
+imports org/sugarj/languages/SXBld
+
+imports org/sugarj/sxbld/Environment
+
+strategies
+	/**
+     * Processes SDF2 section
+     *
+     * Stores grammars in the environment
+     *
+     * @type SXBldJudgementForms -> SXEnv
+     */
+    sxbld-process-grammar-elems =
+    	?SXBldGrammarElems(grammars);
+    	<map(\grm -> grammar-elem(grm)\)> grammars => grammar-elems;
+        <sxbld-env-add-grammar-elems> grammar-elems
