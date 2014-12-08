@@ -9,6 +9,8 @@ imports org/sugarj/languages/SXBld
 
 imports org/sugarj/sxbld/Environment
 
+imports org/sugarj/sxbld/processing/SortRenaming
+
 strategies
 	/**
      * Processes SDF2 section
@@ -19,5 +21,6 @@ strategies
      */
     sxbld-process-grammar-elems =
     	?SXBldGrammarElems(grammars);
-    	<map(\grm -> grammar-elem(grm)\)> grammars => grammar-elems;
+    	<sxbld-rename-all-sorts> grammars => renamed-grammars;
+    	<map(\grm -> grammar-elem(grm)\)> renamed-grammars => grammar-elems;
         <sxbld-env-add-grammar-elems> grammar-elems
