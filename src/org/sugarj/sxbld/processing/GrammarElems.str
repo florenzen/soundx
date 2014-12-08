@@ -13,14 +13,42 @@ imports org/sugarj/sxbld/processing/SortRenaming
 
 strategies
 	/**
-     * Processes SDF2 section
+     * Processes SDF2 sections
      *
-     * Stores grammars in the environment
+     * Performs the sort renaming in sections.
      *
      * @type SXBldJudgementForms -> SXEnv
      */
     sxbld-process-grammar-elems =
     	?SXBldGrammarElems(grammars);
     	<sxbld-rename-all-sorts> grammars => renamed-grammars;
-    	<map(\grm -> grammar-elem(grm)\)> renamed-grammars => grammar-elems;
-        <sxbld-env-add-grammar-elems> grammar-elems
+    	<map(sxbld-process-grammar-elem)> renamed-grammars
+
+    /**
+     * Processes an SDF2 grammar section
+     *
+     * @type Gramar -> SXEnv
+     */
+    sxbld-process-grammar-elem =
+    	sxbld-process-cf-syntax <+
+    	sxbld-process-unsupported-grammar // must be last strategy in composition
+
+    /**
+     * Processes a context-free syntax section
+     *
+     * Adds the section to the grammar-elems in the environment.
+     *
+     * @type Grammar -> SXEnv
+     */
+    sxbld-process-cf-syntax =
+    	?(context-free-syntax(prods));
+    	<sxbld-env-add-grammar-elems> [grammar-elem(context-free-syntax(prods))]
+
+    /**
+     * Stores an error for an unsupported SDF2 grammar section
+     *
+     * @type Grammar -> SXenv
+     */
+    sxbld-process-unsupported-grammar = fail
+    	// ?grammar;
+    	// <sxbld-env-add-error> ("Unsupported SDF2 section", grammar)
