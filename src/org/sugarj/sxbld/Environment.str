@@ -12,7 +12,8 @@ imports org/sugarj/languages/SXBld
 /**
  * Basic handling of the environment hash table
  *
- * The environment is a hash table from Strings to values V.
+ * The environment is a hash table from Strings to values.
+ * We use SXEnv in type annotation.
  */
 strategies
 	/**
@@ -20,7 +21,7 @@ strategies
 	 *
 	 * Do not call directly, use sxbld-get-env-hashtable instead.
 	 *
-	 * @type _ -> HashTable(String, V)
+	 * @type _ -> SXEnv
 	 */
     sxbld-env-hashtable = fail
 
@@ -29,7 +30,7 @@ strategies
      *
      * Creates an empty hash table if called for the first time.
      *
-     * @type _ -> HashTable(String, V)
+     * @type _ -> SXEnv
      */
     sxbld-get-env-hashtable =
   	    sxbld-env-hashtable <+
@@ -40,7 +41,7 @@ strategies
     /**
      * Creates empty environment containing all keys
      *
-     * @type _ -> HashTable(String, V)
+     * @type _ -> SXEnv
      */
     sxbld-new-env-hashtable =
   	    new-hashtable;
@@ -64,7 +65,7 @@ strategies
     /**
      * Sets a key to a value in the environment
      *
-     * @type (String, V) -> HashTable(String, V)
+     * @type (String, V) -> SXEnv
      */
     sxbld-env-set =
         ?(key, value);
@@ -86,7 +87,7 @@ strategies
     /**
      * Sets grammar-elems
      *
-     * @type List(Grammar) -> HashTable(String, V)
+     * @type List(Grammar) -> SXEnv
      */
     sxbld-env-set-grammar-elems =
         ?grammar-elems-new;
@@ -95,7 +96,7 @@ strategies
     /**
      * Adds grammar-elems
      *
-     * @type List(Grammar) -> HashTable(String, V)
+     * @type List(Grammar) -> SXEnv
      */
     sxbld-env-add-grammar-elems =
   	    ?grammar-elems-new;
@@ -117,7 +118,7 @@ strategies
     /**
      * Sets inference-rules
      *
-     * @type List(SXNamedInferenceRule) -> HashTable(String, V)
+     * @type List(SXNamedInferenceRule) -> SXEnv
      */  
     sxbld-env-set-inference-rules =
   	    ?inference-rules-new;
@@ -126,7 +127,7 @@ strategies
     /**
      * Adds inference-rules
      *
-     * @type List(SXNamedInferenceRule) -> HashTable(String, V)
+     * @type List(SXNamedInferenceRule) -> SXEnv
      */
     sxbld-env-add-inference-rules =
   	    ?inference-rules-new;
@@ -148,7 +149,7 @@ strategies
     /**
      * Sets base-language-name
      *
-     * @type String -> HashTable(String, V)
+     * @type String -> SXEnv
      */  
     sxbld-env-set-base-language-name =
   	    ?name;
@@ -169,7 +170,7 @@ strategies
     /**
      * Sets name-counter
      *
-     * @type integer -> HashTable(String, V)
+     * @type integer -> SXEnv
      */
     sxbld-env-set-name-counter =
     	?counter;
@@ -211,7 +212,7 @@ strategies
     /**
      * Sets form-declarations
      *
-     * @type List(SXAbsJudgementForm) -> HashTable(String, V)
+     * @type List(SXAbsJudgementForm) -> SXEnv
      */
     sxbld-env-set-form-declarations =
         ?form-declarations-new;
@@ -220,7 +221,7 @@ strategies
     /**
      * Adds a form-declaration
      *
-     * @type SXAbsJudgementForm -> HashTable(String, V)
+     * @type SXAbsJudgementForm -> SXEnv
      */
     sxbld-env-add-form-declaration =
   	    ?form-declaration-new;
