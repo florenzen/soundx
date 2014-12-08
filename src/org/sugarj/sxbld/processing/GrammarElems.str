@@ -49,6 +49,6 @@ strategies
      *
      * @type Grammar -> SXenv
      */
-    sxbld-process-unsupported-grammar = fail
-    	// ?grammar;
-    	// <sxbld-env-add-error> ("Unsupported SDF2 section", grammar)
+    sxbld-process-unsupported-grammar =
+    	?grammar;
+    	<sxbld-env-add-error> (grammar, ["Unsupported SDF2 section"])
