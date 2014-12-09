@@ -197,7 +197,7 @@ strategies
      */
     sxbld-env-fresh-judgement-name =
     	<sxbld-env-get-base-language-name> () => name;
-    	<sxbld-env-fresh-name> (<conc> (name, "Judgement"))
+    	<sxbld-env-fresh-name> (<conc-strings> (name, "Judgement"))
 
 /**
  * Handling of form-declarations
