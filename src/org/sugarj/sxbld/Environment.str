@@ -10,6 +10,13 @@ imports org/sugarj/languages/Stratego
 imports org/sugarj/languages/SXBld
 
 /**
+ * True and false
+ */
+signature constructors
+	SXBldFalse: Bool
+	SXBldTrue:  Bool
+
+/**
  * Basic handling of the environment hash table
  *
  * The environment is a hash table from Strings to values.
@@ -50,7 +57,7 @@ strategies
   	    hashtable-put(|"base-language-name", "");
   	    hashtable-put(|"name-counter", 0);
   	    hashtable-put(|"form-declarations", []);
-  	    hashtable-put(|"errors", [])
+  	    hashtable-put(|"failed", SXBldFalse())
 
     /**
      * Looks up a key in the environment
@@ -231,35 +238,33 @@ strategies
   	    <sxbld-env-set-form-declarations> [form-declaration-new|form-declarations-old]
 
 /**
- * Handling of errors
+ * Handling of the failed flags
  */
 strategies
 	/**
-	 * Gets errors
+	 * Gets failed flag
 	 *
-	 * @type _ -> List(a * [String])
+	 * @type _ -> SXBldBool
 	 */
-    sxbld-env-get-errors =
-        <sxbld-env-get> "errors"
+    sxbld-env-get-failed =
+        <sxbld-env-get> "failed"
 
     /**
-     * Sets errors
+     * Sets the failed flag
      *
-     * @type List(a * [String]) -> SXEnv
+     * @type SXBldBool -> SXEnv
      */
-    sxbld-env-set-errors =
-        ?errors-new;
-  	    <sxbld-env-set> ("errors", errors-new)
+    sxbld-env-set-failed =
+        ?failed-new;
+  	    <sxbld-env-set> ("failed", failed-new)
 
     /**
-     * Adds an error
+     * Set failed flag to true
      *
-     * @type (a, [String]) -> SXEnv
+     * @type _ -> SXEnv
      */
-    sxbld-env-add-error =
-  	    ?error-new;
-  	    sxbld-env-get-errors => errors-old;
-  	    <sxbld-env-set-errors> [error-new|errors-old]
+    sxbld-env-failed =
+    	<sxbld-env-set-failed> SXBldTrue()
 
 /**
  * Extraction of extension-decls from environment

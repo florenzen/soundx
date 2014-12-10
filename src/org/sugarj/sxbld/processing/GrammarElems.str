@@ -32,8 +32,9 @@ strategies
      * @type Gramar -> SXEnv
      */
     sxbld-process-grammar-elem =
-    	sxbld-process-cf-syntax <+
-    	sxbld-process-unsupported-grammar // must be last strategy in composition
+    	sxbld-process-cf-syntax 
+    	// <+
+    	// sxbld-process-unsupported-grammar // must be last strategy in composition
 
     /**
      * Processes a context-free syntax section
@@ -51,6 +52,6 @@ strategies
      *
      * @type Grammar -> SXenv
      */
-    sxbld-process-unsupported-grammar =
-    	?grammar;
-    	<sxbld-env-add-error> (grammar, "Unsupported SDF2 section")
+    //sxbld-process-unsupported-grammar =
+    //	?grammar;
+    //	<sxbld-env-add-error> (grammar, "Unsupported SDF2 section")
