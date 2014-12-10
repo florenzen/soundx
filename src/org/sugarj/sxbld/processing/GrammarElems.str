@@ -23,13 +23,11 @@ strategies
 	
 	sxbld-analyze-grammar-elems =
 		debug(!"GRM ANALYZE ");
-		//?SXBldGrammarElems(grammars);
-		?SXBldGrammarElems([grm]);
-		<sxbld-analyze-grammar-elem> grm => agrm;
-		//<debug(!"GRM ELEM ");map(sxbld-analyze-grammar-elem)> grammars => analyzed-grammars;
-		<get-analysis-data(|"errors")> agrm; debug(!"RETRIEVED ERROR 2 ");
-		!SXBldGrammarElems([agrm])
-		//!SXBldGrammarElems(analyzed-grammars)
+		?SXBldGrammarElems(grammars);
+		<debug(!"GRM ELEM ");map(sxbld-analyze-grammar-elem)> grammars => analyzed-grammars;
+		//<get-analysis-data(|"errors")> agrm; debug(!"RETRIEVED ERROR 2 ");
+		//!SXBldGrammarElems([agrm])
+		!SXBldGrammarElems(analyzed-grammars)
 
    sxbld-analyze-grammar-elem =
    	    ?grm@'sorts(names);
