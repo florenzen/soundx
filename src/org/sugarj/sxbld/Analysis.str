@@ -16,16 +16,7 @@ strategies
 		sxbld-extract-errors;
 		map(!(ast, <id>))
 
-	sxbld-extract-errors =
-		get-analysis-data(|"errors") <+ ![]
 
-	// constraint-error =
-	// 	?ast;
-	// 	//debug(!"C E1 ");
-	// 	(get-analysis-data(|"error") <+ ![]);
-	// 	debug(!"C E2 ");
-	// 	map(!(ast, <id>))
-	
 	sxbld-analyze-unless-failed(s) =
 		where(<sxbld-env-get-failed> () => SXBldFalse());
 		s
@@ -44,9 +35,11 @@ strategies
     	where(<sxbld-env-failed> ());
     	sxbld-analyze-annotate-error(|msg);
     	fail
-    	
+
+	sxbld-extract-errors =
+		get-analysis-data(|"errors") <+ ![]    	
 
     sxbld-analyze-annotate-error(|msg) =
     	?ast;
-    	(get-analysis-data(|"errors") <+ ![]) => msgs;
+    	sxbld-extract-errors => msgs;
     	<put-analysis-data(|"errors", [msg|msgs])> ast
