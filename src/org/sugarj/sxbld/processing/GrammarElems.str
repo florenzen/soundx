@@ -15,8 +15,8 @@ imports org/sugarj/sxbld/processing/SortRenaming
 strategies
 	sxbld-desugar-to-env = sxbld-desugar-grammar-elems
 	
-	start-analysis =
-		sxbld-analyze-unless-failed(sxbld-analyze-grammar-elems)
+	sxbld-start-analysis =
+		sxbld-analyze-grammar-elems
 	
 	sxbld-analyze-grammar-elems =
 		?SXBldGrammarElems(grammars);

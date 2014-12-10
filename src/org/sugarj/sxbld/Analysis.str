@@ -10,6 +10,11 @@ imports org/sugarj/stdlib/StdTrans
 imports org/sugarj/sxbld/Environment
 
 strategies
+	start-analysis =
+		sxbld-analyze-unless-failed(sxbld-start-analysis)
+
+    sxbld-start-analysis = fail
+
     /**
      * Collects all errors from the annotations
      *
