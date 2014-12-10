@@ -13,7 +13,7 @@ imports org/sugarj/sxbld/Environment
 imports org/sugarj/sxbld/processing/SortRenaming
 
 strategies
-	sxbld-desugaring-to-env = sxbld-desugar-grammar-elems
+	sxbld-desugar-to-env = sxbld-desugar-grammar-elems
 	
 	start-analysis =
 		sxbld-analyze-unless-failed(sxbld-analyze-grammar-elems)
