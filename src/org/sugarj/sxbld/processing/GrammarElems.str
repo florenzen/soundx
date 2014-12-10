@@ -13,11 +13,17 @@ imports org/sugarj/sxbld/Environment
 imports org/sugarj/sxbld/processing/SortRenaming
 
 strategies
+	/**
+	 * Register analyses and desugarings
+	 */
 	sxbld-desugar-to-env = sxbld-desugar-grammar-elems
-	
-	sxbld-start-analysis =
-		sxbld-analyze-grammar-elems
-	
+	sxbld-start-analysis = sxbld-analyze-grammar-elems
+
+	/**
+	 * Analyzes list of SDF2 sections
+	 *
+	 * @type SXBldGrammarElems -> SXBldGrammarElems
+	 */
 	sxbld-analyze-grammar-elems =
 		?SXBldGrammarElems(grammars);
 		<map(sxbld-analyze-grammar-elem)> grammars => analyzed-grammars;
@@ -26,7 +32,12 @@ strategies
    sxbld-analyze-grammar-elem =
    	    ?'sorts(_);
    	    sxbld-analyze-fail(|"Unsupported SDF2 section `sorts'")	   	    
-   	    
+
+    /**
+     * Renames all sorts in the grammars and adds them to the environment
+     *
+     * @type SXBldGrammarElems -> SXEnv
+     */   
     sxbld-desugar-grammar-elems =
     	?SXBldGrammarElems(grammars);
     	<sxbld-rename-all-sorts> grammars => renamed-grammars;
