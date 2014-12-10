@@ -27,13 +27,8 @@ strategies
 	// 	map(!(ast, <id>))
 	
 	sxbld-analyze-unless-failed(s) =
-		?ast;
-		<sxbld-env-get-failed> () => SXBldFalse();
-		<s> ast
-		
-		// <sxbld-env-get-failed> () => failed;
-		// debug(!"UNLESS FAILED ");
-		// !failed; ?SXBldFalse(); s
+		where(<sxbld-env-get-failed> () => SXBldFalse());
+		s
 
     /**
      * Annotate error message, set failed flag, and abort analysis with fail
