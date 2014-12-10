@@ -35,9 +35,20 @@ strategies
 		// debug(!"UNLESS FAILED ");
 		// !failed; ?SXBldFalse(); s
 
+    /**
+     * Annotate error message, set failed flag, and abort analysis with fail
+     *
+     * Analysis is aborted after the first error to avoid
+     * follow-up errors. Otherwise, all analyses would have
+     * to check the failed flag and ignore certain errors asfollow-ups.
+     *
+     * @param String
+     * @type a -> a
+     */
     sxbld-analyze-fail(|msg) =
     	where(<sxbld-env-failed> ());
-    	sxbld-analyze-annotate-error(|msg)
+    	sxbld-analyze-annotate-error(|msg);
+    	fail
     	
 
     sxbld-analyze-annotate-error(|msg) =
