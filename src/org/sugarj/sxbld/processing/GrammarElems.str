@@ -7,6 +7,8 @@ module org/sugarj/sxbld/processing/GrammarElems
 
 imports org/sugarj/languages/SXBld
 
+imports org/sugarj/soundx/AbstractSyntax
+
 imports org/sugarj/sxbld/Environment
         org/sugarj/sxbld/Analysis
 
@@ -29,10 +31,29 @@ strategies
 		<map(sxbld-analyze-grammar-elem)> grammars => analyzed-grammars;
 		!SXBldGrammarElems(analyzed-grammars)
 
-   sxbld-analyze-grammar-elem =
-   	    ?'sorts(_);
-   	    sxbld-analyze-fail(|"Unsupported SDF2 section `sorts'")	   	    
+    /**
+     * Analyzes a single SDF2 section
+     *
+     * @type Grammar -> Grammar
+     */
+    sxbld-analyze-grammar-elem =
+        sxbld-analyze-sorts
 
+    sxbld-analyze-sorts =
+        ?'sorts(symbols);
+    	<map(sxbld-analyze-symbol)> symbols => analyzed-symbols;
+   	    !'sorts(analyzed-symbols)
+   	    //sxbld-analyze-fail(|"Unsupported SDF2 section `sorts'")	   	    
+
+    sxbld-analyze-symbol =
+    	sxbld-analyze-symbol-sort <+
+    	sxbld-analyze-fail(|"Unsupported sort declaration")
+
+	sxbld-analyze-symbol-sort =
+		?sort(name);
+		<sxbld-env-add-sort> (name, SXAbsSortUnknown())
+    	
+    
     /**
      * Renames all sorts in the grammars and adds them to the environment
      *
