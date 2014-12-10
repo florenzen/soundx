@@ -22,7 +22,9 @@ strategies
     sxbld-process-grammar-elems =
     	?SXBldGrammarElems(grammars);
     	<sxbld-rename-all-sorts> grammars => renamed-grammars;
-    	<map(sxbld-process-grammar-elem)> renamed-grammars
+    	<map(\grm -> grammar-elem(grm)\)> renamed-grammars => grammar-elems;
+    	<sxbld-env-add-grammar-elems> grammar-elems
+    	//<map(sxbld-process-grammar-elem)> renamed-grammars
 
     /**
      * Processes an SDF2 grammar section
@@ -51,4 +53,4 @@ strategies
      */
     sxbld-process-unsupported-grammar =
     	?grammar;
-    	<sxbld-env-add-error> (grammar, ["Unsupported SDF2 section"])
+    	<sxbld-env-add-error> (grammar, "Unsupported SDF2 section")

@@ -8,6 +8,5 @@ module org/sugarj/sxbld/Analysis
 imports org/sugarj/sxbld/Environment
 
 strategies
-	// constraint-error: x -> [(x, ["all wrong"])]
-		// sxbld-env-get-errors;
+	// constraint-error = debug(!"C E "); !(<id>, "bogus")
 		
