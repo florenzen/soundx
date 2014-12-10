@@ -24,7 +24,7 @@ strategies
 	 * @type a -> SXEnv
 	 */
 	sxbld-process-to-env = sxbld-process-judgement-forms
-	sxbld-process-to-env = sxbld-process-grammar-elems
+	sxbld-process-to-env = sxbld-desugar-grammar-elems
 
     /**
      * Process declaration and return extension-elem from environment

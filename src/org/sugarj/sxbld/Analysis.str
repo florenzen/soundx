@@ -5,8 +5,44 @@
  */
 module org/sugarj/sxbld/Analysis
 
+imports org/sugarj/stdlib/StdTrans
+
 imports org/sugarj/sxbld/Environment
 
 strategies
 	// constraint-error = debug(!"C E "); !(<id>, "bogus")
+	constraint-error =
+		?ast;
+		(get-analysis-data(|"errors") <+ ![]);
+		map(!(ast, <id>))
+		// ?CompilationUnit(defs);
+		// debug(!"INPUT TO CE ");
+		// <collect-all(get-analysis-data(|"errors") <+ ![])> defs;
+		// debug(!"RETRIEVED ERRORS ");
+		//![]
 		
+	// constraint-error =
+	// 	?ast;
+	// 	//debug(!"C E1 ");
+	// 	(get-analysis-data(|"error") <+ ![]);
+	// 	debug(!"C E2 ");
+	// 	map(!(ast, <id>))
+	
+	sxbld-analyze-unless-failed(s) =
+		?ast;
+		<sxbld-env-get-failed> () => SXBldFalse();
+		<s> ast
+		
+		// <sxbld-env-get-failed> () => failed;
+		// debug(!"UNLESS FAILED ");
+		// !failed; ?SXBldFalse(); s
+
+    sxbld-analyze-fail(|msg) =
+    	where(<sxbld-env-failed> ());
+    	sxbld-analyze-annotate-error(|msg)
+    	
+
+    sxbld-analyze-annotate-error(|msg) =
+    	?ast;
+    	(get-analysis-data(|"errors") <+ ![]) => msgs;
+    	<put-analysis-data(|"errors", [msg|msgs])> ast

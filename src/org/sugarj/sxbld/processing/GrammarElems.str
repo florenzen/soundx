@@ -8,10 +8,39 @@ module org/sugarj/sxbld/processing/GrammarElems
 imports org/sugarj/languages/SXBld
 
 imports org/sugarj/sxbld/Environment
+        org/sugarj/sxbld/Analysis
 
 imports org/sugarj/sxbld/processing/SortRenaming
 
 strategies
+	start-analysis =
+		?ast;
+		sxbld-analyze-unless-failed(sxbld-analyze-grammar-elems) => ast1;
+		<collect-all(get-analysis-data(|"errors"))> ast1;
+		debug(!"COLLECTED ALL");
+		!ast1
+			
+	
+	sxbld-analyze-grammar-elems =
+		debug(!"GRM ANALYZE ");
+		//?SXBldGrammarElems(grammars);
+		?SXBldGrammarElems([grm]);
+		<sxbld-analyze-grammar-elem> grm => agrm;
+		//<debug(!"GRM ELEM ");map(sxbld-analyze-grammar-elem)> grammars => analyzed-grammars;
+		<get-analysis-data(|"errors")> agrm; debug(!"RETRIEVED ERROR 2 ");
+		!SXBldGrammarElems([agrm])
+		//!SXBldGrammarElems(analyzed-grammars)
+
+   sxbld-analyze-grammar-elem =
+   	    ?grm@'sorts(names);
+   	    debug(!"ANALYZE SORT ");
+   	    <sxbld-analyze-fail(|"Unsupported SDF2 section `sorts'")> grm => grm1;
+   	    get-analysis-data(|"errors"); debug(!"RETRIEVED ERROR ");
+   	    !grm1
+
+    sxbld-analyze-grammar-elem =
+    	?lexical-syntax(_)	   	    
+   	    
 	/**
      * Processes SDF2 sections
      *
@@ -19,7 +48,10 @@ strategies
      *
      * @type SXBldJudgementForms -> SXEnv
      */
-    sxbld-process-grammar-elems =
+
+
+
+    sxbld-desugar-grammar-elems =
     	?SXBldGrammarElems(grammars);
     	<sxbld-rename-all-sorts> grammars => renamed-grammars;
     	<map(\grm -> grammar-elem(grm)\)> renamed-grammars => grammar-elems;
