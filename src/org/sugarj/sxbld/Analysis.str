@@ -10,11 +10,6 @@ imports org/sugarj/stdlib/StdTrans
 imports org/sugarj/sxbld/Environment
 
 strategies
-	start-analysis =
-		sxbld-analyze-unless-failed(sxbld-start-analysis)
-
-    sxbld-start-analysis = fail
-
     /**
      * Collects all errors from the annotations
      *
@@ -24,6 +19,23 @@ strategies
 		?ast;
 		sxbld-extract-errors;
 		map(!(ast, <id>))
+
+	/**
+	 * Starts the analysis only if failed is not set
+	 *
+	 * @type a -> a
+	 */
+	start-analysis =
+		sxbld-analyze-unless-failed(sxbld-start-analysis)
+
+    /**
+     * Performs the actual analysis
+     *
+     * The different analyses must be added to this strategy.
+     *
+     * @type a -> a
+     */
+    sxbld-start-analysis = fail
 
 	/**
 	 * Analyzes a term unless the failed flag is set

@@ -13,6 +13,8 @@ imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/languages/SXBld
 
+// TODO: thsi module should go away
+
 /**
  * Process SDF2 sections
  */

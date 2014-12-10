@@ -17,13 +17,6 @@ imports org/sugarj/sxbld/processing/Header
  * All processing strategies are collected here
  */
 strategies
-	/**
-	 * Collects all processing strategies that only affect the environment
-	 *
-	 * @type a -> SXEnv
-	 */
-	// sxbld-desugar-to-env = sxbld-desugar-grammar-elems
-
     /**
      * Process declaration and return extension-elem from environment
      *
