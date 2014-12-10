@@ -13,14 +13,12 @@ strategies
 	// constraint-error = debug(!"C E "); !(<id>, "bogus")
 	constraint-error =
 		?ast;
-		(get-analysis-data(|"errors") <+ ![]);
+		sxbld-extract-errors;
 		map(!(ast, <id>))
-		// ?CompilationUnit(defs);
-		// debug(!"INPUT TO CE ");
-		// <collect-all(get-analysis-data(|"errors") <+ ![])> defs;
-		// debug(!"RETRIEVED ERRORS ");
-		//![]
-		
+
+	sxbld-extract-errors =
+		get-analysis-data(|"errors") <+ ![]
+
 	// constraint-error =
 	// 	?ast;
 	// 	//debug(!"C E1 ");
