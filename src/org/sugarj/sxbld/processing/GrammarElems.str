@@ -37,7 +37,9 @@ strategies
      * @type Grammar -> Grammar
      */
     sxbld-analyze-grammar-elem =
-        sxbld-analyze-sorts
+        sxbld-analyze-sorts +
+        sxbld-analyze-cf-syntax +
+        sxbld-analyze-lex-syntax
 
     /**
      * Analyzes a sorts section
@@ -117,7 +119,83 @@ strategies
     sxbld-add-sort-unless-unknown =
     	(?(name, SXAbsSortUnknown()); sxbld-get-env-hashtable) <+ // Return the environment in any case
     	(?(name, sort); sxbld-env-add-sort)
-    	
+
+    /**
+     * Analyzes a context-free syntax section
+     *
+     * @type Grammar -> Gramar
+     */
+    sxbld-analyze-cf-syntax =
+    	?(context-free-syntax(prods));
+    	<map(sxbld-analyze-cf-production)> prods => analyzed-prods;
+        !(context-free-syntax(analyzed-prods))
+
+    /**
+     * Analyzes a context-free production
+     *
+     * @type Sdf2Production -> Sdf2Production
+     */
+    sxbld-analyze-cf-production =
+    	?prod(symbols, symbol, attributes);
+    	<sxbld-analyze-cf-rhs> symbol;
+    	!prod(symbols, symbol, attributes)
+
+    /**
+     * Analyzes the right-hand side of a context-free production
+     *
+     * @type Sdf2Symbol -> Sdf2Symbol
+     */
+    sxbld-analyze-cf-rhs =
+    	sxbld-analyze-cf-rhs-sort <+
+    	sxbld-analyze-fail(|"Unsupported cf right-hand side")
+
+    /**
+     * Adds the right-hand side sort as SXAbsSortContextFree() to environment
+     *
+     * @type Symbol -> SXEnv
+     */
+    sxbld-analyze-cf-rhs-sort =
+    	?sort(name);
+    	<sxbld-add-sort> (name, SXAbsSortContextFree())
+
+    /**
+     * Analyzes a lexical syntax section
+     *
+     * @type Grammar -> Gramar
+     */
+    sxbld-analyze-lex-syntax =
+    	?(lexical-syntax(prods));
+    	<map(sxbld-analyze-lex-production)> prods => analyzed-prods;
+        !(lexical-syntax(analyzed-prods))
+
+    /**
+     * Analyzes a lexical production
+     *
+     * @type Sdf2Production -> Sdf2Production
+     */
+    sxbld-analyze-lex-production =
+    	?prod(symbols, symbol, attributes);
+    	<sxbld-analyze-lex-rhs> symbol;
+    	!prod(symbols, symbol, attributes)
+
+    /**
+     * Analyzes the right-hand side of a lexical production
+     *
+     * @type Sdf2Symbol -> Sdf2Symbol
+     */
+    sxbld-analyze-lex-rhs =
+    	sxbld-analyze-lex-rhs-sort <+
+    	sxbld-analyze-fail(|"Unsupported lex right-hand side")
+
+    /**
+     * Adds the right-hand side sort as SXAbsSortLexical() to environment
+     *
+     * @type Symbol -> SXEnv
+     */
+    sxbld-analyze-lex-rhs-sort =
+    	?sort(name);
+    	<sxbld-add-sort> (name, SXAbsSortLexical())
+   
     /**
      * Renames all sorts in the grammars and adds them to the environment
      *
