@@ -39,21 +39,85 @@ strategies
     sxbld-analyze-grammar-elem =
         sxbld-analyze-sorts
 
+    /**
+     * Analyzes a sorts section
+     *
+     * @type Grammar -> Grammar
+     */
     sxbld-analyze-sorts =
         ?'sorts(symbols);
     	<map(sxbld-analyze-symbol)> symbols => analyzed-symbols;
    	    !'sorts(analyzed-symbols)
    	    //sxbld-analyze-fail(|"Unsupported SDF2 section `sorts'")	   	    
 
+    /**
+     * Analyzes one symbol of a sorts section
+     *
+     * The sort name is added as SXAbsUnknownSort() to the environment
+     *
+     * @type Symbol -> SXEnv
+     */
     sxbld-analyze-symbol =
     	sxbld-analyze-symbol-sort <+
     	sxbld-analyze-fail(|"Unsupported sort declaration")
 
+    /**
+     * Analyzes a sort name
+     *
+     * The sort name is added as SXAbsUnknownSort() to the environment
+     *
+     * @type Sdf2Symbol -> SXEnv
+     */
 	sxbld-analyze-symbol-sort =
 		?sort(name);
-		<sxbld-env-add-sort> (name, SXAbsSortUnknown())
+		<sxbld-add-sort> (name, SXAbsSortUnknown())
+
+    /**
+     * Succeeds if two sorts are equal, fails otherwise
+     *
+     * SXAbsSortUnknown() is equal to any sort.
+     *
+     * @type (SXAbsSort, SXAbsSort) -> (SXAbsSort, SXAbsSort)
+     */
+    sxbld-sorts-equal =
+   		?(SXAbsSortUnknown(), _) +
+   		?(_, SXAbsSortUnknown()) +
+   		?(SXAbsSortLexical(), SXAbsSortLexical()) +
+   		?(SXAbsSortContextFree(), SXAbsSortContextFree())
+
+    /**
+     * Adds a sort to the environment
+     *
+     * If a sort of the same name is already defined the two
+     * sorts must be equal, otherwise the analysis fails.
+     * If the previously defined sort is
+     * SXAbsSortUnknown() it is updated by the new sort.
+     *
+     * @type (String, SXAbsSort) -> SXEnv
+     */
+    sxbld-add-sort =
+    	?(name, sort);
+    	<sxbld-env-get-sort> name;
+    	if ?None() then
+    		<sxbld-env-add-sort> (name, sort)
+    	else
+    		?Some(other-sort);
+    		if <sxbld-sorts-equal> (sort, other-sort) then
+    			<sxbld-add-sort-unless-unknown> (name, sort)
+    		else
+    			<sxbld-analyze-fail(|"Invalid redeclaration of sort")> name
+    		end
+    	end
+
+    /**
+      * Adds a sort to the environment only if its not SXAbsSortUnknown()
+      *
+      * @type (String, SXAbsSort) -> SXEnv
+      */
+    sxbld-add-sort-unless-unknown =
+    	(?(name, SXAbsSortUnknown()); sxbld-get-env-hashtable) <+ // Return the environment in any case
+    	(?(name, sort); sxbld-env-add-sort)
     	
-    
     /**
      * Renames all sorts in the grammars and adds them to the environment
      *

@@ -56,6 +56,7 @@ strategies
   	    hashtable-put(|"inference-rules", []);
   	    hashtable-put(|"base-language-name", "");
   	    hashtable-put(|"name-counter", 0);
+  	    hashtable-put(|"sorts", <new-hashtable> ());
   	    hashtable-put(|"form-declarations", []);
   	    hashtable-put(|"failed", SXBldFalse())
 
@@ -237,6 +238,30 @@ strategies
   	    sxbld-env-get-form-declarations => form-declarations-old;
   	    <sxbld-env-set-form-declarations> [form-declaration-new|form-declarations-old]
 
+/**
+ * Handling of sort declarations
+ */
+strategies
+    /**
+     * Adds a sorts
+     *
+     * @type (String, SXAbsSort) -> SXEnv
+     */
+    sxbld-env-add-sort =
+  	    ?(name, sort);
+  	    <sxbld-env-get> "sorts";
+  	    hashtable-put(|name, sort)
+
+    /**
+     * Gets a sort
+     *
+     * @type String -> Option(SXAbsSort)
+     */
+    sxbld-env-get-sort =
+    	?name;
+    	<sxbld-env-get> "sorts";
+    	hashtable-get(|name) < !Some(<id>) + !None()
+    	
 /**
  * Handling of the failed flags
  */
