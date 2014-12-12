@@ -147,7 +147,7 @@ strategies
      */
     sxbld-analyze-cf-rhs =
     	sxbld-analyze-cf-rhs-sort <+
-    	sxbld-analyze-fail(|"Unsupported cf right-hand side")
+    	sxbld-analyze-fail(|"Unsupported right-hand side")
 
     /**
      * Adds the right-hand side sort as SXAbsSortContextFree() to environment
@@ -185,7 +185,7 @@ strategies
      */
     sxbld-analyze-lex-rhs =
     	sxbld-analyze-lex-rhs-sort <+
-    	sxbld-analyze-fail(|"Unsupported lex right-hand side")
+    	sxbld-analyze-fail(|"Unsupported right-hand side")
 
     /**
      * Adds the right-hand side sort as SXAbsSortLexical() to environment
