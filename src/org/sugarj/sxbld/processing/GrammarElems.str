@@ -50,14 +50,13 @@ strategies
         ?'sorts(symbols);
     	<map(sxbld-analyze-symbol)> symbols => analyzed-symbols;
    	    !'sorts(analyzed-symbols)
-   	    //sxbld-analyze-fail(|"Unsupported SDF2 section `sorts'")	   	    
 
     /**
      * Analyzes one symbol of a sorts section
      *
      * The sort name is added as SXAbsUnknownSort() to the environment
      *
-     * @type Symbol -> SXEnv
+     * @type Sdf2Symbol -> Sdf2Symbol
      */
     sxbld-analyze-symbol =
     	sxbld-analyze-symbol-sort <+
@@ -68,11 +67,12 @@ strategies
      *
      * The sort name is added as SXAbsUnknownSort() to the environment
      *
-     * @type Sdf2Symbol -> SXEnv
+     * @type Sdf2Symbol -> Sdf2Symbol
      */
 	sxbld-analyze-symbol-sort =
-		?sort(name);
-		<sxbld-add-sort> (name, SXAbsSortUnknown())
+		?symbol@sort(name);
+		<sxbld-add-sort> (name, SXAbsSortUnknown());
+		!symbol
 
     /**
      * Succeeds if two sorts are equal, fails otherwise

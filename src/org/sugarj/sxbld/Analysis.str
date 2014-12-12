@@ -26,7 +26,7 @@ strategies
 	 * @type a -> a
 	 */
 	start-analysis =
-		sxbld-analyze-unless-failed(sxbld-start-analysis)
+		sxbld-analyze-unless-failed(changed-tree-or-analysis-data(sxbld-start-analysis))
 
     /**
      * Performs the actual analysis
