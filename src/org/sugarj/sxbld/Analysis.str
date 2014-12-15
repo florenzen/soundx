@@ -63,8 +63,13 @@ strategies
      * @type a -> a
      */
     sxbld-analyze-fail(|msg) =
-    	where(<sxbld-env-get-failed> () => SXBldFalse());
+    	// where(<sxbld-env-get-failed> () => SXBldFalse());
     	where(<sxbld-env-failed> ());
+    	sxbld-analyze-annotate-error(|msg);
+    	fail
+
+    sxbld-analyze-unsupported(|msg) =
+    	where(<sxbld-env-get-failed> () => SXBldFalse());
     	sxbld-analyze-annotate-error(|msg);
     	fail
 

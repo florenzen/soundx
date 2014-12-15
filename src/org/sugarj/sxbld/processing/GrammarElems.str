@@ -37,9 +37,10 @@ strategies
      * @type Grammar -> Grammar
      */
     sxbld-analyze-grammar-elem =
-        sxbld-analyze-sorts +
-        sxbld-analyze-cf-syntax +
-        sxbld-analyze-lex-syntax
+        (sxbld-analyze-sorts +
+         sxbld-analyze-cf-syntax +
+         sxbld-analyze-lex-syntax) <+
+        sxbld-analyze-unsupported(|"Unsupported SDF 2 section")
 
     /**
      * Analyzes a sorts section
@@ -60,7 +61,7 @@ strategies
      */
     sxbld-analyze-symbol =
     	sxbld-analyze-symbol-sort <+
-    	sxbld-analyze-fail(|"Unsupported sort declaration")
+    	sxbld-analyze-unsupported(|"Unsupported sort declaration")
 
     /**
      * Analyzes a sort name
@@ -147,7 +148,7 @@ strategies
      */
     sxbld-analyze-cf-rhs =
     	sxbld-analyze-cf-rhs-sort <+
-    	sxbld-analyze-fail(|"Unsupported right-hand side")
+    	sxbld-analyze-unsupported(|"Unsupported right-hand side")
 
     /**
      * Adds the right-hand side sort as SXAbsSortContextFree() to environment
@@ -185,7 +186,7 @@ strategies
      */
     sxbld-analyze-lex-rhs =
     	sxbld-analyze-lex-rhs-sort <+
-    	sxbld-analyze-fail(|"Unsupported right-hand side")
+    	sxbld-analyze-unsupported(|"Unsupported right-hand side")
 
     /**
      * Adds the right-hand side sort as SXAbsSortLexical() to environment
