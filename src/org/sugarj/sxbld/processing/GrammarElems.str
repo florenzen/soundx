@@ -100,9 +100,7 @@ strategies
 	sxbld-analyze-variable-prod =
 		?prod(lhs-symbols, rhs-symbol, attributes);
 		<sxbld-analyze-variable-prod-rhs> rhs-symbol => analyzed-rhs-symbol;
-		debug(!"PROD 2");
 		<sxbld-analyze-variable-prod-attributes(|analyzed-rhs-symbol)> attributes => analyzed-attributes;
-		debug(!"PROD 3");
 		!prod(lhs-symbols, analyzed-rhs-symbol, analyzed-attributes)
 
     /**
@@ -122,7 +120,6 @@ strategies
 		!attrs([prefer(), <sxbld-analyze-variable-cons> rhs-symbol])
 	sxbld-analyze-variable-prod-attributes(|rhs-symbol) =
 		?attrs(_);
-		debug(!"ATTRS ");
 		sxbld-analyze-unsupported(|"Attributes not supported in variables section")
 
     sxbld-analyze-variable-cons:
