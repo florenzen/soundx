@@ -53,8 +53,6 @@ strategies
     /**
      * Annotates error message, set failed flag, and abort analysis with fail
      *
-     * An error message is not annotated if the failed flag is already set.
-     *
      * Analysis is aborted after the first error to avoid
      * follow-up errors. Otherwise, all analyses would have
      * to check the failed flag and ignore certain errors as follow-ups.
@@ -63,13 +61,22 @@ strategies
      * @type a -> a
      */
     sxbld-analyze-fail(|msg) =
-    	// where(<sxbld-env-get-failed> () => SXBldFalse());
     	where(<sxbld-env-failed> ());
     	sxbld-analyze-annotate-error(|msg);
     	fail
 
+    /**
+     * Annotates error message only if not failed and sets failed flag
+     *
+     * This strategy is intended for default case handling, e. g.
+     * using (... + ... + ...) <+ sxbld-analyze-unsupported(...)
+     *
+     * @param msg String
+     * @type a -> a
+     */
     sxbld-analyze-unsupported(|msg) =
     	where(<sxbld-env-get-failed> () => SXBldFalse());
+    	where(<sxbld-env-failed> ());
     	sxbld-analyze-annotate-error(|msg);
     	fail
 

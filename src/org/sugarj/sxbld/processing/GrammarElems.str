@@ -13,6 +13,7 @@ imports org/sugarj/sxbld/Environment
         org/sugarj/sxbld/Analysis
 
 imports org/sugarj/sxbld/processing/SortRenaming
+        org/sugarj/sxbld/processing/SDF2Terms
 
 strategies
 	/**
@@ -39,8 +40,97 @@ strategies
     sxbld-analyze-grammar-elem =
         (sxbld-analyze-sorts +
          sxbld-analyze-cf-syntax +
-         sxbld-analyze-lex-syntax) <+
+         sxbld-analyze-lex-syntax +
+         sxbld-analyze-variables +
+         sxbld-analyze-lex-priorities +
+         sxbld-analyze-cf-priorities +
+         sxbld-analyze-lex-restrictions +
+         sxbld-analyze-cf-restrictions) <+
         sxbld-analyze-unsupported(|"Unsupported SDF 2 section")
+
+	/**
+	 * Passes on lexical priorities untouched
+	 *
+	 * @type Grammar -> Grammar
+	 */
+	sxbld-analyze-lex-priorities =
+		?lexical-priorities(_)
+	
+   /**
+	 * Passes on context-free priorities untouched
+	 *
+	 * @type Grammar -> Grammar
+	 */
+	sxbld-analyze-cf-priorities =
+		?context-free-priorities(_)
+
+    /**
+	 * Passes on lexical restrictions untouched
+	 *
+	 * @type Grammar -> Grammar
+	 */
+	sxbld-analyze-lex-restrictions =
+		?lexical-restrictions(_)
+
+	/**
+	 * Passes on context-free priorities untouched
+	 *
+	 * @type Grammar -> Grammar
+	 */
+	sxbld-analyze-cf-restrictions =
+		?context-free-restrictions(_)
+
+	/**
+	 * Analyzes a variables section
+	 *
+	 * Transforms it into a context-free section
+	 *
+	 * @type Grammar -> Grammar
+	 */
+	sxbld-analyze-variables =
+		?variables(prods);
+		<map(sxbld-analyze-variable-prod)> prods => analyzed-prods;
+		!context-free-syntax(analyzed-prods)
+
+	/**
+	 * Analyzes a variable production
+	 *
+	 * @type Sdf2Production -> Sdf2Production
+	 */
+	sxbld-analyze-variable-prod =
+		?prod(lhs-symbols, rhs-symbol, attributes);
+		<sxbld-analyze-variable-prod-rhs> rhs-symbol => analyzed-rhs-symbol;
+		debug(!"PROD 2");
+		<sxbld-analyze-variable-prod-attributes(|analyzed-rhs-symbol)> attributes => analyzed-attributes;
+		debug(!"PROD 3");
+		!prod(lhs-symbols, analyzed-rhs-symbol, analyzed-attributes)
+
+    /**
+     * Checks that right-hand side is of supported format
+     *
+     * This aligns with the supported context-free and
+     * lexical reight-hand sides.
+     *
+     * @type Sdf2Symbol -> Sdf2Symbol
+     */
+    sxbld-analyze-variable-prod-rhs =
+	    ?sort(_) <+
+    	sxbld-analyze-unsupported(|"Unsupported right-hand side")
+
+	sxbld-analyze-variable-prod-attributes(|rhs-symbol) =
+		?no-attrs();
+		!attrs([prefer(), <sxbld-analyze-variable-cons> rhs-symbol])
+	sxbld-analyze-variable-prod-attributes(|rhs-symbol) =
+		?attrs(_);
+		debug(!"ATTRS ");
+		sxbld-analyze-unsupported(|"Attributes not supported in variables section")
+
+    sxbld-analyze-variable-cons:
+    	sort(name) -> cons-attribute
+    	where
+    		<sxbld-env-get-base-language-name> () => base-language-name;
+    		<conc-strings> (base-language-name, "MetaVar", name) => cons-name;
+    		<sxbld-sdf2-cons-attribute> cons-name => cons-attribute
 
     /**
      * Analyzes a sorts section
@@ -127,9 +217,9 @@ strategies
      * @type Grammar -> Gramar
      */
     sxbld-analyze-cf-syntax =
-    	?(context-free-syntax(prods));
+    	?context-free-syntax(prods);
     	<map(sxbld-analyze-cf-production)> prods => analyzed-prods;
-        !(context-free-syntax(analyzed-prods))
+        !context-free-syntax(analyzed-prods)
 
     /**
      * Analyzes a context-free production
@@ -165,9 +255,9 @@ strategies
      * @type Grammar -> Gramar
      */
     sxbld-analyze-lex-syntax =
-    	?(lexical-syntax(prods));
+    	?lexical-syntax(prods);
     	<map(sxbld-analyze-lex-production)> prods => analyzed-prods;
-        !(lexical-syntax(analyzed-prods))
+        !lexical-syntax(analyzed-prods)
 
     /**
      * Analyzes a lexical production
