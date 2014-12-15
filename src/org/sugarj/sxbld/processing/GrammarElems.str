@@ -225,8 +225,31 @@ strategies
      */
     sxbld-analyze-cf-production =
     	?prod(symbols, symbol, attributes);
-    	<sxbld-analyze-cf-rhs> symbol;
-    	!prod(symbols, symbol, attributes)
+    	<sxbld-analyze-cf-rhs> symbol => (analyzed-symbol, sort-name);
+    	<sxbld-analyze-cf-attributes(|sort-name)> attributes => (analyzed-attributes, cons-name);
+    	!prod(symbols, analyzed-symbol, analyzed-attributes)
+
+    /**
+     * Checks attributes of context-free production
+     *
+     * Generates a constructor name if necessary, includes it in
+     * the analyzed attributes and also returns it.
+     *
+     * @param sort-name String name of the rhs sort to include in
+     *   constructor name
+     *
+     * @type Sdf2Attributes -> (Sdf2Attributes, String)
+     */
+    sxbld-analyze-cf-attributes(|sort-name) =
+    	((?no-attrs(); ![]) +
+    	 (?attrs(attrib-list); !attrib-list));
+    	sxbld-analyze-cf-attribute-list(|sort-name) => (analyzed-attrib-list, cons-name);
+    	!(attrs(analyzed-attrib-list), cons-name)
+
+    sxbld-analyze-cf-attribute-list(|sort-name) =
+    	?[];
+    	<sxbld-env-fresh-cons-name> sort-name => cons-name;
+    	!([<sxbld-sdf2-cons-attribute> cons-name], cons-name)
 
     /**
      * Analyzes the right-hand side of a context-free production
@@ -243,8 +266,9 @@ strategies
      * @type Symbol -> SXEnv
      */
     sxbld-analyze-cf-rhs-sort =
-    	?sort(name);
-    	<sxbld-add-sort> (name, SXAbsSortContextFree())
+    	?symbol@sort(name);
+    	<sxbld-add-sort> (name, SXAbsSortContextFree());
+    	!(symbol, name)
 
     /**
      * Analyzes a lexical syntax section
@@ -263,8 +287,8 @@ strategies
      */
     sxbld-analyze-lex-production =
     	?prod(symbols, symbol, attributes);
-    	<sxbld-analyze-lex-rhs> symbol;
-    	!prod(symbols, symbol, attributes)
+    	<sxbld-analyze-lex-rhs> symbol => (analyzed-symbol, sort-name);
+    	!prod(symbols, analyzed-symbol, attributes)
 
     /**
      * Analyzes the right-hand side of a lexical production
@@ -281,8 +305,9 @@ strategies
      * @type Symbol -> SXEnv
      */
     sxbld-analyze-lex-rhs-sort =
-    	?sort(name);
-    	<sxbld-add-sort> (name, SXAbsSortLexical())
+    	?symbol@sort(name);
+    	<sxbld-add-sort> (name, SXAbsSortLexical());
+    	!(symbol, name)
    
     /**
      * Renames all sorts in the grammars and adds them to the environment

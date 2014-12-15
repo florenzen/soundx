@@ -207,6 +207,18 @@ strategies
     	<sxbld-env-get-base-language-name> () => name;
     	<sxbld-env-fresh-name> (<conc-strings> (name, "Judgement"))
 
+    /**
+     * Generates a fresh name for a constructor
+     *
+     * The given sort name is included in the generated name
+     *
+     * @type String -> String
+     */
+    sxbld-env-fresh-cons-name =
+    	?sort-name;
+    	<sxbld-env-get-base-language-name> () => name;
+    	<sxbld-env-fresh-name> (<conc-strings> (name, sort-name, "Cons"))
+
 /**
  * Handling of form-declarations
  */
