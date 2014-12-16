@@ -204,8 +204,8 @@ strategies
      * @type _ -> String
      */
     sxbld-env-fresh-judgement-name =
-    	<sxbld-env-get-base-language-name> () => name;
-    	<sxbld-env-fresh-name> (<conc-strings> (name, "Judgement"))
+    	<sxbld-env-prefix-name> "Judgement";
+    	sxbld-env-fresh-name
 
     /**
      * Generates a fresh name for a constructor
@@ -216,8 +216,18 @@ strategies
      */
     sxbld-env-fresh-cons-name =
     	?sort-name;
-    	<sxbld-env-get-base-language-name> () => name;
-    	<sxbld-env-fresh-name> (<conc-strings> (name, sort-name, "Cons"))
+    	<sxbld-env-prefix-name> sort-name => prefixed-name;
+    	<sxbld-env-fresh-name> (<conc-strings> (prefixed-name, "Cons"))
+    	
+    /**
+     * Prefixes given name with the base language name
+     *
+     * @type String -> String
+     */
+    sxbld-env-prefix-name =
+    	?name;
+    	<sxbld-env-get-base-language-name> () => base-language-name;
+    	<conc-strings> (base-language-name, name)
 
 /**
  * Handling of form-declarations
@@ -273,7 +283,7 @@ strategies
     	?name;
     	<sxbld-env-get> "sorts";
     	hashtable-get(|name) < !Some(<id>) + !None()
-    	
+
 /**
  * Handling of the failed flags
  */
