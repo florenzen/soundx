@@ -26,7 +26,7 @@ strategies
 	 * @type a -> a
 	 */
 	start-analysis =
-		sxbld-analyze-unless-failed(changed-tree-or-analysis-data(sxbld-start-analysis))
+	    sxbld-analyze-unless-failed(changed-tree-or-analysis-data(sxbld-start-analysis))
 
     /**
      * Performs the actual analysis
@@ -43,12 +43,15 @@ strategies
 	 * All analyses for toplevel declarations must be wrapped
 	 * by this strategy to avoid follow-up errors.
 	 *
+	 * Wraps the result of analysis in a SXBldFinishedAnalysis
+	 * to stop the iteration in org/sugarj/transformation/analysis/Data.
+	 *
 	 * @type s a -> a
-	 * @type a -> a
+	 * @type a -> SXBldFinishedAnalysis(a)
 	 */
 	sxbld-analyze-unless-failed(s) =
 		where(<sxbld-env-get-failed> () => SXBldFalse());
-		s
+		s => res; !SXBldFinishedAnalysis(res)
 
     /**
      * Annotates error message, set failed flag, and abort analysis with fail
@@ -98,3 +101,6 @@ strategies
     	?ast;
     	sxbld-extract-errors => msgs;
     	<put-analysis-data(|"errors", [msg|msgs])> ast
+
+signature constructors
+	SXBldFinishedAnalysis: a -> SXBldFinishedAnalysis(a)
