@@ -57,6 +57,7 @@ strategies
   	    hashtable-put(|"base-language-name", "");
   	    hashtable-put(|"name-counter", 0);
   	    hashtable-put(|"sorts", <new-hashtable> ());
+  	    hashtable-put(|"arities", <new-hashtable> ());
   	    hashtable-put(|"form-declarations", []);
   	    hashtable-put(|"failed", SXBldFalse())
 
@@ -259,6 +260,30 @@ strategies
   	    ?form-declaration-new;
   	    sxbld-env-get-form-declarations => form-declarations-old;
   	    <sxbld-env-set-form-declarations> [form-declaration-new|form-declarations-old]
+
+/**
+ * Handling of arity declarations
+ */
+strategies
+    /**
+     * Adds an arity declaration
+     *
+     * @type (String, SXAbsArity) -> SXEnv
+     */
+    sxbld-env-add-arity =
+  	    ?(name, arity);
+  	    <sxbld-env-get> "arities";
+  	    hashtable-put(|name, arity)
+
+    /**
+     * Gets an arity declaration
+     *
+     * @type String -> Option(SXAbsArity)
+     */
+    sxbld-env-get-arity =
+    	?name;
+    	<sxbld-env-get> "arities";
+    	hashtable-get(|name) < !Some(<id>) + !None()
 
 /**
  * Handling of sort declarations

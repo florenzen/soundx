@@ -12,3 +12,8 @@ signature constructors
     SXAbsSortUnknown:     SXAbsSort
     SXAbsSortContextFree: SXAbsSort
     SXAbsSortLexical:     SXAbsSort
+
+    /**
+     * Arity declaration
+     */
+    SXAbsArity: List(String) * String -> SXAbsArity
