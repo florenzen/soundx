@@ -21,6 +21,25 @@ strategies
 			  [fun(quoted(cons-name-quoted))]))) => attribute
 
     /**
+     * Gives the constructor name from a cons attribute
+     *
+     * @type Sdf2Attribute -> String
+     */
+    sxbld-sdf2-cons-attribute-name:
+    	term(default(appl(unquoted("cons"), [fun(quoted(cons-name-quoted))]))) -> name
+    	where
+    		<un-double-quote> cons-name-quoted => name
+
+    /**
+     * Succeeds if attribute has specified name
+     *
+     * @param attrib-name String
+     * @type Sdf2Attribute -> Sdf2Attribute
+     */
+    sxbld-sdf2-is-attribute(|attrib-name) =
+    	?term(default(appl(unquoted(name), _)))
+
+    /**
      * Encloses a string in double quotes
      *
      * @type String -> String

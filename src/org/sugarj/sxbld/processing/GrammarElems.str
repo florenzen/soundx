@@ -83,7 +83,8 @@ strategies
 	/**
 	 * Analyzes a variables section
 	 *
-	 * Transforms it into a context-free section
+	 * Transforms it into a context-free section with
+	 * constructor attributes.
 	 *
 	 * @type Grammar -> Grammar
 	 */
@@ -115,13 +116,27 @@ strategies
 	    ?sort(_) <+
     	sxbld-analyze-unsupported(|"Unsupported right-hand side")
 
+    /**
+     * Checks that a variable production has no attributes
+     *
+     * @type Sdf2Attributes -> Sdf2Attributes
+     */
 	sxbld-analyze-variable-prod-attributes(|rhs-symbol) =
+		// No attributes
 		?no-attrs();
 		!attrs([prefer(), <sxbld-analyze-variable-cons> rhs-symbol])
 	sxbld-analyze-variable-prod-attributes(|rhs-symbol) =
+		// Some attributes
 		?attrs(_);
 		sxbld-analyze-unsupported(|"Attributes not supported in variables section")
 
+    /**
+     * Generate a cons attribute for the metavariable containing the sort name
+     *
+     * The constructor name is <base language name>MetaVar<sort-name>.
+     *
+     * @type Sdf2Symbol -> Sdf2Attribute
+     */
     sxbld-analyze-variable-cons:
     	sort(name) -> cons-attribute
     	where
@@ -243,14 +258,40 @@ strategies
     sxbld-analyze-cf-attributes(|sort-name) =
     	((?no-attrs(); ![]) +
     	 (?attrs(attrib-list); !attrib-list));
-    	sxbld-analyze-cf-attribute-list(|sort-name) => (analyzed-attrib-list, cons-name);
-    	!(attrs(analyzed-attrib-list), cons-name)
+    	sxbld-analyze-cf-attribute-list-cons(|sort-name) => (attrib-list-with-cons, cons-name);
+    	!(attrs(attrib-list-with-cons), cons-name)
 
-    sxbld-analyze-cf-attribute-list(|sort-name) =
+    
+    /**
+     * Adds or prefixes a cons attribute
+     *
+     * It returns the new attribute list and the name of the constructor
+     *
+     * @param sort-name String name of the rhs sort to include in
+     *   constructor name
+     * @type List(Sdf2Attribute) -> (List(Sdf2Attribute, String))
+     */
+    sxbld-analyze-cf-attribute-list-cons(|sort-name) =
+    	// No attributes
     	?[];
     	<sxbld-env-fresh-cons-name> sort-name => cons-name;
     	!([<sxbld-sdf2-cons-attribute> cons-name], cons-name)
-
+    sxbld-analyze-cf-attribute-list-cons(|sort-name) =
+    	// Some attributes
+    	?attributes@[_|_];
+    	partition(sxbld-sdf2-is-attribute(|"cons")) => (cons-attribs, other-attribs);
+    	((// No cons attribute, generate one
+    	  !cons-attribs; ?[];
+    	  <sxbld-env-fresh-cons-name> sort-name => cons-name;
+    	  !([<sxbld-sdf2-cons-attribute> cons-name | other-attribs], cons-name)) <+
+    	 (// One cons attribute, prefix it
+    	  !cons-attribs; ?[cons-attrib];
+    	  <sxbld-sdf2-cons-attribute-name> cons-attrib => cons-name;
+    	  <sxbld-env-prefix-name> cons-name => prefixed-cons-name;
+    	  !([<sxbld-sdf2-cons-attribute> prefixed-cons-name | other-attribs], cons-name)) <+
+    	 (// More than one cons attribute, error
+    	  <map(sxbld-analyze-fail(|"Several cons attributes are not allowed"))> cons-attribs))
+        
     /**
      * Analyzes the right-hand side of a context-free production
      *
