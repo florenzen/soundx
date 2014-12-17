@@ -1,0 +1,25 @@
+module org/sugarj/sxbld/processing/Symbols
+
+imports org/sugarj/languages/Sdf2
+
+imports org/sugarj/sxbld/Analysis
+
+strategies
+	sxbld-analyze-symbols-to-sorts =
+    	sxbld-analyze-supported-symbols-to-sorts <+
+    	sxbld-analyze-unsupported-symbols
+
+    sxbld-analyze-supported-symbols-to-sorts:
+    	[] -> []
+    sxbld-analyze-supported-symbols-to-sorts:
+    	[lit(_)|symbols] -> sort-names
+    	where
+    		<sxbld-analyze-supported-symbols-to-sorts> symbols => sort-names
+    sxbld-analyze-supported-symbols-to-sorts:
+    	[sort(name)|symbols] -> [name|sort-names]
+    	where
+    		<sxbld-analyze-supported-symbols-to-sorts> symbols => sort-names
+
+    sxbld-analyze-unsupported-symbols =
+    	?[symbol|_];
+    	<sxbld-analyze-unsupported(|"Unsupported symbol")> symbol

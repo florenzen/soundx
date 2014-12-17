@@ -14,6 +14,7 @@ imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/sxbld/processing/SortRenaming
         org/sugarj/sxbld/processing/SDF2Terms
+        org/sugarj/sxbld/processing/Symbols
 
 strategies
 	/**
@@ -236,30 +237,11 @@ strategies
     	?prod(symbols, symbol, attributes);
     	<sxbld-analyze-cf-rhs> symbol => (analyzed-symbol, sort-name);
     	<sxbld-analyze-cf-attributes(|sort-name)> attributes => (analyzed-attributes, option-cons-name-quoted);
-    	<sxbld-analyze-cf-lhs> symbols => sort-names;
+    	<sxbld-analyze-symbols-to-sorts> symbols => sort-names;
     	try(!option-cons-name-quoted;
     	    ?Some(cons-name-quoted);
     	    <sxbld-analyze-add-arity> (cons-name-quoted, SXAbsArity(sort-names, sort-name)));
     	!prod(symbols, analyzed-symbol, analyzed-attributes)
-
-    sxbld-analyze-cf-lhs =
-    	sxbld-analyze-cf-lhs-supported <+
-    	sxbld-analyze-cf-lhs-unsupported
-
-    sxbld-analyze-cf-lhs-supported:
-    	[] -> []
-    sxbld-analyze-cf-lhs-supported:
-    	[lit(_)|symbols] -> sort-names
-    	where
-    		<sxbld-analyze-cf-lhs> symbols => sort-names
-    sxbld-analyze-cf-lhs-supported:
-    	[sort(name)|symbols] -> [name|sort-names]
-    	where
-    		<sxbld-analyze-cf-lhs> symbols => sort-names
-
-    sxbld-analyze-cf-lhs-unsupported =
-    	?[symbol|_];
-    	<sxbld-analyze-unsupported(|"Unsupported symbol")> symbol
 
     /**
      * Checks attributes of context-free production
