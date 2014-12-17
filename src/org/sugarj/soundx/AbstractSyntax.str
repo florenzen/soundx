@@ -19,3 +19,8 @@ signature constructors
      * Arity declaration
      */
     SXAbsArity: List(String) * String -> SXAbsArity
+
+	/**
+	 * Inference rules
+	 */
+	SXAbsInfRule: List(SXJudgement) -> SXJudgement

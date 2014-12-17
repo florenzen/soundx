@@ -7,7 +7,7 @@ signature constructors
 	SXInductiveDefinitions: List(SXNamedInferenceRule)                  -> SXInductiveDefinitions
 	SXNamedInferenceRule:   SXINFRULENAME * SXInferenceRule             -> SXNamedInferenceRule
 	SXInferenceRule:        SXInfRulePremises * SXRULESEP * SXJudgement -> SXInferenceRule
-	SXInfRulePremiseEnum:   List(SXPArenInfRulePremise)                 -> SXInfRulePremisesEnum
+	SXInfRulePremiseEnum:   List(SXParenInfRulePremise)                 -> SXInfRulePremisesEnum
 	SXInfRulePremise:       SXInfRulePremise                            -> SXInfRulePremisesEnum
 	SXInfRulePremisesNil:                                                  SXInfRulePremises
-	SXInfRulepremisesCons:  SXInfRulePremisesEnum * SXInfRulePremises   -> SXInfRulePremises
+	SXInfRulePremisesCons:  SXInfRulePremisesEnum * SXInfRulePremises   -> SXInfRulePremises
