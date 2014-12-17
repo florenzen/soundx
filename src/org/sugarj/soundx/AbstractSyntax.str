@@ -4,12 +4,14 @@
 module org/sugarj/soundx/AbstractSyntax
 
 signature constructors
-	SXAbsJudgementForm: List(String) * String -> SXAbsJudgementForm
+	/**
+	 * Form declaration
+	 */
+	SXAbsJudgementForm: List(String) -> SXAbsJudgementForm
 
     /**
      * Types of sorts
      */
-    // SXAbsSortUnknown:     SXAbsSort
     SXAbsSortContextFree: SXAbsSort
     SXAbsSortLexical:     SXAbsSort
 

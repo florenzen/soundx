@@ -63,7 +63,7 @@ strategies
   	    hashtable-put(|"name-counter", 0);
   	    hashtable-put(|"sorts", <new-hashtable> ());
   	    hashtable-put(|"arities", <new-hashtable> ());
-  	    hashtable-put(|"form-declarations", []);
+  	    hashtable-put(|"forms", <new-hashtable> ());
   	    hashtable-put(|"failed", SXBldFalse())
 
     /**
@@ -235,35 +235,28 @@ strategies
     	<conc-strings> (base-language-name, name)
 
 /**
- * Handling of form-declarations
+ * Handling of form declarations
  */
 strategies
-	/**
-	 * Gets form-declarations
-	 *
-	 * @type _ -> List(SXAbsJudgementForm)
-	 */
-    sxbld-env-get-form-declarations =
-        <sxbld-env-get> "form-declarations"
+    /**
+     * Adds a form declaration
+     *
+     * @type (String, SXAbsJudgementForm) -> SXEnv
+     */
+    sxbld-env-add-form =
+  	    ?(name, form);
+  	    <sxbld-env-get> "forms";
+  	    hashtable-put(|name, form)
 
     /**
-     * Sets form-declarations
+     * Gets a form declaration
      *
-     * @type List(SXAbsJudgementForm) -> SXEnv
+     * @type String -> Option(SXAbsJudgementForm)
      */
-    sxbld-env-set-form-declarations =
-        ?form-declarations-new;
-  	    <sxbld-env-set> ("form-declaration", form-declarations-new)
-
-    /**
-     * Adds a form-declaration
-     *
-     * @type SXAbsJudgementForm -> SXEnv
-     */
-    sxbld-env-add-form-declaration =
-  	    ?form-declaration-new;
-  	    sxbld-env-get-form-declarations => form-declarations-old;
-  	    <sxbld-env-set-form-declarations> [form-declaration-new|form-declarations-old]
+    sxbld-env-get-arity =
+    	?name;
+    	<sxbld-env-get> "forms";
+    	hashtable-get(|name) < !Some(<id>) + !None()
 
 /**
  * Handling of arity declarations
@@ -346,30 +339,18 @@ strategies
  * Extraction of extension-decls from environment
  */
 strategies
-	sxbld-env-extract-base-lang-sorts =
-		<sxbld-env-get; hashtable-getlist> "sorts" => sorts-alist;
-		//<remove-all(?(_, SXAbsSortUnknown()))> sorts-alist => sorts-alist-no-unknowns;
-		<trm-explode> sorts-alist => stratego-alist;
-		<sxbld-env-prefix-name> "-sorts" => strategy-name;
-		![transformation-elem(
-			Strategies([SDefNoArgs(strategy-name, Build(stratego-alist))])
-		 )]
-
-    sxbld-env-extract-base-lang-arities =
-    	<sxbld-env-get; hashtable-getlist> "arities" => arities-alist;
+    sxbld-env-extract-decls(|key) =
+    	<sxbld-env-get; hashtable-getlist> key => arities-alist;
     	<trm-explode> arities-alist => stratego-alist;
-    	<sxbld-env-prefix-name> "-arities" => strategy-name;
+    	<sxbld-env-prefix-name> (<conc-strings> ("-", key)) => strategy-name;
     	![transformation-elem(
     		Strategies([SDefNoArgs(strategy-name, Build(stratego-alist))])
     	 )]
 
     sxbld-env-extract-extension-decls =
   	    sxbld-env-get-grammar-elems => grammar-elems;
-	    sxbld-env-extract-base-lang-sorts => trans-sorts;
-	    sxbld-env-extract-base-lang-arities => trans-arities;
-	    <conc> (trans-sorts, trans-arities) => transformation-elems;
-  	    // sxbld-env-get-inference-rules => inference-rules;
-  	    // !transformation-elem(Rules([RDefNoArgs("infrules",
-  	    //   RuleNoCond(Tuple([]), inference-rules))
-  	    // ])) => transformation-elems;
+	    sxbld-env-extract-decls(|"sorts") => trans-sorts;
+	    sxbld-env-extract-decls(|"arities") => trans-arities;
+	    sxbld-env-extract-decls(|"forms") => trans-forms;
+	    <conc> (trans-sorts, trans-arities, trans-forms) => transformation-elems;
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems))

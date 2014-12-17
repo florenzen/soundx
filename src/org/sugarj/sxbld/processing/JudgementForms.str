@@ -9,56 +9,48 @@ imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/sxbld/processing/SortRenaming
         org/sugarj/sxbld/processing/SDF2Terms
+        org/sugarj/sxbld/processing/Symbols
 
 imports org/sugarj/languages/SXBld
 
 strategies
 	/**
-	 * Translates a judgement form to a context-free grammar
-	 *
-	 * A production for the SXJudgement nonterminal is generated
-	 * with the given cons-attribute.
-	 *
-	 * @type (List(Symbols), String) -> Sdf2Grammar
+	 * Register analyses and desugarings
 	 */
-	sxbld-symbols-to-cf-syntax:
-		(symbols, cons-name) -> context-free-syntax(production)
-		where
-			<sxbld-sdf2-cons-attribute> cons-name => cons-attribute;
-			!prod(symbols, sort("SXJudgement"), attrs([cons-attribute])) => production
+	sxbld-desugar-to-env = sxbld-desugar-judgement-forms
+	sxbld-start-analysis = sxbld-analyze-judgement-forms
 
-    /**
-     * Extracts a form declaration from the symbols of a judgment form
-     *
-     * @type (List(Symbol), String) -> SXAbsJudgementForm
-     */
-    sxbld-extract-form-declaration =
-    	?(symbols, name);
-    	<mapconcat(\sort(sort-name) -> [sort-name]\ <+ ![])> symbols => sort-names;
-        !SXAbsJudgementForm(sort-names, name)
+	sxbld-analyze-judgement-forms =
+		SXBldJudgementForms(map(sxbld-analyze-judgement-form))
+		
+	sxbld-analyze-judgement-form =
+		?form@SXBldJudgementForm(symbols);
+		<sxbld-analyze-symbols-to-sorts> symbols => sort-names;
+	    <sxbld-env-fresh-judgement-name> () => judgement-name;
+    	<sxbld-env-add-form> (judgement-name, SXAbsJudgementForm(sort-names));
+    	!(judgement-name, form)
 
 	/**
-	 * Processes a single judgement form
+	 * Desugars a single judgement form
 	 *
 	 * @type SXBldJudgementForm -> SXEnv
 	 */
-    sxbld-process-judgement-form =
-    	?SXBldJudgementForm(symbols);
-    	<map(sxbld-rename-all-sorts)> symbols => renamed-symbols;
-    	<sxbld-env-fresh-judgement-name> () => judgement-name;
-    	<sxbld-extract-form-declaration> (renamed-symbols, judgement-name) => form-declaration;
-    	<sxbld-env-add-form-declaration> form-declaration;
-    	<sxbld-symbols-to-cf-syntax> (renamed-symbols, judgement-name) => grammar;
-    	<sxbld-env-add-grammar-elems> [grammar-elem(grammar)]
+	sxbld-desugar-judgement-form =
+		((?(judgement-name, SXBldJudgementForm(symbols));
+		  <sxbld-sdf2-cons-attribute; !attrs(<id>)> judgement-name => attributes) <+
+		 (?SXBldJudgementForm(symbols); // If analysis failed there is no cons name
+		  !no-attrs() => attributes));
+		<map(sxbld-rename-all-sorts)> symbols => renamed-symbols;
+    	!prod(renamed-symbols, sort("SXJudgement"), attributes) => production;
+    	<sxbld-env-add-grammar-elems> [grammar-elem(context-free-syntax(production))]
+		
 
     /**
-     * Process judgement forms section
+     * Desugars judgement forms section
      *
      * Transforms judgement forms section to SDF2 and Stratego.
-     * Stores the syntax and the form declaration in the environment.
      *
      * @type SXBldJudgementForms -> SXEnv
      */
-    sxbld-process-judgement-forms =
-    	?SXBldJudgementForms(judgement-forms);
-    	<map(sxbld-process-judgement-form)> judgement-forms
+    sxbld-desugar-judgement-forms =
+    	SXBldJudgementForms(map(sxbld-desugar-judgement-form))
