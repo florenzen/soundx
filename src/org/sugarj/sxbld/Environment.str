@@ -253,7 +253,7 @@ strategies
      *
      * @type String -> Option(SXAbsJudgementForm)
      */
-    sxbld-env-get-arity =
+    sxbld-env-get-form =
     	?name;
     	<sxbld-env-get> "forms";
     	hashtable-get(|name) < !Some(<id>) + !None()
