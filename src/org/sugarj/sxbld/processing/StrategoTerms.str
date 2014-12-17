@@ -1,0 +1,29 @@
+/**
+ * Generation of Stratego terms
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/sxbld/processing/StrategoTerms
+
+imports org/sugarj/languages/Stratego
+
+strategies
+	sxbld-stratego-strategy:
+		(name, rhs) -> Strategies([SDefNoArgs(name, rhs)])
+
+	sxbld-stratego-list:
+		elems -> NoAnnoList(List(elems))
+
+	sxbld-stratego-tuple:
+		comps -> NoAnnoList(Tuple(comps))
+
+	sxbld-stratego-string:
+		string -> NoAnnoList(Str(string-quoted))
+		where
+			<double-quote> string => string-quoted
+
+	sxbld-stratego-cons:
+		(name, args) -> NoAnnoList(Op(name, args))
+
+    sxbld-stratego-build:
+    	arg -> Build(arg)
