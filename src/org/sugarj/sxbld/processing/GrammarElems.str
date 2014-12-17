@@ -155,14 +155,12 @@ strategies
    	    !'sorts(analyzed-symbols)
 
     /**
-     * Analyzes one symbol of a sorts section
-     *
-     * The sort name is added as SXAbsUnknownSort() to the environment
+     * Checks for unsupported sort declarations
      *
      * @type Sdf2Symbol -> Sdf2Symbol
      */
     sxbld-analyze-symbol =
-    	sxbld-analyze-symbol-sort <+
+    	?sort(_) <+
     	sxbld-analyze-unsupported(|"Unsupported sort declaration")
 
     /**
@@ -172,10 +170,10 @@ strategies
      *
      * @type Sdf2Symbol -> Sdf2Symbol
      */
-	sxbld-analyze-symbol-sort =
-		?symbol@sort(name);
-		<sxbld-add-sort> (name, SXAbsSortUnknown());
-		!symbol
+	// sxbld-analyze-symbol-sort =
+	// 	?symbol@sort(name);
+	// 	<sxbld-add-sort> (name, SXAbsSortUnknown());
+	// 	!symbol
 
     /**
      * Succeeds if two sorts are equal, fails otherwise
@@ -185,8 +183,8 @@ strategies
      * @type (SXAbsSort, SXAbsSort) -> (SXAbsSort, SXAbsSort)
      */
     sxbld-sorts-equal =
-   		?(SXAbsSortUnknown(), _) +
-   		?(_, SXAbsSortUnknown()) +
+   		// ?(SXAbsSortUnknown(), _) +
+   		// ?(_, SXAbsSortUnknown()) +
    		?(SXAbsSortLexical(), SXAbsSortLexical()) +
    		?(SXAbsSortContextFree(), SXAbsSortContextFree())
 
@@ -208,7 +206,8 @@ strategies
     	else
     		?Some(other-sort);
     		if <sxbld-sorts-equal> (sort, other-sort) then
-    			<sxbld-add-sort-unless-unknown> (name, sort)
+    			<sxbld-get-env-hashtable> ()
+    			// <sxbld-add-sort-unless-unknown> (name, sort)
     		else
     			<sxbld-analyze-fail(|"Invalid redeclaration of sort")> name
     		end
@@ -219,9 +218,9 @@ strategies
       *
       * @type (String, SXAbsSort) -> SXEnv
       */
-    sxbld-add-sort-unless-unknown =
-    	(?(name, SXAbsSortUnknown()); sxbld-get-env-hashtable) <+ // Return the environment in any case
-    	(?(name, sort); sxbld-env-add-sort)
+    // sxbld-add-sort-unless-unknown =
+    // 	(?(name, SXAbsSortUnknown()); sxbld-get-env-hashtable) <+ // Return the environment in any case
+    // 	(?(name, sort); sxbld-env-add-sort)
 
     sxbld-analyze-add-arity =
     	?(cons-name-quoted, arity);

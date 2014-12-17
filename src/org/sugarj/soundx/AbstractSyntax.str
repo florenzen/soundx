@@ -9,7 +9,7 @@ signature constructors
     /**
      * Types of sorts
      */
-    SXAbsSortUnknown:     SXAbsSort
+    // SXAbsSortUnknown:     SXAbsSort
     SXAbsSortContextFree: SXAbsSort
     SXAbsSortLexical:     SXAbsSort
 

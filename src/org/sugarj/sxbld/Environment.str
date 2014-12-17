@@ -9,6 +9,11 @@ imports org/sugarj/languages/Stratego
 
 imports org/sugarj/languages/SXBld
 
+imports org/sugarj/soundx/AbstractSyntax
+
+imports org/sugarj/sxbld/processing/StrategoTerms
+        org/sugarj/sxbld/processing/MetaExplode
+
 /**
  * True and false
  */
@@ -341,10 +346,30 @@ strategies
  * Extraction of extension-decls from environment
  */
 strategies
+	sxbld-env-extract-base-lang-sorts =
+		<sxbld-env-get; hashtable-getlist> "sorts" => sorts-alist;
+		//<remove-all(?(_, SXAbsSortUnknown()))> sorts-alist => sorts-alist-no-unknowns;
+		<trm-explode> sorts-alist => stratego-alist;
+		<sxbld-env-prefix-name> "-sorts" => strategy-name;
+		![transformation-elem(
+			Strategies([SDefNoArgs(strategy-name, Build(stratego-alist))])
+		 )]
+
+    sxbld-env-extract-base-lang-arities =
+    	<sxbld-env-get; hashtable-getlist> "arities" => arities-alist;
+    	<trm-explode> arities-alist => stratego-alist;
+    	<sxbld-env-prefix-name> "-arities" => strategy-name;
+    	![transformation-elem(
+    		Strategies([SDefNoArgs(strategy-name, Build(stratego-alist))])
+    	 )]
+
     sxbld-env-extract-extension-decls =
   	    sxbld-env-get-grammar-elems => grammar-elems;
+	    sxbld-env-extract-base-lang-sorts => trans-sorts;
+	    sxbld-env-extract-base-lang-arities => trans-arities;
+	    <conc> (trans-sorts, trans-arities) => transformation-elems;
   	    // sxbld-env-get-inference-rules => inference-rules;
   	    // !transformation-elem(Rules([RDefNoArgs("infrules",
   	    //   RuleNoCond(Tuple([]), inference-rules))
   	    // ])) => transformation-elems;
-  	    !SXBldExtensionDecl(grammar-elems)
+  	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems))
