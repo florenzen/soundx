@@ -14,11 +14,11 @@ strategies
     sxbld-analyze-supported-symbols-to-sorts:
     	[lit(_)|symbols] -> sort-names
     	where
-    		<sxbld-analyze-supported-symbols-to-sorts> symbols => sort-names
+    		<sxbld-analyze-symbols-to-sorts> symbols => sort-names
     sxbld-analyze-supported-symbols-to-sorts:
     	[sort(name)|symbols] -> [name|sort-names]
     	where
-    		<sxbld-analyze-supported-symbols-to-sorts> symbols => sort-names
+    		<sxbld-analyze-symbols-to-sorts> symbols => sort-names
 
     sxbld-analyze-unsupported-symbols =
     	?[symbol|_];
