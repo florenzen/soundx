@@ -164,27 +164,11 @@ strategies
     	sxbld-analyze-unsupported(|"Unsupported sort declaration")
 
     /**
-     * Analyzes a sort name
-     *
-     * The sort name is added as SXAbsUnknownSort() to the environment
-     *
-     * @type Sdf2Symbol -> Sdf2Symbol
-     */
-	// sxbld-analyze-symbol-sort =
-	// 	?symbol@sort(name);
-	// 	<sxbld-add-sort> (name, SXAbsSortUnknown());
-	// 	!symbol
-
-    /**
      * Succeeds if two sorts are equal, fails otherwise
-     *
-     * SXAbsSortUnknown() is equal to any sort.
      *
      * @type (SXAbsSort, SXAbsSort) -> (SXAbsSort, SXAbsSort)
      */
     sxbld-sorts-equal =
-   		// ?(SXAbsSortUnknown(), _) +
-   		// ?(_, SXAbsSortUnknown()) +
    		?(SXAbsSortLexical(), SXAbsSortLexical()) +
    		?(SXAbsSortContextFree(), SXAbsSortContextFree())
 
@@ -193,8 +177,6 @@ strategies
      *
      * If a sort of the same name is already defined the two
      * sorts must be equal, otherwise the analysis fails.
-     * If the previously defined sort is
-     * SXAbsSortUnknown() it is updated by the new sort.
      *
      * @type (String, SXAbsSort) -> SXEnv
      */
@@ -206,22 +188,23 @@ strategies
     	else
     		?Some(other-sort);
     		if <sxbld-sorts-equal> (sort, other-sort) then
-    			<sxbld-get-env-hashtable> ()
-    			// <sxbld-add-sort-unless-unknown> (name, sort)
+    			<sxbld-get-env-hashtable> () // Return the environment in any case
     		else
     			<sxbld-analyze-fail(|"Invalid redeclaration of sort")> name
     		end
     	end
 
     /**
-      * Adds a sort to the environment only if its not SXAbsSortUnknown()
-      *
-      * @type (String, SXAbsSort) -> SXEnv
-      */
-    // sxbld-add-sort-unless-unknown =
-    // 	(?(name, SXAbsSortUnknown()); sxbld-get-env-hashtable) <+ // Return the environment in any case
-    // 	(?(name, sort); sxbld-env-add-sort)
-
+     * Adds an arity to the environment
+     *
+     * If there is already a constructor of the given name
+     * the strategy fails with an error.
+     *
+     * The constructor name must be double quoted (like it came
+     * from a cons attribute of the input).
+     *
+     * @type (String, SXAbsArity) -> SXEnv
+     */
     sxbld-analyze-add-arity =
     	?(cons-name-quoted, arity);
     	<un-double-quote> cons-name-quoted => cons-name;
@@ -244,6 +227,8 @@ strategies
 
     /**
      * Analyzes a context-free production
+     *
+     * Adds an arity for that production to the environment.
      *
      * @type Sdf2Production -> Sdf2Production
      */
