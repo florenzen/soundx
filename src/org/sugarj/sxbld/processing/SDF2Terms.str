@@ -25,10 +25,8 @@ strategies
      *
      * @type Sdf2Attribute -> String
      */
-    sxbld-sdf2-cons-attribute-name:
-    	term(default(appl(unquoted("cons"), [fun(quoted(cons-name-quoted))]))) -> name
-    	where
-    		<un-double-quote> cons-name-quoted => name
+    sxbld-sdf2-cons-attribute-name-quoted:
+    	term(default(appl(unquoted("cons"), [fun(quoted(cons-name-quoted))]))) -> cons-name-quoted
 
     /**
      * Succeeds if attribute has specified name

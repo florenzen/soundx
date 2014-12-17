@@ -223,6 +223,16 @@ strategies
     	(?(name, SXAbsSortUnknown()); sxbld-get-env-hashtable) <+ // Return the environment in any case
     	(?(name, sort); sxbld-env-add-sort)
 
+    sxbld-analyze-add-arity =
+    	?(cons-name-quoted, arity);
+    	<un-double-quote> cons-name-quoted => cons-name;
+    	<sxbld-env-get-arity> cons-name;
+    	if ?None() then
+    		<sxbld-env-add-arity> (cons-name, arity)
+    	else
+    		<sxbld-analyze-fail(|"Duplicate constructor name")> cons-name-quoted
+    	end
+
     /**
      * Analyzes a context-free syntax section
      *
@@ -241,8 +251,29 @@ strategies
     sxbld-analyze-cf-production =
     	?prod(symbols, symbol, attributes);
     	<sxbld-analyze-cf-rhs> symbol => (analyzed-symbol, sort-name);
-    	<sxbld-analyze-cf-attributes(|sort-name)> attributes => (analyzed-attributes, cons-name);
+    	<sxbld-analyze-cf-attributes(|sort-name)> attributes => (analyzed-attributes, cons-name-quoted);
+    	<sxbld-analyze-cf-lhs> symbols => sort-names;
+    	<sxbld-analyze-add-arity> (cons-name-quoted, SXAbsArity(sort-names, sort-name));
     	!prod(symbols, analyzed-symbol, analyzed-attributes)
+
+    sxbld-analyze-cf-lhs =
+    	sxbld-analyze-cf-lhs-supported <+
+    	sxbld-analyze-cf-lhs-unsupported
+
+    sxbld-analyze-cf-lhs-supported:
+    	[] -> []
+    sxbld-analyze-cf-lhs-supported:
+    	[lit(_)|symbols] -> sort-names
+    	where
+    		<sxbld-analyze-cf-lhs> symbols => sort-names
+    sxbld-analyze-cf-lhs-supported:
+    	[sort(name)|symbols] -> [name|sort-names]
+    	where
+    		<sxbld-analyze-cf-lhs> symbols => sort-names
+
+    sxbld-analyze-cf-lhs-unsupported =
+    	?[symbol|_];
+    	<sxbld-analyze-unsupported(|"Unsupported symbol")> symbol
 
     /**
      * Checks attributes of context-free production
@@ -265,30 +296,27 @@ strategies
     /**
      * Adds or prefixes a cons attribute
      *
-     * It returns the new attribute list and the name of the constructor
+     * It returns the new attribute list and the name of the constructor.
+     * If a constructor name is given in an attribut the exact string from
+     * the input is returned. Therefore, the constructor name is double-qouted.
      *
      * @param sort-name String name of the rhs sort to include in
      *   constructor name
      * @type List(Sdf2Attribute) -> (List(Sdf2Attribute, String))
      */
     sxbld-analyze-cf-attribute-list-cons(|sort-name) =
-    	// No attributes
-    	?[];
-    	<sxbld-env-fresh-cons-name> sort-name => cons-name;
-    	!([<sxbld-sdf2-cons-attribute> cons-name], cons-name)
-    sxbld-analyze-cf-attribute-list-cons(|sort-name) =
-    	// Some attributes
-    	?attributes@[_|_];
     	partition(sxbld-sdf2-is-attribute(|"cons")) => (cons-attribs, other-attribs);
     	((// No cons attribute, generate one
     	  !cons-attribs; ?[];
     	  <sxbld-env-fresh-cons-name> sort-name => cons-name;
-    	  !([<sxbld-sdf2-cons-attribute> cons-name | other-attribs], cons-name)) <+
+    	  <double-quote> cons-name => cons-name-quoted;
+    	  <sxbld-env-prefix-name> cons-name => cons-name-prefixed;
+    	  !([<sxbld-sdf2-cons-attribute> cons-name-prefixed | other-attribs], cons-name-quoted)) <+
     	 (// One cons attribute, prefix it
     	  !cons-attribs; ?[cons-attrib];
-    	  <sxbld-sdf2-cons-attribute-name> cons-attrib => cons-name;
-    	  <sxbld-env-prefix-name> cons-name => prefixed-cons-name;
-    	  !([<sxbld-sdf2-cons-attribute> prefixed-cons-name | other-attribs], cons-name)) <+
+    	  <sxbld-sdf2-cons-attribute-name-quoted> cons-attrib => cons-name-quoted;
+    	  <un-double-quote; sxbld-env-prefix-name> cons-name-quoted => prefixed-cons-name;
+    	  !([<sxbld-sdf2-cons-attribute> prefixed-cons-name | other-attribs], cons-name-quoted)) <+
     	 (// More than one cons attribute, error
     	  <map(sxbld-analyze-fail(|"Several cons attributes are not allowed"))> cons-attribs))
         

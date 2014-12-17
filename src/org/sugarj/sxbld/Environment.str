@@ -217,8 +217,7 @@ strategies
      */
     sxbld-env-fresh-cons-name =
     	?sort-name;
-    	<sxbld-env-prefix-name> sort-name => prefixed-name;
-    	<sxbld-env-fresh-name> (<conc-strings> (prefixed-name, "Cons"))
+    	<sxbld-env-fresh-name> (<conc-strings> (sort-name, "Cons"))
     	
     /**
      * Prefixes given name with the base language name
