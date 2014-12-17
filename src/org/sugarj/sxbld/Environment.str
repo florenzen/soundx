@@ -11,8 +11,7 @@ imports org/sugarj/languages/SXBld
 
 imports org/sugarj/soundx/AbstractSyntax
 
-imports org/sugarj/sxbld/processing/StrategoTerms
-        org/sugarj/sxbld/processing/MetaExplode
+imports org/sugarj/sxbld/processing/MetaExplode
 
 /**
  * True and false
