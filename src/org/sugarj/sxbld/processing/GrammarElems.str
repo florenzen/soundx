@@ -16,13 +16,14 @@ imports org/sugarj/sxbld/processing/SortRenaming
         org/sugarj/sxbld/processing/SDF2Terms
         org/sugarj/sxbld/processing/Symbols
 
+/**
+ * Register analyses and desugarings
+ */
 strategies
-	/**
-	 * Register analyses and desugarings
-	 */
 	sxbld-desugar-to-env = sxbld-desugar-grammar-elems
 	sxbld-start-analysis = sxbld-analyze-grammar-elems
 
+strategies
 	/**
 	 * Analyzes list of SDF2 sections
 	 *
@@ -30,7 +31,7 @@ strategies
 	 */
 	sxbld-analyze-grammar-elems =
 		?SXBldGrammarElems(grammars);
-		<map(sxbld-analyze-grammar-elem; concat> grammars => analyzed-grammars;
+		<map(sxbld-analyze-grammar-elem); concat> grammars => analyzed-grammars;
 		// Not using mapconcat here because it traverses the list from the end to front
 		// which lowers quality of error messages
 		!SXBldGrammarElems(analyzed-grammars)
@@ -134,7 +135,7 @@ strategies
 		<sxbld-analyze-variable-lex-rhs-name> rhs-symbol => lex-rhs-name;
 		!(attrs([prefer(), <sxbld-sdf2-cons-attribute> cons-name]),
 		  sort(lex-rhs-name))
-	sxbld-analyze-variable-prod-attributes(|rhs-symbol) =
+	sxbld-analyze-variable-prod-attributes-lex(|rhs-symbol) =
 		// Some attributes
 		?attrs(_);
 		sxbld-analyze-unsupported(|"Attributes not supported in variables section")
