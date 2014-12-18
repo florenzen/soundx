@@ -13,13 +13,14 @@ imports org/sugarj/sxbld/processing/SortRenaming
 
 imports org/sugarj/languages/SXBld
 
+/**
+ * Register analyses and desugarings
+ */
 strategies
-	/**
-	 * Register analyses and desugarings
-	 */
 	sxbld-desugar-to-env = sxbld-desugar-judgement-forms
 	sxbld-start-analysis = sxbld-analyze-judgement-forms
 
+strategies
 	sxbld-analyze-judgement-forms =
 		SXBldJudgementForms(map(sxbld-analyze-judgement-form))
 		
@@ -30,6 +31,7 @@ strategies
     	<sxbld-env-add-form> (judgement-name, SXAbsJudgementForm(sort-names));
     	!(judgement-name, form)
 
+strategies
 	/**
 	 * Desugars a single judgement form
 	 *
@@ -44,7 +46,6 @@ strategies
 		<map(sxbld-rename-all-sorts)> symbols => renamed-symbols;
     	!prod(renamed-symbols, sort("SXJudgement"), attributes) => production;
     	<sxbld-env-add-grammar-elems> [grammar-elem(context-free-syntax([production]))]
-		
 
     /**
      * Desugars judgement forms section
