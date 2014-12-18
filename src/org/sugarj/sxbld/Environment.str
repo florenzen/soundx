@@ -57,12 +57,12 @@ strategies
     sxbld-new-env-hashtable =
   	    new-hashtable;
   	    hashtable-put(|"grammar-elems", []);
-  	    hashtable-put(|"inference-rules", []);
   	    hashtable-put(|"base-language-name", "");
   	    hashtable-put(|"name-counter", 0);
   	    hashtable-put(|"sorts", <new-hashtable> ());
   	    hashtable-put(|"arities", <new-hashtable> ());
   	    hashtable-put(|"forms", <new-hashtable> ());
+  	    hashtable-put(|"inference-rules", <new-hashtable> ());
   	    hashtable-put(|"failed", SXBldFalse())
 
     /**
@@ -122,31 +122,24 @@ strategies
  */
 strategies
     /**
-	 * Gets all inference-rules
+	 * Gets an inference rule
 	 *
-	 * @type _ -> List(SXNamedInferenceRule)
+	 * @type String -> Option(SXAbsInfRule)
 	 */
-    sxbld-env-get-inference-rules =
-  	    <sxbld-env-get> "inference-rules"
+    sxbld-env-get-inference-rule =
+    	?name;
+  	    <sxbld-env-get> "inference-rules";
+  	    maybe(hashtable-get(|name))
 
     /**
-     * Sets inference-rules
+     * Add an inference rules
      *
-     * @type List(SXNamedInferenceRule) -> SXEnv
+     * @type (String, SXAbsInfRule) -> SXEnv
      */  
     sxbld-env-set-inference-rules =
-  	    ?inference-rules-new;
-  	    <sxbld-env-set> ("inference-rules", inference-rules-new)
-
-    /**
-     * Adds inference-rules
-     *
-     * @type List(SXNamedInferenceRule) -> SXEnv
-     */
-    sxbld-env-add-inference-rules =
-  	    ?inference-rules-new;
-  	    sxbld-env-get-inference-rules => inference-rules-old;
-  	    <sxbld-env-set-inference-rules> (<conc> (inference-rules-new, inference-rules-old))
+  	    ?(name, rule);
+  	    <sxbld-env-get> "inference-rules";
+  	    hashtable-put(|name, rule)
 
 /**
  * Handling of base-language-name
@@ -255,7 +248,7 @@ strategies
     sxbld-env-get-form =
     	?name;
     	<sxbld-env-get> "forms";
-    	hashtable-get(|name) < !Some(<id>) + !None()
+    	maybe(hashtable-get(|name))
 
 /**
  * Handling of arity declarations
@@ -279,7 +272,7 @@ strategies
     sxbld-env-get-arity =
     	?name;
     	<sxbld-env-get> "arities";
-    	hashtable-get(|name) < !Some(<id>) + !None()
+    	maybe(hashtable-get(|name))
 
 /**
  * Handling of sort declarations
@@ -303,7 +296,7 @@ strategies
     sxbld-env-get-sort =
     	?name;
     	<sxbld-env-get> "sorts";
-    	hashtable-get(|name) < !Some(<id>) + !None()
+    	maybe(hashtable-get(|name))
 
 /**
  * Handling of the failed flags
