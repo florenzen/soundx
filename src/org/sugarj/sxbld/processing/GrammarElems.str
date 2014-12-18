@@ -30,7 +30,9 @@ strategies
 	 */
 	sxbld-analyze-grammar-elems =
 		?SXBldGrammarElems(grammars);
-		<mapconcat(sxbld-analyze-grammar-elem)> grammars => analyzed-grammars;
+		<map(sxbld-analyze-grammar-elem; concat> grammars => analyzed-grammars;
+		// Not using mapconcat here because it traverses the list from the end to front
+		// which lowers quality of error messages
 		!SXBldGrammarElems(analyzed-grammars)
 
     /**
