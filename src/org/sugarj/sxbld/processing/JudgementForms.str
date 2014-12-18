@@ -37,12 +37,12 @@ strategies
 	 */
 	sxbld-desugar-judgement-form =
 		((?(judgement-name, SXBldJudgementForm(symbols));
-		  <sxbld-sdf2-cons-attribute; !attrs(<id>)> judgement-name => attributes) <+
+		  <sxbld-sdf2-cons-attribute; !attrs([<id>])> judgement-name => attributes) <+
 		 (?SXBldJudgementForm(symbols); // If analysis failed there is no cons name
 		  !no-attrs() => attributes));
 		<map(sxbld-rename-all-sorts)> symbols => renamed-symbols;
     	!prod(renamed-symbols, sort("SXJudgement"), attributes) => production;
-    	<sxbld-env-add-grammar-elems> [grammar-elem(context-free-syntax(production))]
+    	<sxbld-env-add-grammar-elems> [grammar-elem(context-free-syntax([production]))]
 		
 
     /**
