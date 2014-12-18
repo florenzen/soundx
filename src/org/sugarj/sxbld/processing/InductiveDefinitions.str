@@ -32,10 +32,18 @@ strategies
 
 	sxbld-analyze-wf-inf-rule =
 		?SXInferenceRule(premises, _, concl);
-		<debug(!"PREMISES "); collect-all(sxbld-analyze-is-judgement, conc)> premises => premises-list;
+		<collect-all(sxbld-analyze-is-judgement, conc)> premises => premises-list;
 		// check well-formedness here
 		!SXAbsInfRule(premises-list, concl)
 
+	/**
+	 * Checks if term is a judgement
+	 *
+	 * A judgement has a constructor named
+	 * <base language name>Judgement<number>
+	 *
+	 * @type a -> a
+	 */
 	sxbld-analyze-is-judgement =
 		?c#(_);
 		where(<string-starts-with(|<sxbld-env-prefix-name> "Judgement")> c)
