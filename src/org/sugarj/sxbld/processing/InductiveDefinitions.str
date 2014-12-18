@@ -3,3 +3,55 @@
  */
 module org/sugarj/sxbld/processing/InductiveDefinitions
 
+imports org/sugarj/languages/SXBld
+
+imports org/sugarj/sxbld/Environment
+ 	    org/sugarj/sxbld/Analysis
+
+imports org/sugarj/soundx/InductiveDefinitions
+		org/sugarj/soundx/AbstractSyntax
+
+/**
+ * Register analyses and desugarings
+ */
+strategies
+	sxbld-desugar-to-env = sxbld-desugar-inductive-definitions
+	sxbld-start-analysis = sxbld-analyze-inductive-definitions
+
+/**
+ * Analysis
+ */
+strategies
+	sxbld-analyze-inductive-definitions =
+		where(SXInductiveDefinitions(map(sxbld-analyze-inference-rule)))
+
+	sxbld-analyze-inference-rule =
+		?SXNamedInferenceRule(name, rule);
+		<sxbld-analyze-wf-inf-rule> rule => analyzed-rule;
+		<sxbld-analyze-add-inference-rule> (name, analyzed-rule)
+
+	sxbld-analyze-wf-inf-rule =
+		?SXInferenceRule(premises, _, concl);
+		<collect-all(sxbld-analyze-is-judgement, conc)> premises => premises-list;
+		// check well-formedness here
+		!SXAbsInfRule(premises-list, concl)
+
+	sxbld-analyze-is-judgement =
+		?c#(_);
+		<string-starts-with(|<sxbld-env-prefix-name> "Judgement")> c
+	
+	sxbld-analyze-add-inference-rule =
+		?(name, rule);
+		<sxbld-env-get-inference-rule> name;
+		if ?None() then
+			<sxbld-env-add-inference-rule> (name, rule)
+		else
+			<sxbld-analyze-fail(|"Duplicate inference rule name")> name
+		end
+
+/**
+ * Desugaring
+ */
+strategies
+	sxbld-desugar-inductive-definitions =
+		?SXInductiveDefinitions(_)

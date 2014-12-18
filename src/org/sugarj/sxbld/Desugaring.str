@@ -13,6 +13,7 @@ imports org/sugarj/sxbld/Environment
 imports org/sugarj/sxbld/processing/Header
         org/sugarj/sxbld/processing/JudgementForms
         org/sugarj/sxbld/processing/GrammarElems
+		org/sugarj/sxbld/processing/InductiveDefinitions
 
 /**
  * All processing strategies are collected here

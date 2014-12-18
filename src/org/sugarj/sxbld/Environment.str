@@ -132,11 +132,11 @@ strategies
   	    maybe(hashtable-get(|name))
 
     /**
-     * Add an inference rules
+     * Adds an inference rules
      *
      * @type (String, SXAbsInfRule) -> SXEnv
      */  
-    sxbld-env-set-inference-rules =
+    sxbld-env-add-inference-rule =
   	    ?(name, rule);
   	    <sxbld-env-get> "inference-rules";
   	    hashtable-put(|name, rule)
@@ -202,8 +202,7 @@ strategies
      * @type _ -> String
      */
     sxbld-env-fresh-judgement-name =
-    	<sxbld-env-prefix-name> "Judgement";
-    	sxbld-env-fresh-name
+    	<sxbld-env-fresh-name> "Judgement"
 
     /**
      * Generates a fresh name for a constructor
@@ -344,5 +343,6 @@ strategies
 	    sxbld-env-extract-decls(|"sorts") => trans-sorts;
 	    sxbld-env-extract-decls(|"arities") => trans-arities;
 	    sxbld-env-extract-decls(|"forms") => trans-forms;
-	    <conc> (trans-sorts, trans-arities, trans-forms) => transformation-elems;
+	    sxbld-env-extract-decls(|"inference-rules") => trans-infrules;
+	    <conc> (trans-sorts, trans-arities, trans-forms, trans-infrules) => transformation-elems;
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems))

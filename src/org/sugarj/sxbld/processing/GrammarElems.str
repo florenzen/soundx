@@ -30,24 +30,25 @@ strategies
 	 */
 	sxbld-analyze-grammar-elems =
 		?SXBldGrammarElems(grammars);
-		<map(sxbld-analyze-grammar-elem)> grammars => analyzed-grammars;
+		<mapconcat(sxbld-analyze-grammar-elem)> grammars => analyzed-grammars;
 		!SXBldGrammarElems(analyzed-grammars)
 
     /**
      * Analyzes a single SDF2 section
      *
-     * @type Grammar -> Grammar
+     * @type Grammar -> List(Grammar)
      */
     sxbld-analyze-grammar-elem =
-        (sxbld-analyze-sorts +
-         sxbld-analyze-cf-syntax +
-         sxbld-analyze-lex-syntax +
-         sxbld-analyze-variables +
-         sxbld-analyze-lex-priorities +
-         sxbld-analyze-cf-priorities +
-         sxbld-analyze-lex-restrictions +
-         sxbld-analyze-cf-restrictions) <+
-        sxbld-analyze-unsupported(|"Unsupported SDF 2 section")
+        ((sxbld-analyze-sorts +
+          sxbld-analyze-cf-syntax +
+          sxbld-analyze-lex-syntax +
+          sxbld-analyze-variables +
+          sxbld-analyze-lex-priorities +
+          sxbld-analyze-cf-priorities +
+          sxbld-analyze-lex-restrictions +
+          sxbld-analyze-cf-restrictions) <+
+         sxbld-analyze-unsupported(|"Unsupported SDF 2 section"));
+        (?[_|_] <+ ![<id>])
 
 	/**
 	 * Passes on lexical priorities untouched
@@ -85,25 +86,27 @@ strategies
 	 * Analyzes a variables section
 	 *
 	 * Transforms it into a context-free section with
-	 * constructor attributes.
+	 * constructor attributes and a lexical section.
 	 *
 	 * @type Grammar -> Grammar
 	 */
 	sxbld-analyze-variables =
 		?variables(prods);
-		<map(sxbld-analyze-variable-prod)> prods => analyzed-prods;
-		!context-free-syntax(analyzed-prods)
+		<map(sxbld-analyze-variable-prod)> prods => cf-lex-prods;
+		<unzip> cf-lex-prods => (cf-prods, lex-prods);
+		![context-free-syntax(cf-prods), lexical-syntax(lex-prods)]
 
 	/**
 	 * Analyzes a variable production
 	 *
-	 * @type Sdf2Production -> Sdf2Production
+	 * @type Sdf2Production -> (Sdf2Production, Sdf2Production)
 	 */
 	sxbld-analyze-variable-prod =
 		?prod(lhs-symbols, rhs-symbol, attributes);
 		<sxbld-analyze-variable-prod-rhs> rhs-symbol => analyzed-rhs-symbol;
-		<sxbld-analyze-variable-prod-attributes(|analyzed-rhs-symbol)> attributes => analyzed-attributes;
-		!prod(lhs-symbols, analyzed-rhs-symbol, analyzed-attributes)
+		<sxbld-analyze-variable-prod-attributes-lex(|analyzed-rhs-symbol)> attributes => (analyzed-attributes, lex-rhs);
+		!(prod([lex-rhs], analyzed-rhs-symbol, analyzed-attributes),
+		  prod(lhs-symbols, lex-rhs, no-attrs()))
 
     /**
      * Checks that right-hand side is of supported format
@@ -120,30 +123,39 @@ strategies
     /**
      * Checks that a variable production has no attributes
      *
-     * @type Sdf2Attributes -> Sdf2Attributes
+     * @type Sdf2Attributes -> (Sdf2Attributes, Sdf2Symbol)
      */
-	sxbld-analyze-variable-prod-attributes(|rhs-symbol) =
+	sxbld-analyze-variable-prod-attributes-lex(|rhs-symbol) =
 		// No attributes
 		?no-attrs();
-		!attrs([prefer(), <sxbld-analyze-variable-cons> rhs-symbol])
+		<sxbld-analyze-variable-cons-name> rhs-symbol => cons-name;
+		<sxbld-analyze-variable-lex-rhs-name> rhs-symbol => lex-rhs-name;
+		!(attrs([prefer(), <sxbld-sdf2-cons-attribute> cons-name]),
+		  sort(lex-rhs-name))
 	sxbld-analyze-variable-prod-attributes(|rhs-symbol) =
 		// Some attributes
 		?attrs(_);
 		sxbld-analyze-unsupported(|"Attributes not supported in variables section")
 
+	sxbld-analyze-variable-lex-rhs-name:
+    	sort(name) -> rhs-name
+    	where
+    		<conc-strings> ("MetaVar", name) => rhs-name
+    
     /**
-     * Generate a cons attribute for the metavariable containing the sort name
+     * Generate a constructor name for the metavariable
      *
      * The constructor name is <base language name>MetaVar<sort-name>.
      *
-     * @type Sdf2Symbol -> Sdf2Attribute
+     * @type Sdf2Symbol -> String
      */
-    sxbld-analyze-variable-cons:
-    	sort(name) -> cons-attribute
+    sxbld-analyze-variable-cons-name:
+    	sort(name) -> cons-name
     	where
-    		<sxbld-env-get-base-language-name> () => base-language-name;
-    		<conc-strings> (base-language-name, "MetaVar", name) => cons-name;
-    		<sxbld-sdf2-cons-attribute> cons-name => cons-attribute
+    		<sxbld-env-prefix-name> (<conc-strings> ("MetaVar", name)) => cons-name
+    		//<sxbld-env-get-base-language-name> () => base-language-name;
+    		//<conc-strings> (base-language-name, "MetaVar", name) => cons-name
+    		// <sxbld-sdf2-cons-attribute> cons-name => cons-attribute
 
     /**
      * Analyzes a sorts section
@@ -288,6 +300,7 @@ strategies
     	   <sxbld-env-prefix-name> cons-name => cons-name-prefixed;
     	   !([<sxbld-sdf2-cons-attribute> cons-name-prefixed | other-attribs], Some(cons-name-quoted))) <+
     	  (// One cons attribute, prefix it
+    	   // TODO: a constructor must not start with "MetaVar"
     	   !cons-attribs; ?[cons-attrib];
     	   <sxbld-sdf2-cons-attribute-name-quoted> cons-attrib => cons-name-quoted;
     	   <un-double-quote; sxbld-env-prefix-name> cons-name-quoted => prefixed-cons-name;
