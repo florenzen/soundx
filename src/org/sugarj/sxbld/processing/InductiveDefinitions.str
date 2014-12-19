@@ -27,7 +27,8 @@ strategies
 
 	sxbld-analyze-inference-rule =
 		?SXNamedInferenceRule(name, rule);
-		<sxbld-analyze-add-inference-rule> (name, rule)
+		<sxbld-analyze-wf-inf-rule> rule => analyzed-rule;
+		<sxbld-analyze-add-inference-rule> (name, analyzed-rule)
 
     // TODO: none of these ill-forms can appear for syntactically correct input.
     // Should we just use SDF2 variables "as is" without encoding the sort?
