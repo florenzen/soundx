@@ -107,7 +107,8 @@ strategies
 	sxbld-analyze-variable-prod =
 		?prod(lhs-symbols, rhs-symbol, attributes);
 		<sxbld-analyze-variable-prod-rhs> rhs-symbol => analyzed-rhs-symbol;
-		<sxbld-analyze-variable-prod-attributes-lex(|analyzed-rhs-symbol)> attributes => (analyzed-attributes, lex-rhs);
+		<sxbld-analyze-variable-prod-attributes-lex(|analyzed-rhs-symbol)> attributes =>
+		  (analyzed-attributes, lex-rhs);
 		!(prod([lex-rhs], analyzed-rhs-symbol, analyzed-attributes),
 		  prod(lhs-symbols, lex-rhs, no-attrs()))
 
@@ -238,7 +239,7 @@ strategies
      */
     sxbld-analyze-cf-syntax =
     	?context-free-syntax(prods);
-    	<map(sxbld-analyze-cf-production)> prods => analyzed-prods;
+    	<map(sxbld-analyze-cf-production); concat> prods => analyzed-prods;
         !context-free-syntax(analyzed-prods)
 
     /**
@@ -256,7 +257,10 @@ strategies
     	try(!option-cons-name-quoted;
     	    ?Some(cons-name-quoted);
     	    <sxbld-analyze-add-arity> (cons-name-quoted, SXAbsArity(sort-names, sort-name)));
-    	!prod(symbols, analyzed-symbol, analyzed-attributes)
+    	<sxbld-prefix-all-sorts(|"Gnd")> symbols => ground-symbols;
+    	<sxbld-prefix-all-sorts(|"Gnd")> analyzed-symbol => analyzed-ground-symbol;
+    	![prod(symbols, analyzed-symbol, analyzed-attributes),
+    	  prod(ground-symbols, analyzed-ground-symbol, analyzed-attributes)]
 
     /**
      * Checks attributes of context-free production
@@ -337,18 +341,21 @@ strategies
      */
     sxbld-analyze-lex-syntax =
     	?lexical-syntax(prods);
-    	<map(sxbld-analyze-lex-production)> prods => analyzed-prods;
+    	<map(sxbld-analyze-lex-production); concat> prods => analyzed-prods;
         !lexical-syntax(analyzed-prods)
 
     /**
      * Analyzes a lexical production
      *
-     * @type Sdf2Production -> Sdf2Production
+     * @type Sdf2Production -> List(Sdf2Production)	
      */
     sxbld-analyze-lex-production =
     	?prod(symbols, symbol, attributes);
     	<sxbld-analyze-lex-rhs> symbol => (analyzed-symbol, sort-name);
-    	!prod(symbols, analyzed-symbol, attributes)
+    	<sxbld-prefix-all-sorts(|"Gnd")> symbols => ground-symbols;
+    	<sxbld-prefix-all-sorts(|"Gnd")> analyzed-symbol => analyzed-ground-symbol;
+    	![prod(symbols, analyzed-symbol, attributes),
+    	  prod(ground-symbols, analyzed-ground-symbol, attributes)]
 
     /**
      * Analyzes the right-hand side of a lexical production
@@ -376,6 +383,6 @@ strategies
      */   
     sxbld-desugar-grammar-elems =
     	?SXBldGrammarElems(grammars);
-    	<sxbld-rename-all-sorts> grammars => renamed-grammars;
+    	<sxbld-prefix-all-sorts-base-lang> grammars => renamed-grammars;
     	<map(\grm -> grammar-elem(grm)\)> renamed-grammars => grammar-elems;
     	<sxbld-env-add-grammar-elems> grammar-elems

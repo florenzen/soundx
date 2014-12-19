@@ -43,7 +43,7 @@ strategies
 		    attributes) <+
 		 (?SXBldJudgementForm(symbols); // If analysis failed there is no cons name
 		  !no-attrs() => attributes));
-		<map(sxbld-rename-all-sorts)> symbols => renamed-symbols;
+		<map(sxbld-prefix-all-sorts-base-lang)> symbols => renamed-symbols;
     	!prod(renamed-symbols, sort("SXJudgement"), attributes) => production;
     	<sxbld-env-add-grammar-elems> [grammar-elem(context-free-syntax([production]))]
 

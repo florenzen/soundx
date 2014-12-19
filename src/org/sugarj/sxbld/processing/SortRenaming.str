@@ -13,15 +13,23 @@ strategies
 	 *
 	 * @type a -> a
 	 */
-	sxbld-rename-all-sorts = topdown(try(sxbld-rename-sort))
+	sxbld-prefix-all-sorts-base-lang = topdown(try(sxbld-prefix-sort-base-lang))
+
+	sxbld-prefix-all-sorts(|prefix) = topdown(try(sxbld-prefix-sort(|prefix)))
 	
 	/**
 	 * Prefixes the sort name with the base language name
 	 *
 	 * @type Sdf2Symbol -> Sdf2Symbol
 	 */
-	sxbld-rename-sort:
-		sort(orig-name) -> sort(new-name)
-		where
-			<sxbld-env-get-base-language-name> () => prefix;
-			<conc-strings> (prefix, orig-name) => new-name
+	sxbld-prefix-sort-base-lang =
+		where(<sxbld-env-get-base-language-name> () => prefix);
+		sxbld-prefix-sort(|prefix)
+		// sort(orig-name) -> sort(new-name)
+		// where
+		// 	<sxbld-env-get-base-language-name> () => prefix;
+		// 	<conc-strings> (prefix, orig-name) => new-name
+
+	sxbld-prefix-sort(|prefix) =
+		?sort(orig-name);
+		!sort(<conc-strings> (prefix, orig-name))
