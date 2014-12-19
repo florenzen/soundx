@@ -69,11 +69,11 @@ strategies
     	end
 
 	sxbld-analyze-is-metavar =
-		string-starts-with(|"MetaVar")
+		string-starts-with(|"SXMetaVar")
 		
 	sxbld-analyze-metavar-sort =
 		explode-string;
-		drop(|7); // Drop MetaVar prefix
+		drop(|9); // Drop SXMetaVar prefix
 		implode-string
 
 	/**
@@ -86,7 +86,7 @@ strategies
 	 */
 	sxbld-analyze-is-judgement =
 		?c#(_);
-		where(<string-starts-with(|<sxbld-env-prefix-name> "Judgement")> c)
+		where(<string-starts-with(|<sxbld-env-prefix-name> "SXJudgement")> c)
 	
 	sxbld-analyze-add-inference-rule =
 		?(name, rule);

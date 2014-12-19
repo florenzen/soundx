@@ -202,7 +202,7 @@ strategies
      * @type _ -> String
      */
     sxbld-env-fresh-judgement-name =
-    	<sxbld-env-fresh-name> "Judgement"
+    	<sxbld-env-fresh-name> "SXJudgement"
 
     /**
      * Generates a fresh name for a constructor
@@ -213,7 +213,7 @@ strategies
      */
     sxbld-env-fresh-cons-name =
     	?sort-name;
-    	<sxbld-env-fresh-name> (<conc-strings> (sort-name, "Cons"))
+    	<sxbld-env-fresh-name> (<conc-strings> ("SXCons", sort-name))
     	
     /**
      * Prefixes given name with the base language name

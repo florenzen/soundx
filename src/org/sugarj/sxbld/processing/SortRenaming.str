@@ -32,4 +32,12 @@ strategies
 
 	sxbld-prefix-sort(|prefix) =
 		?sort(orig-name);
-		!sort(<conc-strings> (prefix, orig-name))
+		if <sxbld-is-soundx-name> orig-name then
+			!sort(orig-name)
+		else
+		    !sort(<conc-strings> (prefix, orig-name))
+		end
+
+	sxbld-is-soundx-name =
+		string-starts-with(|"SXJudgement") +
+		string-starts-with(|"SXMetaVar")

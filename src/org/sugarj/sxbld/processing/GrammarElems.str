@@ -144,7 +144,7 @@ strategies
 	sxbld-analyze-variable-lex-rhs-name:
     	sort(name) -> rhs-name
     	where
-    		<conc-strings> ("MetaVar", name) => rhs-name
+    		<conc-strings> ("SXMetaVar", name) => rhs-name
     
     /**
      * Generate a constructor name for the metavariable
@@ -156,7 +156,7 @@ strategies
     sxbld-analyze-variable-cons-name:
     	sort(name) -> cons-name
     	where
-    		<sxbld-env-prefix-name> (<conc-strings> ("MetaVar", name)) => cons-name
+    		<conc-strings> ("SXMetaVar", name) => cons-name
     		//<sxbld-env-get-base-language-name> () => base-language-name;
     		//<conc-strings> (base-language-name, "MetaVar", name) => cons-name
     		// <sxbld-sdf2-cons-attribute> cons-name => cons-attribute
@@ -215,22 +215,15 @@ strategies
      * Adds an arity to the environment
      *
      * If there is already a constructor of the given name
-     * the strategy fails with an error.
-     *
-     * The constructor name must be double quoted (like it came
-     * from a cons attribute of the input).
+     * the strategy fails.
      *
      * @type (String, SXAbsArity) -> SXEnv
      */
     sxbld-analyze-add-arity =
-    	?(cons-name-quoted, arity);
-    	<un-double-quote> cons-name-quoted => cons-name;
+    	?(cons-name, arity);
     	<sxbld-env-get-arity> cons-name;
-    	if ?None() then
-    		<sxbld-env-add-arity> (cons-name, arity)
-    	else
-    		<sxbld-analyze-fail(|"Duplicate constructor name")> cons-name-quoted
-    	end
+    	?None();
+    	<sxbld-env-add-arity> (cons-name, arity)
 
     /**
      * Analyzes a context-free syntax section
@@ -252,11 +245,13 @@ strategies
     sxbld-analyze-cf-production =
     	?prod(symbols, symbol, attributes);
     	<sxbld-analyze-cf-rhs> symbol => (analyzed-symbol, sort-name);
-    	<sxbld-analyze-cf-attributes(|sort-name)> attributes => (analyzed-attributes, option-cons-name-quoted);
+    	<sxbld-analyze-cf-attributes(|sort-name)> attributes => (analyzed-attributes, option-cons-name);
     	<sxbld-analyze-symbols-to-sorts> symbols => sort-names;
-    	try(!option-cons-name-quoted;
-    	    ?Some(cons-name-quoted);
-    	    <sxbld-analyze-add-arity> (cons-name-quoted, SXAbsArity(sort-names, sort-name)));
+    	try(!option-cons-name;
+    	    ?Some(cons-name);
+    	    // Cannot fail since sxbld-analyze-cf-attributes checks for duplicate
+    	    // names of user defined cons attributes.
+    	    <sxbld-analyze-add-arity> (cons-name, SXAbsArity(sort-names, sort-name)));
     	<sxbld-prefix-all-sorts(|"Gnd")> symbols => ground-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd")> analyzed-symbol => analyzed-ground-symbol;
     	![prod(symbols, analyzed-symbol, analyzed-attributes),
@@ -292,7 +287,7 @@ strategies
      *
      * @param sort-name String name of the rhs sort to include in
      *   constructor name
-     * @type List(Sdf2Attribute) -> (List(Sdf2Attribute, Option(String)))
+     * @type List(Sdf2Attribute) -> (List(Sdf2Attribute), Option(String))
      */
     sxbld-analyze-cf-attribute-list-cons(|sort-name) =
     	where(<elem> (bracket(), <id>)) <
@@ -303,16 +298,20 @@ strategies
     	 ((// No cons attribute, generate one
     	   !cons-attribs; ?[];
      	   <sxbld-env-fresh-cons-name> sort-name => cons-name;
-     	   <double-quote> cons-name => cons-name-quoted;
-    	   <sxbld-env-prefix-name> cons-name => cons-name-prefixed;
-    	   !([<sxbld-sdf2-cons-attribute> cons-name-prefixed | other-attribs], Some(cons-name-quoted))) <+
+		   // add ar
+    	   !([<sxbld-sdf2-cons-attribute> cons-name | other-attribs], Some(cons-name))) <+
     	  (// One cons attribute, prefix it
-    	   // TODO: a constructor must not start with "MetaVar"
     	   !cons-attribs; ?[cons-attrib];
     	   <sxbld-sdf2-cons-attribute-name-quoted> cons-attrib => cons-name-quoted;
     	   <un-double-quote; sxbld-env-prefix-name> cons-name-quoted => prefixed-cons-name;
-    	   !([<sxbld-sdf2-cons-attribute> prefixed-cons-name | other-attribs], Some(cons-name-quoted))) <+
+		   <sxbld-env-get-arity> prefixed-cons-name;
+		   if ?Some(_) then
+		   	   <sxbld-analyze-fail(|"Duplicate constructor name")> cons-name-quoted
+		   else
+    	       !([<sxbld-sdf2-cons-attribute> prefixed-cons-name | other-attribs], Some(prefixed-cons-name))
+    	   end) <+
     	  (// More than one cons attribute, error
+    	   !cons-attribs; ?[_,_|_];
     	   <map(sxbld-analyze-fail(|"Several cons attributes are not allowed"))> cons-attribs)))
         
     /**
