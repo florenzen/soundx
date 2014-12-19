@@ -27,9 +27,6 @@ strategies
 
 	sxbld-analyze-inference-rule =
 		?SXNamedInferenceRule(name, rule);
-		// TODO: All input is well-formed as soon as it can be unambiguously parsed
-		// <sxbld-analyze-wf-inf-rule> rule => analyzed-rule;
-		// <sxbld-analyze-add-inference-rule> (name, analyzed-rule)
 		<sxbld-analyze-add-inference-rule> (name, rule)
 
     // TODO: none of these ill-forms can appear for syntactically correct input.
@@ -37,8 +34,8 @@ strategies
 	sxbld-analyze-wf-inf-rule =
 		?SXInferenceRule(premises, _, concl);
 		<collect-all(sxbld-analyze-is-judgement, conc)> premises => premises-list;
-		!SXAbsInfRule(premises-list, concl);
-		sxbld-analyze-wf-inf-rule
+		!SXAbsInfRule(premises-list, concl) //;
+		// sxbld-analyze-wf-inf-rule
 
 	sxbld-analyze-wf-inf-rule =
 		?SXAbsInfRule(premises, concl);
