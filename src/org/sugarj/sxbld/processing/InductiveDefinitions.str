@@ -27,14 +27,56 @@ strategies
 
 	sxbld-analyze-inference-rule =
 		?SXNamedInferenceRule(name, rule);
-		<sxbld-analyze-wf-inf-rule> rule => analyzed-rule;
-		<sxbld-analyze-add-inference-rule> (name, analyzed-rule)
+		// TODO: All input is well-formed as soon as it can be unambiguously parsed
+		// <sxbld-analyze-wf-inf-rule> rule => analyzed-rule;
+		// <sxbld-analyze-add-inference-rule> (name, analyzed-rule)
+		<sxbld-analyze-add-inference-rule> (name, rule)
 
+    // TODO: none of these ill-forms can appear for syntactically correct input.
+    // Should we just use SDF2 variables "as is" without encoding the sort?
 	sxbld-analyze-wf-inf-rule =
 		?SXInferenceRule(premises, _, concl);
 		<collect-all(sxbld-analyze-is-judgement, conc)> premises => premises-list;
-		// check well-formedness here
-		!SXAbsInfRule(premises-list, concl)
+		!SXAbsInfRule(premises-list, concl);
+		sxbld-analyze-wf-inf-rule
+
+	sxbld-analyze-wf-inf-rule =
+		?SXAbsInfRule(premises, concl);
+		where(<map(sxbld-analyze-wf-judgement)> [concl|premises])
+		
+	sxbld-analyze-wf-judgement =
+		?judg@c#(args);
+		<sxbld-env-unprefix-name> c => judgement-name;
+		<sxbld-env-get-form> judgement-name => Some(SXAbsJudgementForm(declared-sorts));
+		(<zip> (args, declared-sorts) <+
+		 <sxbld-analyze-fail(|"Wrong number of arguments")> judg);
+		map(sxbld-analyze-wf-exprs)
+
+    sxbld-analyze-wf-exprs =
+    	?(expr, expected-sort);
+    	!expr; ?c#(args);
+    	<sxbld-env-unprefix-name> c => cons-name;
+    	if <sxbld-analyze-is-metavar> cons-name then
+    		<sxbld-analyze-metavar-sort> cons-name
+    	else
+    		<sxbld-env-get-arity> cons-name => Some(SXAbsArity(arg-sorts, res-sort));
+    		(// Compare expected and actual sort
+    		 (!expected-sort; ?res-sort) <+
+    		 (<conc-strings> ("Expected sort ", expected-sort, " but found ", res-sort) => error-message;
+    		  <sxbld-analyze-fail(|error-message)> expr));
+    		// Check subexpressions
+    		(<zip> (args, arg-sorts) <+
+    		 <sxbld-analyze-fail(|"Wrong number of arguments")> expr);
+    		map(sxbld-analyze-wf-exprs)
+    	end
+
+	sxbld-analyze-is-metavar =
+		string-starts-with(|"MetaVar")
+		
+	sxbld-analyze-metavar-sort =
+		explode-string;
+		drop(|7); // Drop MetaVar prefix
+		implode-string
 
 	/**
 	 * Checks if term is a judgement

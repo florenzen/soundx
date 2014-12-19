@@ -225,6 +225,17 @@ strategies
     	<sxbld-env-get-base-language-name> () => base-language-name;
     	<conc-strings> (base-language-name, name)
 
+	/**
+	 * Remove base language name prefix
+	 *
+	 * @type String -> String
+	 */
+	 sxbld-env-unprefix-name =
+	 	where(<sxbld-env-get-base-language-name; string-length> () => len);
+	 	explode-string;
+	 	drop(|len);
+	 	implode-string
+
 /**
  * Handling of form declarations
  */
