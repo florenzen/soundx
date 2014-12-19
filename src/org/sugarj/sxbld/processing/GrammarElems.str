@@ -59,7 +59,7 @@ strategies
 	 * @type Grammar -> Grammar
 	 */
 	sxbld-analyze-lex-priorities =
-		?lexical-priorities(_)
+		?lexical-priorities(_); sxbld-prefix-all-sorts-base-lang
 	
    /**
 	 * Passes on context-free priorities untouched
@@ -67,7 +67,7 @@ strategies
 	 * @type Grammar -> Grammar
 	 */
 	sxbld-analyze-cf-priorities =
-		?context-free-priorities(_)
+		?context-free-priorities(_); sxbld-prefix-all-sorts-base-lang
 
     /**
 	 * Passes on lexical restrictions untouched
@@ -75,7 +75,7 @@ strategies
 	 * @type Grammar -> Grammar
 	 */
 	sxbld-analyze-lex-restrictions =
-		?lexical-restrictions(_)
+		?lexical-restrictions(_); sxbld-prefix-all-sorts-base-lang
 
 	/**
 	 * Passes on context-free priorities untouched
@@ -83,7 +83,7 @@ strategies
 	 * @type Grammar -> Grammar
 	 */
 	sxbld-analyze-cf-restrictions =
-		?context-free-restrictions(_)
+		?context-free-restrictions(_); sxbld-prefix-all-sorts-base-lang
 
 	/**
 	 * Analyzes a variables section
@@ -109,8 +109,10 @@ strategies
 		<sxbld-analyze-variable-prod-rhs> rhs-symbol => analyzed-rhs-symbol;
 		<sxbld-analyze-variable-prod-attributes-lex(|analyzed-rhs-symbol)> attributes =>
 		  (analyzed-attributes, lex-rhs);
-		!(prod([lex-rhs], analyzed-rhs-symbol, analyzed-attributes),
-		  prod(lhs-symbols, lex-rhs, no-attrs()))
+		<sxbld-prefix-all-sorts-base-lang> lhs-symbols => lhs-symbols-prefixed;
+		<sxbld-prefix-all-sorts-base-lang> analyzed-rhs-symbol => prefixed-rhs-symbol;
+		!(prod([lex-rhs], prefixed-rhs-symbol, analyzed-attributes),
+		  prod(lhs-symbols-prefixed, lex-rhs, no-attrs()))
 
     /**
      * Checks that right-hand side is of supported format
@@ -168,7 +170,7 @@ strategies
      */
     sxbld-analyze-sorts =
         ?'sorts(symbols);
-    	<map(sxbld-analyze-symbol)> symbols => analyzed-symbols;
+    	<map(sxbld-analyze-symbol); sxbld-prefix-all-sorts-base-lang> symbols => analyzed-symbols;
    	    !'sorts(analyzed-symbols)
 
     /**
@@ -252,10 +254,12 @@ strategies
     	    // Cannot fail since sxbld-analyze-cf-attributes checks for duplicate
     	    // names of user defined cons attributes.
     	    <sxbld-analyze-add-arity> (cons-name, SXAbsArity(sort-names, sort-name)));
-    	<sxbld-prefix-all-sorts(|"Gnd")> symbols => ground-symbols;
-    	<sxbld-prefix-all-sorts(|"Gnd")> analyzed-symbol => analyzed-ground-symbol;
-    	![prod(symbols, analyzed-symbol, analyzed-attributes),
-    	  prod(ground-symbols, analyzed-ground-symbol, analyzed-attributes)]
+    	<sxbld-prefix-all-sorts-base-lang> analyzed-symbol => prefixed-symbol;
+    	<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
+    	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => prefixed-ground-symbols;
+    	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> analyzed-symbol => prefixed-ground-symbol;
+    	![prod(prefixed-symbols, prefixed-symbol, analyzed-attributes),
+    	  prod(prefixed-ground-symbols, prefixed-ground-symbol, analyzed-attributes)]
 
     /**
      * Checks attributes of context-free production
@@ -351,10 +355,11 @@ strategies
     sxbld-analyze-lex-production =
     	?prod(symbols, symbol, attributes);
     	<sxbld-analyze-lex-rhs> symbol => (analyzed-symbol, sort-name);
-    	<sxbld-prefix-all-sorts(|"Gnd")> symbols => ground-symbols;
-    	<sxbld-prefix-all-sorts(|"Gnd")> analyzed-symbol => analyzed-ground-symbol;
-    	![prod(symbols, analyzed-symbol, attributes),
-    	  prod(ground-symbols, analyzed-ground-symbol, attributes)]
+    	<sxbld-prefix-all-sorts-base-lang> [analyzed-symbol|symbols] => [prefixed-symbol|prefixed-symbols];
+    	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => ground-symbols;
+    	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> analyzed-symbol => ground-symbol;
+    	![prod(prefixed-symbols, prefixed-symbol, attributes),
+    	  prod(ground-symbols, ground-symbol, attributes)]
 
     /**
      * Analyzes the right-hand side of a lexical production
@@ -376,12 +381,12 @@ strategies
     	!(symbol, name)
    
     /**
-     * Renames all sorts in the grammars and adds them to the environment
+     * Adds the grammars to the environment
      *
      * @type SXBldGrammarElems -> SXEnv
      */   
     sxbld-desugar-grammar-elems =
     	?SXBldGrammarElems(grammars);
-    	<sxbld-prefix-all-sorts-base-lang> grammars => renamed-grammars;
-    	<map(\grm -> grammar-elem(grm)\)> renamed-grammars => grammar-elems;
+    	//<sxbld-prefix-all-sorts-base-lang> grammars => renamed-grammars;
+    	<map(\grm -> grammar-elem(grm)\)> grammars => grammar-elems;
     	<sxbld-env-add-grammar-elems> grammar-elems
