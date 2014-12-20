@@ -353,15 +353,12 @@ strategies
      */
     sxbld-analyze-lex-production =
     	?prod(symbols, symbol, attributes);
-    	<debug(!"ATTRIBUTES ")> attributes;
-    	
     	//<sxbld-analyze-lex-rhs> symbol => (analyzed-symbol, sort-name);
     	<sxbld-prefix-all-sorts-base-lang> [symbol|symbols] => [prefixed-symbol|prefixed-symbols];
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => ground-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => ground-symbol;
     	// Generate syntax production for inequality judgement if requires-inequlity is given
     	((!attributes; ?attrs(attribute-list); !attribute-list) <+ ![]) => attribute-list;
-    	debug(!"ATTR LIST ");
     	if <elem> (term(default(fun(unquoted("requires-inequality")))), attribute-list) then
     		![prod([prefixed-symbol, lit("=/="), prefixed-symbol], sort("SXJudgement"),
     	           attrs([<sxbld-sdf2-cons-attribute> "SXNeq"]))]
