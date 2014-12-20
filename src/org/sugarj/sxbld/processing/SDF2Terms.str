@@ -35,7 +35,8 @@ strategies
      * @type Sdf2Attribute -> Sdf2Attribute
      */
     sxbld-sdf2-is-attribute(|attrib-name) =
-    	?term(default(appl(unquoted(name), _)))
+    	?term(default(appl(unquoted(attrib-name), _))) +
+    	?term(default(fun(unquoted(attrib-name))))
 
     /**
      * Encloses a string in double quotes

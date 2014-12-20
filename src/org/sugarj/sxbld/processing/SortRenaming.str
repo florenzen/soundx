@@ -31,12 +31,17 @@ strategies
 		// 	<conc-strings> (prefix, orig-name) => new-name
 
 	sxbld-prefix-sort(|prefix) =
-		?sort(orig-name);
-		if <sxbld-is-soundx-name> orig-name then
-			!sort(orig-name)
-		else
-		    !sort(<conc-strings> (prefix, orig-name))
+		let conc-prefix = ?orig-name; <conc-strings> (prefix, orig-name)
+		in
+			sort(conc-prefix) +
+			parameterized-sort(conc-prefix, id)
 		end
+		
+		// if <sxbld-is-soundx-name> orig-name then
+		// 	!sort(orig-name)
+		// else
+		//     !sort(<conc-strings> (prefix, orig-name))
+		// end
 
 	sxbld-is-soundx-name =
 		string-starts-with(|"SXJudgement") +

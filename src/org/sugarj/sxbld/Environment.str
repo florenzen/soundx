@@ -59,6 +59,7 @@ strategies
   	    hashtable-put(|"grammar-elems", []);
   	    hashtable-put(|"base-language-name", "");
   	    hashtable-put(|"name-counter", 0);
+  	    hashtable-put(|"cons-names", []);
   	    hashtable-put(|"sorts", <new-hashtable> ());
   	    hashtable-put(|"arities", <new-hashtable> ());
   	    hashtable-put(|"forms", <new-hashtable> ());
@@ -212,8 +213,7 @@ strategies
      * @type String -> String
      */
     sxbld-env-fresh-cons-name =
-    	?sort-name;
-    	<sxbld-env-fresh-name> (<conc-strings> ("SXCons", sort-name))
+    	<sxbld-env-fresh-name> "SXCons"
     	
     /**
      * Prefixes given name with the base language name
@@ -235,6 +235,20 @@ strategies
 	 	explode-string;
 	 	drop(|len);
 	 	implode-string
+
+/**
+ * Handling of constructor names
+ */
+strategies
+	sxbld-env-add-cons-name =
+		?name;
+		<sxbld-env-get> "cons-names" => names;
+		<sxbld-env-set> ("cons-names", [name|names])
+
+	sxbld-env-cons-name-defined =
+		?name;
+		<sxbld-env-get> "cons-names" => names;
+		<elem> (name, names)
 
 /**
  * Handling of form declarations
@@ -341,9 +355,8 @@ strategies
  * Extraction of extension-decls from environment
  */
 strategies
-    sxbld-env-extract-decls(|key) =
-    	<sxbld-env-get; hashtable-getlist> key => arities-alist;
-    	<trm-explode> arities-alist => stratego-alist;
+    sxbld-env-decls-to-stratego(|term, key) =
+    	<trm-explode> term => stratego-alist;
     	<sxbld-env-prefix-name> (<conc-strings> ("-", key)) => strategy-name;
     	![transformation-elem(
     		Strategies([SDefNoArgs(strategy-name, Build(stratego-alist))])
@@ -351,9 +364,12 @@ strategies
 
     sxbld-env-extract-extension-decls =
   	    sxbld-env-get-grammar-elems => grammar-elems;
-	    sxbld-env-extract-decls(|"sorts") => trans-sorts;
-	    sxbld-env-extract-decls(|"arities") => trans-arities;
-	    sxbld-env-extract-decls(|"forms") => trans-forms;
-	    sxbld-env-extract-decls(|"inference-rules") => trans-infrules;
-	    <conc> (trans-sorts, trans-arities, trans-forms, trans-infrules) => transformation-elems;
+	    //sxbld-env-extract-decls(|"sorts") => trans-sorts;
+	    //sxbld-env-extract-decls(|"arities") => trans-arities;
+	    //sxbld-env-extract-decls(|"forms") => trans-forms;
+	    <sxbld-env-get> "cons-names" => cons-names;
+	    sxbld-env-decls-to-stratego(|cons-names, "cons-names") => trans-cons-names;
+	    <sxbld-env-get; hashtable-getlist> "inference-rules" => inf-rules;
+	    sxbld-env-decls-to-stratego(|inf-rules, "inference-rules") => trans-infrules;
+	    <conc> (trans-cons-names, trans-infrules) => transformation-elems;
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems))

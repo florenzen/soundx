@@ -27,8 +27,11 @@ strategies
 
 	sxbld-analyze-inference-rule =
 		?SXNamedInferenceRule(name, rule);
-		<sxbld-analyze-wf-inf-rule> rule => analyzed-rule;
+		<sxbld-analyze-wf-inf-rule; sxbld-meta-var-to-sx-metavar> rule => analyzed-rule;
 		<sxbld-analyze-add-inference-rule> (name, analyzed-rule)
+
+    sxbld-meta-var-to-sx-metavar =
+    	topdown(try(\meta-var(name) -> SXMetaVar(name)\))
 
     // TODO: none of these ill-forms can appear for syntactically correct input.
     // Should we just use SDF2 variables "as is" without encoding the sort?
@@ -85,8 +88,8 @@ strategies
 	 * @type a -> a
 	 */
 	sxbld-analyze-is-judgement =
-		?c#(_);
-		where(<string-starts-with(|<sxbld-env-prefix-name> "SXJudgement")> c)
+		?c#(_); where(<string-starts-with(|"SXJudgement")> c) +
+		?SXNeq(_, _)
 	
 	sxbld-analyze-add-inference-rule =
 		?(name, rule);

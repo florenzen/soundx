@@ -11,3 +11,6 @@ signature constructors
 	SXInfRulePremise:       SXInfRulePremise                            -> SXInfRulePremisesEnum
 	SXInfRulePremisesNil:                                                  SXInfRulePremises
 	SXInfRulePremisesCons:  SXInfRulePremisesEnum * SXInfRulePremises   -> SXInfRulePremises
+
+    SXMetaVar: String -> SXMetaVar
+    SXNeq:     SXExpr * SXEpr -> SXJudgement

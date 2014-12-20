@@ -94,25 +94,26 @@ strategies
 	 * @type Grammar -> Grammar
 	 */
 	sxbld-analyze-variables =
-		?variables(prods);
-		<map(sxbld-analyze-variable-prod)> prods => cf-lex-prods;
-		<unzip> cf-lex-prods => (cf-prods, lex-prods);
-		![context-free-syntax(cf-prods), lexical-syntax(lex-prods)]
+	    variables(sxbld-prefix-all-sorts-base-lang)
+		// ?variables(prods);
+		// <map(sxbld-analyze-variable-prod)> prods => cf-lex-prods;
+		// <unzip> cf-lex-prods => (cf-prods, lex-prods);
+		// ![context-free-syntax(cf-prods), lexical-syntax(lex-prods)]
 
 	/**
 	 * Analyzes a variable production
 	 *
 	 * @type Sdf2Production -> (Sdf2Production, Sdf2Production)
 	 */
-	sxbld-analyze-variable-prod =
-		?prod(lhs-symbols, rhs-symbol, attributes);
-		<sxbld-analyze-variable-prod-rhs> rhs-symbol => analyzed-rhs-symbol;
-		<sxbld-analyze-variable-prod-attributes-lex(|analyzed-rhs-symbol)> attributes =>
-		  (analyzed-attributes, lex-rhs);
-		<sxbld-prefix-all-sorts-base-lang> lhs-symbols => lhs-symbols-prefixed;
-		<sxbld-prefix-all-sorts-base-lang> analyzed-rhs-symbol => prefixed-rhs-symbol;
-		!(prod([lex-rhs], prefixed-rhs-symbol, analyzed-attributes),
-		  prod(lhs-symbols-prefixed, lex-rhs, no-attrs()))
+	// sxbld-analyze-variable-prod =
+	// 	?prod(lhs-symbols, rhs-symbol, attributes);
+	// 	<sxbld-analyze-variable-prod-rhs> rhs-symbol => analyzed-rhs-symbol;
+	// 	<sxbld-analyze-variable-prod-attributes-lex(|analyzed-rhs-symbol)> attributes =>
+	// 	  (analyzed-attributes, lex-rhs);
+	// 	<sxbld-prefix-all-sorts-base-lang> lhs-symbols => lhs-symbols-prefixed;
+	// 	<sxbld-prefix-all-sorts-base-lang> analyzed-rhs-symbol => prefixed-rhs-symbol;
+	// 	!(prod([lex-rhs], prefixed-rhs-symbol, analyzed-attributes),
+	// 	  prod(lhs-symbols-prefixed, lex-rhs, no-attrs()))
 
     /**
      * Checks that right-hand side is of supported format
@@ -122,31 +123,31 @@ strategies
      *
      * @type Sdf2Symbol -> Sdf2Symbol
      */
-    sxbld-analyze-variable-prod-rhs =
-	    ?sort(_) <+
-    	sxbld-analyze-unsupported(|"Unsupported right-hand side")
+    // sxbld-analyze-variable-prod-rhs =
+	   //  ?sort(_) <+
+    // 	sxbld-analyze-unsupported(|"Unsupported right-hand side")
 
     /**
      * Checks that a variable production has no attributes
      *
      * @type Sdf2Attributes -> (Sdf2Attributes, Sdf2Symbol)
      */
-	sxbld-analyze-variable-prod-attributes-lex(|rhs-symbol) =
-		// No attributes
-		?no-attrs();
-		<sxbld-analyze-variable-cons-name> rhs-symbol => cons-name;
-		<sxbld-analyze-variable-lex-rhs-name> rhs-symbol => lex-rhs-name;
-		!(attrs([prefer(), <sxbld-sdf2-cons-attribute> cons-name]),
-		  sort(lex-rhs-name))
-	sxbld-analyze-variable-prod-attributes-lex(|rhs-symbol) =
-		// Some attributes
-		?attrs(_);
-		sxbld-analyze-unsupported(|"Attributes not supported in variables section")
-
-	sxbld-analyze-variable-lex-rhs-name:
-    	sort(name) -> rhs-name
-    	where
-    		<conc-strings> ("SXMetaVar", name) => rhs-name
+// 	sxbld-analyze-variable-prod-attributes-lex(|rhs-symbol) =
+// 		// No attributes
+// 		?no-attrs();
+// 		<sxbld-analyze-variable-cons-name> rhs-symbol => cons-name;
+// 		<sxbld-analyze-variable-lex-rhs-name> rhs-symbol => lex-rhs-name;
+// 		!(attrs([prefer(), <sxbld-sdf2-cons-attribute> cons-name]),
+// 		  sort(lex-rhs-name))
+// 	sxbld-analyze-variable-prod-attributes-lex(|rhs-symbol) =
+// 		// Some attributes
+// 		?attrs(_);
+// 		sxbld-analyze-unsupported(|"Attributes not supported in variables section")
+// 
+// 	sxbld-analyze-variable-lex-rhs-name:
+//     	sort(name) -> rhs-name
+//     	where
+//     		<conc-strings> ("SXMetaVar", name) => rhs-name
     
     /**
      * Generate a constructor name for the metavariable
@@ -155,13 +156,13 @@ strategies
      *
      * @type Sdf2Symbol -> String
      */
-    sxbld-analyze-variable-cons-name:
-    	sort(name) -> cons-name
-    	where
-    		<conc-strings> ("SXMetaVar", name) => cons-name
-    		//<sxbld-env-get-base-language-name> () => base-language-name;
-    		//<conc-strings> (base-language-name, "MetaVar", name) => cons-name
-    		// <sxbld-sdf2-cons-attribute> cons-name => cons-attribute
+    // sxbld-analyze-variable-cons-name:
+    // 	sort(name) -> cons-name
+    // 	where
+    // 		<conc-strings> ("SXMetaVar", name) => cons-name
+    // 		//<sxbld-env-get-base-language-name> () => base-language-name;
+    // 		//<conc-strings> (base-language-name, "MetaVar", name) => cons-name
+    // 		// <sxbld-sdf2-cons-attribute> cons-name => cons-attribute
 
     /**
      * Analyzes a sorts section
@@ -169,27 +170,27 @@ strategies
      * @type Grammar -> Grammar
      */
     sxbld-analyze-sorts =
-        ?'sorts(symbols);
-    	<map(sxbld-analyze-symbol); sxbld-prefix-all-sorts-base-lang> symbols => analyzed-symbols;
-   	    !'sorts(analyzed-symbols)
+        'sorts(sxbld-prefix-all-sorts-base-lang)
+    	// <map(sxbld-analyze-symbol); sxbld-prefix-all-sorts-base-lang> symbols => analyzed-symbols;
+   	 //    !'sorts(analyzed-symbols)
 
     /**
      * Checks for unsupported sort declarations
      *
      * @type Sdf2Symbol -> Sdf2Symbol
      */
-    sxbld-analyze-symbol =
-    	?sort(_) <+
-    	sxbld-analyze-unsupported(|"Unsupported sort declaration")
+    // sxbld-analyze-symbol =
+    // 	?sort(_) <+
+    // 	sxbld-analyze-unsupported(|"Unsupported sort declaration")
 
     /**
      * Succeeds if two sorts are equal, fails otherwise
      *
      * @type (SXAbsSort, SXAbsSort) -> (SXAbsSort, SXAbsSort)
      */
-    sxbld-sorts-equal =
-   		?(SXAbsSortLexical(), SXAbsSortLexical()) +
-   		?(SXAbsSortContextFree(), SXAbsSortContextFree())
+    // sxbld-sorts-equal =
+   	// 	?(SXAbsSortLexical(), SXAbsSortLexical()) +
+   	// 	?(SXAbsSortContextFree(), SXAbsSortContextFree())
 
     /**
      * Adds a sort to the environment
@@ -199,19 +200,19 @@ strategies
      *
      * @type (String, SXAbsSort) -> SXEnv
      */
-    sxbld-add-sort =
-    	?(name, sort);
-    	<sxbld-env-get-sort> name;
-    	if ?None() then
-    		<sxbld-env-add-sort> (name, sort)
-    	else
-    		?Some(other-sort);
-    		if <sxbld-sorts-equal> (sort, other-sort) then
-    			<sxbld-get-env-hashtable> () // Return the environment in any case
-    		else
-    			<sxbld-analyze-fail(|"Invalid redeclaration of sort")> name
-    		end
-    	end
+    // sxbld-add-sort =
+    // 	?(name, sort);
+    // 	<sxbld-env-get-sort> name;
+    // 	if ?None() then
+    // 		<sxbld-env-add-sort> (name, sort)
+    // 	else
+    // 		?Some(other-sort);
+    // 		if <sxbld-sorts-equal> (sort, other-sort) then
+    // 			<sxbld-get-env-hashtable> () // Return the environment in any case
+    // 		else
+    // 			<sxbld-analyze-fail(|"Invalid redeclaration of sort")> name
+    // 		end
+    // 	end
 
     /**
      * Adds an arity to the environment
@@ -246,18 +247,18 @@ strategies
      */
     sxbld-analyze-cf-production =
     	?prod(symbols, symbol, attributes);
-    	<sxbld-analyze-cf-rhs> symbol => (analyzed-symbol, sort-name);
-    	<sxbld-analyze-cf-attributes(|sort-name)> attributes => (analyzed-attributes, option-cons-name);
-    	<sxbld-analyze-symbols-to-sorts> symbols => sort-names;
-    	try(!option-cons-name;
-    	    ?Some(cons-name);
-    	    // Cannot fail since sxbld-analyze-cf-attributes checks for duplicate
-    	    // names of user defined cons attributes.
-    	    <sxbld-analyze-add-arity> (cons-name, SXAbsArity(sort-names, sort-name)));
-    	<sxbld-prefix-all-sorts-base-lang> analyzed-symbol => prefixed-symbol;
+    	//<sxbld-analyze-cf-rhs> symbol => (analyzed-symbol, sort-name);
+    	<sxbld-analyze-cf-attributes> attributes => analyzed-attributes;
+    	// <sxbld-analyze-symbols-to-sorts> symbols => sort-names;
+    	//try(!option-cons-name;
+    	//    ?Some(cons-name);
+    	//    // Cannot fail since sxbld-analyze-cf-attributes checks for duplicate
+    	//    // names of user defined cons attributes.
+    	//    <sxbld-analyze-add-arity> (cons-name, SXAbsArity(sort-names, sort-name)));
+    	<sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
     	<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => prefixed-ground-symbols;
-    	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> analyzed-symbol => prefixed-ground-symbol;
+    	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-ground-symbol;
     	![prod(prefixed-symbols, prefixed-symbol, analyzed-attributes),
     	  prod(prefixed-ground-symbols, prefixed-ground-symbol, analyzed-attributes)]
 
@@ -270,15 +271,14 @@ strategies
      * @param sort-name String name of the rhs sort to include in
      *   constructor name
      *
-     * @type Sdf2Attributes -> (Sdf2Attributes, Option(String))
+     * @type Sdf2Attributes -> Sdf2Attributes
      */
-    sxbld-analyze-cf-attributes(|sort-name) =
+    sxbld-analyze-cf-attributes =
     	((?no-attrs(); ![]) +
     	 (?attrs(attrib-list); !attrib-list));
-    	sxbld-analyze-cf-attribute-list-cons(|sort-name) => (attrib-list-with-cons, cons-name);
-    	!(attrs(attrib-list-with-cons), cons-name)
+    	sxbld-analyze-cf-attribute-list-cons => attrib-list-with-cons;
+    	!attrs(attrib-list-with-cons)
 
-    
     /**
      * Adds or prefixes a cons attribute
      *
@@ -291,28 +291,27 @@ strategies
      *
      * @param sort-name String name of the rhs sort to include in
      *   constructor name
-     * @type List(Sdf2Attribute) -> (List(Sdf2Attribute), Option(String))
+     * @type List(Sdf2Attribute) -> List(Sdf2Attribute)
      */
-    sxbld-analyze-cf-attribute-list-cons(|sort-name) =
+    sxbld-analyze-cf-attribute-list-cons =
     	where(<elem> (bracket(), <id>)) <
     	// bracket attribute, return attributes untouched
-    	!(<id>, None()) +
+    	id +
     	// No bracket attribute
     	(partition(sxbld-sdf2-is-attribute(|"cons")) => (cons-attribs, other-attribs);
     	 ((// No cons attribute, generate one
     	   !cons-attribs; ?[];
-     	   <sxbld-env-fresh-cons-name> sort-name => cons-name;
-		   // add ar
-    	   !([<sxbld-sdf2-cons-attribute> cons-name | other-attribs], Some(cons-name))) <+
+     	   sxbld-env-fresh-cons-name => cons-name;
+		   sxbld-env-add-cons-name;
+    	   ![<sxbld-sdf2-cons-attribute> cons-name | other-attribs]) <+
     	  (// One cons attribute, prefix it
     	   !cons-attribs; ?[cons-attrib];
     	   <sxbld-sdf2-cons-attribute-name-quoted> cons-attrib => cons-name-quoted;
     	   <un-double-quote; sxbld-env-prefix-name> cons-name-quoted => prefixed-cons-name;
-		   <sxbld-env-get-arity> prefixed-cons-name;
-		   if ?Some(_) then
+		   if sxbld-env-cons-name-defined then
 		   	   <sxbld-analyze-fail(|"Duplicate constructor name")> cons-name-quoted
 		   else
-    	       !([<sxbld-sdf2-cons-attribute> prefixed-cons-name | other-attribs], Some(prefixed-cons-name))
+    	       ![<sxbld-sdf2-cons-attribute> prefixed-cons-name | other-attribs]
     	   end) <+
     	  (// More than one cons attribute, error
     	   !cons-attribs; ?[_,_|_];
@@ -323,19 +322,19 @@ strategies
      *
      * @type Sdf2Symbol -> Sdf2Symbol
      */
-    sxbld-analyze-cf-rhs =
-    	sxbld-analyze-cf-rhs-sort <+
-    	sxbld-analyze-unsupported(|"Unsupported right-hand side")
+    // sxbld-analyze-cf-rhs =
+    // 	sxbld-analyze-cf-rhs-sort <+
+    // 	sxbld-analyze-unsupported(|"Unsupported right-hand side")
 
     /**
      * Adds the right-hand side sort as SXAbsSortContextFree() to environment
      *
      * @type Symbol -> SXEnv
      */
-    sxbld-analyze-cf-rhs-sort =
-    	?symbol@sort(name);
-    	<sxbld-add-sort> (name, SXAbsSortContextFree());
-    	!(symbol, name)
+    // sxbld-analyze-cf-rhs-sort =
+    // 	?symbol@sort(name);
+    // 	<sxbld-add-sort> (name, SXAbsSortContextFree());
+    // 	!(symbol, name)
 
     /**
      * Analyzes a lexical syntax section
@@ -344,41 +343,54 @@ strategies
      */
     sxbld-analyze-lex-syntax =
     	?lexical-syntax(prods);
-    	<map(sxbld-analyze-lex-production); concat> prods => analyzed-prods;
-        !lexical-syntax(analyzed-prods)
+    	<map(sxbld-analyze-lex-production); unzip; (concat, concat)> prods => (lex-prods, cf-prods);
+        ![lexical-syntax(lex-prods), context-free-syntax(cf-prods)]
 
     /**
      * Analyzes a lexical production
      *
-     * @type Sdf2Production -> List(Sdf2Production)	
+     * @type Sdf2Production -> (List(Sdf2Production), List(Sdf2Production))
      */
     sxbld-analyze-lex-production =
     	?prod(symbols, symbol, attributes);
-    	<sxbld-analyze-lex-rhs> symbol => (analyzed-symbol, sort-name);
-    	<sxbld-prefix-all-sorts-base-lang> [analyzed-symbol|symbols] => [prefixed-symbol|prefixed-symbols];
+    	<debug(!"ATTRIBUTES ")> attributes;
+    	
+    	//<sxbld-analyze-lex-rhs> symbol => (analyzed-symbol, sort-name);
+    	<sxbld-prefix-all-sorts-base-lang> [symbol|symbols] => [prefixed-symbol|prefixed-symbols];
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => ground-symbols;
-    	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> analyzed-symbol => ground-symbol;
-    	![prod(prefixed-symbols, prefixed-symbol, attributes),
-    	  prod(ground-symbols, ground-symbol, attributes)]
+    	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => ground-symbol;
+    	// Generate syntax production for inequality judgement if requires-inequlity is given
+    	((!attributes; ?attrs(attribute-list); !attribute-list) <+ ![]) => attribute-list;
+    	debug(!"ATTR LIST ");
+    	if <elem> (term(default(fun(unquoted("requires-inequality")))), attribute-list) then
+    		![prod([prefixed-symbol, lit("=/="), prefixed-symbol], sort("SXJudgement"),
+    	           attrs([<sxbld-sdf2-cons-attribute> "SXNeq"]))]
+    	else
+    		![]
+    	end => cf-prods;
+    	!([prod(prefixed-symbols, prefixed-symbol, attributes),
+    	   prod(ground-symbols, ground-symbol, attributes)],
+    	  cf-prods)
+    	  
 
     /**
      * Analyzes the right-hand side of a lexical production
      *
      * @type Sdf2Symbol -> Sdf2Symbol
      */
-    sxbld-analyze-lex-rhs =
-    	sxbld-analyze-lex-rhs-sort <+
-    	sxbld-analyze-unsupported(|"Unsupported right-hand side")
+    // sxbld-analyze-lex-rhs =
+    // 	sxbld-analyze-lex-rhs-sort <+
+    // 	sxbld-analyze-unsupported(|"Unsupported right-hand side")
 
     /**
      * Adds the right-hand side sort as SXAbsSortLexical() to environment
      *
      * @type Symbol -> SXEnv
      */
-    sxbld-analyze-lex-rhs-sort =
-    	?symbol@sort(name);
-    	<sxbld-add-sort> (name, SXAbsSortLexical());
-    	!(symbol, name)
+    // sxbld-analyze-lex-rhs-sort =
+    // 	?symbol@sort(name);
+    // 	<sxbld-add-sort> (name, SXAbsSortLexical());
+    // 	!(symbol, name)
    
     /**
      * Adds the grammars to the environment

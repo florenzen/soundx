@@ -25,11 +25,13 @@ strategies
 		SXBldJudgementForms(map(sxbld-analyze-judgement-form))
 		
 	sxbld-analyze-judgement-form =
-		?form@SXBldJudgementForm(symbols);
-		<sxbld-analyze-symbols-to-sorts> symbols => sort-names;
+		?SXBldJudgementForm(symbols);
+		// <sxbld-analyze-symbols-to-sorts> symbols => sort-names;
 	    <sxbld-env-fresh-judgement-name> () => judgement-name;
-    	<sxbld-env-add-form> (judgement-name, SXAbsJudgementForm(sort-names));
-    	!(judgement-name, form)
+    	// <sxbld-env-add-form> (judgement-name, SXAbsJudgementForm(sort-names));
+    	<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
+    	!prod(prefixed-symbols, sort("SXJudgement"), attrs([<sxbld-sdf2-cons-attribute> judgement-name]))
+    	// !(judgement-name, form)
 
 strategies
 	/**
@@ -37,15 +39,16 @@ strategies
 	 *
 	 * @type SXBldJudgementForm -> SXEnv
 	 */
-	sxbld-desugar-judgement-form =
-		((?(judgement-name, SXBldJudgementForm(symbols));
-		  <sxbld-sdf2-cons-attribute; !attrs([<id>])> judgement-name =>
-		    attributes) <+
-		 (?SXBldJudgementForm(symbols); // If analysis failed there is no cons name
-		  !no-attrs() => attributes));
-		<map(sxbld-prefix-all-sorts-base-lang)> symbols => renamed-symbols;
-    	!prod(renamed-symbols, sort("SXJudgement"), attributes) => production;
-    	<sxbld-env-add-grammar-elems> [grammar-elem(context-free-syntax([production]))]
+	sxbld-desugar-judgement-forms =
+		?SXBldJudgementForms(prods);
+		// ((?(judgement-name, SXBldJudgementForm(symbols));
+		//   <sxbld-sdf2-cons-attribute; !attrs([<id>])> judgement-name =>
+		//     attributes) <+
+		//  (?SXBldJudgementForm(symbols); // If analysis failed there is no cons name
+		//   !no-attrs() => attributes));
+		// <map(sxbld-prefix-all-sorts-base-lang)> symbols => renamed-symbols;
+  //   	!prod(renamed-symbols, sort("SXJudgement"), attributes) => production;
+    	<sxbld-env-add-grammar-elems> [grammar-elem(context-free-syntax(prods))]
 
     /**
      * Desugars judgement forms section
@@ -54,5 +57,5 @@ strategies
      *
      * @type SXBldJudgementForms -> SXEnv
      */
-    sxbld-desugar-judgement-forms =
-    	SXBldJudgementForms(map(sxbld-desugar-judgement-form))
+    // sxbld-desugar-judgement-forms =
+    // 	SXBldJudgementForms(map(sxbld-desugar-judgement-form))
