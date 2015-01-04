@@ -9,7 +9,7 @@ imports org/sugarj/soundx/InductiveDefinitions
 exports
 	
   sorts
-	SXBldComment SCBldCommentPart SXBldMinus SXBldEOF
+	SXBldComment SXBldCommentPart SXBldMinus SXBldEOF
 
   lexical syntax
     [\ \t\r\n] -> LAYOUT
