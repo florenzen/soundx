@@ -44,13 +44,20 @@ exports
  
     SXBldKeyword -> SXBldNAME {reject}
 
-    "base"       -> SXBldKeyword
-    "language"   -> SXBldKeyword
-    "definition" -> SXBldKeyword
-    "extensible" -> SXBldKeyword
-    "base"       -> SXBldKeyword
-    "file"       -> SXBldKeyword
-    "extension"  -> SXBldKeyword
+    "base"        -> SXBldKeyword
+    "language"    -> SXBldKeyword
+    "definition"  -> SXBldKeyword
+    "extensible"  -> SXBldKeyword
+    "base"        -> SXBldKeyword
+    "file"        -> SXBldKeyword
+    "extension"   -> SXBldKeyword
+    "toplevel"    -> SXBldKeyword
+    "declaration" -> SXBldKeyword
+    "interface"   -> SXBldKeyword
+    "for"         -> SXBldKeyword
+    "is"          -> SXBldKeyword
+    "derived"     -> SXBldKeyword
+    "by"          -> SXBldKeyword
 
     [a-zA-Z0-9]+ -> SXBldNONEMPTYSTRING
 
@@ -70,6 +77,10 @@ exports
   	"extensible" "file" "extension" SXBldNONEMPTYSTRING -> SXBldExtensibleFileExt {cons("SXBldExtensibleFileExt")}
 
     "base" "file" "extension" SXBldNONEMPTYSTRING -> SXBldBaseFileExt {cons("SXBldBaseFileExt")}
+
+    "toplevel" "declaration" Sdf2Sort -> SXBldToplevelDeclaration {cons("SXBldToplevelDeclaration")}
+
+    "interface" Sdf2Sort -> SXBldInterface {cons("SXBldInterface")}
 
   sorts
   	SXBldJudgementForms SXBldJudgementForms SXJudgment
