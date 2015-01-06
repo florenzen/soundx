@@ -11,14 +11,19 @@ imports org/sugarj/soundx/InductiveDefinitions
  * Constructors of the concrete input
  */
 signature constructors
-	SXBld:                  SXBldHeader * List(SXBldDecl) -> SXBld
-	SXBldHeader:            SXBldNAME                     -> SXBldHeader	
-	SXBldExtensibleFileExt: SXBldNONEMPTYSTRING           -> SXBldExtensibleFileExt
-	SXBldBaseFileExt:       SXBldNONEMPTYSTRING           -> SXBldBaseFileExt
-    SXBldBaseDecl:          SXBldDecl                     -> TopLevelDeclaration
-    SXBldJudgementForms:    List(SXBldJudgementForms)     -> SXBldJudgemenForms
-    SXBldJudgementForm:     Symbols                       -> SXBldJudgementForm
-    SXBldGrammarElems:      List(Grammar)                 -> ToplevelDeclaration
+	SXBld:                     SXBldHeader * List(SXBldDecl) -> SXBld
+	SXBldHeader:               SXBldNAME                     -> SXBldHeader	
+	SXBldExtensibleFileExt:    SXBldNONEMPTYSTRING           -> SXBldExtensibleFileExt
+	SXBldBaseFileExt:          SXBldNONEMPTYSTRING           -> SXBldBaseFileExt
+    SXBldBaseDecl:             SXBldDecl                     -> TopLevelDeclaration
+    SXBldJudgementForms:       List(SXBldJudgementForms)     -> SXBldJudgemenForms
+    SXBldJudgementForm:        Symbols                       -> SXBldJudgementForm
+    SXBldGrammarElems:         List(Grammar)                 -> ToplevelDeclaration
+	SXBldToplevelDeclaration:  Sdf2Symbol                    -> ToplevelDeclaration
+	SXBldToplevelDeclarations: Sdf2Symbol                    -> ToplevelDeclaration
+	SXBldInterface:            Sdf2Symbol                    -> ToplevelDeclaration
+	SXBldSignatureJudgement:   SXBldSigJudgToplevel * SXBldSigJudgInterface *SXJudgement -> ToplevelDeclaration
+
 
 /**
  * Constructors for the SugarJ compiler

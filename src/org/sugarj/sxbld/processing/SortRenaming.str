@@ -43,6 +43,6 @@ strategies
 		//     !sort(<conc-strings> (prefix, orig-name))
 		// end
 
-	sxbld-is-soundx-name =
-		string-starts-with(|"SXJudgement") +
-		string-starts-with(|"SXMetaVar")
+	// sxbld-is-soundx-name =
+	// 	string-starts-with(|"SXJudgement") +
+	// 	string-starts-with(|"SXMetaVar")
