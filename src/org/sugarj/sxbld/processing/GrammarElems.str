@@ -359,9 +359,9 @@ strategies
     	<sxbld-prefix-all-sorts-base-lang> [symbol|symbols] => [prefixed-symbol|prefixed-symbols];
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => ground-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => ground-symbol;
-    	// Generate syntax production for inequality judgement if requires-inequlity is given
+    	// Generate syntax production for inequality judgement if sx-requires-inequality is given
     	((!attributes; ?attrs(attribute-list); !attribute-list) <+ ![]) => attribute-list;
-    	if <elem> (term(default(fun(unquoted("requires-inequality")))), attribute-list) then
+    	if <elem> (term(default(fun(unquoted("sx-requires-inequality")))), attribute-list) then
     		![prod([prefixed-symbol, lit("=/="), prefixed-symbol], sort("SXJudgement"),
     	           attrs([<sxbld-sdf2-cons-attribute> "SXNeq"]))]
     	else

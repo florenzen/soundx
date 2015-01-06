@@ -82,6 +82,9 @@ exports
     "toplevel" "declarations" Sdf2Sort -> ToplevelDeclaration {cons("SXBldToplevelDeclarations")}
 
     "interface" Sdf2Sort -> SXBldInterface {cons("SXBldInterface")}
+    
+    "signature" "for" SXBldSigJudgToplevel "is" SXBldSigJudgInterface
+      "derived" "by" SXJudgement -> ToplevelDeclaration {cons("SXBldSignatureJudgement")}
 
   sorts
   	SXBldJudgementForms SXBldJudgementForms SXJudgment

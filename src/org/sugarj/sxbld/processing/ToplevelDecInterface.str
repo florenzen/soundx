@@ -19,6 +19,7 @@ strategies
 strategies
 	sxbld-analyze-toplevel-dec =
 		?decl@SXBldToplevelDeclaration(sort-name);
+		debug(!"ANALYZE TLD ");
 		where(
 			(sxbld-env-is-toplevel-declaration-defined;
 			 <sxbld-analyze-fail(|"Only one `toplevel declaration' allowed")> decl) <+
@@ -29,7 +30,7 @@ strategies
     	where(
     		(sxbld-env-is-toplevel-declarations-defined;
     		 <sxbld-analyze-fail(|"Only one `toplevel declarations' allowed")> decl) <+
-    		<sxbld-env-set-toplevel-declaration> sort-name)
+    		<sxbld-env-set-toplevel-declarations> sort-name)
 
     sxbld-analyze-interface =
     	?decl@SXBldInterface(sort-name);
@@ -45,7 +46,7 @@ strategies
     		 <sxbld-analyze-fail(|"Only one `signature' allowed")> decl) <+
     		<sxbld-env-set-signature-judgement> (toplevel, intf, judg))
 
-	sxbld-desugar-toplevel-dec = ?SXBldToplevelDeclaration(_)
+	sxbld-desugar-toplevel-dec = ?SXBldToplevelDeclaration(_); debug(!"DESUGAR TLD")
 	
 	sxbld-desugar-toplevel-decs = ?SXBldToplevelDeclarations(_)
 	
