@@ -411,7 +411,7 @@ strategies
     sxbld-env-extract-extension-decls =
   	    sxbld-env-get-grammar-elems => grm-elems-plain;
   	    sxbld-env-make-toplevel-decs => grm-elems-toplevel-decs;
-  	    sxbld-env-make-sig-judg => grm-elems-sig-sudg;
+  	    sxbld-env-make-sig-judg => grm-elems-sig-judg;
 	    ((sxbld-env-is-signature-judgement-defined;
 	      sxbld-env-get-signature-judgement => sig-judg;
 	      sxbld-env-decls-to-stratego(|sig-judg, "signature-judgement")
@@ -432,7 +432,7 @@ strategies
          ![grammar-elem(context-free-syntax([
     	     prod([sort(dec), sort(decs)], sort(decs),
     			   attrs([<sxbld-sdf2-cons-attribute> "SXToplevelDeclarationsNil"])),
-    			   prod([], sort(decs), attrs([<sxbld-sdf2-cons-attribute> "SXToplevelDeclarationsCons"]))
+    	     prod([], sort(decs), attrs([<sxbld-sdf2-cons-attribute> "SXToplevelDeclarationsCons"]))
           ]))]
     	) <+ ![]
 
@@ -442,7 +442,7 @@ strategies
 	     sxbld-env-get-toplevel-declarations => decs;
 	     sxbld-env-get-interface => intf;
 	     ![grammar-elem(context-free-syntax([
-		     prod([sort(intf), sort("SXBldSigJudgInterface"), no-attrs()]),
-			 prod([sort(decs), sort("SXBldSigJudgToplevel"), no-attrs()])
+		     prod([sort(intf)], sort("SXBldSigJudgInterface"), no-attrs()),
+			 prod([sort(decs)], sort("SXBldSigJudgToplevel"), no-attrs())
 		  ]))]
 	     ) <+ ![]
