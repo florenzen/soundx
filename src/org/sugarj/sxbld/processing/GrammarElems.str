@@ -307,10 +307,12 @@ strategies
     	  (// One cons attribute, prefix it
     	   !cons-attribs; ?[cons-attrib];
     	   <sxbld-sdf2-cons-attribute-name-quoted> cons-attrib => cons-name-quoted;
-    	   <un-double-quote; sxbld-env-prefix-name> cons-name-quoted => prefixed-cons-name;
+    	   <un-double-quote> cons-name-quoted => cons-name;
+    	   <sxbld-env-prefix-name> cons-name => prefixed-cons-name;
 		   if sxbld-env-cons-name-defined then
 		   	   <sxbld-analyze-fail(|"Duplicate constructor name")> cons-name-quoted
 		   else
+		   	   <sxbld-env-add-cons-name> prefixed-cons-name;
     	       ![<sxbld-sdf2-cons-attribute> prefixed-cons-name | other-attribs]
     	   end) <+
     	  (// More than one cons attribute, error
