@@ -51,7 +51,8 @@ strategies
 	 */
 	sxbld-analyze-unless-failed(s) =
 		where(<sxbld-env-get-failed> () => SXBldFalse());
-		s => res; !SXBldFinishedAnalysis(res)
+		debug(!"UNLESS FAILED ");
+		s => res; debug(!"RESULT "); !SXBldFinishedAnalysis(res)
 
     /**
      * Annotates error message, set failed flag, and abort analysis with fail

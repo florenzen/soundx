@@ -7,6 +7,8 @@ module org/sugarj/sxbld/Desugaring
 
 imports org/sugarj/stdlib/StdTrans
 
+imports org/sugarj/languages/SXBld
+
 imports org/sugarj/sxbld/Environment
         org/sugarj/sxbld/Analysis
 
@@ -26,9 +28,12 @@ strategies
      * @type a -> List(ExtensionElem)
      */
 	sxbld-desugaring-env-to-extension-elem =
-		(?SXBldFinishedAnalysis(x); !x; sxbld-desugar-to-env) <+ id; // Unwrap in case of a successful analysis
+		//((?SXBldFinishedAnalysis(x); !x) <+ id); // Unwrap in case of a successful analysis
 		// sxbld-desugar-to-env;
-		sxbld-env-extract-extension-decls
+		debug(!"IN ");
+		(?SXBldGrammarElems(_) + ?SXInductiveDefinitions(_) + ?SXBldJudgementForms(_));
+		sxbld-env-extract-extension-decls;
+		debug(!"OUT ")
 		
 	/**
 	 * Register BLD processing as SugarJ desugarings

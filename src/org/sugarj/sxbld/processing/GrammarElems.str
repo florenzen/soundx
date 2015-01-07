@@ -20,7 +20,6 @@ imports org/sugarj/sxbld/processing/SortRenaming
  * Register analyses and desugarings
  */
 strategies
-	sxbld-desugar-to-env = sxbld-desugar-grammar-elems
 	sxbld-start-analysis = sxbld-analyze-grammar-elems
 
 strategies
@@ -31,10 +30,12 @@ strategies
 	 */
 	sxbld-analyze-grammar-elems =
 		?SXBldGrammarElems(grammars);
-		<map(sxbld-analyze-grammar-elem); concat> grammars => analyzed-grammars;
-		// Not using mapconcat here because it traverses the list from the end to front
-		// which lowers quality of error messages
-		!SXBldGrammarElems(analyzed-grammars)
+		debug(!"FINISHED ");
+		where(
+			<map(sxbld-analyze-grammar-elem); concat> grammars;
+		    // Not using mapconcat here because it traverses the list from the end to front
+		    // which lowers quality of error messages
+			sxbld-add-grammar-elems)
 
     /**
      * Analyzes a single SDF2 section
@@ -391,6 +392,10 @@ strategies
     // 	<sxbld-add-sort> (name, SXAbsSortLexical());
     // 	!(symbol, name)
    
+   sxbld-add-grammar-elems =
+   	   map(\grm -> grammar-elem(grm)\);
+   	   sxbld-env-add-grammar-elems
+
     /**
      * Adds the grammars to the environment
      *

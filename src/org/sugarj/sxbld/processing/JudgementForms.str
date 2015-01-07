@@ -17,12 +17,14 @@ imports org/sugarj/languages/SXBld
  * Register analyses and desugarings
  */
 strategies
-	sxbld-desugar-to-env = sxbld-desugar-judgement-forms
 	sxbld-start-analysis = sxbld-analyze-judgement-forms
 
 strategies
 	sxbld-analyze-judgement-forms =
-		SXBldJudgementForms(map(sxbld-analyze-judgement-form))
+		?SXBldJudgementForms(forms);
+		where(
+			<map(sxbld-analyze-judgement-form)> forms => prods;
+			<sxbld-env-add-grammar-elems> [grammar-elem(context-free-syntax(prods))])
 		
 	sxbld-analyze-judgement-form =
 		?SXBldJudgementForm(symbols);
@@ -32,30 +34,3 @@ strategies
     	<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
     	!prod(prefixed-symbols, sort("SXJudgement"), attrs([<sxbld-sdf2-cons-attribute> judgement-name]))
     	// !(judgement-name, form)
-
-strategies
-	/**
-	 * Desugars a single judgement form
-	 *
-	 * @type SXBldJudgementForm -> SXEnv
-	 */
-	sxbld-desugar-judgement-forms =
-		?SXBldJudgementForms(prods);
-		// ((?(judgement-name, SXBldJudgementForm(symbols));
-		//   <sxbld-sdf2-cons-attribute; !attrs([<id>])> judgement-name =>
-		//     attributes) <+
-		//  (?SXBldJudgementForm(symbols); // If analysis failed there is no cons name
-		//   !no-attrs() => attributes));
-		// <map(sxbld-prefix-all-sorts-base-lang)> symbols => renamed-symbols;
-  //   	!prod(renamed-symbols, sort("SXJudgement"), attributes) => production;
-    	<sxbld-env-add-grammar-elems> [grammar-elem(context-free-syntax(prods))]
-
-    /**
-     * Desugars judgement forms section
-     *
-     * Transforms judgement forms section to SDF2 and Stratego.
-     *
-     * @type SXBldJudgementForms -> SXEnv
-     */
-    // sxbld-desugar-judgement-forms =
-    // 	SXBldJudgementForms(map(sxbld-desugar-judgement-form))
