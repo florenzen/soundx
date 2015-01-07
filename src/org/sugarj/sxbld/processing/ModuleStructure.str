@@ -14,13 +14,25 @@ imports org/sugarj/sxbld/processing/SDF2Terms
 
 imports org/sugarj/languages/SXBld
 
+
+/**
+ * Register analyses
+ */
 strategies
 	sxbld-start-analysis = sxbld-analyze-toplevel-dec
 	sxbld-start-analysis = sxbld-analyze-toplevel-decs
 	sxbld-start-analysis = sxbld-analyze-interface
 	sxbld-start-analysis = sxbld-analyze-interface-judgement
 
+/**
+ * Analyses
+ */
 strategies
+	/**
+	 * Stores sort of toplevel declaration in environment
+	 *
+	 * @type String -> String
+	 */
 	sxbld-analyze-toplevel-dec =
 		?decl@SXBldToplevelDeclaration(sort-name);
 		where(
@@ -28,6 +40,11 @@ strategies
 			 <sxbld-analyze-fail(|"Only one `toplevel declaration' allowed")> decl) <+
 			<sxbld-env-set-toplevel-declaration> sort-name)
 
+    /**
+     * Stores sort of list of toplevel declarations in environment
+     *
+     * @type String -> String
+     */
     sxbld-analyze-toplevel-decs =
     	?decl@SXBldToplevelDeclarations(sort-name);
     	where(
@@ -35,6 +52,11 @@ strategies
     		 <sxbld-analyze-fail(|"Only one `toplevel declarations' allowed")> decl) <+
     		<sxbld-env-set-toplevel-declarations> sort-name)
 
+    /**
+     * Stores sort of the module interface in the environment
+     *
+     * @type String -> String
+     */
     sxbld-analyze-interface =
     	?decl@SXBldInterface(sort-name);
     	where(
@@ -42,6 +64,12 @@ strategies
     		 <sxbld-analyze-fail(|"Only one `interface' allowed")> decl) <+
     		<sxbld-env-set-interface> sort-name)
 
+    /**
+     * Stores the interface judgement in the environment
+     *
+     * @type (SXBldIntfJudgToplevel, SXBldInfJudgInterface, SXJudgement) ->
+     *   (SXBldIntfJudgToplevel, SXBldInfJudgInterface, SXJudgement)
+     */
     sxbld-analyze-interface-judgement =
     	?decl@SXBldInterfaceJudgement(toplevel, intf, judg);
     	where(
