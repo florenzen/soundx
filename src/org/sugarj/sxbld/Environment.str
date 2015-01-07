@@ -408,7 +408,7 @@ strategies
 
 /**
  * Extraction of extension-decls from environment
- * TODO: should go to desugaring
+ * TODO: should go to desugaring (processing/EnvDesugaring)
  */
 strategies
     sxbld-env-decls-to-stratego(|term, key) =
