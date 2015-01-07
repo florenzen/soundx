@@ -4,6 +4,4 @@ imports org/sugarj/stdlib/StdTrans
 
 imports org/sugarj/languages/SXBld
 
-imports org/sugarj/sxbld/Desugaring
-
-imports org/sugarj/sxbld/Analysis
+imports org/sugarj/sxbld/Processing

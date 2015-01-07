@@ -1,59 +1,14 @@
 /**
- * Error handling in base language definitions
- *
- * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ * Functions to signal errors
  */
-module org/sugarj/sxbld/Analysis
+module org/sugarj/sxbld/AnalysisFunctions
 
 imports org/sugarj/stdlib/StdTrans
 
 imports org/sugarj/sxbld/Environment
 
+
 strategies
-    /**
-     * Collects all errors from the annotations
-     *
-     * @type a -> List((a, String))
-     */
-	constraint-error =
-		?ast;
-		sxbld-extract-errors;
-		map(!(ast, <id>))
-
-	/**
-	 * Starts the analysis only if failed is not set
-	 *
-	 * @type a -> a
-	 */
-	start-analysis =
-	    sxbld-analyze-unless-failed(changed-tree-or-analysis-data(sxbld-start-analysis))
-
-    /**
-     * Performs the actual analysis
-     *
-     * The different analyses must be added to this strategy.
-     *
-     * @type a -> a
-     */
-    sxbld-start-analysis = fail
-
-	/**
-	 * Analyzes a term unless the failed flag is set
-	 *
-	 * All analyses for toplevel declarations must be wrapped
-	 * by this strategy to avoid follow-up errors.
-	 *
-	 * Wraps the result of analysis in a SXBldFinishedAnalysis
-	 * to stop the iteration in org/sugarj/transformation/analysis/Data.
-	 *
-	 * @type s a -> a
-	 * @type a -> SXBldFinishedAnalysis(a)
-	 */
-	sxbld-analyze-unless-failed(s) =
-		where(<sxbld-env-get-failed> () => SXBldFalse());
-		//debug(!"UNLESS FAILED ");
-		s // => res; debug(!"RESULT "); !SXBldFinishedAnalysis(res)
-
     /**
      * Annotates error message, set failed flag, and abort analysis with fail
      *

@@ -1,7 +1,7 @@
 module org/sugarj/sxbld/processing/ToplevelDecInterface
 
 imports org/sugarj/sxbld/Environment
- 	    org/sugarj/sxbld/Analysis
+ 	    org/sugarj/sxbld/AnalysisFunctions
 
 
 imports org/sugarj/sxbld/processing/SDF2Terms

@@ -6,7 +6,7 @@ module org/sugarj/sxbld/processing/InductiveDefinitions
 imports org/sugarj/languages/SXBld
 
 imports org/sugarj/sxbld/Environment
- 	    org/sugarj/sxbld/Analysis
+ 	    org/sugarj/sxbld/AnalysisFunctions
 
 imports org/sugarj/soundx/InductiveDefinitions
 		org/sugarj/soundx/AbstractSyntax
