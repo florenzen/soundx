@@ -10,11 +10,10 @@ imports org/sugarj/languages/SXBld
 imports org/sugarj/soundx/AbstractSyntax
 
 imports org/sugarj/sxbld/Environment
-        org/sugarj/sxbld/AnalysisFunctions
+        org/sugarj/sxbld/processing/AnalysisFunctions
 
 imports org/sugarj/sxbld/processing/SortPrefixing
         org/sugarj/sxbld/processing/SDF2Terms
-        //org/sugarj/sxbld/processing/Symbols
 
 
 /**

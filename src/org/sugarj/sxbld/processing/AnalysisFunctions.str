@@ -1,7 +1,7 @@
 /**
  * Functions to signal errors
  */
-module org/sugarj/sxbld/AnalysisFunctions
+module org/sugarj/sxbld/processing/AnalysisFunctions
 
 imports org/sugarj/stdlib/StdTrans
 

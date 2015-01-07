@@ -14,9 +14,9 @@ imports org/sugarj/soundx/InductiveDefinitions
 imports org/sugarj/languages/SXBld
 
 imports org/sugarj/sxbld/Environment
-        org/sugarj/sxbld/AnalysisFunctions
 
-imports org/sugarj/sxbld/processing/Header
+imports org/sugarj/sxbld/processing/AnalysisFunctions
+		org/sugarj/sxbld/processing/Header
         org/sugarj/sxbld/processing/JudgementForms
         org/sugarj/sxbld/processing/GrammarElems
 		org/sugarj/sxbld/processing/InductiveDefinitions
