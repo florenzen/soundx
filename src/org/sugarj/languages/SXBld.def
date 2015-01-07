@@ -81,10 +81,10 @@ exports
     "toplevel" "declaration" Sdf2Sort  -> ToplevelDeclaration {cons("SXBldToplevelDeclaration")}
     "toplevel" "declarations" Sdf2Sort -> ToplevelDeclaration {cons("SXBldToplevelDeclarations")}
 
-    "interface" Sdf2Sort -> SXBldInterface {cons("SXBldInterface")}
+    "interface" Sdf2Sort -> ToplevelDeclaration {cons("SXBldInterface")}
     
-    "signature" "for" SXBldSigJudgToplevel "is" SXBldSigJudgInterface
-      "derived" "by" SXJudgement -> ToplevelDeclaration {cons("SXBldSignatureJudgement")}
+    "interface" "for" SXBldIntfJudgToplevel "is" SXBldIntfJudgInterface
+      "derived" "by" SXJudgement -> ToplevelDeclaration {cons("SXBldInterfaceJudgement")}
 
   sorts
   	SXBldJudgementForms SXBldJudgementForms SXJudgment

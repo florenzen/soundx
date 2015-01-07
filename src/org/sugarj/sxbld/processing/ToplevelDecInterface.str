@@ -5,21 +5,19 @@ imports org/sugarj/sxbld/Environment
 
 
 imports org/sugarj/sxbld/processing/SDF2Terms
+	    org/sugarj/sxbld/processing/InductiveDefinitions
 
 imports org/sugarj/languages/SXBld
 
 strategies
-	sxbld-desugar-to-env = sxbld-desugar-toplevel-dec
-	sxbld-desugar-to-env = sxbld-desugar-toplevel-decs
-	sxbld-desugar-to-env = sxbld-desugar-interface
 	sxbld-start-analysis = sxbld-analyze-toplevel-dec
 	sxbld-start-analysis = sxbld-analyze-toplevel-decs
 	sxbld-start-analysis = sxbld-analyze-interface
+	sxbld-start-analysis = sxbld-analyze-interface-judgement
 
 strategies
 	sxbld-analyze-toplevel-dec =
 		?decl@SXBldToplevelDeclaration(sort-name);
-		debug(!"ANALYZE TLD ");
 		where(
 			(sxbld-env-is-toplevel-declaration-defined;
 			 <sxbld-analyze-fail(|"Only one `toplevel declaration' allowed")> decl) <+
@@ -39,17 +37,9 @@ strategies
     		 <sxbld-analyze-fail(|"Only one `interface' allowed")> decl) <+
     		<sxbld-env-set-interface> sort-name)
 
-    sxbld-analyze-signature-judgement =
-    	?decl@SXBldSignatureJudgement(toplevel, intf, judg);
+    sxbld-analyze-interface-judgement =
+    	?decl@SXBldInterfaceJudgement(toplevel, intf, judg);
     	where(
-    		(sxbld-env-is-signature-judgement-defined;
-    		 <sxbld-analyze-fail(|"Only one `signature' allowed")> decl) <+
-    		<sxbld-env-set-signature-judgement> (toplevel, intf, judg))
-
-	sxbld-desugar-toplevel-dec = ?SXBldToplevelDeclaration(_); debug(!"DESUGAR TLD")
-	
-	sxbld-desugar-toplevel-decs = ?SXBldToplevelDeclarations(_)
-	
-	sxbld-desugar-interface = ?SXBldInterface(_)
-	
-	sxbld-desugar-signature-judgement = ?SXBldSignatureJudgement(_, _, _)
+    		(sxbld-env-is-interface-judgement-defined;
+    		 <sxbld-analyze-fail(|"Only one `interface for - is - derived by -' allowed")> decl) <+
+    		<sxbld-meta-var-to-sx-metavar; sxbld-env-set-interface-judgement> (toplevel, intf, judg))

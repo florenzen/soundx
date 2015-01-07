@@ -15,7 +15,6 @@ imports org/sugarj/soundx/InductiveDefinitions
  * Register analyses and desugarings
  */
 strategies
-	sxbld-desugar-to-env = sxbld-desugar-inductive-definitions
 	sxbld-start-analysis = sxbld-analyze-inductive-definitions
 
 /**
@@ -99,10 +98,3 @@ strategies
 		else
 			<sxbld-analyze-fail(|"Duplicate inference rule name")> name
 		end
-
-/**
- * Desugaring
- */
-strategies
-	sxbld-desugar-inductive-definitions =
-		?SXInductiveDefinitions(_)

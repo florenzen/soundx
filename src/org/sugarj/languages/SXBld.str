@@ -22,7 +22,7 @@ signature constructors
 	SXBldToplevelDeclaration:  Sdf2Symbol                    -> ToplevelDeclaration
 	SXBldToplevelDeclarations: Sdf2Symbol                    -> ToplevelDeclaration
 	SXBldInterface:            Sdf2Symbol                    -> ToplevelDeclaration
-	SXBldSignatureJudgement:   SXBldSigJudgToplevel * SXBldSigJudgInterface *SXJudgement -> ToplevelDeclaration
+	SXBldInterfaceJudgement:   SXBldIntfJudgToplevel * SXBldIntfJudgInterface *SXJudgement -> ToplevelDeclaration
 
 
 /**
