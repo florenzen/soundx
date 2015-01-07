@@ -16,6 +16,7 @@ imports org/sugarj/languages/SXBld
 imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/sxbld/processing/AnalysisFunctions
+	    org/sugarj/sxbld/processing/EnvDesugaring
 		org/sugarj/sxbld/processing/Header
         org/sugarj/sxbld/processing/JudgementForms
         org/sugarj/sxbld/processing/GrammarElems
@@ -81,7 +82,12 @@ strategies
 	sxbld-desugaring-env-to-extension-elem =
 		sxbld-is-extension-decl;
 		sxbld-env-extract-extension-decls
-		
+
+    /**
+     * Succeeds if toplevel term contributes to extension declarations
+     *
+     * @type ToplevelDeclaration -> ToplevelDeclaration
+     */
 	sxbld-is-extension-decl =
 		?SXBldGrammarElems(_) +
 		?SXInductiveDefinitions(_) +
@@ -93,6 +99,8 @@ strategies
 	
 	/**
 	 * Register BLD processing as SugarJ desugarings
+	 *
+	 * @type a -> a
 	 */
 	sxbld-desugaring = sxbld-desugaring-env-to-extension-elem
 	sxbld-desugaring = sxbld-process-header // TODO: put into desugar and remove sxbld-desugaring-strategy
