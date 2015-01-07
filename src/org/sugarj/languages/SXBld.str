@@ -1,11 +1,14 @@
 /**
  * Signature for the constructors of SXBld.def
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */
 module org/sugarj/languages/SXBld
 
 imports org/sugarj/languages/Sugar
 
 imports org/sugarj/soundx/InductiveDefinitions
+
 
 /**
  * Constructors of the concrete input
@@ -22,12 +25,11 @@ signature constructors
 	SXBldToplevelDeclaration:  Sdf2Symbol                    -> ToplevelDeclaration
 	SXBldToplevelDeclarations: Sdf2Symbol                    -> ToplevelDeclaration
 	SXBldInterface:            Sdf2Symbol                    -> ToplevelDeclaration
-	SXBldInterfaceJudgement:   SXBldIntfJudgToplevel * SXBldIntfJudgInterface *SXJudgement -> ToplevelDeclaration
-
+	SXBldInterfaceJudgement:   SXBldIntfJudgToplevel * SXBldIntfJudgInterface * SXJudgement -> ToplevelDeclaration
 
 /**
  * Constructors for the SugarJ compiler
  */    
 signature constructors
-	SXBldNamespaceDecl: SXBldName           -> SXBldNamespaceDef
+	SXBldNamespaceDecl: SXBldName           -> SXBldNamespaceDecl
 	SXBldExtensionDecl: List(ExtensionElem) -> SXBldExtensionDecl

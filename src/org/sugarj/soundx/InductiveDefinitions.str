@@ -1,5 +1,7 @@
 /**
  * Signature for the constructors of InductiveDefinitions.sdf
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */
 module org/sugarj/soundx/InductiveDefinitions
 

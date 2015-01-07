@@ -1,4 +1,7 @@
-module org/sugarj/sxbld/processing/ToplevelDecInterface
+/**
+ * Processing of declarations decsribing the module structure
+ */
+module org/sugarj/sxbld/processing/ModuleStructure
 
 imports org/sugarj/sxbld/Environment
  	    org/sugarj/sxbld/processing/AnalysisFunctions

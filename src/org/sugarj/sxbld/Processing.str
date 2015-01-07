@@ -20,7 +20,7 @@ imports org/sugarj/sxbld/processing/AnalysisFunctions
         org/sugarj/sxbld/processing/JudgementForms
         org/sugarj/sxbld/processing/GrammarElems
 		org/sugarj/sxbld/processing/InductiveDefinitions
-		org/sugarj/sxbld/processing/ToplevelDecInterface
+		org/sugarj/sxbld/processing/ModuleStructure
 
 
 /**
