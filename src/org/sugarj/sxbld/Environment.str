@@ -12,6 +12,7 @@ imports org/sugarj/languages/SXBld
 imports org/sugarj/sxbld/processing/MetaExplode
 	    org/sugarj/sxbld/processing/SDF2Terms
 
+
 /**
  * True and false
  */
@@ -184,47 +185,6 @@ strategies
     	?counter;
     	<sxbld-env-set> ("name-counter", counter)
 
-	sxbld-env-get-toplevel-declaration =
-		<sxbld-env-get> "toplevel-declaration"
-		
-    sxbld-env-set-toplevel-declaration =
-    	?sort-name;
-    	<sxbld-env-set> ("toplevel-declaration", sort-name)
-
-    sxbld-env-is-toplevel-declaration-defined =
-    	sxbld-env-get-toplevel-declaration; not(?"")
-
-	sxbld-env-get-toplevel-declarations =
-		<sxbld-env-get> "toplevel-declarations"
-		
-    sxbld-env-set-toplevel-declarations =
-    	?sort-name;
-    	<sxbld-env-set> ("toplevel-declarations", sort-name)
-
-    sxbld-env-is-toplevel-declarations-defined =
-    	sxbld-env-get-toplevel-declarations; not(?"")
-
-	sxbld-env-get-interface =
-		<sxbld-env-get> "interface"
-		
-    sxbld-env-set-interface =
-    	?sort-name;
-    	<sxbld-env-set> ("interface", sort-name)
-
-    sxbld-env-is-interface-defined =
-    	sxbld-env-get-interface; not(?"")
-
-	sxbld-env-get-interface-judgement =
-		<sxbld-env-get> "interface-judgement"
-		
-    sxbld-env-set-interface-judgement =
-    	?(toplevel, intf, judg);
-    	<sxbld-env-set> ("interface-judgement", (toplevel, intf, judg))
-
-    sxbld-env-is-interface-judgement-defined =
-    	sxbld-env-get-interface-judgement; not(?())
-
-
     /**
      * Generates a fresh name with the given prefix
      *
@@ -281,11 +241,21 @@ strategies
  * Handling of constructor names
  */
 strategies
+	/**
+	 * Adds a constructor name
+	 *
+	 * @type String -> SXEnv
+	 */
 	sxbld-env-add-cons-name =
 		?name;
 		<sxbld-env-get> "cons-names" => names;
 		<sxbld-env-set> ("cons-names", [name|names])
 
+    /**
+     * Succeeds if a constructor name is defined
+     *
+     * @type String -> List(String)
+     */
 	sxbld-env-cons-name-defined =
 		?name;
 		<sxbld-env-get> "cons-names" => names;
@@ -321,7 +291,124 @@ strategies
     	<sxbld-env-set-failed> SXBldTrue()
 
 /**
+ * Handling of toplevel-declaration
+ */
+strategies
+	/**
+	 * Gets toplevel-declaration
+	 *
+	 * @type _ -> String
+	 */
+	sxbld-env-get-toplevel-declaration =
+		<sxbld-env-get> "toplevel-declaration"
+
+	/**
+	 * Sets toplevel-declaration
+	 *
+	 * @type String -> SXEnv
+	 */		
+    sxbld-env-set-toplevel-declaration =
+    	?sort-name;
+    	<sxbld-env-set> ("toplevel-declaration", sort-name)
+
+    /**
+     * Succeeds if toplevel-declaration is defined
+     *
+     * @type _ -> String
+     */
+    sxbld-env-is-toplevel-declaration-defined =
+    	sxbld-env-get-toplevel-declaration; not(?"")
+
+/**
+ * Handling of toplevel-declarations
+ */
+strategies
+	/**
+	 * Gets toplevel-declarations
+	 *
+	 * @type _ -> String
+	 */
+	sxbld-env-get-toplevel-declarations =
+		<sxbld-env-get> "toplevel-declarations"
+
+	/**
+	 * Sets toplevel-declarations
+	 *
+	 * @type String -> SXEnv
+	 */
+    sxbld-env-set-toplevel-declarations =
+    	?sort-name;
+    	<sxbld-env-set> ("toplevel-declarations", sort-name)
+
+    /**
+     * Succeeds if toplevel-declarations is defined
+     *
+     * @type _ -> String
+     */
+    sxbld-env-is-toplevel-declarations-defined =
+    	sxbld-env-get-toplevel-declarations; not(?"")
+
+/**
+ * Handling of interface
+ */
+strategies
+	/**
+	 * Gets interface
+	 *
+	 * @type _ -> String
+	 */
+	sxbld-env-get-interface =
+		<sxbld-env-get> "interface"
+		
+    /**
+	 * Sets interface
+	 *
+	 * @type String -> SXEnv
+	 */
+	sxbld-env-set-interface =
+    	?sort-name;
+    	<sxbld-env-set> ("interface", sort-name)
+
+    /**
+     * Succeeds if interface is defined
+     *
+     * @type _ -> String
+     */
+    sxbld-env-is-interface-defined =
+    	sxbld-env-get-interface; not(?"")
+
+/**
+ * Handling of interface-judgement
+ */
+strategies
+	/**
+	 * Gets interface-judgement
+	 *
+	 * @type _ -> (SXBldIntfJudgToplevel, SXBldInfJudgInterface, SXJudgement)
+	 */
+	sxbld-env-get-interface-judgement =
+		<sxbld-env-get> "interface-judgement"
+		
+    /**
+	 * Sets interface-judgement
+	 *
+	 * @type (SXBldIntfJudgToplevel, SXBldInfJudgInterface, SXJudgement) -> SXEnv
+	 */
+	sxbld-env-set-interface-judgement =
+    	?(toplevel, intf, judg);
+    	<sxbld-env-set> ("interface-judgement", (toplevel, intf, judg))
+
+    /**
+     * Succeeds if interface-judgement is defined
+     *
+     * @type _ -> String
+     */
+    sxbld-env-is-interface-judgement-defined =
+    	sxbld-env-get-interface-judgement; not(?())
+
+/**
  * Extraction of extension-decls from environment
+ * TODO: should go to desugaring
  */
 strategies
     sxbld-env-decls-to-stratego(|term, key) =
@@ -369,3 +456,5 @@ strategies
 			 prod([sort(decs)], sort("SXBldIntfJudgToplevel"), no-attrs())
 		  ]))]
 	     ) <+ ![]
+
+
