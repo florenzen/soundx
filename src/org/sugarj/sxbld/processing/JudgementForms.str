@@ -9,7 +9,7 @@ imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/sxbld/processing/SortRenaming
         org/sugarj/sxbld/processing/SDF2Terms
-        org/sugarj/sxbld/processing/Symbols
+        // org/sugarj/sxbld/processing/Symbols
 
 imports org/sugarj/languages/SXBld
 
