@@ -7,6 +7,7 @@ module org/sugarj/sxbld/processing/SDF2Terms
 
 imports org/sugarj/languages/Sdf2
 
+
 strategies
 	/**
 	 * Generate the SDF2 cons attribute as ATerm
@@ -16,7 +17,7 @@ strategies
 	sxbld-sdf2-cons-attribute:
 		cons-name -> attribute
 		where 
-			<sxbld-quote-string> cons-name => cons-name-quoted;
+			<double-quote> cons-name => cons-name-quoted;
 			!term(default(appl(unquoted("cons"),
 			  [fun(quoted(cons-name-quoted))]))) => attribute
 
@@ -37,12 +38,3 @@ strategies
     sxbld-sdf2-is-attribute(|attrib-name) =
     	?term(default(appl(unquoted(attrib-name), _))) +
     	?term(default(fun(unquoted(attrib-name))))
-
-    /**
-     * Encloses a string in double quotes
-     *
-     * @type String -> String
-     */
-    sxbld-quote-string =
-    	?string;
-    	<conc-strings> ("\"", string, "\"")
