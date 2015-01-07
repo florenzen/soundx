@@ -9,8 +9,6 @@ imports org/sugarj/languages/Stratego
 
 imports org/sugarj/languages/SXBld
 
-imports org/sugarj/soundx/AbstractSyntax
-
 imports org/sugarj/sxbld/processing/MetaExplode
 	    org/sugarj/sxbld/processing/SDF2Terms
 
@@ -61,9 +59,6 @@ strategies
   	    hashtable-put(|"base-language-name", "");
   	    hashtable-put(|"name-counter", 0);
   	    hashtable-put(|"cons-names", []);
-  	    hashtable-put(|"sorts", <new-hashtable> ());
-  	    hashtable-put(|"arities", <new-hashtable> ());
-  	    hashtable-put(|"forms", <new-hashtable> ());
   	    hashtable-put(|"inference-rules", <new-hashtable> ());
   	    hashtable-put(|"toplevel-declaration", "");
   	    hashtable-put(|"toplevel-declarations", "");
@@ -297,78 +292,6 @@ strategies
 		<elem> (name, names)
 
 /**
- * Handling of form declarations
- */
-strategies
-    /**
-     * Adds a form declaration
-     *
-     * @type (String, SXAbsJudgementForm) -> SXEnv
-     */
-    sxbld-env-add-form =
-  	    ?(name, form);
-  	    <sxbld-env-get> "forms";
-  	    hashtable-put(|name, form)
-
-    /**
-     * Gets a form declaration
-     *
-     * @type String -> Option(SXAbsJudgementForm)
-     */
-    sxbld-env-get-form =
-    	?name;
-    	<sxbld-env-get> "forms";
-    	maybe(hashtable-get(|name))
-
-/**
- * Handling of arity declarations
- */
-strategies
-    /**
-     * Adds an arity declaration
-     *
-     * @type (String, SXAbsArity) -> SXEnv
-     */
-    sxbld-env-add-arity =
-  	    ?(name, arity);
-  	    <sxbld-env-get> "arities";
-  	    hashtable-put(|name, arity)
-
-    /**
-     * Gets an arity declaration
-     *
-     * @type String -> Option(SXAbsArity)
-     */
-    sxbld-env-get-arity =
-    	?name;
-    	<sxbld-env-get> "arities";
-    	maybe(hashtable-get(|name))
-
-/**
- * Handling of sort declarations
- */
-strategies
-    /**
-     * Adds a sorts
-     *
-     * @type (String, SXAbsSort) -> SXEnv
-     */
-    sxbld-env-add-sort =
-  	    ?(name, sort);
-  	    <sxbld-env-get> "sorts";
-  	    hashtable-put(|name, sort)
-
-    /**
-     * Gets a sort
-     *
-     * @type String -> Option(SXAbsSort)
-     */
-    sxbld-env-get-sort =
-    	?name;
-    	<sxbld-env-get> "sorts";
-    	maybe(hashtable-get(|name))
-
-/**
  * Handling of the failed flags
  */
 strategies
@@ -413,7 +336,6 @@ strategies
   	    sxbld-env-make-toplevel-decs => grm-elems-toplevel-decs;
   	    sxbld-env-make-sig-judg => grm-elems-sig-judg;
 	    ((sxbld-env-is-interface-judgement-defined;
-	      debug(!"INTERFACE JUDG IS DEFINED ");
 	      sxbld-env-get-interface-judgement => sig-judg;
 	      sxbld-env-decls-to-stratego(|sig-judg, "interface-judgement")
 	     ) <+ ![]) => trans-intf-judg;

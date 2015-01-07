@@ -5,7 +5,7 @@ imports org/sugarj/sxbld/Environment
 
 
 imports org/sugarj/sxbld/processing/SDF2Terms
-	    org/sugarj/sxbld/processing/InductiveDefinitions
+	    org/sugarj/soundx/MetaVariables
 
 imports org/sugarj/languages/SXBld
 
