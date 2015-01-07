@@ -1,7 +1,7 @@
 /**
  * Prefixing of SDF2 sorts with the base language name
  */
-module org/sugarj/sxbld/processing/SortRenaming
+module org/sugarj/sxbld/processing/SortPrefixing
 
 imports org/sugarj/languages/Sdf2
 
@@ -15,6 +15,13 @@ strategies
 	 */
 	sxbld-prefix-all-sorts-base-lang = topdown(try(sxbld-prefix-sort-base-lang))
 
+    /**
+     * Prefixes all sort names with the given prefix
+     *
+     * @arg prefix String
+     *
+     * @type a -> a
+     */
 	sxbld-prefix-all-sorts(|prefix) = topdown(try(sxbld-prefix-sort(|prefix)))
 	
 	/**
@@ -25,24 +32,17 @@ strategies
 	sxbld-prefix-sort-base-lang =
 		where(<sxbld-env-get-base-language-name> () => prefix);
 		sxbld-prefix-sort(|prefix)
-		// sort(orig-name) -> sort(new-name)
-		// where
-		// 	<sxbld-env-get-base-language-name> () => prefix;
-		// 	<conc-strings> (prefix, orig-name) => new-name
 
+    /**
+     * Prefixes the sort name with the given prefix
+     *
+     * @arg prefix String
+     *
+     * @type Sdf2Symbol -> Sdf2Symbol
+     */
 	sxbld-prefix-sort(|prefix) =
 		let conc-prefix = ?orig-name; <conc-strings> (prefix, orig-name)
 		in
 			sort(conc-prefix) +
 			parameterized-sort(conc-prefix, id)
 		end
-		
-		// if <sxbld-is-soundx-name> orig-name then
-		// 	!sort(orig-name)
-		// else
-		//     !sort(<conc-strings> (prefix, orig-name))
-		// end
-
-	// sxbld-is-soundx-name =
-	// 	string-starts-with(|"SXJudgement") +
-	// 	string-starts-with(|"SXMetaVar")
