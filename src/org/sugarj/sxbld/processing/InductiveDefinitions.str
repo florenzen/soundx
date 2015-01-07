@@ -10,7 +10,6 @@ imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/soundx/InductiveDefinitions
 		org/sugarj/soundx/AbstractSyntax
-		org/sugarj/soundx/MetaVariables
 
 /**
  * Register analyses

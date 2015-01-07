@@ -1,26 +1,28 @@
 /**
- * Signature of SoundX abstract syntax
+ * SoundX abstract syntax
  */
 module org/sugarj/soundx/AbstractSyntax
 
+imports org/sugarj/sxbld/processing/MetaExplode
+
+
+/**
+ * Metavariables
+ */
 signature constructors
+	SXMetaVar: String -> SXMetaVar
+
+strategies
 	/**
-	 * Form declaration
+	 * Translates meta-var to SXMetaVar
+	 *
+	 * @type a -> a
 	 */
-	SXAbsJudgementForm: List(String) -> SXAbsJudgementForm
+    sxbld-meta-var-to-sx-metavar =
+    	topdown(try(\meta-var(name) -> SXMetaVar(name)\))
 
-    /**
-     * Types of sorts
-     */
-    SXAbsSortContextFree: SXAbsSort
-    SXAbsSortLexical:     SXAbsSort
-
-    /**
-     * Arity declaration
-     */
-    SXAbsArity: List(String) * String -> SXAbsArity
-
-	/**
-	 * Inference rules
-	 */
+/**
+ * Inference rules
+ */
+signature constructors
 	SXAbsInfRule: List(SXJudgement) * SXJudgement -> SXAbsInfRule
