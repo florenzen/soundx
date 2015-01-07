@@ -9,9 +9,9 @@ imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/sxbld/processing/SortPrefixing
         org/sugarj/sxbld/processing/SDF2Terms
-        // org/sugarj/sxbld/processing/Symbols
 
 imports org/sugarj/languages/SXBld
+
 
 /**
  * Register analyses and desugarings
@@ -19,18 +19,31 @@ imports org/sugarj/languages/SXBld
 strategies
 	sxbld-start-analysis = sxbld-analyze-judgement-forms
 
+/**
+ * Analysis
+ */
 strategies
+	/**
+	 * Analyzes all judgement forms and adds productions to the environment
+	 *
+	 * @type SXBldJudgementForms -> SXBldJudgementForms
+	 */
 	sxbld-analyze-judgement-forms =
 		?SXBldJudgementForms(forms);
 		where(
 			<map(sxbld-analyze-judgement-form)> forms => prods;
 			<sxbld-env-add-grammar-elems> [grammar-elem(context-free-syntax(prods))])
-		
+
+	/**
+	 * Generates a production for SXJudgement
+	 *
+	 * Generates a constructor name for the judgement and
+	 * prefixes all sort names.
+	 *
+	 * @type SXBldJudgementForm -> Sdf2Production
+	 */
 	sxbld-analyze-judgement-form =
 		?SXBldJudgementForm(symbols);
-		// <sxbld-analyze-symbols-to-sorts> symbols => sort-names;
 	    <sxbld-env-fresh-judgement-name> () => judgement-name;
-    	// <sxbld-env-add-form> (judgement-name, SXAbsJudgementForm(sort-names));
     	<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
     	!prod(prefixed-symbols, sort("SXJudgement"), attrs([<sxbld-sdf2-cons-attribute> judgement-name]))
-    	// !(judgement-name, form)

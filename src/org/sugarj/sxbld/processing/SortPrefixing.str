@@ -1,11 +1,12 @@
 /**
- * Prefixing of SDF2 sorts with the base language name
+ * Prefixing of SDF2 sort names
  */
 module org/sugarj/sxbld/processing/SortPrefixing
 
 imports org/sugarj/languages/Sdf2
 
 imports org/sugarj/sxbld/Environment
+
 
 strategies
 	/**
@@ -18,7 +19,7 @@ strategies
     /**
      * Prefixes all sort names with the given prefix
      *
-     * @arg prefix String
+     * @param prefix String
      *
      * @type a -> a
      */
@@ -36,7 +37,7 @@ strategies
     /**
      * Prefixes the sort name with the given prefix
      *
-     * @arg prefix String
+     * @param prefix String
      *
      * @type Sdf2Symbol -> Sdf2Symbol
      */
