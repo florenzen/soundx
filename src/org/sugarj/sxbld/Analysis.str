@@ -102,6 +102,3 @@ strategies
     	?ast;
     	sxbld-extract-errors => msgs;
     	<put-analysis-data(|"errors", [msg|msgs])> ast
-
-signature constructors
-	SXBldFinishedAnalysis: a -> SXBldFinishedAnalysis(a)
