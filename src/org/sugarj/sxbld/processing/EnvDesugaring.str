@@ -20,10 +20,10 @@ strategies
     sxbld-env-extract-extension-decls =
   	    sxbld-env-get-grammar-elems => grm-elems-plain;
   	    sxbld-env-make-toplevel-decs => grm-elems-toplevel-decs;
-  	    sxbld-env-make-sig-judg => grm-elems-sig-judg;
+  	    sxbld-env-make-intf-judg => grm-elems-sig-judg;
 	    ((sxbld-env-is-interface-judgement-defined;
-	      sxbld-env-get-interface-judgement => sig-judg;
-	      sxbld-env-decls-to-stratego(|sig-judg, "interface-judgement")
+	      sxbld-env-get-interface-judgement => intf-judg;
+	      sxbld-env-decls-to-stratego(|intf-judg, "interface-judgement")
 	     ) <+ ![]) => trans-intf-judg;
 	    <sxbld-env-get> "cons-names" => cons-names;
 	    sxbld-env-decls-to-stratego(|cons-names, "cons-names") => trans-cons-names;
@@ -34,12 +34,12 @@ strategies
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems))
 
 	/**
-	 * Generates a stratego definition key = term
+	 * Generates a Stratego definition key = term
 	 *
 	 * @param term The term to explode
 	 * @param key The name of the definition
 	 *
-	 * @type a -> a
+	 * @type _ -> _
 	 */
     sxbld-env-decls-to-stratego(|term, key) =
     	<trm-explode> term => stratego-alist;
@@ -47,6 +47,12 @@ strategies
     	![transformation-elem(
     		Strategies([SDefNoArgs(strategy-name, Build(stratego-alist))])
     	 )]
+
+	/**
+	 * Generates productions for list of toplevel declarations
+	 *
+	 * @type _ -> _
+	 */
     sxbld-env-make-toplevel-decs =
     	(sxbld-env-is-toplevel-declaration-defined;
     	 sxbld-env-is-toplevel-declarations-defined;
@@ -59,7 +65,12 @@ strategies
           ]))]
     	) <+ ![]
 
-	sxbld-env-make-sig-judg =
+    /**
+     * Generates productions for the interface judgement declaration
+     *
+     * @type _ -> _
+     */
+	sxbld-env-make-intf-judg =
 	    (sxbld-env-is-toplevel-declarations-defined;
 	     sxbld-env-is-interface-defined;
 	     sxbld-env-get-toplevel-declarations; sxbld-env-prefix-name => decs;
