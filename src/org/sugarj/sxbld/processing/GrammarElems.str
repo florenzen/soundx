@@ -216,17 +216,32 @@ strategies
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => ground-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => ground-symbol;
     	// Generate syntax production for inequality judgement if sx-requires-inequality is given
-    	((!attributes; ?attrs(attribute-list); !attribute-list) <+ ![]) => attribute-list;
-    	if <elem> (term(default(fun(unquoted("sx-requires-inequality")))), attribute-list) then
-    		![prod([prefixed-symbol, lit("=/="), prefixed-symbol], sort("SXJudgement"),
-    	           attrs([<sxbld-sdf2-cons-attribute> "SXNeq"]))]
-    	else
-    		![]
-    	end => cf-prods;
+    	<sxbld-analyze-neq-judg> (attributes, prefixed-symbol) => cf-prods;
+    	// ((!attributes; ?attrs(attribute-list); !attribute-list) <+ ![]) => attribute-list;
+    	// if <elem> (term(default(fun(unquoted("sx-requires-inequality")))), attribute-list) then
+    	// 	![prod([prefixed-symbol, lit("=/="), prefixed-symbol], sort("SXJudgement"),
+    	//            attrs([<sxbld-sdf2-cons-attribute> "SXNeq"]))]
+    	// else
+    	// 	![]
+    	// end => cf-prods;
     	!([prod(prefixed-symbols, prefixed-symbol, attributes),
     	   prod(ground-symbols, ground-symbol, attributes)],
     	  cf-prods)
-    	
+
+    /**
+     * Generates inequality judgement for symbol if sx-requires-inequality is given
+     *
+     * @type (Sdf2Attributes, Sdf2Symbol) -> List(Sdf2Production)
+     */
+    sxbld-analyze-neq-judg =
+    	?(attributes, symbol);
+    	if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-requires-inequality")> attributes then
+    		![prod([symbol, lit("=/="), symbol], sort("SXJudgement"),
+    	           attrs([<sxbld-sdf2-cons-attribute> "SXNeq"]))]
+    	else
+    		![]
+    	end
+    	    	
     /**
      * Adds the grammars to the environment
      *

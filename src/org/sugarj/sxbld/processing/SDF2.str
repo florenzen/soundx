@@ -1,5 +1,5 @@
 /**
- * Generation of SDF2 term
+ * Manipulation of SDF2 abstract syntax
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */
@@ -39,3 +39,20 @@ strategies
     sxbld-sdf2-is-attribute(|attrib-name) =
     	?term(default(appl(unquoted(attrib-name), _))) +
     	?term(default(fun(unquoted(attrib-name))))
+
+    /**
+     * Succeeds if ATerm attribute of given name is defined in attributes
+     *
+     * @param attrib-name String
+     *
+     * @type Sdf2Attributes -> Sdf2Attributes
+     */
+    sxbld-sdf2-is-aterm-attribute-defined(|attrib-name) =
+    	if ?no-attrs() then
+    		fail
+    	else
+    		?attrs(attribs);
+    		where(
+    			<elem(\(_, a2) -> <sxbld-sdf2-is-attribute(|attrib-name)> a2\)> (attrib-name, attribs))
+    	end
+    	
