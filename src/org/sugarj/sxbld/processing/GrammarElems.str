@@ -131,6 +131,7 @@ strategies
     sxbld-analyze-cf-production =
     	?prod(symbols, symbol, attributes);
     	<sxbld-analyze-cf-attributes> attributes => analyzed-attributes;
+    	<sxbld-analyze-body-dec> (symbol, analyzed-attributes);
     	<sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
     	<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => prefixed-ground-symbols;
@@ -194,10 +195,32 @@ strategies
     	  (// More than one cons attribute, error
     	   !cons-attribs; ?[_,_|_];
     	   <map(sxbld-analyze-fail(|"Several cons attributes are not allowed"))> cons-attribs)))
-        
+
+	/**
+	 * Registers constructor and sort of body declaration if sx-body-dec attribute is given
+	 *
+	 * The attributes must contain a cons attribute.
+	 *
+	 * @type (Sdf2Symbol, Sdf2Attributes) -> (Sdf2Symbol, Sdf2Attributes) 
+	 */
+	sxbld-analyze-body-dec =
+		?(symbol, attributes);
+		where(
+			if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-body-dec")> attributes then
+				debug(!"ONE ");
+				<sxbld-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
+				debug(!"TWO ");
+				<sxbld-sdf2-cons-attribute-name-quoted; debug(!"CONS ATTRIB "); un-double-quote> cons-attrib => cons-name;
+				debug(!"THREE ");
+				<sxbld-env-add-body-dec> (cons-name, symbol)
+				; debug(!" FOUR")
+			else
+				id
+			end)
+
     /**
      * Analyzes a lexical syntax section
-     *
+–     *
      * @type Grammar -> Gramar
      */
     sxbld-analyze-lex-syntax =

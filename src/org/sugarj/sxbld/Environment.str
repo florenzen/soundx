@@ -73,7 +73,8 @@ strategies
   	    hashtable-put(|"interface-judgement", ());
   	    hashtable-put(|"failed", SXBldFalse());
   	    hashtable-put(|"namespace-identifier", "");
-  	    hashtable-put(|"namespace-kind", ())
+  	    hashtable-put(|"namespace-kind", ());
+  	    hashtable-put(|"body-decs", [])
 
     /**
      * Looks up a key in the environment
@@ -471,3 +472,25 @@ strategies
      */
     sxbld-env-is-namespace-kind-defined =
     	sxbld-env-get-namespace-kind; not(?"")
+
+/**
+ * Handling of body-decs
+ */
+strategies
+	/**
+	 * Adds a constructor and SDF2 symbol
+	 *
+	 * @type (String, Sdf2Symbol) -> SXEnv
+	 */
+	sxbld-env-add-body-dec =
+		?(name, symbol);
+		<sxbld-env-get> "body-decs" => decs;
+		<sxbld-env-set> ("body-decs", [(name, symbol)|decs])
+
+    /**
+     * Gets list of body-decs constructors and SDF2 symbols
+     *
+     * @type _ -> List(String)
+     */
+	sxbld-env-get-body-decs =
+		<sxbld-env-get> "body-decs"

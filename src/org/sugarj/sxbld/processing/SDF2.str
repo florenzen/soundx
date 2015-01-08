@@ -55,4 +55,33 @@ strategies
     		where(
     			<elem(\(_, a2) -> <sxbld-sdf2-is-attribute(|attrib-name)> a2\)> (attrib-name, attribs))
     	end
-    	
+
+	/**
+	 * Extracts ATerm attribute of given name from SDF2 ttributes
+	 *
+	 * @param attrib-name String
+	 *
+	 * @type Sdf2Attributes -> Sdf2Attribute
+	 */
+    sxbld-sdf2-extract-aterm-attribute(|attrib-name) =
+    	if ?no-attrs() then
+    		fail
+    	else
+    		?attrs(attribs);
+    		debug(!"FETCH ");
+    		<fetch-elem(sxbld-sdf2-is-attribute(|attrib-name))> attribs
+    		;debug(!"FETCH 2 ")
+    	end
+
+	/**
+	 * Gets the n-th argument of an ATerm attribute
+	 *
+	 * Numbering starts with 1.
+	 *
+	 * @param index Int
+	 *
+	 * @type Sdf2Attribute -> Sdf2ATerm
+	 */
+    sxbld-sdf2-get-arg-from-aterm-attribute(|index) =
+    	?term(default(appl(_, args)));
+    	<index> (index, args)
