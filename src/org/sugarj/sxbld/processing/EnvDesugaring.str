@@ -20,7 +20,8 @@ strategies
     sxbld-env-extract-extension-decls =
   	    sxbld-env-get-grammar-elems => grm-elems-plain;
   	    sxbld-env-make-toplevel-decs => grm-elems-toplevel-decs;
-  	    sxbld-env-make-intf-judg => grm-elems-sig-judg;
+  	    sxbld-env-make-intf-judg => grm-elems-intf-judg;
+  	    sxbld-env-make-get-intf-judg => grm-elems-get-intf-judg;
 	    ((sxbld-env-is-interface-judgement-defined;
 	      sxbld-env-get-interface-judgement => intf-judg;
 	      sxbld-env-decls-to-stratego(|intf-judg, "interface-judgement")
@@ -30,7 +31,7 @@ strategies
 	    <sxbld-env-get; hashtable-getlist> "inference-rules" => inf-rules;
 	    sxbld-env-decls-to-stratego(|inf-rules, "inference-rules") => trans-infrules;
 	    <conc> (trans-intf-judg, trans-cons-names, trans-infrules) => transformation-elems;
-	    <conc> (grm-elems-plain, grm-elems-toplevel-decs, grm-elems-sig-judg) => grammar-elems;
+	    <conc> (grm-elems-plain, grm-elems-toplevel-decs, grm-elems-intf-judg, grm-elems-get-intf-judg) => grammar-elems;
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems))
 
 	/**
@@ -80,3 +81,17 @@ strategies
 			 prod([sort(decs)], sort("SXBldIntfJudgToplevel"), no-attrs())
 		  ]))]
 	     ) <+ ![]
+
+	/**
+	 * Generates production for the get-interface judgement
+	 */
+	sxbld-env-make-get-intf-judg =
+		(sxbld-env-is-interface-defined;
+		 sxbld-env-is-namespace-identifier-defined;
+		 sxbld-env-get-interface; sxbld-env-prefix-name => intf;
+		 sxbld-env-get-namespace-identifier => symbol;
+		 ![grammar-elem(context-free-syntax([
+		 	prod([sort(intf), lit("="), lit("interface"), lit("("), symbol, lit(")")],
+		 	     sort("SXJudgement"), 
+		 	     attrs([<sxbld-sdf2-cons-attribute> "SXGetInterface"]))
+		 ]))]) <+ ![]

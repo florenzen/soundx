@@ -14,4 +14,5 @@ signature constructors
 	SXInfRulePremisesNil:                                                  SXInfRulePremises
 	SXInfRulePremisesCons:  SXInfRulePremisesEnum * SXInfRulePremises   -> SXInfRulePremises
 
-    SXNeq: SXExpr * SXEpr -> SXJudgement
+    SXNeq:          SXExpr * SXExpr -> SXJudgement
+    SXGetInterface: SXExpr * SXExpr -> SXJudgement

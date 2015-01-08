@@ -13,11 +13,18 @@ imports org/sugarj/sxbld/processing/MetaExplode
 
 
 /**
+ * Namespace kind
+ */
+signature constructors
+	SXBldNamespaceFlat:         SXBldNamespaceKind
+	SXBldNamespaceHierarchical: SXBldNamespaceKind
+
+/**
  * True and false
  */
 signature constructors
-	SXBldFalse: Bool
-	SXBldTrue:  Bool
+	SXBldFalse: SXBldBool
+	SXBldTrue:  SXBldBool
 
 /**
  * Basic handling of the environment hash table
@@ -64,7 +71,9 @@ strategies
   	    hashtable-put(|"toplevel-declarations", "");
   	    hashtable-put(|"interface", "");
   	    hashtable-put(|"interface-judgement", ());
-  	    hashtable-put(|"failed", SXBldFalse())
+  	    hashtable-put(|"failed", SXBldFalse());
+  	    hashtable-put(|"namespace-identifier", "");
+  	    hashtable-put(|"namespace-kind", ())
 
     /**
      * Looks up a key in the environment
@@ -404,3 +413,61 @@ strategies
      */
     sxbld-env-is-interface-judgement-defined =
     	sxbld-env-get-interface-judgement; not(?())
+
+/**
+ * Handling of namespace-identifier
+ */
+strategies
+	/**
+	 * Gets namespace-identifier
+	 *
+	 * @type _ -> String
+	 */
+	sxbld-env-get-namespace-identifier =
+		<sxbld-env-get> "namespace-identifier"
+
+	/**
+	 * Sets namespace-identifier
+	 *
+	 * @type String -> SXEnv
+	 */		
+    sxbld-env-set-namespace-identifier =
+    	?sort-name;
+    	<sxbld-env-set> ("namespace-identifier", sort-name)
+
+    /**
+     * Succeeds if namespace-identifier is defined
+     *
+     * @type _ -> String
+     */
+    sxbld-env-is-namespace-identifier-defined =
+    	sxbld-env-get-namespace-identifier; not(?"")
+
+/**
+ * Handling of namespace-kind
+ */
+strategies
+	/**
+	 * Gets namespace-kind
+	 *
+	 * @type _ -> String
+	 */
+	sxbld-env-get-namespace-kind =
+		<sxbld-env-get> "namespace-kind"
+
+	/**
+	 * Sets namespace-kind
+	 *
+	 * @type String -> SXEnv
+	 */		
+    sxbld-env-set-namespace-kind =
+    	?sort-name;
+    	<sxbld-env-set> ("namespace-kind", sort-name)
+
+    /**
+     * Succeeds if namespace-kind is defined
+     *
+     * @type _ -> String
+     */
+    sxbld-env-is-namespace-kind-defined =
+    	sxbld-env-get-namespace-kind; not(?"")

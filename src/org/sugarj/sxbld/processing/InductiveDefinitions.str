@@ -63,7 +63,8 @@ strategies
 	 */
 	sxbld-analyze-is-judgement =
 		?c#(_); where(<string-starts-with(|"SXJudgement")> c) +
-		?SXNeq(_, _)
+		?SXNeq(_, _);
+		?SXGetInterface(_, _)
 	
 	/**
 	 * Adds an inference rule to the environment
