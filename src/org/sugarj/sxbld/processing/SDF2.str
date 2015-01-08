@@ -3,7 +3,7 @@
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */
-module org/sugarj/sxbld/processing/SDF2Terms
+module org/sugarj/sxbld/processing/SDF2
 
 imports org/sugarj/languages/Sdf2
 
@@ -30,9 +30,10 @@ strategies
     	term(default(appl(unquoted("cons"), [fun(quoted(cons-name-quoted))]))) -> cons-name-quoted
 
     /**
-     * Succeeds if attribute has specified name
+     * Succeeds if attribute is ATerm attribute of specified name
      *
      * @param attrib-name String
+     *
      * @type Sdf2Attribute -> Sdf2Attribute
      */
     sxbld-sdf2-is-attribute(|attrib-name) =

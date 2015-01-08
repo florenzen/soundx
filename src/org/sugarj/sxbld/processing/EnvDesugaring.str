@@ -8,7 +8,7 @@ module org/sugarj/sxbld/processing/EnvDesugaring
 imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/sxbld/processing/MetaExplode
-        org/sugarj/sxbld/processing/SDF2Terms
+        org/sugarj/sxbld/processing/SDF2
 
 
 strategies

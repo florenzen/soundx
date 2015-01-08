@@ -13,7 +13,7 @@ imports org/sugarj/sxbld/Environment
         org/sugarj/sxbld/processing/AnalysisFunctions
 
 imports org/sugarj/sxbld/processing/SortPrefixing
-        org/sugarj/sxbld/processing/SDF2Terms
+        org/sugarj/sxbld/processing/SDF2
 
 
 /**
@@ -226,7 +226,7 @@ strategies
     	!([prod(prefixed-symbols, prefixed-symbol, attributes),
     	   prod(ground-symbols, ground-symbol, attributes)],
     	  cf-prods)
-
+    	
     /**
      * Adds the grammars to the environment
      *
