@@ -68,9 +68,7 @@ strategies
     		fail
     	else
     		?attrs(attribs);
-    		debug(!"FETCH ");
     		<fetch-elem(sxbld-sdf2-is-attribute(|attrib-name))> attribs
-    		;debug(!"FETCH 2 ")
     	end
 
 	/**

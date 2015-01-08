@@ -20,6 +20,7 @@ strategies
     sxbld-env-extract-extension-decls =
   	    sxbld-env-get-grammar-elems => grm-elems-plain;
   	    sxbld-env-make-toplevel-decs => grm-elems-toplevel-decs;
+  	    sxbld-env-make-toplevel-declaration => grm-elems-toplevel-declaration;
   	    sxbld-env-make-intf-judg => grm-elems-intf-judg;
   	    sxbld-env-make-get-intf-judg => grm-elems-get-intf-judg;
   	    sxbld-env-make-toplevel-dec-body => extension-elems-body-dec;
@@ -32,7 +33,8 @@ strategies
 	    <sxbld-env-get; hashtable-getlist> "inference-rules" => inf-rules;
 	    sxbld-env-decls-to-stratego(|inf-rules, "inference-rules") => trans-infrules;
 	    <conc> (trans-intf-judg, trans-cons-names, trans-infrules) => transformation-elems;
-	    <conc> (grm-elems-plain, grm-elems-toplevel-decs, grm-elems-intf-judg, grm-elems-get-intf-judg) => grammar-elems;
+	    <conc> (grm-elems-plain, grm-elems-toplevel-decs, grm-elems-intf-judg,
+	    	grm-elems-get-intf-judg, grm-elems-toplevel-declaration) => grammar-elems;
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems, extension-elems-body-dec))
 
 	/**
@@ -49,6 +51,19 @@ strategies
     	![transformation-elem(
     		Strategies([SDefNoArgs(strategy-name, Build(stratego-alist))])
     	 )]
+
+    /**
+     * Generates production for toplevel-declaration to ToplevelDeclaration
+     *
+     * @type _ -> List(ExtensionElem)
+     */
+    sxbld-env-make-toplevel-declaration =
+    	(sxbld-env-is-toplevel-declaration-defined;
+    	 sxbld-env-get-toplevel-declaration; sxbld-env-prefix-name => dec;
+    	 ![grammar-elem(context-free-syntax([
+    	 	prod([sort(dec)], sort("ToplevelDeclaration"), no-attrs())
+    	 ]))]
+    	) <+ []
 
 	/**
 	 * Generates productions for list of toplevel declarations

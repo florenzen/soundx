@@ -207,13 +207,10 @@ strategies
 		?(symbol, attributes);
 		where(
 			if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-body-dec")> attributes then
-				debug(!"ONE ");
 				<sxbld-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
-				debug(!"TWO ");
-				<sxbld-sdf2-cons-attribute-name-quoted; debug(!"CONS ATTRIB "); un-double-quote> cons-attrib => cons-name;
-				debug(!"THREE ");
-				<sxbld-env-add-body-dec> (cons-name, symbol)
-				; debug(!" FOUR")
+				<sxbld-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
+				<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
+				<sxbld-env-add-body-dec> (cons-name, prefixed-symbol)
 			else
 				id
 			end)
