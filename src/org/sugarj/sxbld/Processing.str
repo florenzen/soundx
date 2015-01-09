@@ -95,7 +95,9 @@ strategies
 		?SXBldToplevelDeclarations(_) +
 		?SXBldToplevelDeclaration(_) +
 		?SXBldInterface(_) +
-		?SXBldInterfaceJudgement(_, _, _)
+		?SXBldInterfaceJudgement(_, _, _) +
+		?SXBldExtensionBegin(_) +
+		?SXBldExtensionEnd(_)
 	
 	/**
 	 * Register BLD processing as SugarJ desugarings

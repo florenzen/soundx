@@ -89,7 +89,7 @@ exports
       "derived" "by" SXJudgement -> ToplevelDeclaration {cons("SXBldInterfaceJudgement")}
 
     "extension" "begin" Sdf2Sort -> ToplevelDeclaration {cons("SXBldExtensionBegin")}
-    "extension" "end" Sdf2Sort   -> ToplevelDeclaration {cons("SxBldExtensionEnd")}
+    "extension" "end" Sdf2Sort   -> ToplevelDeclaration {cons("SXBldExtensionEnd")}
 
   sorts
   	SXBldJudgementForms SXBldJudgementForms SXJudgment
