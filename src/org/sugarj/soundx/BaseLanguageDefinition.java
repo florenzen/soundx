@@ -1,22 +1,18 @@
 package org.sugarj.soundx;
 
-import org.sugarj.AbstractBaseLanguage;
+import org.sugarj.common.Log;
 
 public class BaseLanguageDefinition {
-	private String bldFilename;
-
-	private SoundXAbstractBaseLanguage abstractBaseLanguage;
-
-	public BaseLanguageDefinition(String bldFilename) {
-		this.bldFilename = bldFilename;
-		process();
-	}
-
-	public AbstractBaseLanguage getAbstractBaseLanguage() {
-		return abstractBaseLanguage;
+	private static BaseLanguageDefinition instance = new BaseLanguageDefinition();
+		
+	public static BaseLanguageDefinition getInstance() {
+		return instance;
 	}
 	
-	private void process() {
-		System.out.println(bldFilename);
+	private BaseLanguageDefinition() { }
+
+	
+	public void process(String bldFilename) {
+		
 	}
 }

@@ -5,6 +5,7 @@ import org.sugarj.AbstractBaseLanguage;
 import org.sugarj.AbstractBaseProcessor;
 import org.sugarj.common.Log;
 import org.sugarj.common.path.Path;
+import org.sugarj.soundx.Debug;
 
 public class SoundXAbstractBaseLanguage extends AbstractBaseLanguage {
 	private SoundXAbstractBaseLanguage() {}
@@ -13,6 +14,13 @@ public class SoundXAbstractBaseLanguage extends AbstractBaseLanguage {
 
 	public static SoundXAbstractBaseLanguage getInstance() {
 		return instance;
+	}
+	
+	public void processBaseLanguageDefinition(String bldFilename, Path pluginDirectory) {
+		Debug.print("Processing " + bldFilename);
+		Debug.print("Plugin directory " + pluginDirectory.toString());
+		
+		
 	}
 
 	@Override
