@@ -453,7 +453,7 @@ strategies
 	/**
 	 * Gets namespace-kind
 	 *
-	 * @type _ -> String
+	 * @type _ -> SXBldNamespaceKind
 	 */
 	sxbld-env-get-namespace-kind =
 		<sxbld-env-get> "namespace-kind"
@@ -464,16 +464,17 @@ strategies
 	 * @type String -> SXEnv
 	 */		
     sxbld-env-set-namespace-kind =
-    	?sort-name;
-    	<sxbld-env-set> ("namespace-kind", sort-name)
+    	?kind;
+    	<sxbld-env-set> ("namespace-kind", kind)
 
     /**
      * Succeeds if namespace-kind is defined
      *
-     * @type _ -> String
+     * @type _ -> SXBldNamespaceKind
      */
     sxbld-env-is-namespace-kind-defined =
-    	sxbld-env-get-namespace-kind; not(?())
+    	sxbld-env-get-namespace-kind;
+    	((?(); fail) <+ id)
 
 /**
  * Handling of body-decs

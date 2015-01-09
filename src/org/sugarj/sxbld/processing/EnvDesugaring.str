@@ -152,7 +152,7 @@ strategies
     	  sxbld-env-get-toplevel-declaration; sxbld-env-prefix-name => name;
     	  <map(\(_, _, symbol) -> prod([symbol], sort(name), no-attrs())\)> decs => prods;
     	  ![grammar-elem(context-free-syntax(prods))]
-    	 ) <+ ![]) => grm; debug(!"GRM ");
+    	 ) <+ ![]) => grm;
     	<map(\(name, index, _) -> (name, index)\)> decs => cons-names-indices;
     	sxbld-env-decls-to-stratego(|cons-names-indices, "import-decs") => trans;
     	<conc> (grm, trans)
