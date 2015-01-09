@@ -3,17 +3,15 @@ package org.sugarj.soundx;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.sugarj.BaseLanguageRegistry;
+import org.sugarj.SXBldLanguage;
 
 public class SoundXActivator extends AbstractUIPlugin {
 
-	private BaseLanguageDefinition bld;
-
 	private static SoundXActivator plugin;
-
+	
 	public SoundXActivator(String bldFilename) {
-		bld = new BaseLanguageDefinition(bldFilename);
 		BaseLanguageRegistry.getInstance().registerBaseLanguage(
-				bld.getAbstractBaseLanguage());
+				SoundXAbstractBaseLanguage.getInstance());
 	}
 
 	public void start(BundleContext context) throws Exception {

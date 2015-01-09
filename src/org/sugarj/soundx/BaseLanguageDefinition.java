@@ -16,5 +16,7 @@ public class BaseLanguageDefinition {
 		return abstractBaseLanguage;
 	}
 	
-	private void process() {}
+	private void process() {
+		System.out.println(bldFilename);
+	}
 }
