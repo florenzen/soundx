@@ -472,7 +472,7 @@ strategies
      * @type _ -> String
      */
     sxbld-env-is-namespace-kind-defined =
-    	sxbld-env-get-namespace-kind; not(?"")
+    	sxbld-env-get-namespace-kind; not(?())
 
 /**
  * Handling of body-decs
