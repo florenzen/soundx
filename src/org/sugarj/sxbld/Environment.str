@@ -76,7 +76,9 @@ strategies
   	    hashtable-put(|"namespace-kind", ());
   	    hashtable-put(|"body-decs", []);
   	    hashtable-put(|"namespace-dec", ());
-  	    hashtable-put(|"import-decs", [])
+  	    hashtable-put(|"import-decs", []);
+  	    hashtable-put(|"extension-begin", "");
+  	    hashtable-put(|"extension-end", "")
 
     /**
      * Looks up a key in the environment
@@ -548,3 +550,61 @@ strategies
      */
 	sxbld-env-get-import-decs =
 		<sxbld-env-get> "import-decs"
+
+/**
+ * Handling of extension-begin
+ */
+strategies
+	/**
+	 * Gets extension-begin
+	 *
+	 * @type _ -> String
+	 */
+	sxbld-env-get-extension-begin =
+		<sxbld-env-get> "extension-begin"
+
+	/**
+	 * Sets extension-begin
+	 *
+	 * @type String -> SXEnv
+	 */		
+    sxbld-env-set-extension-begin =
+    	?sort-name;
+    	<sxbld-env-set> ("extension-begin", sort-name)
+
+    /**
+     * Succeeds if extension-begin is defined
+     *
+     * @type _ -> String
+     */
+    sxbld-env-is-extension-begin-defined =
+    	sxbld-env-get-extension-begin; not(?"")
+
+/**
+ * Handling of extension-end
+ */
+strategies
+	/**
+	 * Gets extension-end
+	 *
+	 * @type _ -> String
+	 */
+	sxbld-env-get-extension-end =
+		<sxbld-env-get> "extension-end"
+
+	/**
+	 * Sets extension-end
+	 *
+	 * @type String -> SXEnv
+	 */		
+    sxbld-env-set-extension-end =
+    	?sort-name;
+    	<sxbld-env-set> ("extension-end", sort-name)
+
+    /**
+     * Succeeds if extension-end is defined
+     *
+     * @type _ -> String
+     */
+    sxbld-env-is-extension-end-defined =
+    	sxbld-env-get-extension-end; not(?"")

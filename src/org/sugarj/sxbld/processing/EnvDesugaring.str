@@ -57,16 +57,17 @@ strategies
     	 )]
 
     /**
-     * Generates production for toplevel-declaration to ToplevelDeclaration
+     * Saves toplevel-declaration in Stratego file
+     *
+     * We cannot write it directly to SDF since this would allow
+     * base language toplevel input in the base language definition itself.
      *
      * @type _ -> List(ExtensionElem)
      */
     sxbld-env-make-toplevel-declaration =
     	(sxbld-env-is-toplevel-declaration-defined;
-    	 sxbld-env-get-toplevel-declaration; sxbld-env-prefix-name => dec;
-    	 ![grammar-elem(context-free-syntax([
-    	 	prod([sort(dec)], sort("ToplevelDeclaration"), no-attrs())
-    	 ]))]
+    	 sxbld-env-get-toplevel-declaration => dec;
+    	 sxbld-env-decls-to-stratego(|dec, "ToplevelDeclaration")
     	) <+ []
 
 	/**

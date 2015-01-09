@@ -23,6 +23,8 @@ strategies
 	sxbld-start-analysis = sxbld-analyze-toplevel-decs
 	sxbld-start-analysis = sxbld-analyze-interface
 	sxbld-start-analysis = sxbld-analyze-interface-judgement
+	sxbld-start-analysis = sxbld-analyze-extension-begin
+	sxbld-start-analysis = sxbld-analyze-extension-end
 
 /**
  * Analyses
@@ -76,3 +78,27 @@ strategies
     		(sxbld-env-is-interface-judgement-defined;
     		 <sxbld-analyze-fail(|"Only one `interface for - is - derived by -' allowed")> decl) <+
     		<sxbld-meta-var-to-sx-metavar; sxbld-env-set-interface-judgement> (toplevel, intf, judg))
+
+    /**
+     * Stores sort of extension begin
+     *
+     * @type String -> String
+     */
+    sxbld-analyze-extension-begin =
+    	?decl@SXBldExtensionBegin(sort-name);
+    	where(
+    		(sxbld-env-is-extension-begin-defined;
+    		 <sxbld-analyze-fail(|"Only one `extension begin' allowed")> decl) <+
+    		<sxbld-env-set-extension-begin> sort-name)
+
+    /**
+     * Stores sort of extension end
+     *
+     * @type String -> String
+     */
+    sxbld-analyze-extension-end =
+    	?decl@SXBldExtensionEnd(sort-name);
+    	where(
+    		(sxbld-env-is-extension-end-defined;
+    		 <sxbld-analyze-fail(|"Only one `extension end' allowed")> decl) <+
+    		<sxbld-env-set-extension-end> sort-name)

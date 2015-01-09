@@ -58,6 +58,8 @@ exports
     "is"          -> SXBldKeyword
     "derived"     -> SXBldKeyword
     "by"          -> SXBldKeyword
+    "begin"       -> SXBldKeyword
+    "end"         -> SXBldKeyword
 
     [a-zA-Z0-9]+ -> SXBldNONEMPTYSTRING
 
@@ -85,6 +87,9 @@ exports
     
     "interface" "for" SXBldIntfJudgToplevel "is" SXBldIntfJudgInterface
       "derived" "by" SXJudgement -> ToplevelDeclaration {cons("SXBldInterfaceJudgement")}
+
+    "extension" "begin" Sdf2Sort -> ToplevelDeclaration {cons("SXBldExtensionBegin")}
+    "extension" "end" Sdf2Sort   -> ToplevelDeclaration {cons("SxBldExtensionEnd")}
 
   sorts
   	SXBldJudgementForms SXBldJudgementForms SXJudgment
