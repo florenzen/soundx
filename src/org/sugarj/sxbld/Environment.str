@@ -75,7 +75,8 @@ strategies
   	    hashtable-put(|"namespace-identifier", "");
   	    hashtable-put(|"namespace-kind", ());
   	    hashtable-put(|"body-decs", []);
-  	    hashtable-put(|"namespace-dec", ())
+  	    hashtable-put(|"namespace-dec", ());
+  	    hashtable-put(|"import-decs", [])
 
     /**
      * Looks up a key in the environment
@@ -524,3 +525,25 @@ strategies
 	 */
 	sxbld-env-is-namespace-dec-defined =
 		<sxbld-env-get> "namespace-dec"; not(?())
+
+/**
+ * Handling of import-decs
+ */
+strategies
+	/**
+	 * Adds a constructor, the module identifier position, and an SDF2 symbol
+	 *
+	 * @type (String, Int, Sdf2Symbol) -> SXEnv
+	 */
+	sxbld-env-add-import-dec =
+		?(name, index, symbol);
+		<sxbld-env-get> "import-decs" => decs;
+		<sxbld-env-set> ("import-decs", [(name, index, symbol)|decs])
+
+    /**
+     * Gets list of imports-decs constructors, positions, and SDF2 symbols
+     *
+     * @type _ -> List((String, Int, Sdf2Symbol))
+     */
+	sxbld-env-get-import-decs =
+		<sxbld-env-get> "import-decs"

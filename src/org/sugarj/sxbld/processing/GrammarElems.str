@@ -133,6 +133,7 @@ strategies
     	<sxbld-analyze-cf-attributes> attributes => analyzed-attributes;
     	<sxbld-analyze-body-dec> (symbol, analyzed-attributes);
     	<sxbld-analyze-namespace-dec> (symbols, symbol, analyzed-attributes);
+    	<sxbld-analyze-import-dec> (symbols, symbol, analyzed-attributes);
     	<sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
     	<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => prefixed-ground-symbols;
@@ -244,6 +245,35 @@ strategies
 					else
 						<sxbld-analyze-fail(|"`sx-namespace-dec' takes exatcly one argument")> namespace-attrib
 					end
+				end
+			else
+				id
+			end)
+
+	/**
+	 * Registers constructor and sort of import declaration if sx-import-dec is given
+	 *
+	 * The attributes must contain a cons attribute.
+	 *
+	 * @type (Sdf2Symbols, Sdf2Symbol, Sdf2Attributes) -> (Sdf2Symbols, Sdf2Symbol, Sdf2Attributes)
+	 */
+	sxbld-analyze-import-dec =
+		?(symbols, symbol, attributes);
+		where(
+			if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-import-dec")> attributes then
+				<sxbld-sdf2-extract-aterm-attribute(|"sx-import-dec")> attributes => import-attrib;
+				<sxbld-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
+				<sxbld-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
+				<sxbld-sdf2-get-args-from-aterm-attribute> import-attrib => import-args;
+				if ?[fun(unquoted(label))] then
+					if <sxbld-sdf2-find-index-of-labelled-symbol(|label)> symbols => index then
+						<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
+						<sxbld-env-add-import-dec> (cons-name, index, prefixed-symbol)
+					else
+						<sxbld-analyze-fail(|"Label of `sx-import-dec' must be attached to symbol on lhs")> label
+					end
+				else
+					<sxbld-analyze-fail(|"`sx-import-dec' takes exatcly one argument")> import-attrib
 				end
 			else
 				id

@@ -24,6 +24,7 @@ strategies
   	    sxbld-env-make-intf-judg => grm-elems-intf-judg;
   	    sxbld-env-make-get-intf-judg => grm-elems-get-intf-judg;
   	    sxbld-env-make-toplevel-dec-body => extension-elems-body-dec;
+  	    sxbld-env-make-toplevel-dec-import => extension-elems-import-dec;
   	    sxbld-env-make-toplevel-dec-namespace => extension-elems-namespace-dec;
 	    ((sxbld-env-is-interface-judgement-defined;
 	      sxbld-env-get-interface-judgement => intf-judg;
@@ -37,7 +38,8 @@ strategies
 	    <conc> (grm-elems-plain, grm-elems-toplevel-decs, grm-elems-intf-judg,
 	    	grm-elems-get-intf-judg, grm-elems-toplevel-declaration) => grammar-elems;
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems,
-  	    	extension-elems-body-dec, extension-elems-namespace-dec))
+  	    	extension-elems-body-dec, extension-elems-namespace-dec,
+  	    	extension-elems-import-dec))
 
 	/**
 	 * Generates a Stratego definition key = term
@@ -119,7 +121,7 @@ strategies
 	/**
 	 * Generates code from body-decs
 	 *
-	 * Generates production that add all body sorts to the toplevel sort
+	 * Generates production that adds all body sorts to the toplevel sort
 	 * and stores the names of the body constructors in the Stratego code.
 	 *
 	 * @type _ -> List(ExtensionElem) 
@@ -133,6 +135,26 @@ strategies
     	 ) <+ ![]) => grm;
     	<map(\(name, _) -> name\)> decs => cons-names;
     	sxbld-env-decls-to-stratego(|cons-names, "body-decs") => trans;
+    	<conc> (grm, trans)
+
+	/**
+	 * Generates code from import-decs
+	 *
+	 * Generates production that adds all import sorts to the toplevel sort
+	 * and stores the names of the import constructors and module identifier
+	 * positions in the Stratego code.
+	 *
+	 * @type _ -> List(ExtensionElem) 
+	 */
+	sxbld-env-make-toplevel-dec-import =
+		sxbld-env-get-import-decs => decs;
+    	((sxbld-env-is-toplevel-declaration-defined;
+    	  sxbld-env-get-toplevel-declaration; sxbld-env-prefix-name => name;
+    	  <map(\(_, _, symbol) -> prod([symbol], sort(name), no-attrs())\)> decs => prods;
+    	  ![grammar-elem(context-free-syntax(prods))]
+    	 ) <+ ![]) => grm; debug(!"GRM ");
+    	<map(\(name, index, _) -> (name, index)\)> decs => cons-names-indices;
+    	sxbld-env-decls-to-stratego(|cons-names-indices, "import-decs") => trans;
     	<conc> (grm, trans)
 
 	/**
