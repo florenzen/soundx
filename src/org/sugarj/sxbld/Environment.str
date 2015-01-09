@@ -74,7 +74,8 @@ strategies
   	    hashtable-put(|"failed", SXBldFalse());
   	    hashtable-put(|"namespace-identifier", "");
   	    hashtable-put(|"namespace-kind", ());
-  	    hashtable-put(|"body-decs", [])
+  	    hashtable-put(|"body-decs", []);
+  	    hashtable-put(|"namespace-dec", ())
 
     /**
      * Looks up a key in the environment
@@ -490,7 +491,36 @@ strategies
     /**
      * Gets list of body-decs constructors and SDF2 symbols
      *
-     * @type _ -> List(String)
+     * @type _ -> List((String, Sdf2Symbol))
      */
 	sxbld-env-get-body-decs =
 		<sxbld-env-get> "body-decs"
+
+/**
+ * Handling of namespace-dec
+ */
+strategies
+	/**
+	 * Adds a constructor, the namespace identifier position, and SDF2 symbol
+	 *
+	 * @type (String, Int, Sdf2Symbol) -> SXEnv
+	 */
+	sxbld-env-set-namespace-dec =
+		?(name, index, symbol);
+		<sxbld-env-set> ("namespace-dec", (name, index, symbol))
+
+    /**
+     * Gets namespace-dec
+     *
+     * @type _ -> (String, Int, Sdf2Symbol)
+     */
+	sxbld-env-get-namespace-dec =
+		<sxbld-env-get> "namespace-dec"
+
+	/**
+	 * Succeeds if namespace-dec is defined
+	 *
+	 * @type _ -> _
+	 */
+	sxbld-env-is-namespace-dec-defined =
+		<sxbld-env-get> "namespace-dec"; not(?())

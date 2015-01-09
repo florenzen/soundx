@@ -24,6 +24,7 @@ strategies
   	    sxbld-env-make-intf-judg => grm-elems-intf-judg;
   	    sxbld-env-make-get-intf-judg => grm-elems-get-intf-judg;
   	    sxbld-env-make-toplevel-dec-body => extension-elems-body-dec;
+  	    sxbld-env-make-toplevel-dec-namespace => extension-elems-namespace-dec;
 	    ((sxbld-env-is-interface-judgement-defined;
 	      sxbld-env-get-interface-judgement => intf-judg;
 	      sxbld-env-decls-to-stratego(|intf-judg, "interface-judgement")
@@ -35,7 +36,8 @@ strategies
 	    <conc> (trans-intf-judg, trans-cons-names, trans-infrules) => transformation-elems;
 	    <conc> (grm-elems-plain, grm-elems-toplevel-decs, grm-elems-intf-judg,
 	    	grm-elems-get-intf-judg, grm-elems-toplevel-declaration) => grammar-elems;
-  	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems, extension-elems-body-dec))
+  	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems,
+  	    	extension-elems-body-dec, extension-elems-namespace-dec))
 
 	/**
 	 * Generates a Stratego definition key = term
@@ -115,7 +117,7 @@ strategies
 		 ]))]) <+ ![]
 
 	/**
-	 * Generate code from body-decs
+	 * Generates code from body-decs
 	 *
 	 * Generates production that add all body sorts to the toplevel sort
 	 * and stores the names of the body constructors in the Stratego code.
@@ -132,3 +134,23 @@ strategies
     	<map(\(name, _) -> name\)> decs => cons-names;
     	sxbld-env-decls-to-stratego(|cons-names, "body-decs") => trans;
     	<conc> (grm, trans)
+
+	/**
+	 * Generates code from namespace-dec
+	 *
+	 * @type _ -> List(ExtensionElem)
+	 */
+	sxbld-env-make-toplevel-dec-namespace =
+		if sxbld-env-is-namespace-dec-defined then
+			sxbld-env-get-namespace-dec => (cons-name, index, symbol);
+			((sxbld-env-is-toplevel-declaration-defined;
+			  sxbld-env-get-toplevel-declaration; sxbld-env-prefix-name => name;
+			  ![grammar-elem(context-free-syntax([
+			  	  prod([symbol], sort(name), no-attrs())
+			    ]))]
+			 ) <+ ![]) => grm;
+			sxbld-env-decls-to-stratego(|(cons-name, index), "namespace-dec") => trans;
+			<conc> (grm, trans)
+		else
+			![]
+		end

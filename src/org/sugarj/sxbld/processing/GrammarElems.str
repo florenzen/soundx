@@ -132,6 +132,7 @@ strategies
     	?prod(symbols, symbol, attributes);
     	<sxbld-analyze-cf-attributes> attributes => analyzed-attributes;
     	<sxbld-analyze-body-dec> (symbol, analyzed-attributes);
+    	<sxbld-analyze-namespace-dec> (symbols, symbol, analyzed-attributes);
     	<sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
     	<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => prefixed-ground-symbols;
@@ -201,7 +202,7 @@ strategies
 	 *
 	 * The attributes must contain a cons attribute.
 	 *
-	 * @type (Sdf2Symbol, Sdf2Attributes) -> (Sdf2Symbol, Sdf2Attributes) 
+	 * @type (Sdf2Symbol, Sdf2Attributes) -> (Sdf2Symbol, Sdf2Attributes)
 	 */
 	sxbld-analyze-body-dec =
 		?(symbol, attributes);
@@ -211,6 +212,39 @@ strategies
 				<sxbld-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
 				<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
 				<sxbld-env-add-body-dec> (cons-name, prefixed-symbol)
+			else
+				id
+			end)
+
+	/**
+	 * Registers constructor and sort of namespace declaration if sx-namespace-dec is given
+	 *
+	 * The attributes must contain a cons attribute.
+	 *
+	 * @type (Sdf2Symbols, Sdf2Symbol, Sdf2Attributes) -> (Sdf2Symbols, Sdf2Symbol, Sdf2Attributes)
+	 */
+	sxbld-analyze-namespace-dec =
+		?(symbols, symbol, attributes);
+		where(
+			if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-namespace-dec")> attributes then
+				<sxbld-sdf2-extract-aterm-attribute(|"sx-namespace-dec")> attributes => namespace-attrib;
+				if sxbld-env-is-namespace-dec-defined then
+					<sxbld-analyze-fail(|"Only one `sx-namespace-dec' allowed")> namespace-attrib
+				else
+					<sxbld-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
+					<sxbld-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
+					<sxbld-sdf2-get-args-from-aterm-attribute> namespace-attrib => namespace-args
+					if ?[fun(unquoted(label))] then
+						if <sxbld-sdf2-find-index-of-labelled-symbol(|label)> symbols => index then
+							<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
+							<sxbld-env-set-namespace-dec> (cons-name, index, prefixed-symbol)
+						else
+							<sxbld-analyze-fail(|"Label of `sx-namespace-dec' must be attached to symbol on lhs")> label
+						end
+					else
+						<sxbld-analyze-fail(|"`sx-namespace-dec' takes exatcly one argument")> namespace-attrib
+					end
+				end
 			else
 				id
 			end)

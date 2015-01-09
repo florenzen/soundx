@@ -83,3 +83,29 @@ strategies
     sxbld-sdf2-get-arg-from-aterm-attribute(|index) =
     	?term(default(appl(_, args)));
     	<index> (index, args)
+
+    /**
+     * Gets the arguments of an ATerm attribute
+     *
+     * @type Sdf2Attribute -> List(Sdf2ATerm)
+     */
+    sxbld-sdf2-get-args-from-aterm-attribute =
+    	(?term(default(appl(_, args))); !args) +
+    	(?term(default(fun(_))); ![])
+
+	/**
+	 * Returns the left-most position of a labelled symbol
+	 *
+	 * Strategy fails if the label is not in the input list
+	 *
+	 * @param label String
+	 *
+	 * @type List(Sdf2Symbols) -> Int
+	 */
+	sxbld-sdf2-find-index-of-labelled-symbol(|label) =
+		(?[]; fail) <+
+		(?[label(unquoted(label), symbol)|_];
+		 !1) <+
+		(?[symbol|symbols];
+		 <sxbld-sdf2-find-index-of-labelled-symbol(|label)> symbols => index;
+		 !(<add> (1, index)))
