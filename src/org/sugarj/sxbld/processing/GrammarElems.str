@@ -233,7 +233,7 @@ strategies
 				else
 					<sxbld-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
 					<sxbld-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
-					<sxbld-sdf2-get-args-from-aterm-attribute> namespace-attrib => namespace-args
+					<sxbld-sdf2-get-args-from-aterm-attribute> namespace-attrib => namespace-args;
 					if ?[fun(unquoted(label))] then
 						if <sxbld-sdf2-find-index-of-labelled-symbol(|label)> symbols => index then
 							<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
