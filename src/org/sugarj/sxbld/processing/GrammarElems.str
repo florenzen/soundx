@@ -264,8 +264,13 @@ strategies
     	?(attributes, symbol);
     	where(
     		if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-namespace-flat")> attributes then
-    			<sxbld-env-set-namespace-kind> SXBldNamespaceFlat();
-    			<sxbld-env-set-namespace-identifier> symbol
+    			if sxbld-env-is-namespace-kind-defined then
+    				<sxbld-sdf2-extract-aterm-attribute(|"sx-namespace-flat")> attributes => attrib; 
+    				<sxbld-analyze-fail(|"Only one `sx-namespace' attribute allowed")> attrib
+    			else
+    				<sxbld-env-set-namespace-kind> SXBldNamespaceFlat();
+    				<sxbld-env-set-namespace-identifier> symbol
+    			end
     		else
 				id
     		end)
