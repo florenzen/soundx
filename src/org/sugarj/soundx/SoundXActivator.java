@@ -3,7 +3,6 @@ package org.sugarj.soundx;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.sugarj.BaseLanguageRegistry;
-import org.sugarj.SXBldLanguage;
 
 public class SoundXActivator extends AbstractUIPlugin {
 
