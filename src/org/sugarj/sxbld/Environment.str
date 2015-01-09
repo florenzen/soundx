@@ -476,7 +476,7 @@ strategies
      */
     sxbld-env-is-namespace-kind-defined =
     	sxbld-env-get-namespace-kind;
-    	((?(); fail) <+ id)
+    	(?SXBldNamespaceFlat() + ?SXBldNamespaceHierarchical())
 
 /**
  * Handling of body-decs
