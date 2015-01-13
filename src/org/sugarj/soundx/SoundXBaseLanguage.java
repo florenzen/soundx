@@ -20,7 +20,8 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 		Debug.print("Processing " + bldFilename);
 		Debug.print("Plugin directory " + pluginDirectory.toString());
 		
-		
+		BaseLanguageDefinition bld = BaseLanguageDefinition.getInstance();
+		bld.process(bldFilename, pluginDirectory);
 	}
 
 	@Override
