@@ -45,6 +45,7 @@ public class BaseLanguageDefinition {
 		interp = new HybridInterpreter();
 	}
 
+	private final String soundXFileName = "org/sugarj/soundx/SoundX";
 	private HybridInterpreter interp;
 	private Path binDir;
 	private Path srcDir;
@@ -72,6 +73,7 @@ public class BaseLanguageDefinition {
 		} else
 			Debug.print("Generated files are up-to-date");
 
+		ensureFile(soundXFileName);
 		initSoundXBaseLanguage();
 	}
 
@@ -102,28 +104,44 @@ public class BaseLanguageDefinition {
 	}
 
 	private void postProcess() {
+		postProcessStratego();
+		postProcessSdf();
+	}
+
+	private void postProcessStratego() {
+		IStrategoTerm strTerm = parseStratego();
+		Debug.print("Stratego parse result " + strTerm);
+		IStrategoTerm strTermNoImports = fixStrategoImports(strTerm);
+		String strString = ppStratego(strTermNoImports);
+		Debug.print("Post processed Stratego " + strString);
+		try {
+			FileCommands.writeToFile(strPath, strString);
+		} catch (Exception e) {
+			throw new RuntimeException(e.toString());
+		}
+	}
+
+	private void postProcessSdf() {
 		IStrategoTerm sdfTerm = parseSdf();
 		Debug.print("SDF parse result " + sdfTerm);
-		IStrategoTerm sdfTermNoImports = deleteSdfImports(sdfTerm);
+		IStrategoTerm sdfTermNoImports = fixSdfImports(sdfTerm);
 		IStrategoTerm sdfTermFixed = null;
 		try {
 			sdfTermFixed = ATermCommands.fixSDF(sdfTermNoImports, interp);
 		} catch (Exception e) {
 			new RuntimeException(e.toString());
 		}
-		;
 		Debug.print("Deleted imports");
 		String sdfString = ppSdf(sdfTermFixed);
 		Debug.print("Post processed Sdf " + sdfString);
-
-		IStrategoTerm strTerm = parseStratego();
-		Debug.print("Stratego parse result " + strTerm);
-		IStrategoTerm strTermNoImports = deleteStrategoImports(strTerm);
-		String strString = ppStratego(strTermNoImports);
-		Debug.print("Post processed Stratego " + strString);
+		try {
+			FileCommands.writeToFile(sdfPath, sdfString);
+		} catch (Exception e) {
+			throw new RuntimeException(e.toString());
+		}
 	}
 
-	private IStrategoTerm deleteSdfImports(IStrategoTerm term) {
+	private IStrategoTerm fixSdfImports(IStrategoTerm term) {
 		IStrategoTerm header = term.getSubterm(0);
 		IStrategoTerm body = term.getSubterm(2);
 		IStrategoTerm imports = TermFactory.EMPTY_LIST;
@@ -132,7 +150,7 @@ public class BaseLanguageDefinition {
 				term.getAnnotations(), term.getStorageType());
 	}
 
-	private IStrategoTerm deleteStrategoImports(IStrategoTerm term) {
+	private IStrategoTerm fixStrategoImports(IStrategoTerm term) {
 		IStrategoTerm header = term.getSubterm(0);
 		IStrategoList decls = null;
 		if (term.getSubterm(1) instanceof IStrategoList)
@@ -144,17 +162,14 @@ public class BaseLanguageDefinition {
 
 		for (IStrategoTerm decl : decls) {
 			if (decl.getTermType() == IStrategoTerm.APPL) {
-				if (((StrategoAppl) decl).getConstructor().getName()
+				if (!((StrategoAppl) decl).getConstructor().getName()
 						.equals("Imports"))
-					declsNoImports.addLast(new StrategoAppl(
-							new StrategoConstructor("Imports", 1),
-							new IStrategoTerm[] { TermFactory.EMPTY_LIST },
-							TermFactory.EMPTY_LIST, decl.getStorageType()));
-				else
 					declsNoImports.addLast(decl);
 			} else
 				declsNoImports.addLast(decl);
 		}
+
+		declsNoImports.addFirst(ATermCommands.atermFromString("Imports([Import(\"" + soundXFileName + "\")])")));
 		StrategoList declsTerm = TermFactory.EMPTY_LIST;
 		for (Iterator<IStrategoTerm> i = declsNoImports.descendingIterator(); i
 				.hasNext();) {
@@ -168,8 +183,12 @@ public class BaseLanguageDefinition {
 				2), new IStrategoTerm[] { header, declsTerm },
 				term.getAnnotations(), term.getStorageType());
 		Debug.print("Result term " + trm);
-		return ATermCommands.atermFromString(trm.toString());
-		//return ATermCommands.atermFromString("Module(\"SXXTLC\",[Imports([]),Signature([Constructors([OpDecl(\"SXNeq\",FunType([ConstType(Sort(\"STLCID\",[])),ConstType(Sort(\"STLCID\",[]))],ConstType(Sort(\"SXJudgement\",[]))))])]),Strategies([SDefNoArgs(\"STLC-cons-names\",Build(NoAnnoList(List([]))))]),Strategies([SDefNoArgs(\"STLC-inference-rules\",Build(NoAnnoList(List([]))))]),Strategies([SDefNoArgs(\"STLC-body-decs\",Build(NoAnnoList(List([]))))]),Strategies([SDefNoArgs(\"STLC-import-decs\",Build(NoAnnoList(List([]))))])])");
+		return ATermCommands.atermFromString(trm.toString()); // Without the
+																// to-and-from
+																// String the
+																// pretty
+																// printer
+																// crashes.
 	}
 
 	private IStrategoTerm parseSdf() {
@@ -222,7 +241,7 @@ public class BaseLanguageDefinition {
 	private String ppStratego(IStrategoTerm term) {
 		String result = null;
 		try {
-			result = SDFCommands.prettyPrintSTR(term, new HybridInterpreter());
+			result = SDFCommands.prettyPrintSTR(term, interp);
 		} catch (Exception e) {
 			throw new RuntimeException(e.toString());
 		}

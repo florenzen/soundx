@@ -1,0 +1,6 @@
+module org/sugarj/soundx/SoundX
+
+imports org/sugarj/stdlib/StdTrans
+
+imports org/sugarj/soundx/AbstractSyntax
+		org/sugarj/soundx/InductiveDefinitions
