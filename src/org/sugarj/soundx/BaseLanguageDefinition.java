@@ -146,7 +146,11 @@ public class BaseLanguageDefinition {
 			if (decl.getTermType() == IStrategoTerm.APPL) {
 				if (((StrategoAppl) decl).getConstructor().getName()
 						.equals("Imports"))
-					declsNoImports.addLast(new StrategoAppl(new StrategoConstructor("Imports", 1)))
+					declsNoImports.addLast(new StrategoAppl(
+							new StrategoConstructor("Imports", 1),
+							new IStrategoTerm[] { TermFactory.EMPTY_LIST },
+							TermFactory.EMPTY_LIST, decl.getStorageType()));
+				else
 					declsNoImports.addLast(decl);
 			} else
 				declsNoImports.addLast(decl);
@@ -160,11 +164,12 @@ public class BaseLanguageDefinition {
 		}
 
 		Debug.print("Subterm decls " + declsTerm);
-		IStrategoTerm trm = new StrategoAppl(new StrategoConstructor("Module", 2),
-				new IStrategoTerm[] { header, declsTerm },
+		IStrategoTerm trm = new StrategoAppl(new StrategoConstructor("Module",
+				2), new IStrategoTerm[] { header, declsTerm },
 				term.getAnnotations(), term.getStorageType());
 		Debug.print("Result term " + trm);
-		return trm;
+		return ATermCommands.atermFromString(trm.toString());
+		//return ATermCommands.atermFromString("Module(\"SXXTLC\",[Imports([]),Signature([Constructors([OpDecl(\"SXNeq\",FunType([ConstType(Sort(\"STLCID\",[])),ConstType(Sort(\"STLCID\",[]))],ConstType(Sort(\"SXJudgement\",[]))))])]),Strategies([SDefNoArgs(\"STLC-cons-names\",Build(NoAnnoList(List([]))))]),Strategies([SDefNoArgs(\"STLC-inference-rules\",Build(NoAnnoList(List([]))))]),Strategies([SDefNoArgs(\"STLC-body-decs\",Build(NoAnnoList(List([]))))]),Strategies([SDefNoArgs(\"STLC-import-decs\",Build(NoAnnoList(List([]))))])])");
 	}
 
 	private IStrategoTerm parseSdf() {
@@ -217,7 +222,7 @@ public class BaseLanguageDefinition {
 	private String ppStratego(IStrategoTerm term) {
 		String result = null;
 		try {
-			result = SDFCommands.prettyPrintSTR(term, interp);
+			result = SDFCommands.prettyPrintSTR(term, new HybridInterpreter());
 		} catch (Exception e) {
 			throw new RuntimeException(e.toString());
 		}
