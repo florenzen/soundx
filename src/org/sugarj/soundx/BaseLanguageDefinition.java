@@ -73,7 +73,7 @@ public class BaseLanguageDefinition {
 		} else
 			Debug.print("Generated files are up-to-date");
 
-		ensureFile(soundXFileName);
+		blInstance.ensureFile(soundXFileName);
 		initSoundXBaseLanguage();
 	}
 
@@ -169,7 +169,7 @@ public class BaseLanguageDefinition {
 				declsNoImports.addLast(decl);
 		}
 
-		declsNoImports.addFirst(ATermCommands.atermFromString("Imports([Import(\"" + soundXFileName + "\")])")));
+		declsNoImports.addFirst(ATermCommands.atermFromString("Imports([Import(\"" + soundXFileName + "\")])"));
 		StrategoList declsTerm = TermFactory.EMPTY_LIST;
 		for (Iterator<IStrategoTerm> i = declsNoImports.descendingIterator(); i
 				.hasNext();) {
