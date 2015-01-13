@@ -8,6 +8,13 @@ import org.sugarj.common.path.Path;
 import org.sugarj.soundx.Debug;
 
 public class SoundXBaseLanguage extends AbstractBaseLanguage {
+	private String languageName;
+	private String baseFileExtension;
+	private String sugarFileExtension;
+	private Path initGrammar;
+	private Path initTrans;
+	private Path initEditor;
+	
 	private SoundXBaseLanguage() {}
 	
 	private static SoundXBaseLanguage instance = new SoundXBaseLanguage();
@@ -25,7 +32,7 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	}
 
 	@Override
-	public AbstractBaseProcessor createNewProcessor() {
+	public SoundXBaseProcessor createNewProcessor() {
 		Log.log.setLoggingLevel(Log.ALWAYS);
 		return new SoundXBaseProcessor();
 	}
@@ -37,12 +44,20 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 
 	@Override
 	public String getLanguageName() {
-		return "stlc";
+		return languageName;
+	}
+	
+	protected void setLanguageName(String languageName) {
+		this.languageName = languageName;
 	}
 
 	@Override
 	public String getSugarFileExtension() {
-		return "xst";
+		return sugarFileExtension;
+	}
+
+	protected void setSugarFileExtension(String sugarFileExtension) {
+		this.sugarFileExtension = sugarFileExtension;
 	}
 
 	@Override
@@ -52,37 +67,53 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 
 	@Override
 	public String getBaseFileExtension() {
-		return "st";
+		return baseFileExtension;
+	}
+
+	protected void setBaseFileExtension(String baseFileExtension) {
+		this.baseFileExtension = baseFileExtension;
 	}
 
 	@Override
 	public Path getInitGrammar() {
-		return ensureFile("foo");
+		return initGrammar;
+	}
+
+	protected void setInitGrammar(Path initGrammar) {
+		this.initGrammar = initGrammar;
 	}
 
 	@Override
 	public String getInitGrammarModuleName() {
-		return "foo";
+		return languageName;
 	}
 
 	@Override
 	public Path getInitTrans() {
-		return ensureFile("foo");
+		return initTrans;
 	}
 
+	protected void setInitTrans(Path initTrans) {
+		this.initTrans = initTrans;
+	}
+	
 	@Override
 	public String getInitTransModuleName() {
-		return "foo";
+		return languageName;
 	}
 
 	@Override
 	public Path getInitEditor() {
-		return ensureFile("foo");
+		return initEditor;
+	}
+
+	protected void setInitEditor(Path initEditor) {
+		this.initEditor = initEditor;
 	}
 
 	@Override
 	public String getInitEditorModuleName() {
-		return "foo";
+		return languageName;
 	}
 
 	@Override

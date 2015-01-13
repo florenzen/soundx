@@ -16,4 +16,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.sugarj
 Eclipse-RegisterBuddy: org.sugarj.baselang
 Eclipse-BundleShape: dir
-Import-Package: org.sugarj.stdlib
+Import-Package: org.spoofax.jsglr.client,
+ org.spoofax.jsglr.client.imploder,
+ org.spoofax.jsglr.io,
+ org.sugarj.stdlib
