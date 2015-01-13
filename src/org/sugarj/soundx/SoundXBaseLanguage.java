@@ -7,12 +7,12 @@ import org.sugarj.common.Log;
 import org.sugarj.common.path.Path;
 import org.sugarj.soundx.Debug;
 
-public class SoundXAbstractBaseLanguage extends AbstractBaseLanguage {
-	private SoundXAbstractBaseLanguage() {}
+public class SoundXBaseLanguage extends AbstractBaseLanguage {
+	private SoundXBaseLanguage() {}
 	
-	private static SoundXAbstractBaseLanguage instance = new SoundXAbstractBaseLanguage();
+	private static SoundXBaseLanguage instance = new SoundXBaseLanguage();
 
-	public static SoundXAbstractBaseLanguage getInstance() {
+	public static SoundXBaseLanguage getInstance() {
 		return instance;
 	}
 	
@@ -26,7 +26,7 @@ public class SoundXAbstractBaseLanguage extends AbstractBaseLanguage {
 	@Override
 	public AbstractBaseProcessor createNewProcessor() {
 		Log.log.setLoggingLevel(Log.ALWAYS);
-		return new SoundXAbstractBaseProcessor();
+		return new SoundXBaseProcessor();
 	}
 
 	@Override

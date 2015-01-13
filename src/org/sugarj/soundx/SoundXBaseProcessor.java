@@ -19,7 +19,7 @@ import org.sugarj.common.StringCommands;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
 
-public class SoundXAbstractBaseProcessor extends AbstractBaseProcessor {
+public class SoundXBaseProcessor extends AbstractBaseProcessor {
 
 	private static final long serialVersionUID = 8867450741041891584L;
 
