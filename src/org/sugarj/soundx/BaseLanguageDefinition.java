@@ -45,7 +45,8 @@ public class BaseLanguageDefinition {
 		interp = new HybridInterpreter();
 	}
 
-	private final String soundXFileName = "org/sugarj/soundx/SoundX";
+	private final String soundXFileName = "org/sugarj/soundx/SoundX.str";
+	private final String soundXModuleName = "org/sugarj/soundx/SoundX";
 	private HybridInterpreter interp;
 	private Path binDir;
 	private Path srcDir;
@@ -169,7 +170,7 @@ public class BaseLanguageDefinition {
 				declsNoImports.addLast(decl);
 		}
 
-		declsNoImports.addFirst(ATermCommands.atermFromString("Imports([Import(\"" + soundXFileName + "\")])"));
+		declsNoImports.addFirst(ATermCommands.atermFromString("Imports([Import(\"" + soundXModuleName + "\")])"));
 		StrategoList declsTerm = TermFactory.EMPTY_LIST;
 		for (Iterator<IStrategoTerm> i = declsNoImports.descendingIterator(); i
 				.hasNext();) {
