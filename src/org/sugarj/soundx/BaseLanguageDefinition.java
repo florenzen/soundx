@@ -13,6 +13,7 @@ import org.spoofax.jsglr.client.imploder.TreeBuilder;
 import org.spoofax.terms.StrategoAppl;
 import org.spoofax.terms.StrategoConstructor;
 import org.spoofax.terms.StrategoList;
+import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.TermFactory;
 import org.strategoxt.HybridInterpreter;
 import org.sugarj.AbstractBaseLanguage;
@@ -45,6 +46,7 @@ public class BaseLanguageDefinition {
 		interp = new HybridInterpreter();
 	}
 
+	private String toplevelDeclarationNonterminal;
 	private final String soundXFileName = "org/sugarj/soundx/SoundX.str";
 	private final String soundXModuleName = "org/sugarj/soundx/SoundX";
 	private HybridInterpreter interp;
@@ -70,10 +72,12 @@ public class BaseLanguageDefinition {
 		if (generatedFilesOutdated()) {
 			Debug.print("Generated files are outdated, run lang-sxbld");
 			runCompiler();
-			postProcess();
-		} else
+			postProcess(); // Also extract declarations from Stratego file
+		} else {
 			Debug.print("Generated files are up-to-date");
-
+			IStrategoTerm strTerm = parseStratego();
+			extractDeclarations(strTerm);
+		}
 		blInstance.ensureFile(soundXFileName);
 		initSoundXBaseLanguage();
 	}
@@ -111,6 +115,7 @@ public class BaseLanguageDefinition {
 
 	private void postProcessStratego() {
 		IStrategoTerm strTerm = parseStratego();
+		extractDeclarations(strTerm);
 		Debug.print("Stratego parse result " + strTerm);
 		IStrategoTerm strTermNoImports = fixStrategoImports(strTerm);
 		String strString = ppStratego(strTermNoImports);
@@ -122,13 +127,53 @@ public class BaseLanguageDefinition {
 		}
 	}
 
+	private void extractDeclarations(IStrategoTerm term) {
+		IStrategoList decls = (IStrategoList) term.getSubterm(1);
+		// Strategies([SDefNoArgs("STLC-ToplevelDeclaration",Build(NoAnnoList(Str("\"ToplevelDec\""))))])
+		// Strategies([SDefNoArgs("STLC-body-decs",Build(NoAnnoList(List([NoAnnoList(Str("\"SXCons10\""))]))))])
+		// Strategies([SDefNoArgs("STLC-namespace-dec",Build(NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons5\"")),NoAnnoList(Int("2"))]))))])
+		// Strategies([SDefNoArgs("STLC-import-decs",Build(NoAnnoList(ListTail([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons7\"")),NoAnnoList(Int("2"))]))],NoAnnoList(List([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons6\"")),NoAnnoList(Int("2"))]))]))))))])
+		for (IStrategoTerm decl : decls) {
+			if (isApp("Strategies", decl)) {
+				StrategoList defs = (StrategoList) decl.getSubterm(0);
+				IStrategoTerm head = defs.head();
+				if (isApp("SDefNoArgs", head)) {
+					String name = ((StrategoString) head.getSubterm(0))
+							.getName();
+					IStrategoTerm rhs = head.getSubterm(1);
+					if (name.equals(baseLanguageName + "-ToplevelDeclaration")) {
+						// rhs = Build(NoAnnoList(Str("\"ToplevelDec\"")))
+						toplevelDeclarationNonterminal = ((StrategoString)rhs.getSubterm(0).getSubterm(0).getSubterm(0)).getName();
+						Debug.print("ToplevelDeclaration = " + toplevelDeclarationNonterminal);
+					} else if (name.equals(baseLanguageName + "-body-decs")) {
+						
+
+					} else if (name.equals(baseLanguageName + "-namespace-dec")) {
+
+					} else if (name.equals(baseLanguageName + "-import-decs")) {
+
+					}
+				}
+			}
+		}
+	}
+
+	private boolean isApp(String consName, IStrategoTerm term) {
+		if (term.getTermType() == IStrategoTerm.APPL) {
+			return ((StrategoAppl) term).getConstructor().getName()
+					.equals(consName);
+		} else
+			return false;
+	}
+
 	private void postProcessSdf() {
 		IStrategoTerm sdfTerm = parseSdf();
 		Debug.print("SDF parse result " + sdfTerm);
 		IStrategoTerm sdfTermNoImports = fixSdfImports(sdfTerm);
+		IStrategoTerm sdfTermWithToplevelDec = sdfTermNoImports; // fixSdfToplevelDec(sdfTermNoImports);
 		IStrategoTerm sdfTermFixed = null;
 		try {
-			sdfTermFixed = ATermCommands.fixSDF(sdfTermNoImports, interp);
+			sdfTermFixed = ATermCommands.fixSDF(sdfTermWithToplevelDec, interp);
 		} catch (Exception e) {
 			new RuntimeException(e.toString());
 		}
@@ -170,7 +215,9 @@ public class BaseLanguageDefinition {
 				declsNoImports.addLast(decl);
 		}
 
-		declsNoImports.addFirst(ATermCommands.atermFromString("Imports([Import(\"" + soundXModuleName + "\")])"));
+		declsNoImports.addFirst(ATermCommands
+				.atermFromString("Imports([Import(\"" + soundXModuleName
+						+ "\")])"));
 		StrategoList declsTerm = TermFactory.EMPTY_LIST;
 		for (Iterator<IStrategoTerm> i = declsNoImports.descendingIterator(); i
 				.hasNext();) {
