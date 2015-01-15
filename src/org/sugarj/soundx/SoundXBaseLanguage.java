@@ -1,6 +1,9 @@
 package org.sugarj.soundx;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -18,6 +21,26 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	private Path initGrammar;
 	private Path initTrans;
 	private Path initEditor;
+	private Path packagedGrammar;
+	
+	public Path getPackagedGrammar() {
+		return packagedGrammar;
+	}
+
+	protected void setPackagedGrammar(Path packagedGrammar) {
+		this.packagedGrammar = packagedGrammar;
+	}
+
+	private Path ppTable;
+
+	public Path getPpTable() {
+		return ppTable;
+	}
+
+	protected void setPpTable(Path ppTable) {
+		this.ppTable = ppTable;
+	}
+
 	private Pair<String, Integer> namespaceDecCons;
 	private Set<Pair<String, Integer>> importDecCons;
 	private Set<String> bodyDecCons;
@@ -131,8 +154,19 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	}
 
 	@Override
+	public List<Path> getPackagedGrammars() {
+		List<Path> grammars = new LinkedList<Path>(super.getPackagedGrammars());
+	    grammars.add(packagedGrammar);
+	    return Collections.unmodifiableList(grammars);
+	}
+
+	@Override
 	public String getInitEditorModuleName() {
 		return languageName;
+	}
+
+	public boolean isNamespaceDec(IStrategoTerm decl) {
+		return false;
 	}
 
 	@Override

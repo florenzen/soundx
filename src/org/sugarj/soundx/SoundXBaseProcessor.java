@@ -23,7 +23,6 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 
 	private static final long serialVersionUID = 8867450741041891584L;
 
-
 	private String moduleHeader;
 	private List<String> imports = new LinkedList<String>();
 	private List<String> body = new LinkedList<String>();
@@ -63,8 +62,8 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 	}
 
 	@Override
-	public SXBldLanguage getLanguage() {
-		return SXBldLanguage.getInstance();
+	public SoundXBaseLanguage getLanguage() {
+		return SoundXBaseLanguage.getInstance();
 	}
 
 	/*
@@ -74,13 +73,14 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 	@Override
 	public void init(Set<RelativePath> sourceFiles, Environment environment) {
 		if (sourceFiles.size() != 1)
-			throw new IllegalArgumentException(
-					"stlc can only compile one source file at a time.");
+			throw new IllegalArgumentException(getLanguage().getLanguageName()
+					+ " can only compile one source file at a time.");
 
 		this.environment = environment;
 		this.sourceFile = sourceFiles.iterator().next();
+		String srcExt = "." + getLanguage().getBaseFileExtension() + "-src";
 		outFile = environment.createOutPath(FileCommands
-				.dropExtension(sourceFile.getRelativePath()) + ".st-src");
+				.dropExtension(sourceFile.getRelativePath()) + srcExt);
 	}
 
 	private void processNamespaceDecl(IStrategoTerm toplevelDecl)
@@ -127,8 +127,8 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 		try {
 			text = prettyPrint(toplevelDecl);
 		} catch (NullPointerException e) {
-			ATermCommands.setErrorMessage(toplevelDecl,
-					"pretty printing SXBld failed");
+			ATermCommands.setErrorMessage(toplevelDecl, "pretty printing "
+					+ getLanguage().getLanguageName() + " failed");
 		}
 		if (text != null)
 			body.add(text);
@@ -147,12 +147,13 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 	}
 
 	public String prettyPrint(IStrategoTerm term) {
-		if (ppTable == null)
-			ppTable = ATermCommands.readPrettyPrintTable(getLanguage()
-					.ensureFile("org/sugarj/languages/SXBld.pp")
-					.getAbsolutePath());
+		// if (ppTable == null)
+		// ppTable = ATermCommands.readPrettyPrintTable(getLanguage()
+		// .ensureFile("org/sugarj/languages/SXBld.pp")
+		// .getAbsolutePath());
 
-		return ATermCommands.prettyPrint(ppTable, term, interp);
+		// return ATermCommands.prettyPrint(ppTable, term, interp);
+		return "pretty printing of base language not yet implemented";
 	}
 
 	@Override
@@ -162,8 +163,8 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 		for (Path out : outFiles) {
 			RelativePath relOut = (RelativePath) out;
 			Path compilePath = new RelativePath(bin,
-					FileCommands.dropExtension(relOut.getRelativePath())
-							+ ".st");
+					FileCommands.dropExtension(relOut.getRelativePath()) + "."
+							+ getLanguage().getBaseFileExtension());
 			FileCommands.copyFile(out, compilePath);
 			generatedFiles.add(compilePath);
 		}
@@ -183,7 +184,7 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 
 	@Override
 	public IStrategoTerm getExtensionBody(IStrategoTerm decl) {
-		return getApplicationSubterm(decl, "SXBldExtensionDecl", 0);
+		return null;
+		// return getApplicationSubterm(decl, "SXBldExtensionDecl", 0);
 	}
-
 }

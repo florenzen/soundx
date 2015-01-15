@@ -50,7 +50,8 @@ public class BaseLanguageDefinition {
 	private Set<String> bodyDecCons = new HashSet<String>();
 	private String baseLanguageName;
 
-	private final String soundXFileName = "org/sugarj/soundx/SoundX.str";
+	private final String soundXStrFileName = "org/sugarj/soundx/SoundX.str";
+	private final String soundXSdfFileName = "org/sugarj/soundx/SoundX.sdf";
 	private final String soundXModuleName = "org/sugarj/soundx/SoundX";
 	private HybridInterpreter interp;
 	private Path binDir;
@@ -59,6 +60,7 @@ public class BaseLanguageDefinition {
 	private Path sdfPath;
 	private Path strPath;
 	private Path servPath;
+	private Path defPath;
 	private SoundXBaseLanguage blInstance;
 
 	public void process(String bldFilename, Path pluginDirectory) {
@@ -75,13 +77,25 @@ public class BaseLanguageDefinition {
 			Debug.print("Generated files are outdated, run lang-sxbld");
 			runCompiler();
 			postProcess(); // Also extracts declarations from Stratego file
+			generateDefFile();
 		} else {
 			Debug.print("Generated files are up-to-date");
 			IStrategoTerm strTerm = parseStratego();
 			extractDeclarations(strTerm);
 		}
-		blInstance.ensureFile(soundXFileName);
+		blInstance.ensureFile(soundXStrFileName);
+		blInstance.ensureFile(soundXSdfFileName);
 		initSoundXBaseLanguage();
+	}
+
+	private void generateDefFile() {
+		try {
+			FileCommands.writeToFile(defPath, "definition\n\n");
+			String sdfText = FileCommands.readFileAsString(sdfPath);
+			FileCommands.appendToFile(defPath, sdfText);
+		} catch (Exception e) {
+			throw new RuntimeException(e.toString());
+		}
 	}
 
 	private void initSoundXBaseLanguage() {
@@ -91,21 +105,25 @@ public class BaseLanguageDefinition {
 		blInstance.setInitEditor(servPath);
 		blInstance.setInitGrammar(sdfPath);
 		blInstance.setInitTrans(strPath);
+		blInstance.setPackagedGrammar(defPath);
 		blInstance.setImportDecCons(importDecCons);
 		blInstance.setBodyDecCons(bodyDecCons);
 		blInstance.setNamespaceDecCons(namespaceDecCons);
 	}
 
 	private void setGeneratedFilePaths() {
-		String defFileName = baseLanguageName + ".sdf";
+		String sdfFileName = baseLanguageName + ".sdf";
 		String strFileName = baseLanguageName + ".str";
 		String servFileName = baseLanguageName + ".serv";
+		String defFileName = baseLanguageName + ".def";
 		sdfPath = new AbsolutePath(binDir.getAbsolutePath() + Environment.sep
-				+ defFileName);
+				+ sdfFileName);
 		strPath = new AbsolutePath(binDir.getAbsolutePath() + Environment.sep
 				+ strFileName);
 		servPath = new AbsolutePath(binDir.getAbsolutePath() + Environment.sep
 				+ servFileName);
+		defPath = new AbsolutePath(binDir.getAbsolutePath() + Environment.sep
+				+ defFileName);
 		Debug.print("sdfPath " + sdfPath);
 	}
 
@@ -331,7 +349,12 @@ public class BaseLanguageDefinition {
 	private IStrategoTerm fixSdfImports(IStrategoTerm term) {
 		IStrategoTerm header = term.getSubterm(0);
 		IStrategoTerm body = term.getSubterm(2);
-		IStrategoTerm imports = TermFactory.EMPTY_LIST;
+		IStrategoTerm common = ATermCommands
+				.atermFromString("imports(module(unparameterized(\""
+						+ soundXModuleName + "\")))");
+		IStrategoTerm imports = new StrategoList(common,
+				TermFactory.EMPTY_LIST, TermFactory.EMPTY_LIST,
+				term.getStorageType());
 		return new StrategoAppl(new StrategoConstructor("module", 3),
 				new IStrategoTerm[] { header, imports, body },
 				term.getAnnotations(), term.getStorageType());
@@ -439,9 +462,13 @@ public class BaseLanguageDefinition {
 
 	private boolean generatedFilesOutdated() {
 		if (FileCommands.fileExists(sdfPath)
-				&& FileCommands.fileExists(strPath)) {
-			return !(FileCommands.isModifiedLater(sdfPath, bldPath) && FileCommands
-					.isModifiedLater(strPath, bldPath));
+				&& FileCommands.fileExists(strPath)
+				&& FileCommands.fileExists(defPath)
+				&& FileCommands.fileExists(servPath)) {
+			return !(FileCommands.isModifiedLater(sdfPath, bldPath)
+					&& FileCommands.isModifiedLater(strPath, bldPath)
+					&& FileCommands.isModifiedLater(defPath, bldPath) && FileCommands
+						.isModifiedLater(servPath, bldPath));
 		} else
 			return true;
 	}
