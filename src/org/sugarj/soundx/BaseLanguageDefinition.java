@@ -1,8 +1,9 @@
 package org.sugarj.soundx;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -21,9 +22,7 @@ import org.sugarj.SXBldLanguage;
 import org.sugarj.common.ATermCommands;
 import org.sugarj.common.Environment;
 import org.sugarj.common.FileCommands;
-import org.sugarj.common.Log;
 import org.sugarj.common.cleardep.Stamper;
-import org.sugarj.common.cleardep.TimeStamper;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.RelativePath;
 import org.sugarj.common.path.Path;
@@ -31,7 +30,6 @@ import org.sugarj.driver.Driver;
 import org.sugarj.driver.DriverParameters;
 import org.sugarj.driver.Result;
 import org.sugarj.driver.SDFCommands;
-import org.sugarj.driver.cli.Main;
 import org.sugarj.stdlib.StdLib;
 import org.sugarj.util.Pair;
 
@@ -47,13 +45,17 @@ public class BaseLanguageDefinition {
 	}
 
 	private String toplevelDeclarationNonterminal;
+	private Pair<String, Integer> namespaceDecCons;
+	private Set<Pair<String, Integer>> importDecCons = new HashSet<Pair<String, Integer>>();
+	private Set<String> bodyDecCons = new HashSet<String>();
+	private String baseLanguageName;
+
 	private final String soundXFileName = "org/sugarj/soundx/SoundX.str";
 	private final String soundXModuleName = "org/sugarj/soundx/SoundX";
 	private HybridInterpreter interp;
 	private Path binDir;
 	private Path srcDir;
 	private RelativePath bldPath;
-	private String baseLanguageName;
 	private Path sdfPath;
 	private Path strPath;
 	private Path servPath;
@@ -72,7 +74,7 @@ public class BaseLanguageDefinition {
 		if (generatedFilesOutdated()) {
 			Debug.print("Generated files are outdated, run lang-sxbld");
 			runCompiler();
-			postProcess(); // Also extract declarations from Stratego file
+			postProcess(); // Also extracts declarations from Stratego file
 		} else {
 			Debug.print("Generated files are up-to-date");
 			IStrategoTerm strTerm = parseStratego();
@@ -89,6 +91,9 @@ public class BaseLanguageDefinition {
 		blInstance.setInitEditor(servPath);
 		blInstance.setInitGrammar(sdfPath);
 		blInstance.setInitTrans(strPath);
+		blInstance.setImportDecCons(importDecCons);
+		blInstance.setBodyDecCons(bodyDecCons);
+		blInstance.setNamespaceDecCons(namespaceDecCons);
 	}
 
 	private void setGeneratedFilePaths() {
@@ -116,7 +121,7 @@ public class BaseLanguageDefinition {
 	private void postProcessStratego() {
 		IStrategoTerm strTerm = parseStratego();
 		extractDeclarations(strTerm);
-		Debug.print("Stratego parse result " + strTerm);
+		// Debug.print("Stratego parse result " + strTerm);
 		IStrategoTerm strTermNoImports = fixStrategoImports(strTerm);
 		String strString = ppStratego(strTermNoImports);
 		Debug.print("Post processed Stratego " + strString);
@@ -143,19 +148,138 @@ public class BaseLanguageDefinition {
 					IStrategoTerm rhs = head.getSubterm(1);
 					if (name.equals(baseLanguageName + "-ToplevelDeclaration")) {
 						// rhs = Build(NoAnnoList(Str("\"ToplevelDec\"")))
-						toplevelDeclarationNonterminal = ((StrategoString)rhs.getSubterm(0).getSubterm(0).getSubterm(0)).getName();
-						Debug.print("ToplevelDeclaration = " + toplevelDeclarationNonterminal);
+						toplevelDeclarationNonterminal = ((StrategoString) rhs
+								.getSubterm(0).getSubterm(0).getSubterm(0))
+								.getName();
+						Debug.print("ToplevelDeclaration = "
+								+ toplevelDeclarationNonterminal);
 					} else if (name.equals(baseLanguageName + "-body-decs")) {
-						
+						// rhs =
+						// Build(NoAnnoList(List([NoAnnoList(Str("\"SXCons10\""))])))
+						IStrategoTerm current = rhs.getSubterm(0);
+						// Debug.print("Conses " + list.toString());
 
+						while (current != null) {
+							StrategoAppl listCons = (StrategoAppl) current
+									.getSubterm(0); // Unwrap NoAnnoList
+							// Debug.print("listCons " + listCons);
+							String applConsName = listCons.getConstructor()
+									.getName();
+							// Debug.print("applConsName " + applConsName);
+							if (applConsName.equals("List")) {
+								StrategoList elems = (StrategoList) listCons
+										.getSubterm(0);
+								if (elems.size() == 0) {
+									current = null;
+								} else if (elems.size() == 1) {
+									IStrategoTerm elem = elems.head();
+									String consName = unquote(((StrategoString) elem
+											.getSubterm(0).getSubterm(0))
+											.getName());
+									bodyDecCons.add(consName);
+									Debug.print("body-dec " + consName);
+									current = null;
+								} else
+									throw new RuntimeException(
+											"Error reading end of body-decs list");
+							} else if (applConsName.equals("ListTail")) {
+								StrategoList hd = (StrategoList) listCons
+										.getSubterm(0);
+								// Debug.print("hd " + hd);
+								IStrategoTerm elem = hd.head();
+								// Debug.print("elem " + elem);
+								String consName = unquote(((StrategoString) elem
+										.getSubterm(0).getSubterm(0)).getName());
+								// Debug.print("consName " + consName);
+								bodyDecCons.add(consName);
+								Debug.print("body-dec " + consName);
+
+								current = listCons.getSubterm(1);
+							} else
+								throw new RuntimeException(
+										"Error reading body-decs");
+						}
 					} else if (name.equals(baseLanguageName + "-namespace-dec")) {
-
+						// rhs =
+						// Build(NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons5\"")),NoAnnoList(Int("2"))]))))])
+						StrategoList tupleComps = (StrategoList) rhs
+								.getSubterm(0).getSubterm(0).getSubterm(0);
+						IStrategoTerm fstComp = tupleComps.head();
+						IStrategoTerm sndComp = tupleComps.tail().head();
+						String consName = unquote(((StrategoString) fstComp
+								.getSubterm(0).getSubterm(0)).getName());
+						Integer index = Integer
+								.valueOf(((StrategoString) sndComp
+										.getSubterm(0).getSubterm(0)).getName());
+						namespaceDecCons = new Pair<String, Integer>(consName,
+								index);
+						Debug.print("sx-namespace-dec " + consName + ","
+								+ index);
 					} else if (name.equals(baseLanguageName + "-import-decs")) {
-
+						// rhs =
+						// Build(NoAnnoList(ListTail([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons7\"")),NoAnnoList(Int("2"))]))],NoAnnoList(List([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons6\"")),NoAnnoList(Int("2"))]))]))
+						IStrategoTerm current = rhs.getSubterm(0);
+						while (current != null) {
+							StrategoAppl listCons = (StrategoAppl) current
+									.getSubterm(0); // Unwrap NoAnnoList
+							String applConsName = listCons.getConstructor()
+									.getName();
+							if (applConsName.equals("List")) {
+								StrategoList elems = (StrategoList) listCons
+										.getSubterm(0);
+								if (elems.size() == 0) {
+									current = null;
+								} else if (elems.size() == 1) {
+									IStrategoTerm elem = elems.head();
+									StrategoList comps = (StrategoList) elem
+											.getSubterm(0).getSubterm(0);
+									IStrategoTerm fstComp = comps.head();
+									IStrategoTerm sndComp = comps.tail().head();
+									String consName = unquote(((StrategoString) fstComp
+											.getSubterm(0).getSubterm(0))
+											.getName());
+									Integer index = Integer
+											.valueOf(((StrategoString) sndComp
+													.getSubterm(0)
+													.getSubterm(0)).getName());
+									importDecCons
+											.add(new Pair<String, Integer>(
+													consName, index));
+									Debug.print("import-dec " + consName + "," + index);
+									current = null;
+								} else
+									throw new RuntimeException(
+											"Error reading end of body-decs list");
+							} else if (applConsName.equals("ListTail")) {
+								StrategoList hd = (StrategoList) listCons
+										.getSubterm(0);
+								IStrategoTerm elem = hd.head();
+								StrategoList comps = (StrategoList) elem
+										.getSubterm(0).getSubterm(0);
+								IStrategoTerm fstComp = comps.head();
+								IStrategoTerm sndComp = comps.tail().head();
+								String consName = unquote(((StrategoString) fstComp
+										.getSubterm(0).getSubterm(0)).getName());
+								Integer index = Integer
+										.valueOf(((StrategoString) sndComp
+												.getSubterm(0).getSubterm(0))
+												.getName());
+								importDecCons.add(new Pair<String, Integer>(
+										consName, index));
+								Debug.print("import-dec " + consName + "," + index);
+								current = listCons.getSubterm(1);
+							} else
+								throw new RuntimeException(
+										"Error reading body-decs");
+						}
 					}
 				}
 			}
 		}
+	}
+
+	private String unquote(String name) {
+		return name.substring(1, name.length() - 1);
 	}
 
 	private boolean isApp(String consName, IStrategoTerm term) {
@@ -168,7 +292,7 @@ public class BaseLanguageDefinition {
 
 	private void postProcessSdf() {
 		IStrategoTerm sdfTerm = parseSdf();
-		Debug.print("SDF parse result " + sdfTerm);
+		// Debug.print("SDF parse result " + sdfTerm);
 		IStrategoTerm sdfTermNoImports = fixSdfImports(sdfTerm);
 		IStrategoTerm sdfTermWithToplevelDec = sdfTermNoImports; // fixSdfToplevelDec(sdfTermNoImports);
 		IStrategoTerm sdfTermFixed = null;
@@ -226,11 +350,11 @@ public class BaseLanguageDefinition {
 					TermFactory.EMPTY_LIST, decls.getStorageType());
 		}
 
-		Debug.print("Subterm decls " + declsTerm);
+		// Debug.print("Subterm decls " + declsTerm);
 		IStrategoTerm trm = new StrategoAppl(new StrategoConstructor("Module",
 				2), new IStrategoTerm[] { header, declsTerm },
 				term.getAnnotations(), term.getStorageType());
-		Debug.print("Result term " + trm);
+		// Debug.print("Result term " + trm);
 		return ATermCommands.atermFromString(trm.toString()); // Without the
 																// to-and-from
 																// String the

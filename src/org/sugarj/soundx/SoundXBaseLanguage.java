@@ -1,11 +1,15 @@
 package org.sugarj.soundx;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.sugarj.AbstractBaseLanguage;
 import org.sugarj.AbstractBaseProcessor;
 import org.sugarj.common.Log;
 import org.sugarj.common.path.Path;
 import org.sugarj.soundx.Debug;
+import org.sugarj.util.Pair;
 
 public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	private String languageName;
@@ -14,7 +18,22 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	private Path initGrammar;
 	private Path initTrans;
 	private Path initEditor;
-	
+	private Pair<String, Integer> namespaceDecCons;
+	private Set<Pair<String, Integer>> importDecCons;
+	private Set<String> bodyDecCons;
+
+	protected void setNamespaceDecCons(Pair<String, Integer> namespaceDecCons) {
+		this.namespaceDecCons = namespaceDecCons;
+	}
+
+	protected void setImportDecCons(Set<Pair<String, Integer>> importDecCons) {
+		this.importDecCons = importDecCons;
+	}
+
+	protected void setBodyDecCons(Set<String> bodyDecCons) {
+		this.bodyDecCons = bodyDecCons;
+	}
+
 	private SoundXBaseLanguage() {}
 	
 	private static SoundXBaseLanguage instance = new SoundXBaseLanguage();
