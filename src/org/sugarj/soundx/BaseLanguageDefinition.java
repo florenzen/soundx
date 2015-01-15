@@ -148,9 +148,9 @@ public class BaseLanguageDefinition {
 					IStrategoTerm rhs = head.getSubterm(1);
 					if (name.equals(baseLanguageName + "-ToplevelDeclaration")) {
 						// rhs = Build(NoAnnoList(Str("\"ToplevelDec\"")))
-						toplevelDeclarationNonterminal = ((StrategoString) rhs
+						toplevelDeclarationNonterminal = unquote(((StrategoString) rhs
 								.getSubterm(0).getSubterm(0).getSubterm(0))
-								.getName();
+								.getName());
 						Debug.print("ToplevelDeclaration = "
 								+ toplevelDeclarationNonterminal);
 					} else if (name.equals(baseLanguageName + "-body-decs")) {
@@ -245,7 +245,8 @@ public class BaseLanguageDefinition {
 									importDecCons
 											.add(new Pair<String, Integer>(
 													consName, index));
-									Debug.print("import-dec " + consName + "," + index);
+									Debug.print("import-dec " + consName + ","
+											+ index);
 									current = null;
 								} else
 									throw new RuntimeException(
@@ -266,7 +267,8 @@ public class BaseLanguageDefinition {
 												.getName());
 								importDecCons.add(new Pair<String, Integer>(
 										consName, index));
-								Debug.print("import-dec " + consName + "," + index);
+								Debug.print("import-dec " + consName + ","
+										+ index);
 								current = listCons.getSubterm(1);
 							} else
 								throw new RuntimeException(
@@ -294,7 +296,7 @@ public class BaseLanguageDefinition {
 		IStrategoTerm sdfTerm = parseSdf();
 		// Debug.print("SDF parse result " + sdfTerm);
 		IStrategoTerm sdfTermNoImports = fixSdfImports(sdfTerm);
-		IStrategoTerm sdfTermWithToplevelDec = sdfTermNoImports; // fixSdfToplevelDec(sdfTermNoImports);
+		IStrategoTerm sdfTermWithToplevelDec = fixSdfToplevelDec(sdfTermNoImports);
 		IStrategoTerm sdfTermFixed = null;
 		try {
 			sdfTermFixed = ATermCommands.fixSDF(sdfTermWithToplevelDec, interp);
@@ -309,6 +311,21 @@ public class BaseLanguageDefinition {
 		} catch (Exception e) {
 			throw new RuntimeException(e.toString());
 		}
+	}
+
+	private IStrategoTerm fixSdfToplevelDec(IStrategoTerm term) {
+		IStrategoTerm header = term.getSubterm(0);
+		IStrategoTerm imports = term.getSubterm(1);
+		StrategoList body = (StrategoList) term.getSubterm(2);
+		String cfSection = "exports(context-free-syntax([prod([sort(\""
+				+ baseLanguageName + toplevelDeclarationNonterminal
+				+ "\")], sort(\"ToplevelDeclaration\"), no-attrs())]))";
+		IStrategoTerm cf = ATermCommands.atermFromString(cfSection);
+		IStrategoTerm newBody = new StrategoList(cf, body,
+				TermFactory.EMPTY_LIST, body.getStorageType());
+		return new StrategoAppl(new StrategoConstructor("module", 3),
+				new IStrategoTerm[] { header, imports, newBody },
+				term.getAnnotations(), term.getStorageType());
 	}
 
 	private IStrategoTerm fixSdfImports(IStrategoTerm term) {
