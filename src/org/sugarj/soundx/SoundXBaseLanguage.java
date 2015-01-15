@@ -1,14 +1,16 @@
 package org.sugarj.soundx;
 
+import static org.sugarj.common.ATermCommands.isApplication;
+
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.StrategoAppl;
 import org.sugarj.AbstractBaseLanguage;
-import org.sugarj.AbstractBaseProcessor;
 import org.sugarj.common.Log;
 import org.sugarj.common.path.Path;
 import org.sugarj.soundx.Debug;
@@ -22,7 +24,7 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	private Path initTrans;
 	private Path initEditor;
 	private Path packagedGrammar;
-	
+
 	public Path getPackagedGrammar() {
 		return packagedGrammar;
 	}
@@ -42,33 +44,39 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	}
 
 	private Pair<String, Integer> namespaceDecCons;
-	private Set<Pair<String, Integer>> importDecCons;
+	private Map<String, Integer> importDecCons;
 	private Set<String> bodyDecCons;
+
+	public Pair<String, Integer> getNamespaceDecCons() {
+		return namespaceDecCons;
+	}
 
 	protected void setNamespaceDecCons(Pair<String, Integer> namespaceDecCons) {
 		this.namespaceDecCons = namespaceDecCons;
 	}
 
-	protected void setImportDecCons(Set<Pair<String, Integer>> importDecCons) {
-		this.importDecCons = importDecCons;
+	protected void setImportDecCons(Map<String, Integer> importDecCons2) {
+		this.importDecCons = importDecCons2;
 	}
 
 	protected void setBodyDecCons(Set<String> bodyDecCons) {
 		this.bodyDecCons = bodyDecCons;
 	}
 
-	private SoundXBaseLanguage() {}
-	
+	private SoundXBaseLanguage() {
+	}
+
 	private static SoundXBaseLanguage instance = new SoundXBaseLanguage();
 
 	public static SoundXBaseLanguage getInstance() {
 		return instance;
 	}
-	
-	public void processBaseLanguageDefinition(String bldFilename, Path pluginDirectory) {
+
+	public void processBaseLanguageDefinition(String bldFilename,
+			Path pluginDirectory) {
 		Debug.print("Processing " + bldFilename);
 		Debug.print("Plugin directory " + pluginDirectory.toString());
-		
+
 		BaseLanguageDefinition bld = BaseLanguageDefinition.getInstance();
 		bld.process(bldFilename, pluginDirectory);
 	}
@@ -88,7 +96,7 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	public String getLanguageName() {
 		return languageName;
 	}
-	
+
 	protected void setLanguageName(String languageName) {
 		this.languageName = languageName;
 	}
@@ -138,7 +146,7 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	protected void setInitTrans(Path initTrans) {
 		this.initTrans = initTrans;
 	}
-	
+
 	@Override
 	public String getInitTransModuleName() {
 		return languageName;
@@ -156,8 +164,8 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	@Override
 	public List<Path> getPackagedGrammars() {
 		List<Path> grammars = new LinkedList<Path>(super.getPackagedGrammars());
-	    grammars.add(packagedGrammar);
-	    return Collections.unmodifiableList(grammars);
+		grammars.add(packagedGrammar);
+		return Collections.unmodifiableList(grammars);
 	}
 
 	@Override
@@ -166,7 +174,9 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	}
 
 	public boolean isNamespaceDec(IStrategoTerm decl) {
-		return false;
+		Debug.print("namespace decl term " + decl);
+		Debug.print("namespace decl pair " + namespaceDecCons.a);
+		return isApplication(decl, namespaceDecCons.a);
 	}
 
 	@Override
@@ -176,16 +186,28 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 
 	@Override
 	public boolean isImportDecl(IStrategoTerm decl) {
-		return false;
+		if (decl.getTermType() == IStrategoTerm.APPL) {
+			String consName = ((StrategoAppl) decl).getConstructor().getName();
+			return importDecCons.containsKey(consName);
+		} else
+			return false;
 	}
 
 	@Override
 	public boolean isBaseDecl(IStrategoTerm decl) {
-		return false;
+		return isNamespaceDec(decl) || isBodyDecl(decl);
+	}
+
+	private boolean isBodyDecl(IStrategoTerm decl) {
+		if (decl.getTermType() == IStrategoTerm.APPL) {
+			String consName = ((StrategoAppl) decl).getConstructor().getName();
+			return bodyDecCons.contains(consName);
+		} else
+			return false;
 	}
 
 	@Override
 	public boolean isPlainDecl(IStrategoTerm decl) {
 		return false;
-	}	
+	}
 }

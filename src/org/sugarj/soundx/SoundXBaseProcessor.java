@@ -18,6 +18,7 @@ import org.sugarj.common.FileCommands;
 import org.sugarj.common.StringCommands;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
+import org.sugarj.util.Pair;
 
 public class SoundXBaseProcessor extends AbstractBaseProcessor {
 
@@ -85,8 +86,11 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 
 	private void processNamespaceDecl(IStrategoTerm toplevelDecl)
 			throws IOException {
+		Debug.print("ToplevelDecl " + toplevelDecl);
+		Pair<String, Integer> namespaceDecCons = getLanguage()
+				.getNamespaceDecCons();
 		String qualifiedModuleName = prettyPrint(getApplicationSubterm(
-				toplevelDecl, "SXBldNamespaceDecl", 0));
+				toplevelDecl, namespaceDecCons.a, namespaceDecCons.b));
 		String declaredModuleName = FileCommands.fileName(qualifiedModuleName);
 		moduleName = FileCommands.dropExtension(FileCommands
 				.fileName(sourceFile.getRelativePath()));
@@ -153,7 +157,8 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 		// .getAbsolutePath());
 
 		// return ATermCommands.prettyPrint(ppTable, term, interp);
-		return "pretty printing of base language not yet implemented";
+		return term.toString();
+		// return "pretty printing of base language not yet implemented";
 	}
 
 	@Override

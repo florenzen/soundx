@@ -96,7 +96,9 @@ strategies
 	/**
 	 * Returns the left-most position of a labelled symbol
 	 *
-	 * Strategy fails if the label is not in the input list
+	 * Strategy fails if the label is not in the input list.
+	 * The position calculated is the position the corresponding
+	 * subtree appears in the abstract syntax constructor.
 	 *
 	 * @param label String
 	 *
@@ -105,7 +107,9 @@ strategies
 	sxbld-sdf2-find-index-of-labelled-symbol(|label) =
 		(?[]; fail) <+
 		(?[label(unquoted(label), symbol)|_];
-		 !1) <+
+		 !0) <+
+		(?[lit(_)|symbols];
+		 <sxbld-sdf2-find-index-of-labelled-symbol(|label)> symbols) <+
 		(?[symbol|symbols];
 		 <sxbld-sdf2-find-index-of-labelled-symbol(|label)> symbols => index;
 		 !(<add> (1, index)))

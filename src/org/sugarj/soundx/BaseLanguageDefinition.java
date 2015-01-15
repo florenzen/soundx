@@ -1,8 +1,10 @@
 package org.sugarj.soundx;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -33,6 +35,7 @@ import org.sugarj.driver.SDFCommands;
 import org.sugarj.stdlib.StdLib;
 import org.sugarj.util.Pair;
 
+
 public class BaseLanguageDefinition {
 	private static BaseLanguageDefinition instance = new BaseLanguageDefinition();
 
@@ -46,7 +49,7 @@ public class BaseLanguageDefinition {
 
 	private String toplevelDeclarationNonterminal;
 	private Pair<String, Integer> namespaceDecCons;
-	private Set<Pair<String, Integer>> importDecCons = new HashSet<Pair<String, Integer>>();
+	private Map<String, Integer> importDecCons = new HashMap<String, Integer>();
 	private Set<String> bodyDecCons = new HashSet<String>();
 	private String baseLanguageName;
 
@@ -260,9 +263,7 @@ public class BaseLanguageDefinition {
 											.valueOf(((StrategoString) sndComp
 													.getSubterm(0)
 													.getSubterm(0)).getName());
-									importDecCons
-											.add(new Pair<String, Integer>(
-													consName, index));
+									importDecCons.put(consName, index);
 									Debug.print("import-dec " + consName + ","
 											+ index);
 									current = null;
@@ -283,8 +284,7 @@ public class BaseLanguageDefinition {
 										.valueOf(((StrategoString) sndComp
 												.getSubterm(0).getSubterm(0))
 												.getName());
-								importDecCons.add(new Pair<String, Integer>(
-										consName, index));
+								importDecCons.put(consName, index);
 								Debug.print("import-dec " + consName + ","
 										+ index);
 								current = listCons.getSubterm(1);
