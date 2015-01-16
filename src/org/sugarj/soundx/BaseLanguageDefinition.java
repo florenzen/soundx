@@ -19,6 +19,12 @@ import org.spoofax.terms.StrategoList;
 import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.TermFactory;
 import org.strategoxt.HybridInterpreter;
+import org.strategoxt.lang.Context;
+import org.strategoxt.lang.compat.CompatLibrary;
+import org.strategoxt.stratego_gpp.ast2abox_0_1;
+import org.strategoxt.tools.pp_pp_table_0_0;
+import org.strategoxt.tools.ppgen_0_0;
+import org.strategoxt.tools.ppgenerate_0_0;
 import org.sugarj.AbstractBaseLanguage;
 import org.sugarj.SXBldLanguage;
 import org.sugarj.common.ATermCommands;
@@ -34,7 +40,6 @@ import org.sugarj.driver.Result;
 import org.sugarj.driver.SDFCommands;
 import org.sugarj.stdlib.StdLib;
 import org.sugarj.util.Pair;
-
 
 public class BaseLanguageDefinition {
 	private static BaseLanguageDefinition instance = new BaseLanguageDefinition();
@@ -64,6 +69,7 @@ public class BaseLanguageDefinition {
 	private Path strPath;
 	private Path servPath;
 	private Path defPath;
+	private Path ppPath;
 	private SoundXBaseLanguage blInstance;
 
 	public void process(String bldFilename, Path pluginDirectory) {
@@ -81,6 +87,7 @@ public class BaseLanguageDefinition {
 			runCompiler();
 			postProcess(); // Also extracts declarations from Stratego file
 			generateDefFile();
+			generatePPTable();
 		} else {
 			Debug.print("Generated files are up-to-date");
 			IStrategoTerm strTerm = parseStratego();
@@ -119,6 +126,7 @@ public class BaseLanguageDefinition {
 		String strFileName = baseLanguageName + ".str";
 		String servFileName = baseLanguageName + ".serv";
 		String defFileName = baseLanguageName + ".def";
+		String ppFileName = baseLanguageName + ".pp";
 		sdfPath = new AbsolutePath(binDir.getAbsolutePath() + Environment.sep
 				+ sdfFileName);
 		strPath = new AbsolutePath(binDir.getAbsolutePath() + Environment.sep
@@ -127,6 +135,8 @@ public class BaseLanguageDefinition {
 				+ servFileName);
 		defPath = new AbsolutePath(binDir.getAbsolutePath() + Environment.sep
 				+ defFileName);
+		ppPath = new AbsolutePath(binDir.getAbsolutePath() + Environment.sep
+				+ ppFileName);
 		Debug.print("sdfPath " + sdfPath);
 	}
 
@@ -145,7 +155,7 @@ public class BaseLanguageDefinition {
 		// Debug.print("Stratego parse result " + strTerm);
 		IStrategoTerm strTermNoImports = fixStrategoImports(strTerm);
 		String strString = ppStratego(strTermNoImports);
-		Debug.print("Post processed Stratego " + strString);
+		// Debug.print("Post processed Stratego " + strString);
 		try {
 			FileCommands.writeToFile(strPath, strString);
 		} catch (Exception e) {
@@ -310,6 +320,28 @@ public class BaseLanguageDefinition {
 			return false;
 	}
 
+	private void generatePPTable() {
+		Context ctx = interp.getCompiledContext();
+
+		ctx.addOperatorRegistry(new CompatLibrary());
+		// Necessary because SSL_EXT_topdown_fput is not defined otherwise
+
+		IStrategoTerm sdfTerm = parseSdf();
+		try {
+			IStrategoTerm sdfTermFixed = ATermCommands.fixSDF(sdfTerm, interp);
+			// Without fixSDF, ppgenerate does not recognize the attributes
+			
+			IStrategoTerm result = ppgenerate_0_0.instance.invoke(ctx,
+					sdfTermFixed);
+			String table = ((StrategoString) pp_pp_table_0_0.instance.invoke(
+					ctx, result)).getName();
+			FileCommands.writeToFile(ppPath, table);
+		} catch (Exception e) {
+			throw new RuntimeException(e.toString());
+		}
+
+	}
+
 	private void postProcessSdf() {
 		IStrategoTerm sdfTerm = parseSdf();
 		// Debug.print("SDF parse result " + sdfTerm);
@@ -318,12 +350,13 @@ public class BaseLanguageDefinition {
 		IStrategoTerm sdfTermFixed = null;
 		try {
 			sdfTermFixed = ATermCommands.fixSDF(sdfTermWithToplevelDec, interp);
+			// Without fixSDF the attributes are pretty printed wrongly
 		} catch (Exception e) {
 			new RuntimeException(e.toString());
 		}
 		Debug.print("Deleted imports");
 		String sdfString = ppSdf(sdfTermFixed);
-		Debug.print("Post processed Sdf " + sdfString);
+		// Debug.print("Post processed Sdf " + sdfString);
 		try {
 			FileCommands.writeToFile(sdfPath, sdfString);
 		} catch (Exception e) {
