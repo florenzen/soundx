@@ -52,6 +52,8 @@ public class BaseLanguageDefinition {
 		interp = new HybridInterpreter();
 	}
 
+	private String extFileExt;
+	private String baseFileExt;
 	private String toplevelDeclarationNonterminal;
 	private Pair<String, Integer> namespaceDecCons;
 	private Map<String, Integer> importDecCons = new HashMap<String, Integer>();
@@ -109,8 +111,8 @@ public class BaseLanguageDefinition {
 	}
 
 	private void initSoundXBaseLanguage() {
-		blInstance.setBaseFileExtension("st");
-		blInstance.setSugarFileExtension("xst");
+		blInstance.setBaseFileExtension(baseFileExt);
+		blInstance.setSugarFileExtension(extFileExt);
 		blInstance.setLanguageName(baseLanguageName);
 		blInstance.setInitEditor(servPath);
 		blInstance.setInitGrammar(sdfPath);
@@ -185,6 +187,15 @@ public class BaseLanguageDefinition {
 								.getName());
 						Debug.print("ToplevelDeclaration = "
 								+ toplevelDeclarationNonterminal);
+					} else if (name.equals(baseLanguageName
+							+ "-extensible-file-ext")) {
+						extFileExt = unquote(((StrategoString) rhs
+								.getSubterm(0).getSubterm(0).getSubterm(0)).getName());
+						Debug.print("ExtensibleFileExt = " + extFileExt);
+					} else if (name.equals(baseLanguageName + "-base-file-ext")) {
+						baseFileExt = unquote(((StrategoString) rhs
+								.getSubterm(0).getSubterm(0).getSubterm(0)).getName());
+						Debug.print("BaseFileExt = " + baseFileExt);
 					} else if (name.equals(baseLanguageName + "-body-decs")) {
 						// rhs =
 						// Build(NoAnnoList(List([NoAnnoList(Str("\"SXCons10\""))])))
@@ -506,7 +517,7 @@ public class BaseLanguageDefinition {
 		AbstractBaseLanguage baseLang = SXBldLanguage.getInstance();
 		Environment environment = new Environment(true, StdLib.stdLibDir,
 				Stamper.DEFAULT);
-		
+
 		// DEVEL: Create a fresh cache directory.
 		// Otherwise, SugarJ will only reread the SXBld implementation when
 		// the version changes. If development has finished
@@ -520,7 +531,7 @@ public class BaseLanguageDefinition {
 		}
 		RelativePath cacheDir = new RelativePath(new AbsolutePath(tmpdir),
 				"sugarjcache");
-		
+
 		environment.setCacheDir(cacheDir);
 		environment.setAtomicImportParsing(false);
 		environment.setNoChecking(false);
