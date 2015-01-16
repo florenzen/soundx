@@ -151,14 +151,11 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 	}
 
 	public String prettyPrint(IStrategoTerm term) {
-		// if (ppTable == null)
-		// ppTable = ATermCommands.readPrettyPrintTable(getLanguage()
-		// .ensureFile("org/sugarj/languages/SXBld.pp")
-		// .getAbsolutePath());
+		if (ppTable == null)
+			ppTable = ATermCommands.readPrettyPrintTable(getLanguage()
+					.getPpTable().getAbsolutePath());
 
-		// return ATermCommands.prettyPrint(ppTable, term, interp);
-		return term.toString();
-		// return "pretty printing of base language not yet implemented";
+		return ATermCommands.prettyPrint(ppTable, term, interp);
 	}
 
 	@Override

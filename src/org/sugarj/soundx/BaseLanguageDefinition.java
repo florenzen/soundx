@@ -116,6 +116,7 @@ public class BaseLanguageDefinition {
 		blInstance.setInitGrammar(sdfPath);
 		blInstance.setInitTrans(strPath);
 		blInstance.setPackagedGrammar(defPath);
+		blInstance.setPpTable(ppPath);
 		blInstance.setImportDecCons(importDecCons);
 		blInstance.setBodyDecCons(bodyDecCons);
 		blInstance.setNamespaceDecCons(namespaceDecCons);
@@ -330,7 +331,7 @@ public class BaseLanguageDefinition {
 		try {
 			IStrategoTerm sdfTermFixed = ATermCommands.fixSDF(sdfTerm, interp);
 			// Without fixSDF, ppgenerate does not recognize the attributes
-			
+
 			IStrategoTerm result = ppgenerate_0_0.instance.invoke(ctx,
 					sdfTermFixed);
 			String table = ((StrategoString) pp_pp_table_0_0.instance.invoke(
@@ -497,11 +498,13 @@ public class BaseLanguageDefinition {
 		if (FileCommands.fileExists(sdfPath)
 				&& FileCommands.fileExists(strPath)
 				&& FileCommands.fileExists(defPath)
-				&& FileCommands.fileExists(servPath)) {
+				&& FileCommands.fileExists(servPath)
+				&& FileCommands.fileExists(ppPath)) {
 			return !(FileCommands.isModifiedLater(sdfPath, bldPath)
 					&& FileCommands.isModifiedLater(strPath, bldPath)
-					&& FileCommands.isModifiedLater(defPath, bldPath) && FileCommands
-						.isModifiedLater(servPath, bldPath));
+					&& FileCommands.isModifiedLater(defPath, bldPath)
+					&& FileCommands.isModifiedLater(servPath, bldPath) && FileCommands
+						.isModifiedLater(ppPath, bldPath));
 		} else
 			return true;
 	}
