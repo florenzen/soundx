@@ -358,7 +358,7 @@ public class BaseLanguageDefinition {
 		} catch (Exception e) {
 			new RuntimeException(e.toString());
 		}
-		Debug.print("Deleted imports");
+		Debug.print("Fixed SDF imports");
 		String sdfString = ppSdf(sdfTermFixed);
 		// Debug.print("Post processed Sdf " + sdfString);
 		try {

@@ -86,7 +86,6 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 
 	private void processNamespaceDecl(IStrategoTerm toplevelDecl)
 			throws IOException {
-		Debug.print("ToplevelDecl " + toplevelDecl);
 		Pair<String, Integer> namespaceDecCons = getLanguage()
 				.getNamespaceDecCons();
 		String qualifiedModuleName = prettyPrint(getApplicationSubterm(
