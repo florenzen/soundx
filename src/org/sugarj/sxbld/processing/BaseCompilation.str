@@ -1,0 +1,46 @@
+/**
+ * Processing of declarations related to base language compilation
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/sxbld/processing/BaseCompilation
+
+imports org/sugarj/sxbld/Environment
+ 	    org/sugarj/sxbld/processing/AnalysisFunctions
+
+imports org/sugarj/languages/SXBld
+
+/**
+ * Register analyses
+ */
+strategies
+	sxbld-start-analysis = sxbld-analyze-extensible-file-ext
+	sxbld-start-analysis = sxbld-analyze-base-file-ext
+
+/**
+ * Analyses
+ */
+strategies
+	/**
+	 * Stores extensible file extension in environment
+	 *
+	 * @type String -> String
+	 */
+	sxbld-analyze-extensible-file-ext =
+		?decl@SXBldExtensibleFileExt(string);
+		where(
+			(sxbld-env-is-extensible-file-ext-defined;
+			 <sxbld-analyze-fail(|"Only one `extensible file extension' allowed")> decl) <+
+			<sxbld-env-set-extensible-file-ext> string)
+
+	/**
+	 * Stores base file extension in environment
+	 *
+	 * @type String -> String
+	 */
+	sxbld-analyze-base-file-ext =
+		?decl@SXBldBaseFileExt(string);
+		where(
+			(sxbld-env-is-base-file-ext-defined;
+			 <sxbld-analyze-fail(|"Only one `base file extension' allowed")> decl) <+
+			<sxbld-env-set-base-file-ext> string)

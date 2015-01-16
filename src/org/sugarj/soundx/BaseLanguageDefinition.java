@@ -1,5 +1,7 @@
 package org.sugarj.soundx;
 
+import java.nio.file.Files;
+import java.nio.file.attribute.FileAttribute;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -504,8 +506,22 @@ public class BaseLanguageDefinition {
 		AbstractBaseLanguage baseLang = SXBldLanguage.getInstance();
 		Environment environment = new Environment(true, StdLib.stdLibDir,
 				Stamper.DEFAULT);
-		environment.setCacheDir(new RelativePath(new AbsolutePath(
-				FileCommands.TMP_DIR), ".sugarjcache"));
+		
+		// DEVEL: Create a fresh cache directory.
+		// Otherwise, SugarJ will only reread the SXBld implementation when
+		// the version changes. If development has finished
+		// the FileCommands.TMP_DIR can be used to speed things up.
+		String tmpdir = null;
+		try {
+			tmpdir = Files.createTempDirectory("sugarj-soundx",
+					new FileAttribute[] {}).toString();
+		} catch (Exception e) {
+			throw new RuntimeException(e.toString());
+		}
+		RelativePath cacheDir = new RelativePath(new AbsolutePath(tmpdir),
+				"sugarjcache");
+		
+		environment.setCacheDir(cacheDir);
 		environment.setAtomicImportParsing(false);
 		environment.setNoChecking(false);
 		environment.setBin(binDir);

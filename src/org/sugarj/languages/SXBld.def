@@ -64,21 +64,15 @@ exports
     [a-zA-Z0-9]+ -> SXBldNONEMPTYSTRING
 
   sorts
-  	SXBld SXBldHeader SXBldDecl
-  	SXBldExtensibleFileExt SXBldBaseFileExt
+  	SXJudgement SXBldIntfJudgToplevel SXBldIntfJudgInterface
 
   context-free syntax
-  	SXBldHeader SXBldDecl* -> SXBld {cons("SXBld")}
-  	
-  	"base" "language" "definition" SXBldNAME -> SXBldHeader {cons("SXBldHeader")}
+  	"base" "language" "definition" SXBldNAME -> ToplevelDeclaration {cons("SXBldHeader")}
 
 
-  	SXBldExtensibleFileExt -> SXBldDecl
-  	SXBldBaseFileExt       -> SXBldDecl
-  	
-  	"extensible" "file" "extension" SXBldNONEMPTYSTRING -> SXBldExtensibleFileExt {cons("SXBldExtensibleFileExt")}
+  	"extensible" "file" "extension" SXBldNONEMPTYSTRING -> ToplevelDeclaration {cons("SXBldExtensibleFileExt")}
 
-    "base" "file" "extension" SXBldNONEMPTYSTRING -> SXBldBaseFileExt {cons("SXBldBaseFileExt")}
+    "base" "file" "extension" SXBldNONEMPTYSTRING -> ToplevelDeclaration {cons("SXBldBaseFileExt")}
 
     "toplevel" "declaration" Sdf2Sort  -> ToplevelDeclaration {cons("SXBldToplevelDeclaration")}
     "toplevel" "declarations" Sdf2Sort -> ToplevelDeclaration {cons("SXBldToplevelDeclarations")}
@@ -92,7 +86,7 @@ exports
     "extension" "end" Sdf2Sort   -> ToplevelDeclaration {cons("SXBldExtensionEnd")}
 
   sorts
-  	SXBldJudgementForms SXBldJudgementForms SXJudgment
+  	SXBldJudgementForm SXBldJudgementForms
   	
   lexical syntax
   	"judgement" -> SXBldKeyword
@@ -106,15 +100,4 @@ exports
   context-free syntax
   	SXInductiveDefinitions -> ToplevelDeclaration
     
-  context-free start-symbols
-    SXBld
-
-  sorts
-    ToplevelDeclaration
-
-  context-free syntax
-  	SXBldHeader -> ToplevelDeclaration
-  	SXBldDecl   -> ToplevelDeclaration {cons("SXBldBaseDecl")}
-  	
   	Grammar+ -> ToplevelDeclaration {cons("SXBldGrammarElems")}
-  	%%SXBldGrammarElem+ -> ToplevelDeclaration {cons("SXBldExtensionDecl")}

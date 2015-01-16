@@ -111,8 +111,7 @@ public class SXBldLanguage extends AbstractBaseLanguage {
 
 	@Override
 	public boolean isBaseDecl(IStrategoTerm decl) {
-		return isApplication(decl, "SXBldBaseDecl")
-				|| isNamespaceDec(decl);
+		return isNamespaceDec(decl);
 	}
 
 	@Override

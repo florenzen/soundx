@@ -78,7 +78,9 @@ strategies
   	    hashtable-put(|"namespace-dec", ());
   	    hashtable-put(|"import-decs", []);
   	    hashtable-put(|"extension-begin", "");
-  	    hashtable-put(|"extension-end", "")
+  	    hashtable-put(|"extension-end", "");
+  	    hashtable-put(|"extensible-file-ext", "");
+  	    hashtable-put(|"base-file-ext", "")
 
     /**
      * Looks up a key in the environment
@@ -608,3 +610,61 @@ strategies
      */
     sxbld-env-is-extension-end-defined =
     	sxbld-env-get-extension-end; not(?"")
+
+/**
+ * Handling of base-file-ext
+ */
+strategies
+	/**
+	 * Gets base-file-ext
+	 *
+	 * @type _ -> String
+	 */
+	sxbld-env-get-base-file-ext =
+		<sxbld-env-get> "base-file-ext"
+
+	/**
+	 * Sets base-file-ext
+	 *
+	 * @type String -> SXEnv
+	 */		
+    sxbld-env-set-base-file-ext =
+    	?string;
+    	<sxbld-env-set> ("base-file-ext", string)
+
+    /**
+     * Succeeds if base-file-ext is defined
+     *
+     * @type _ -> String
+     */
+    sxbld-env-is-base-file-ext-defined =
+    	sxbld-env-get-base-file-ext; not(?"")
+
+/**
+ * Handling of extensible-file-ext
+ */
+strategies
+	/**
+	 * Gets extensible-file-ext
+	 *
+	 * @type _ -> String
+	 */
+	sxbld-env-get-extensible-file-ext =
+		<sxbld-env-get> "extensible-file-ext"
+
+	/**
+	 * Sets extensible-file-ext
+	 *
+	 * @type String -> SXEnv
+	 */		
+    sxbld-env-set-extensible-file-ext =
+    	?string;
+    	<sxbld-env-set> ("extensible-file-ext", string)
+
+    /**
+     * Succeeds if extensible-file-ext is defined
+     *
+     * @type _ -> String
+     */
+    sxbld-env-is-extensible-file-ext-defined =
+    	sxbld-env-get-extensible-file-ext; not(?"")

@@ -10,6 +10,7 @@ imports org/sugarj/sxbld/Environment
 imports org/sugarj/sxbld/processing/MetaExplode
         org/sugarj/sxbld/processing/SDF2
 
+imports org/sugarj/languages/SXBld
 
 strategies
     /**
@@ -19,6 +20,8 @@ strategies
      */
     sxbld-env-extract-extension-decls =
   	    sxbld-env-get-grammar-elems => grm-elems-plain;
+  	    sxbld-env-make-extensible-file-ext => trans-ext-file-ext;
+  	    sxbld-env-make-base-file-ext => trans-base-file-ext;
   	    sxbld-env-make-toplevel-decs => grm-elems-toplevel-decs;
   	    sxbld-env-make-toplevel-declaration => grm-elems-toplevel-declaration;
   	    sxbld-env-make-intf-judg => grm-elems-intf-judg;
@@ -34,7 +37,8 @@ strategies
 	    sxbld-env-decls-to-stratego(|cons-names, "cons-names") => trans-cons-names;
 	    <sxbld-env-get; hashtable-getlist> "inference-rules" => inf-rules;
 	    sxbld-env-decls-to-stratego(|inf-rules, "inference-rules") => trans-infrules;
-	    <conc> (trans-intf-judg, trans-cons-names, trans-infrules) => transformation-elems;
+	    <conc> (trans-intf-judg, trans-cons-names, trans-infrules,
+	            trans-base-file-ext, trans-ext-file-ext) => transformation-elems;
 	    <conc> (grm-elems-plain, grm-elems-toplevel-decs, grm-elems-intf-judg,
 	    	grm-elems-get-intf-judg, grm-elems-toplevel-declaration) => grammar-elems;
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems,
@@ -68,7 +72,29 @@ strategies
     	(sxbld-env-is-toplevel-declaration-defined;
     	 sxbld-env-get-toplevel-declaration => dec;
     	 sxbld-env-decls-to-stratego(|dec, "ToplevelDeclaration")
-    	) <+ []
+    	) <+ ![]
+
+    /**
+     * Saves extensible-file-ext in Stratego file
+     *
+     * @type _ -> List(ExtensionElem)
+     */
+    sxbld-env-make-extensible-file-ext =
+    	(sxbld-env-is-extensible-file-ext-defined;
+    	 sxbld-env-get-extensible-file-ext => dec;
+    	 sxbld-env-decls-to-stratego(|dec, "extensible-file-ext")
+    	) <+ ![]
+
+    /**
+     * Saves base-file-ext in Stratego file
+     *
+     * @type _ -> List(ExtensionElem)
+     */
+    sxbld-env-make-base-file-ext =
+    	(sxbld-env-is-base-file-ext-defined;
+    	 sxbld-env-get-base-file-ext => dec;
+    	 sxbld-env-decls-to-stratego(|dec, "base-file-ext")
+    	) <+ ![]
 
 	/**
 	 * Generates productions for list of toplevel declarations

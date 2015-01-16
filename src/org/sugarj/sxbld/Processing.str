@@ -22,6 +22,7 @@ imports org/sugarj/sxbld/processing/AnalysisFunctions
         org/sugarj/sxbld/processing/GrammarElems
 		org/sugarj/sxbld/processing/InductiveDefinitions
 		org/sugarj/sxbld/processing/ModuleStructure
+		org/sugarj/sxbld/processing/BaseCompilation
 
 
 /**
@@ -97,7 +98,9 @@ strategies
 		?SXBldInterface(_) +
 		?SXBldInterfaceJudgement(_, _, _) +
 		?SXBldExtensionBegin(_) +
-		?SXBldExtensionEnd(_)
+		?SXBldExtensionEnd(_) +
+		?SXBldExtensibleFileExt(_) +
+		?SXBldBaseFileExt(_)
 	
 	/**
 	 * Register BLD processing as SugarJ desugarings
