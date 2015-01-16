@@ -174,8 +174,6 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	}
 
 	public boolean isNamespaceDec(IStrategoTerm decl) {
-		Debug.print("namespace decl term " + decl);
-		Debug.print("namespace decl pair " + namespaceDecCons.a);
 		return isApplication(decl, namespaceDecCons.a);
 	}
 

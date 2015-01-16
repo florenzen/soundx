@@ -21,9 +21,7 @@ import org.spoofax.terms.TermFactory;
 import org.strategoxt.HybridInterpreter;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.compat.CompatLibrary;
-import org.strategoxt.stratego_gpp.ast2abox_0_1;
 import org.strategoxt.tools.pp_pp_table_0_0;
-import org.strategoxt.tools.ppgen_0_0;
 import org.strategoxt.tools.ppgenerate_0_0;
 import org.sugarj.AbstractBaseLanguage;
 import org.sugarj.SXBldLanguage;
@@ -171,10 +169,10 @@ public class BaseLanguageDefinition {
 		// Strategies([SDefNoArgs("STLC-namespace-dec",Build(NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons5\"")),NoAnnoList(Int("2"))]))))])
 		// Strategies([SDefNoArgs("STLC-import-decs",Build(NoAnnoList(ListTail([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons7\"")),NoAnnoList(Int("2"))]))],NoAnnoList(List([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons6\"")),NoAnnoList(Int("2"))]))]))))))])
 		for (IStrategoTerm decl : decls) {
-			if (isApp("Strategies", decl)) {
+			if (ATermCommands.isApplication(decl, "Strategies")) {
 				StrategoList defs = (StrategoList) decl.getSubterm(0);
 				IStrategoTerm head = defs.head();
-				if (isApp("SDefNoArgs", head)) {
+				if (ATermCommands.isApplication(head, "SDefNoArgs")) {
 					String name = ((StrategoString) head.getSubterm(0))
 							.getName();
 					IStrategoTerm rhs = head.getSubterm(1);
@@ -311,14 +309,6 @@ public class BaseLanguageDefinition {
 
 	private String unquote(String name) {
 		return name.substring(1, name.length() - 1);
-	}
-
-	private boolean isApp(String consName, IStrategoTerm term) {
-		if (term.getTermType() == IStrategoTerm.APPL) {
-			return ((StrategoAppl) term).getConstructor().getName()
-					.equals(consName);
-		} else
-			return false;
 	}
 
 	private void generatePPTable() {
