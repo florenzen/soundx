@@ -11,7 +11,6 @@ import java.util.Set;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.sugarj.AbstractBaseProcessor;
-import org.sugarj.SXBldLanguage;
 import org.sugarj.common.ATermCommands;
 import org.sugarj.common.Environment;
 import org.sugarj.common.FileCommands;
