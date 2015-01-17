@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -512,7 +513,7 @@ public class BaseLanguageDefinition {
 			return true;
 	}
 
-	private Result runCompiler() {
+	private void runCompiler() {
 		IProgressMonitor monitor = new NullProgressMonitor();
 		AbstractBaseLanguage baseLang = SXBldLanguage.getInstance();
 		Environment environment = new Environment(true, StdLib.stdLibDir,
@@ -547,7 +548,11 @@ public class BaseLanguageDefinition {
 		} catch (Exception e) {
 			throw new RuntimeException(e.toString());
 		}
-		return result;
+		// Check for errors processing the base language definition
+		List<String> errors = result.getCollectedErrors();
+		if (errors.size() > 0) {
+			throw new RuntimeException(errors.toString());
+		}
 	}
 
 	private void setBinDirFromPluginDirectory(Path pluginDirectory) {
