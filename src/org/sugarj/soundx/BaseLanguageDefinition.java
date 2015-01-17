@@ -31,6 +31,7 @@ import org.sugarj.SXBldLanguage;
 import org.sugarj.common.ATermCommands;
 import org.sugarj.common.Environment;
 import org.sugarj.common.FileCommands;
+import org.sugarj.common.StringCommands;
 import org.sugarj.common.cleardep.Stamper;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.RelativePath;
@@ -42,6 +43,22 @@ import org.sugarj.driver.SDFCommands;
 import org.sugarj.stdlib.StdLib;
 import org.sugarj.util.Pair;
 
+// TODO fail if some essential declaration is missing in the
+// base language definition (like "interface" or "toplevel declaration").
+
+/**
+ * Generation of SugarJ files from a SoundX base language definition.
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+/**
+ * @author florenz
+ *
+ */
+/**
+ * @author florenz
+ *
+ */
 public class BaseLanguageDefinition {
 	private static BaseLanguageDefinition instance = new BaseLanguageDefinition();
 
@@ -53,28 +70,80 @@ public class BaseLanguageDefinition {
 		interp = new HybridInterpreter();
 	}
 
+	/**
+	 * File extension of a file in the extended language. It is initialized from
+	 * the base language definition.
+	 */
 	private String extFileExt;
+
+	/**
+	 * File extension of a file in the base language. It is initialized from the
+	 * base language definition.
+	 */
 	private String baseFileExt;
+
+	/**
+	 * Name of the nonterminal for toplevel declarations. It is initialized from
+	 * the base language definition.
+	 */
 	private String toplevelDeclarationNonterminal;
+
+	/**
+	 * Name of the constructor of a namespace declaration and the argument
+	 * number of the namespace identifier. It is initialized from the base
+	 * language definition.
+	 */
 	private Pair<String, Integer> namespaceDecCons;
+
+	/**
+	 * Names of the constructors of import declarations and the argument number
+	 * of the name referred to. They are initialized from the base language
+	 * definition.
+	 */
 	private Map<String, Integer> importDecCons = new HashMap<String, Integer>();
+
+	/**
+	 * Names of the constructors of body declarations. They are initialized from
+	 * the base language definition.
+	 */
 	private Set<String> bodyDecCons = new HashSet<String>();
+
+	/**
+	 * Name of the base language. It is initialized from the base language
+	 * definition.
+	 */
 	private String baseLanguageName;
 
+	private SoundXBaseLanguage blInstance; // Reference to instance of language
+											// library
+	private HybridInterpreter interp; // For pretty printing etc.
+
+	// File names and module name of the SoundX module imported
+	// by the generated files
 	private final String soundXStrFileName = "org/sugarj/soundx/SoundX.str";
 	private final String soundXSdfFileName = "org/sugarj/soundx/SoundX.sdf";
 	private final String soundXModuleName = "org/sugarj/soundx/SoundX";
-	private HybridInterpreter interp;
+
+	// Paths of the base language plugin
 	private Path binDir;
 	private Path srcDir;
 	private RelativePath bldPath;
+
+	// Paths of the generated files
 	private Path sdfPath;
 	private Path strPath;
 	private Path servPath;
 	private Path defPath;
 	private Path ppPath;
-	private SoundXBaseLanguage blInstance;
 
+	/**
+	 * Processes a base language definition.
+	 * 
+	 * @param bldFilename
+	 *            Base language definition to process
+	 * @param pluginDirectory
+	 *            Directory of the base language plugin
+	 */
 	public void process(String bldFilename, Path pluginDirectory) {
 		blInstance = SoundXBaseLanguage.getInstance();
 		setBinDirFromPluginDirectory(pluginDirectory);
@@ -101,16 +170,23 @@ public class BaseLanguageDefinition {
 		initSoundXBaseLanguage();
 	}
 
+	/**
+	 * Generate the def file from the sdf file
+	 */
 	private void generateDefFile() {
 		try {
 			FileCommands.writeToFile(defPath, "definition\n\n");
 			String sdfText = FileCommands.readFileAsString(sdfPath);
 			FileCommands.appendToFile(defPath, sdfText);
 		} catch (Exception e) {
-			throw new RuntimeException(e.toString());
+			externalFail("write generated def file", e);
 		}
 	}
 
+	/**
+	 * Copy the declarations extracted from the base language definition to the
+	 * language library.
+	 */
 	private void initSoundXBaseLanguage() {
 		blInstance.setBaseFileExtension(baseFileExt);
 		blInstance.setSugarFileExtension(extFileExt);
@@ -125,6 +201,10 @@ public class BaseLanguageDefinition {
 		blInstance.setNamespaceDecCons(namespaceDecCons);
 	}
 
+	/**
+	 * Sets the paths for the generated files in the bin directory of the base
+	 * language plugin.
+	 */
 	private void setGeneratedFilePaths() {
 		String sdfFileName = baseLanguageName + ".sdf";
 		String strFileName = baseLanguageName + ".str";
@@ -144,26 +224,37 @@ public class BaseLanguageDefinition {
 		Debug.print("sdfPath " + sdfPath);
 	}
 
+	/**
+	 * Set base language name from file name of base language definition.
+	 */
 	private void setBaseLanguageName() {
 		baseLanguageName = FileCommands.fileName(bldPath);
 	}
 
+	/**
+	 * Post processes SugarJ generated sdf and str file.
+	 */
 	private void postProcess() {
 		postProcessStratego();
 		postProcessSdf();
 	}
 
+	/**
+	 * Post process SugarJ generated str file. The imports are replaced by the
+	 * single import of the SoundX module. The declarations like the constructor
+	 * names for the language processor are extracted and stored.
+	 */
 	private void postProcessStratego() {
 		IStrategoTerm strTerm = parseStratego();
 		extractDeclarations(strTerm);
 		// Debug.print("Stratego parse result " + strTerm);
-		IStrategoTerm strTermNoImports = fixStrategoImports(strTerm);
-		String strString = ppStratego(strTermNoImports);
+		IStrategoTerm strTermImportsFixed = fixStrategoImports(strTerm);
+		String strString = ppStratego(strTermImportsFixed);
 		// Debug.print("Post processed Stratego " + strString);
 		try {
 			FileCommands.writeToFile(strPath, strString);
 		} catch (Exception e) {
-			throw new RuntimeException(e.toString());
+			externalFail("write post processed Stratego code", e);
 		}
 	}
 
@@ -191,11 +282,13 @@ public class BaseLanguageDefinition {
 					} else if (name.equals(baseLanguageName
 							+ "-extensible-file-ext")) {
 						extFileExt = unquote(((StrategoString) rhs
-								.getSubterm(0).getSubterm(0).getSubterm(0)).getName());
+								.getSubterm(0).getSubterm(0).getSubterm(0))
+								.getName());
 						Debug.print("ExtensibleFileExt = " + extFileExt);
 					} else if (name.equals(baseLanguageName + "-base-file-ext")) {
 						baseFileExt = unquote(((StrategoString) rhs
-								.getSubterm(0).getSubterm(0).getSubterm(0)).getName());
+								.getSubterm(0).getSubterm(0).getSubterm(0))
+								.getName());
 						Debug.print("BaseFileExt = " + baseFileExt);
 					} else if (name.equals(baseLanguageName + "-body-decs")) {
 						// rhs =
@@ -224,8 +317,7 @@ public class BaseLanguageDefinition {
 									Debug.print("body-dec " + consName);
 									current = null;
 								} else
-									throw new RuntimeException(
-											"Error reading end of body-decs list");
+									fail("Error reading end of body-decs list");
 							} else if (applConsName.equals("ListTail")) {
 								StrategoList hd = (StrategoList) listCons
 										.getSubterm(0);
@@ -240,8 +332,7 @@ public class BaseLanguageDefinition {
 
 								current = listCons.getSubterm(1);
 							} else
-								throw new RuntimeException(
-										"Error reading body-decs");
+								fail("Error reading body-decs");
 						}
 					} else if (name.equals(baseLanguageName + "-namespace-dec")) {
 						// rhs =
@@ -291,8 +382,7 @@ public class BaseLanguageDefinition {
 											+ index);
 									current = null;
 								} else
-									throw new RuntimeException(
-											"Error reading end of body-decs list");
+									fail("Error reading end of body-decs list");
 							} else if (applConsName.equals("ListTail")) {
 								StrategoList hd = (StrategoList) listCons
 										.getSubterm(0);
@@ -312,8 +402,7 @@ public class BaseLanguageDefinition {
 										+ index);
 								current = listCons.getSubterm(1);
 							} else
-								throw new RuntimeException(
-										"Error reading body-decs");
+								fail("Error reading body-decs");
 						}
 					}
 				}
@@ -342,7 +431,7 @@ public class BaseLanguageDefinition {
 					ctx, result)).getName();
 			FileCommands.writeToFile(ppPath, table);
 		} catch (Exception e) {
-			throw new RuntimeException(e.toString());
+			externalFail("generating and writing the pretty printer table", e);
 		}
 
 	}
@@ -357,7 +446,8 @@ public class BaseLanguageDefinition {
 			sdfTermFixed = ATermCommands.fixSDF(sdfTermWithToplevelDec, interp);
 			// Without fixSDF the attributes are pretty printed wrongly
 		} catch (Exception e) {
-			new RuntimeException(e.toString());
+			externalFail("fixing the attributes of the post process SDF code",
+					e);
 		}
 		Debug.print("Fixed SDF imports");
 		String sdfString = ppSdf(sdfTermFixed);
@@ -365,7 +455,7 @@ public class BaseLanguageDefinition {
 		try {
 			FileCommands.writeToFile(sdfPath, sdfString);
 		} catch (Exception e) {
-			throw new RuntimeException(e.toString());
+			externalFail("writing the post processed SDF code", e);
 		}
 	}
 
@@ -404,8 +494,7 @@ public class BaseLanguageDefinition {
 		if (term.getSubterm(1) instanceof IStrategoList)
 			decls = (IStrategoList) term.getSubterm(1);
 		else
-			throw new RuntimeException(
-					"Second argument of Stratego module not a list");
+			fail("Second argument of Stratego module not a list");
 		LinkedList<IStrategoTerm> declsNoImports = new LinkedList<IStrategoTerm>();
 
 		for (IStrategoTerm decl : decls) {
@@ -460,7 +549,9 @@ public class BaseLanguageDefinition {
 							.getAbsolutePath()));
 			parser.setUseStructureRecovery(true);
 		} catch (Exception e) {
-			throw new RuntimeException(e.toString());
+			externalFail(
+					"setting up a parser for the table "
+							+ table.getAbsolutePath(), e);
 		}
 
 		Object parseResult = null;
@@ -470,8 +561,7 @@ public class BaseLanguageDefinition {
 			parseResult = parser.parseMax(fileContent,
 					sdfPath.getAbsolutePath(), startSymbol);
 		} catch (Exception e) {
-			Debug.print("Exception during parsing" + e.toString());
-			throw new RuntimeException(e.toString());
+			externalFail("parsing the file " + inputFile.getAbsolutePath(), e);
 		}
 		Object[] os = (Object[]) parseResult;
 		IStrategoTerm term = (IStrategoTerm) os[0];
@@ -483,7 +573,7 @@ public class BaseLanguageDefinition {
 		try {
 			result = SDFCommands.prettyPrintSDF(term, interp);
 		} catch (Exception e) {
-			throw new RuntimeException(e.toString());
+			externalFail("pretty printing an SDF syntax tree", e);
 		}
 		return result;
 	}
@@ -493,7 +583,7 @@ public class BaseLanguageDefinition {
 		try {
 			result = SDFCommands.prettyPrintSTR(term, interp);
 		} catch (Exception e) {
-			throw new RuntimeException(e.toString());
+			externalFail("pretty printing a Stratego syntax tree", e);
 		}
 		return result;
 	}
@@ -528,7 +618,7 @@ public class BaseLanguageDefinition {
 			tmpdir = Files.createTempDirectory("sugarj-soundx",
 					new FileAttribute[] {}).toString();
 		} catch (Exception e) {
-			throw new RuntimeException(e.toString());
+			externalFail("creating a temporary directory", e);
 		}
 		RelativePath cacheDir = new RelativePath(new AbsolutePath(tmpdir),
 				"sugarjcache");
@@ -546,12 +636,13 @@ public class BaseLanguageDefinition {
 			String editorServicesHeader = "module " + baseLanguageName + "\n";
 			FileCommands.writeToFile(servPath, editorServicesHeader);
 		} catch (Exception e) {
-			throw new RuntimeException(e.toString());
+			externalFail("writing the editor services file", e);
 		}
 		// Check for errors processing the base language definition
 		List<String> errors = result.getCollectedErrors();
 		if (errors.size() > 0) {
-			throw new RuntimeException(errors.toString());
+			String messages = StringCommands.printListSeparated(errors, "\n");
+			processingError(messages);
 		}
 	}
 
@@ -563,5 +654,32 @@ public class BaseLanguageDefinition {
 	private void setSrcDirFromPluginDirectory(Path pluginDirectory) {
 		srcDir = new AbsolutePath(pluginDirectory.getAbsolutePath()
 				+ Environment.sep + "src");
+	}
+
+	private void fail(String desc) {
+		throw new RuntimeException(desc);
+	}
+
+	private void externalFail(String desc, Exception e) {
+		LinkedList<StackTraceElement> trace = new LinkedList<StackTraceElement>();
+		for (StackTraceElement elem : e.getStackTrace())
+			trace.add(elem);
+		String message = "SoundX base language processing failed unexpectedly.\n"
+				+ "While trying to "
+				+ desc
+				+ ", the following exception occured:\n"
+				+ e.toString()
+				+ "\n"
+				+ "The stack trace leading to this problem is:\n"
+				+ StringCommands.printListSeparated(trace, "\n");
+
+		throw new RuntimeException(message);
+	}
+
+	private void processingError(String desc) {
+		String message = "While processing the base language description for "
+				+ baseLanguageName + "\n" + "the following error occured:\n"
+				+ desc;
+		throw new RuntimeException(message);
 	}
 }
