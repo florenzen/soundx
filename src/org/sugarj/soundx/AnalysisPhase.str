@@ -8,11 +8,32 @@ module org/sugarj/soundx/AnalysisPhase
 imports org/sugarj/stdlib/StdTrans
 
 imports org/sugarj/soundx/AbstractSyntax
+        org/sugarj/soundx/Environment
+
+/**
+ * Hook analysis into SugarJ
+ */
+strategies
+	start-analysis = changed-tree-or-analysis-data(sx-analysis)
 
 strategies
-	start-analysis = sx-analysis
-
-strategies
+	/**
+	 * The main SoundX analysis
+	 */
 	sx-analysis =
-		//soundx-analysis-comp-unit-to-tldef-list;
-		(prim("SUGARJ_is_last_toplevel_declaration") < debug(!"IS LAST ONE") + debug(!"IS NOT LAST ONE")); fail
+		?SXFinished(decls) < !SXFinished(decls) +
+		(sx-env-add-toplevel-declaration;
+		 if sx-is-last-toplevel-decl then
+		 	 sx-env-get-toplevel-declarations;
+		 	 sx-list-to-toplevel-decls;
+		 	 !SXFinished(<id>)
+		 else
+		 	 ![]
+		 end)
+
+/**
+ * Checks if the current toplevel declaration is the last one
+ */
+strategies
+	sx-is-last-toplevel-decl =
+		prim("SUGARJ_is_last_toplevel_declaration")

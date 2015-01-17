@@ -1,0 +1,88 @@
+/**
+ * SoundX environment
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/soundx/Environment
+
+
+/**
+ * Basic handling of the environment hash table
+ *
+ * The environment is a hash table from Strings to values.
+ * We use SXEnv in type annotation.
+ */
+strategies
+	/**
+	 * The environment hash table
+	 *
+	 * Do not call directly, use sxbld-get-env-hashtable instead.
+	 *
+	 * @type _ -> SXEnv
+	 */
+    sx-env-hashtable = fail
+
+    /**
+     * Returns the environment
+     *
+     * Creates an empty hash table if called for the first time.
+     *
+     * @type _ -> SXEnv
+     */
+    sx-env-get-hashtable =
+  	    sx-env-hashtable <+
+  	    (sx-env-new-hashtable => ht;
+  	    rules(sx-env-hashtable: () -> ht);
+  	    !ht)
+
+    /**
+     * Creates empty environment containing all keys
+     *
+     * @type _ -> SXEnv
+     */
+    sx-env-new-hashtable =
+  	    new-hashtable;
+  	    hashtable-put(|"toplevel-declarations", [])
+
+    /**
+     * Looks up a key in the environment
+     *
+     * @type String -> a
+     */
+    sx-env-get:
+  	    key -> value
+  	    where
+  		    <sx-env-get-hashtable> ();
+  		    hashtable-get(|key) => value
+
+    /**
+     * Sets a key to a value in the environment
+     *
+     * @type String * a -> SXEnv
+     */
+    sx-env-set =
+        ?(key, value);
+  	    <sx-env-get-hashtable> ();
+  	    hashtable-put(|key, value)
+
+/**
+ * Handling of toplevel-declarations
+ */
+strategies
+	/**
+	 * Gets the list of toplevel declarations
+	 *
+	 * @type _ -> List(SXToplevelDeclarations)
+	 */
+	sx-env-get-toplevel-declarations =
+		<sx-env-get> "toplevel-declarations"
+
+	/**
+	 * Adds a declaration to the list of toplevel declarations
+	 *
+	 * @type SXToplevelDeclaration -> SXEnv
+	 */
+    sx-env-add-toplevel-declaration =
+    	?decl;
+    	<sx-env-get> "toplevel-declarations" => decls;
+    	<sx-env-set> ("toplevel-declarations", <conc> (decls, [decl]))

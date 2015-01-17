@@ -35,3 +35,30 @@ signature constructors
 signature constructors
 	SXToplevelDeclarationsCons: SXToplevelDeclaration * SXToplevelDeclarations -> SXToplevelDeclarations
 	SXToplevelDeclarationsNil:                                                    SXToplevelDeclarations
+
+	SXFinished: List(SXToplevelDeclarations) -> SXFinished
+
+strategies
+	/**
+	 * Converts list of toplevel declarations into ToplevelDeclarations
+	 *
+	 * @type List(SXToplevelDeclaration) -> SXToplevelDeclarations
+	 */
+	sx-list-to-toplevel-decls:
+		[] -> SXToplevelDeclarationsNil()
+	sx-list-to-toplevel-decls:
+		[decl|decls] -> SXToplevelDeclarationsCons(decl, decls1)
+		where
+			<sx-list-to-toplevel-decls> decls => decls1
+
+	/**
+	 * Converts ToplevelDeclarations into list of toplevel declarations
+	 *
+	 * @type SXToplevelDeclarations -> List(SXToplevelDeclaration)
+	 */
+	sx-toplevel-decls-to-list:
+		SXToplevelDeclarationsNil() -> []
+	sx-toplevel-decls-to-list:
+		SXToplevelDeclarationsCons(decl, decls) -> [decl|decls1]
+		where
+			<sx-toplevel-decls-to-list> decls => decls1

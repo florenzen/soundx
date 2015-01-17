@@ -8,3 +8,18 @@ module org/sugarj/soundx/DesugaringPhase
 imports org/sugarj/stdlib/StdTrans
 
 imports org/sugarj/soundx/AbstractSyntax
+
+/**
+ * Hook desugaring into SugarJ
+ */
+strategies
+	desugar = changed-tree(sx-desugar)
+
+strategies
+	/**
+	 * Main SoundX desugaring procedure
+	 */
+	sx-desugar:
+		SXFinished(decls) -> decls1
+		where
+			<sx-toplevel-decls-to-list> decls => decls1
