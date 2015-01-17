@@ -85,7 +85,10 @@ strategies
 	 * @type Grammar -> Grammar
 	 */
 	sxbld-analyze-lex-restrictions =
-		lexical-restrictions(sxbld-prefix-all-sorts-base-lang)
+		?lexical-restrictions(restr);
+	    <sxbld-prefix-all-sorts(|"Gnd")> restr => restr-gnd;
+		<conc; sxbld-prefix-all-sorts-base-lang> (restr, restr-gnd) => restr-prefixed;
+	    !lexical-restrictions(restr-prefixed)
 
 	/**
 	 * Prefixes sorts in context-free restrictions
