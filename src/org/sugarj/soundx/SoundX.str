@@ -1,6 +1,16 @@
+/**
+ * Main SoundX module
+ *
+ * Is imported by the initial Grammar of a base language
+ * generated from a SoundX base language definition.
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
 module org/sugarj/soundx/SoundX
 
 imports org/sugarj/stdlib/StdTrans
 
 imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/InductiveDefinitions
+		org/sugarj/soundx/AnalysisPhase
+		org/sugarj/soundx/DesugaringPhase

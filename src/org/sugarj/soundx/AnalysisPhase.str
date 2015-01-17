@@ -1,0 +1,18 @@
+/**
+ * SoundX analysis phase: building the derivation
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/soundx/AnalysisPhase
+
+imports org/sugarj/stdlib/StdTrans
+
+imports org/sugarj/soundx/AbstractSyntax
+
+strategies
+	start-analysis = sx-analysis
+
+strategies
+	sx-analysis =
+		//soundx-analysis-comp-unit-to-tldef-list;
+		(prim("SUGARJ_is_last_toplevel_declaration") < debug(!"IS LAST ONE") + debug(!"IS NOT LAST ONE")); fail

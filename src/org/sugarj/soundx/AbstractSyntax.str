@@ -28,3 +28,10 @@ strategies
  */
 signature constructors
 	SXAbsInfRule: List(SXJudgement) * SXJudgement -> SXAbsInfRule
+
+/**
+ * Toplevel declaration list
+ */
+signature constructors
+	SXToplevelDeclarationsCons: SXToplevelDeclaration * SXToplevelDeclarations -> SXToplevelDeclarations
+	SXToplevelDeclarationsNil:                                                    SXToplevelDeclarations

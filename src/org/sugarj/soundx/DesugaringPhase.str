@@ -1,0 +1,10 @@
+/**
+ * SoundX desugaring phase: desugaring the derivation
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/soundx/DesugaringPhase
+
+imports org/sugarj/stdlib/StdTrans
+
+imports org/sugarj/soundx/AbstractSyntax
