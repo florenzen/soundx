@@ -33,6 +33,14 @@ strategies
 		?SXMetaVar(_) +
 		?SXMetaVarGen(_, _)
 
+	/**
+	 * Collects all metavariables of an expression
+	 *
+	 * @type a -> List(SXMetavar)
+	 */
+    sx-vars =
+    	collect-all(sx-is-metavar)
+
 /**
  * Inference rules
  */
@@ -72,3 +80,9 @@ strategies
 		SXToplevelDeclarationsCons(decl, decls) -> [decl|decls1]
 		where
 			<sx-toplevel-decls-to-list> decls => decls1
+
+/**
+ * Various
+ */
+signature constructors
+	SXUnificationFailure: String -> SXUnificationResult

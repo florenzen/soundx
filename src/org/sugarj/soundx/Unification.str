@@ -8,34 +8,106 @@ module org/sugarj/soundx/Unification
 imports org/sugarj/soundx/Substitution
 		org/sugarj/soundx/AbstractSyntax
 
+
 strategies
+	/**
+	 * Unifies a list of pairs of expressions
+	 *
+	 * It either returns a substitution or SXUnificationFailure(msg).
+	 * The vars argument takes the list of unification variables.
+	 *
+	 * @param vars List(SXMetaVar)
+	 * @type List((a, a)) -> SXUnificationResult
+	 */
 	sx-unify(|vars) =
+		// Empty list, termination case
 		?[]; sx-sub-empty
-
 	sx-unify(|vars) =
-		?[(expr1, expr2) | pairs];
-		<sx-is-metavar> expr1;
-		<sx-is-metavar> expr2
-
+		// Two variables
+		?[(var1, var2) | pairs];
+		<sx-is-metavar> var1;
+		<sx-is-metavar> var2;
+		if <eq> (var1, var2) then
+			<sx-unify(|vars)> pairs
+		else
+			if <elem> (var1, vars) then
+				<sx-sub-singleton> (var1, var2)
+			else
+				if <elem> (var2, vars) then
+					<sx-sub-singleton> (var2, var1)
+				else
+					// TODO better error message
+					!SXUnificationFailure("could not unify variables")
+				end
+			end => result;
+			if !result; ?SXUnificationFailure(_) then
+				!result
+			else
+				<map(\pair -> <sx-sub-apply> (result, pair)\)> pairs => pairs1;
+				<sx-unify(|vars)> pairs => result1;
+				if !result1; ?SXUnificationFailure(_) then
+					!result1
+				else
+					<sx-sub-compose> (result1, result)
+				end
+			end
+		end
 	sx-unify(|vars) =
-		?[(expr1, expr2) | pairs];
-		<sx-is-metavar> expr1;
-		<not(sx-is-metavar)> expr2
-
+		// One variable, on other expression
+		?[(var1, expr2) | pairs];
+		<sx-is-metavar> var1;
+		<not(sx-is-metavar)> expr2;
+		if <elem> (var1, vars) then
+			<sx-vars> expr2 => vars-expr2;
+			if <elem> (var1, vars-expr2) then
+				id
+			else
+				<sx-sub-singleton> (var1, expr2) => sub1;
+				<map(\pair -> <sx-sub-apply> (sub1, pair)\)> pairs => pairs1;
+				<sx-unify(|vars)> pairs1 => result;
+				if !result; ?SXUnificationFailure(_) then
+					!result
+				else
+					<sx-sub-compose> (sub1, result)
+				end
+			end
+		else
+			// TODO: better error message
+			!SXUnificationFailure("not a unification variable")
+		end
 	sx-unify(|vars) =
-		?[(expr1, expr2) | pairs];
+		// One other expression, one variable
+		?[(expr1, var2) | pairs];
 		<not(sx-is-metavar)> expr1;
-		<sx-is-metavar> expr2;
-		<sx-unify(|vars)> [(expr2, expr1) | pairs]
-
+		<sx-is-metavar> var2;
+		<sx-unify(|vars)> [(var2, expr1) | pairs]
 	sx-unify(|vars) =
+		// Two non-variable expressions
 		?[(expr1, expr2) | pairs];
 		<not(sx-is-metavar)> expr1;
 		<not(sx-is-metavar)> expr2;
 		!expr1; ?con1#(args1);
-		!expr2; ?con1#(args2);
-		if <eq> (<length> args1, <length> args2) then
-			id
+		!expr2; ?con2#(args2);
+		if <eq> (con1, con2) then
+			if <eq> (<length> args1, <length> args2) then
+				<sx-unify(|vars)> (<conc> (<zip> (args1, args2), pairs))
+			else
+				// TODO: better error message
+				!SXUnificationFailure("differen number of arguments")
+			end
 		else
-			SXUnificationFailure()
+			!SXUnificationFailure("different constructor names")
 		end
+
+	/**
+	 * Unifies a pair of expressions
+	 *	
+	 * It either returns a substitution or SXUnificationFailure(msg).
+	 * The vars argument takes the list of unification variables.
+	 *
+	 * @param vars List(SXMetaVar)
+	 * @type (a, a) -> SXUnificationResult
+	 */	
+	sx-unify(|vars) =
+		?(expr1, expr2);
+		<sx-unify(|vars)> [(expr1, expr2)]
