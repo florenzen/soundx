@@ -8,6 +8,8 @@ module org/sugarj/soundx/DesugaringPhase
 imports org/sugarj/stdlib/StdTrans
 
 imports org/sugarj/soundx/AbstractSyntax
+		org/sugarj/soundx/Environment
+
 
 /**
  * Hook desugaring into SugarJ
@@ -18,8 +20,12 @@ strategies
 strategies
 	/**
 	 * Main SoundX desugaring procedure
+	 *
+	 * DEVEL: only spit out the module header (1st declaration in environment)
+	 * such that desugaring always produces something the pretty printer can
+	 * handle.
 	 */
-	sx-desugar:
-		SXFinished(decls) -> decls1
-		where
-			<sx-toplevel-decls-to-list> decls => decls1
+	sx-desugar =
+		?SXFinished(_);
+		sx-env-get-toplevel-declarations => [decl|_];
+		![decl]
