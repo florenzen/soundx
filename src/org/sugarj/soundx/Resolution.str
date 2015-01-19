@@ -9,15 +9,199 @@
 module org/sugarj/soundx/Resolution
 
 imports org/sugarj/soundx/AbstractSyntax
+		org/sugarj/soundx/Unification
+		org/sugarj/soundx/Substitution
 
-
-/**
- * Constraints
- */
-signature constructors
-	SX
 /**
  * Constraint store
- *
+ */
 strategies
-	
+	/**
+	 * Returns an empty constraint store
+	 *
+	 * @type _ -> SXStore
+	 */
+	sx-res-empty-store =
+		![]
+
+	/** 
+	 * Propagates a list of constraints to the store
+	 *
+	 * It returns SXFalse() if the store is not satisfiable,
+	 * SXTrue() otherwise.
+	 *
+	 * @param vars-asm List(SXMetaVar)
+	 *
+	 * @type (List(SXJudgement), SXStore) -> (SXBool, SXStore)
+	 */
+	sx-res-propagate(|vars-asm) =
+		?(constrs, store);
+		<sx-res-simplify(|vars-asm)> (<conc> (constrs, store))
+
+	/**
+	 * Simplifies the given store
+	 *
+	 * It returns SXFalse() if the store is not satisfiable
+	 * and SXTrue() otherwise.
+	 *
+	 * @param vars-asm List(SXMetaVar)
+	 *
+	 * @type SXStore -> (SXBool, SXStore)
+	 */
+	sx-res-simplify(|vars-asm) =
+		?store;
+		<sx-res-partition-store> store => (eqs, neqs);
+		<sx-vars> eqs => vars-eqs;
+		<diff> (vars-eqs, vars-asm);
+		<map(\SXEq(expr1, expr2) -> (expr1, expr2)\)> eqs => eq-pairs;
+		<sx-unify(|vars-eqs)> eq-pairs => result;
+		if !result; ?SXUnificationFailure(_) then
+			!(SXFalse(), store)
+		else
+			<sx-sub-apply> (result, neqs) => neqs1;
+			<sx-res-sub-to-eqs> result => eqs1;
+			<conc> (eqs1, neqs) => store1;
+			if <sx-res-satisfiable> neqs1 then
+				!(SXTrue(), store1)
+			else
+				!(SXFalse(), store1)
+			end
+		end
+
+	/**
+	 * Partitions the store in equality and inequality constraints
+	 *
+	 * @type SXStore -> (SXStore, SXStore)
+	 */
+	sx-res-partition-store =
+		partition(sx-is-eq-judgement)
+
+	/**
+	 * Converts a substitution to equality judgements (constraints)
+	 *
+	 * @type SXSub -> List(SXJudgement)
+	 */
+	sx-res-sub-to-eqs =
+		let fold-s(|constrs) =
+			{var, expr:
+				?(var, expr);
+				![SXEq(var, expr) | constrs]
+			}
+		in
+			sx-sub-fold(fold-s|[])
+		end
+
+	/**
+	 * Converts a list of equality constraints to a substitution
+	 *
+	 * This only makes sense if the lhs of the constraints are
+	 * metavariables. The Strategy fails if this is not the case.
+	 *
+	 * @type List(SXJudgement) -> SXSub
+	 */
+	sx-res-eqs-to-sub =
+		let fold-s(|sub1) =
+			{var, expr:
+				?SXEq(var, expr);
+				<sx-is-metavar> var;
+				<sx-sub-union> (sub1, <sx-sub-singleton> (var, expr))
+			}
+		in
+			sx-sub-empty => sub-empty;
+			list-fold(fold-s|sub-empty)
+		end
+
+	/**
+	 * Checks if the given inequality constraints have a solution
+	 *
+	 * @type SXStore -> _
+	 */
+	sx-res-satisfiable =
+		?[]
+	sx-res-satisfiable =
+		?[SXNeq(expr1, expr2) | constrs];
+		<sx-is-metavar> expr1;
+		<sx-is-metavar> expr2;
+		if <eq> (expr1, expr2) then
+			fail
+		else
+			<sx-res-satisfiable> constrs
+		end
+	sx-res-satisfiable =
+		?[SXNeq(expr1, expr2) | constrs];
+		<sx-is-metavar> expr1;
+		<not(sx-is-metavar)> expr2;
+		<sx-res-satisfiable> constrs
+	sx-res-satisfiable =
+		?[SXNeq(expr1, expr2) | constrs];
+		<not(sx-is-metavar)> expr1;
+		<sx-is-metavar> expr2;
+		<sx-res-satisfiable> constrs
+	sx-res-satisfiable =
+		?[SXNeq(expr1, expr2) | constrs];
+		<not(sx-is-metavar)> expr1;
+		<not(sx-is-metavar)> expr2;
+		if <eq> (expr1, expr2) then
+			fail
+		else
+			<sx-res-satisfiable> constrs
+		end
+
+	/**
+	 * Calculates a solution for the store
+	 *
+	 * It returns the empty substitution if the store has no
+	 * solution.
+	 *
+	 * @param vars-asm List(SXMetaVars)
+	 *
+	 * @type SXStore -> SXSub
+	 */
+	sx-res-solve(|vars-asm) =
+		?store;
+		<sx-res-simplify(|vars-asm)> store => (ok, store1);
+		if !ok; ?SXTrue() then
+			<sx-res-partition-store> store1 => (eqs, neqs);
+			<sx-res-eqs-to-sub> eqs => sub-eqs;
+			<sx-res-assign-neqs> neqs => sub-neqs;
+			<sx-sub-compose> (sub-neqs, sub-eqs)
+		else
+			sx-sub-empty
+		end
+
+	/**
+	 * Assigns a solution to the inequalities
+	 *
+	 * @type List(SXJudgement) -> SXSub
+	 */
+	sx-res-assign-neqs =
+		?constrs;
+		<collect-all(sx-is-metavar)> constrs => vars;
+		<collect-all(is-string, union, (sx-is-metavar; ![]))> constrs => lexs;
+		let fold-s(|sub1) =
+			{var:
+				?var;
+				<sx-metavar-name> var => name;
+				<sx-res-newname(|lexs)> name => name1;
+				<sx-sub-union> (sub1, <sx-sub-singleton> (var, name1))
+			}
+	 	in
+	 		sx-sub-empty => sub-empty;
+	 		<list-fold(fold-s|sub-empty)> vars
+	 	end
+
+	/**
+	 * Returns a fresh name not contained in the given list of names
+	 *
+	 * @param names List(String)
+	 *
+	 * @type String -> String
+	 */
+	sx-res-newname(|names) =
+		?name;
+		<newname> name => name1;
+		if <elem> (name1, names) then
+			<sx-res-newname(|names)> name
+		else
+			!name1
+		end

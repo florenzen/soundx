@@ -41,6 +41,16 @@ strategies
     sx-vars =
     	collect-all(sx-is-metavar)
 
+	/**
+	 * Returns the name of a metavariable
+	 *
+	 * @type SXMetaVar -> String
+	 */
+	sx-metavar-name:
+		SXMetaVar(name) -> name
+	sx-metavar-name:
+		SXMetaVarGen(name, num) -> <conc-strings> (name, <int-to-string> num)
+
 /**
  * Inference rules
  */
