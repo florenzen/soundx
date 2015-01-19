@@ -12,7 +12,8 @@ imports org/sugarj/sxbld/processing/MetaExplode
  * Metavariables
  */
 signature constructors
-	SXMetaVar: String -> SXMetaVar
+	SXMetaVar:    String       -> SXMetaVar
+	SXMetaVarGen: String * Int -> SXMetaVar
 
 strategies
 	/**
@@ -22,6 +23,15 @@ strategies
 	 */
     sxbld-meta-var-to-sx-metavar =
     	topdown(try(\meta-var(name) -> SXMetaVar(name)\))
+
+	/**
+	 * Checks if term is a metavariable
+	 *
+	 * @type a -> a
+	 */
+	sx-is-metavar =
+		?SXMetaVar(_) +
+		?SXMetaVarGen(_, _)
 
 /**
  * Inference rules

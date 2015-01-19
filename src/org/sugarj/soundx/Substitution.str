@@ -1,0 +1,172 @@
+/**
+ * Functions to manipulate substitutions
+ *
+ * Substitutions are stores as hash tables and SXSub is used
+ * in type annotations.
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/soundx/Substitution
+
+imports org/sugarj/soundx/AbstractSyntax
+
+
+strategies
+	/**
+	 * Returns an empty subsitution
+	 *
+	 * @type _ -> SXSub
+	 */
+	sx-sub-empty =
+		new-hashtable
+
+	/**
+	 * Creates a singelton substitution
+	 *
+	 * @type (SXVar, a) -> SXSub
+	 */
+	sx-sub-singleton =
+		?(var, expr);
+		new-hashtable;
+		hashtable-put(|var, expr)
+
+	/**
+	 * Returns domain of a substitution
+	 *
+	 * @type SXSub -> List(SXMetaVar)
+	 */
+	sx-sub-dom = hashtable-keys
+
+    /**
+     * Returns range of a substitution
+     *
+     * @type SXSub -> List(a)
+     */
+    sx-sub-ran = hashtable-values
+
+	/**
+	 * Checks if substition defines a certain metavariable
+	 *
+	 * @type (SXSub, SXMetaVar) -> _
+	 */
+	sx-sub-defines =
+		?(sub, var);
+		<hashtable-get(|var)> sub
+
+	/**
+	 * Applies the substitution to an expression
+	 *
+	 * @type (SXSub, a) -> a
+	 */
+	sx-sub-apply =
+		?(sub, expr);
+		let apply =
+			{ var:
+				?var;
+				if <hashtable-get(|var)> sub => expr1 then
+					!expr1
+				else
+					!var
+				end
+			}
+		in
+			<leaves(apply, sx-is-metavar)> expr
+		end
+
+	/**
+	 * Maps the expressions of a substitution
+	 *
+	 * @param s a -> b
+	 *
+	 * @type SXSub -> SXSub
+	 */
+	sx-sub-map(s) =
+		where(new-hashtable => sub);
+		hashtable-getlist;
+		let fold-s(|sub1) =
+				{ var, expr:
+					?(var, expr);
+					<s> expr => expr1;
+					<hashtable-put(|var, expr1)> sub1
+				}
+		in
+			list-fold(fold-s|sub)
+		end
+
+    /**
+     * Returns the union of the two substitutions
+     *
+     * Fails if metavariables present in both substitutions are
+     * not mapped to the same expression.
+     *
+     * @type (SXSub, SXSub) -> SXSub
+     */
+    sx-sub-union =
+    	?(sub1, sub2);
+    	if <hashtable-keys> sub1; ?[] then !sub2
+    	else
+    		<hashtable-getlist> sub2 => sub2-alist;
+    		if !sub2-alist; ?[] then !sub1
+    		else
+    			<hashtable-copy> sub1 => sub1-copy;
+    			let fold-s(|sub1a) =
+    				{ var, expr:
+    					?(var, expr);
+    					if <hashtable-get(|var)> sub1a => expr1 then
+    						<eq> (expr, expr1); !sub1a
+    					else
+    						<hashtable-put(|var, expr)> sub1a
+    					end
+    				}
+    			in
+   					<list-fold(fold-s|sub1-copy)> sub2-alist
+   				end
+    		end
+    	end
+
+    /**
+     * Filters the substitution by its metavariables
+     *
+     * The result keeps those mappings where s succeeds for
+     * the metavariable.
+     *
+     * @param s SXMetaVar -> _
+     * @type SXSub -> SXSub
+     */
+	sx-sub-filter-vars(s) =
+		hashtable-getlist => alist;
+		let fold-s(|sub1) =
+			{ var, expr:
+				?(var, expr);
+				if <s> var then
+					<hashtable-put(|var, expr)> sub1
+				else
+					!sub1
+				end
+			}
+		in
+			new-hashtable => sub1;
+			list-fold(fold-s|sub1)
+		end
+
+    /**
+     * Composes two substitutions
+     *
+     * <sx-compose-sub> (sub1, sub2) = sub1 o sub2
+     *
+     * @type (SXSub, SXSub) -> SXSub
+     */
+    sx-sub-compose =
+     	?(sub1, sub2);
+    	<sx-sub-map(?expr; <sx-sub-apply> (sub1, expr))> sub2 => sub2a;
+    	<sx-sub-filter-vars(?var; not(<sx-sub-defines> (sub2, var)))> sub1 => sub1a;
+    	<sx-sub-union> (sub1a, sub2a)
+
+	/**
+	 * Restricts domain of substitution to those variables in the list
+	 *
+	 * @type (SXSub, List(SXMetaVar)) -> SXSub
+	 */
+	sx-sub-restrict =
+		?(sub, vars);
+		<sx-sub-filter-vars(\var -> <elem> (var, vars)\)> sub
