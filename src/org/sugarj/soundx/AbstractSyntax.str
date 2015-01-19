@@ -82,6 +82,27 @@ strategies
 			<sx-toplevel-decls-to-list> decls => decls1
 
 /**
+ * Derivations
+ */
+signature constructors
+	SXDerivInst: List(SXDeriv) * String * SXJudgement -> SXDeriv
+	SXDerivAsm:  SXJudgement                          -> SXDeriv
+	SXDerivFail: SXJudgement                          -> SXDeriv
+
+strategies
+	/**
+	 * Extracts the conclusion from a derivation
+	 *
+	 * @type SXDeriv -> SXJudgement
+	 */
+	sx-concl:
+		SXDerivInst(_, _, concl) -> concl
+	sx-concl:
+		SXDerivAsm(concl) -> concl
+	sx-concl:
+		SXDerivFail(concl) -> concl
+
+/**
  * Various
  */
 signature constructors
