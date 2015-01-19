@@ -1,0 +1,41 @@
+/**
+ * Unification
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/soundx/Unification
+
+imports org/sugarj/soundx/Substitution
+		org/sugarj/soundx/AbstractSyntax
+
+strategies
+	sx-unify(|vars) =
+		?[]; sx-sub-empty
+
+	sx-unify(|vars) =
+		?[(expr1, expr2) | pairs];
+		<sx-is-metavar> expr1;
+		<sx-is-metavar> expr2
+
+	sx-unify(|vars) =
+		?[(expr1, expr2) | pairs];
+		<sx-is-metavar> expr1;
+		<not(sx-is-metavar)> expr2
+
+	sx-unify(|vars) =
+		?[(expr1, expr2) | pairs];
+		<not(sx-is-metavar)> expr1;
+		<sx-is-metavar> expr2;
+		<sx-unify(|vars)> [(expr2, expr1) | pairs]
+
+	sx-unify(|vars) =
+		?[(expr1, expr2) | pairs];
+		<not(sx-is-metavar)> expr1;
+		<not(sx-is-metavar)> expr2;
+		!expr1; ?con1#(args1);
+		!expr2; ?con1#(args2);
+		if <eq> (<length> args1, <length> args2) then
+			id
+		else
+			SXUnificationFailure()
+		end
