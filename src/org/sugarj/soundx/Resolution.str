@@ -11,5 +11,13 @@ module org/sugarj/soundx/Resolution
 imports org/sugarj/soundx/AbstractSyntax
 
 
+/**
+ * Constraints
+ */
+signature constructors
+	SX
+/**
+ * Constraint store
+ *
 strategies
 	

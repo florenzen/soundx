@@ -48,6 +48,13 @@ signature constructors
 	SXInfRule: List(SXJudgement) * SXJudgement -> SXAbsInfRule
 
 /**
+ * Judgements
+ */
+signature constructors
+    SXNeq:          SXExpr * SXExpr -> SXJudgement
+    SXGetInterface: SXExpr * SXExpr -> SXJudgement
+
+/**
  * Toplevel declaration list
  */
 signature constructors
