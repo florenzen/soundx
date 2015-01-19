@@ -45,7 +45,7 @@ strategies
  * Inference rules
  */
 signature constructors
-	SXAbsInfRule: List(SXJudgement) * SXJudgement -> SXAbsInfRule
+	SXInfRule: List(SXJudgement) * SXJudgement -> SXAbsInfRule
 
 /**
  * Toplevel declaration list

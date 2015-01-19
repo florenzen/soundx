@@ -47,12 +47,12 @@ strategies
     /**
      * Convert named inference rule to abstract syntax
      *
-     * @type SXInferenceRule -> SXAbsInfRule
+     * @type SXInferenceRule -> SXInfRule
      */
 	sxbld-analyze-named-infrule-to-abs =
 		?SXInferenceRule(premises, _, concl);
 		<collect-all(sxbld-analyze-is-judgement, conc)> premises => premises-list;
-		!SXAbsInfRule(premises-list, concl)
+		!SXInfRule(premises-list, concl)
 
 	/**
 	 * Checks if an aterm is a judgement
@@ -71,7 +71,7 @@ strategies
 	 *
 	 * Fails if a rule of that name is already defined
 	 *
-	 * @type (String, SXAbsInfRule) -> SXEnv
+	 * @type (String, SXInfRule) -> SXEnv
 	 */
 	sxbld-analyze-add-inference-rule =
 		?(name, rule);

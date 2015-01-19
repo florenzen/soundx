@@ -141,7 +141,7 @@ strategies
     /**
 	 * Gets an inference rule
 	 *
-	 * @type String -> Option(SXAbsInfRule)
+	 * @type String -> Option(SXInfRule)
 	 */
     sxbld-env-get-inference-rule =
     	?name;
@@ -151,7 +151,7 @@ strategies
     /**
      * Adds an inference rules
      *
-     * @type (String, SXAbsInfRule) -> SXEnv
+     * @type (String, SXInfRule) -> SXEnv
      */  
     sxbld-env-add-inference-rule =
   	    ?(name, rule);
