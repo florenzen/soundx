@@ -9,6 +9,10 @@ imports org/sugarj/stdlib/StdTrans
 
 imports org/sugarj/soundx/AbstractSyntax
         org/sugarj/soundx/Environment
+        org/sugarj/soundx/Substitution
+
+imports org/sugarj/soundx/Resolution
+
 
 /**
  * Hook analysis into SugarJ
@@ -26,7 +30,30 @@ strategies
 		 if sx-is-last-toplevel-decl then
 		 	 sx-env-get-toplevel-declarations;
 		 	 sx-list-to-toplevel-decls;
-		 	 !SXFinished(<id>)
+		 	 !SXFinished(<id>);
+		 	 // DEVEL
+		 	 where(
+		 	 	<sx-sub-singleton> (SXMetaVar("a"), "String") => sub;
+		 	  	<sx-sub-map(\ _ -> 1 \)> sub => sub1;
+		 	  	<hashtable-getlist; debug(!"SUB  ")> sub;
+		 	  	<hashtable-getlist; debug(!"SUB1 ")> sub1;
+		 	  	<sx-sub-apply; debug(!"SUB APPLY ")> (sub1, [[[SXMetaVarGen("b", 17), SXMetaVar("b"),SXMetaVar("a"), SXMetaVar("a")],[]],SXMetaVar("a"), [4, SXMetaVar("a"), SXMetaVar("b")]]);
+		 	  	<hashtable-init> [(SXMetaVar("c"), "5"), (SXMetaVar("b"), "1")]=> subA1;
+		 	  	//<hashtable-init> []=> subA2;
+		 	  	<hashtable-init> [(SXMetaVar("a"), "String"), (SXMetaVar("b"), "1")]=> subA2;
+				<hashtable-getlist> subA1; debug(!" subA1 ");
+		 	  	<hashtable-getlist> subA2; debug(!" subA2 ");
+		 	  	((<sx-sub-union> (subA1, subA2); hashtable-getlist) <+ !"FAILED") => subAmerged;
+		 	  	<debug(!"MERGED ")> subAmerged;
+		 	  	let folds(|v,e) =
+		 	  		{acc: ?acc; ![(v,e)|acc]}
+		 	  	in
+		 	  	<hashtable-fold(folds|[])> subA1; debug(!"AS EQS ")
+		 	  	end;
+		 	  	<sx-res-sub-to-eqs> subA1; debug(!"SUB TO EQS ");
+		 	  	![SXNeq("a", "b"), SXNeq(SXMetaVar("foo"), SXMetaVarGen("bar", 1)), SXNeq("a", SXMetaVar("baz"))];
+		 	  	sx-res-assign-neqs; debug(!"ASSIGN ")
+		 	 )
 		 else
 		 	 ![]
 		 end)
