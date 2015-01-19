@@ -51,8 +51,18 @@ signature constructors
  * Judgements
  */
 signature constructors
+	SXEq:           SXExpr * SXExpr -> SXJudgement
     SXNeq:          SXExpr * SXExpr -> SXJudgement
     SXGetInterface: SXExpr * SXExpr -> SXJudgement
+
+strategies
+	/**
+	 * Checks if term is an SXEq judgement
+	 *
+	 * @type SXJudgement -> _
+	 */
+	sx-is-eq-judgement =
+		?SXEq(_, _)
 
 /**
  * Toplevel declaration list
@@ -114,3 +124,7 @@ strategies
  */
 signature constructors
 	SXUnificationFailure: String -> SXUnificationResult
+
+	SXFalse: SXBool
+	SXTrue:  SXBool
+

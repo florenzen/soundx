@@ -5,6 +5,9 @@
  */
 module org/sugarj/soundx/InductiveDefinitions
 
+imports org/sugarj/soundx/AbstractSyntax
+
+
 signature constructors
 	SXInductiveDefinitions: List(SXNamedInferenceRule)                  -> SXInductiveDefinitions
 	SXNamedInferenceRule:   SXINFRULENAME * SXInferenceRule             -> SXNamedInferenceRule
@@ -13,6 +16,3 @@ signature constructors
 	SXInfRulePremise:       SXInfRulePremise                            -> SXInfRulePremisesEnum
 	SXInfRulePremisesNil:                                                  SXInfRulePremises
 	SXInfRulePremisesCons:  SXInfRulePremisesEnum * SXInfRulePremises   -> SXInfRulePremises
-
-    SXNeq:          SXExpr * SXExpr -> SXJudgement
-    SXGetInterface: SXExpr * SXExpr -> SXJudgement
