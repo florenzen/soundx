@@ -93,6 +93,27 @@ strategies
 			list-fold(fold-s|sub)
 		end
 
+	/**
+	 * Folds a substitution
+	 *
+	 * The folded strategy gets the accumulator as term argument and
+	 * the metavariable and expression paired as current term
+	 *
+	 * @param s(|b) (SXMetaVar, a) -> b
+	 * @param acc b
+	 *
+	 * @type SXSub -> b
+	 */
+	sx-sub-fold(s|acc) =
+		let fold-s(|var, expr) =
+			{acc1:
+				?acc1;
+				<s(|acc1)> (var, expr)
+			}
+		in
+			hashtable-fold(fold-s|acc)
+		end
+
     /**
      * Returns the union of the two substitutions
      *
