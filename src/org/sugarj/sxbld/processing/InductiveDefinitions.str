@@ -41,7 +41,7 @@ strategies
      */
 	sxbld-analyze-inference-rule =
 		?SXNamedInferenceRule(name, rule);
-		<sxbld-analyze-named-infrule-to-abs; sxbld-meta-var-to-sx-metavar> rule => analyzed-rule;
+		<sxbld-analyze-named-infrule-to-abs(|name); sxbld-meta-var-to-sx-metavar> rule => analyzed-rule;
 		<sxbld-analyze-add-inference-rule> (name, analyzed-rule)
 
     /**
@@ -49,8 +49,8 @@ strategies
      *
      * @type SXInferenceRule -> SXInfRule
      */
-	sxbld-analyze-named-infrule-to-abs =
-		?SXInferenceRule(premises, name, concl);
+	sxbld-analyze-named-infrule-to-abs(|name) =
+		?SXInferenceRule(premises, _, concl);
 		<collect-all(sx-is-judgement, conc)> premises => premises-list;
 		!SXInfRule(premises-list, name, concl)
 

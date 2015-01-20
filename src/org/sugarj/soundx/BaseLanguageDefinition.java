@@ -317,25 +317,24 @@ public class BaseLanguageDefinition {
 					String name = ((StrategoString) head.getSubterm(0))
 							.getName();
 					IStrategoTerm rhs = head.getSubterm(1);
-					if (name.equals(baseLanguageName + "-ToplevelDeclaration")) {
+					if (name.equals("sx-ToplevelDeclaration")) {
 						// rhs = Build(NoAnnoList(Str("\"ToplevelDec\"")))
 						toplevelDeclarationNonterminal = unquote(((StrategoString) rhs
 								.getSubterm(0).getSubterm(0).getSubterm(0))
 								.getName());
 						Debug.print("ToplevelDeclaration = "
 								+ toplevelDeclarationNonterminal);
-					} else if (name.equals(baseLanguageName
-							+ "-extensible-file-ext")) {
+					} else if (name.equals("sx-extensible-file-ext")) {
 						extFileExt = unquote(((StrategoString) rhs
 								.getSubterm(0).getSubterm(0).getSubterm(0))
 								.getName());
 						Debug.print("ExtensibleFileExt = " + extFileExt);
-					} else if (name.equals(baseLanguageName + "-base-file-ext")) {
+					} else if (name.equals("sx-base-file-ext")) {
 						baseFileExt = unquote(((StrategoString) rhs
 								.getSubterm(0).getSubterm(0).getSubterm(0))
 								.getName());
 						Debug.print("BaseFileExt = " + baseFileExt);
-					} else if (name.equals(baseLanguageName + "-body-decs")) {
+					} else if (name.equals("sx-body-decs")) {
 						// rhs =
 						// Build(NoAnnoList(List([NoAnnoList(Str("\"SXCons10\""))])))
 						IStrategoTerm current = rhs.getSubterm(0);
@@ -379,7 +378,7 @@ public class BaseLanguageDefinition {
 							} else
 								fail("Error reading body-decs");
 						}
-					} else if (name.equals(baseLanguageName + "-namespace-dec")) {
+					} else if (name.equals("sx-namespace-dec")) {
 						// rhs =
 						// Build(NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons5\"")),NoAnnoList(Int("2"))]))))])
 						StrategoList tupleComps = (StrategoList) rhs
@@ -395,7 +394,7 @@ public class BaseLanguageDefinition {
 								index);
 						Debug.print("sx-namespace-dec " + consName + ","
 								+ index);
-					} else if (name.equals(baseLanguageName + "-import-decs")) {
+					} else if (name.equals("sx-import-decs")) {
 						// rhs =
 						// Build(NoAnnoList(ListTail([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons7\"")),NoAnnoList(Int("2"))]))],NoAnnoList(List([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons6\"")),NoAnnoList(Int("2"))]))]))
 						IStrategoTerm current = rhs.getSubterm(0);

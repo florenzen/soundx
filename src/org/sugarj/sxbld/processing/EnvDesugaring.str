@@ -55,7 +55,7 @@ strategies
 	 */
     sxbld-env-decls-to-stratego(|term, key) =
     	<trm-explode> term => stratego-alist;
-    	<sxbld-env-prefix-name> (<conc-strings> ("-", key)) => strategy-name;
+    	<conc-strings> ("sx-", key) => strategy-name;
     	![transformation-elem(
     		Strategies([SDefNoArgs(strategy-name, Build(stratego-alist))])
     	 )]
