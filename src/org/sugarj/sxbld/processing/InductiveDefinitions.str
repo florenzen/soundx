@@ -51,21 +51,9 @@ strategies
      */
 	sxbld-analyze-named-infrule-to-abs =
 		?SXInferenceRule(premises, _, concl);
-		<collect-all(sxbld-analyze-is-judgement, conc)> premises => premises-list;
+		<collect-all(sx-is-judgement, conc)> premises => premises-list;
 		!SXInfRule(premises-list, concl)
 
-	/**
-	 * Checks if an aterm is a judgement
-	 *
-	 * A judgement has a constructor named SXJudgement<number>
-	 *
-	 * @type a -> a
-	 */
-	sxbld-analyze-is-judgement =
-		?c#(_); where(<string-starts-with(|"SXJudgement")> c) +
-		?SXNeq(_, _);
-		?SXGetInterface(_, _)
-	
 	/**
 	 * Adds an inference rule to the environment
 	 *

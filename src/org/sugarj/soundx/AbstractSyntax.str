@@ -67,9 +67,34 @@ signature constructors
 
 strategies
 	/**
-	 * Checks if term is an SXEq judgement
+	 * Checks if an aterm is a judgement
 	 *
-	 * @type SXJudgement -> _
+	 * A judgement has a constructor named SXJudgement<number> or
+	 * is one of the primitive judgement SXNeq, SXGetInterface.
+	 *
+	 * @type a -> a
+	 */
+	sx-is-judgement =
+		where(sx-is-ind-def-judgement) +
+		?SXNeq(_, _) +
+		?SXGetInterface(_, _)
+
+	/**
+	 * Checks if an aterm is an inductively defined judgement.
+	 *
+	 * It returns the name of the judgement and ist arguments.
+	 *
+	 * @type a -> (String, List(SXExpr))
+	 */
+	sx-is-ind-def-judgement =
+		?c#(args);
+		<string-starts-with(|"SXJudgement")> c;
+		!(c, args)
+
+	/**
+	 * Checks if aterm is an SXEq judgement
+	 *
+	 * @type a -> a
 	 */
 	sx-is-eq-judgement =
 		?SXEq(_, _)
@@ -137,4 +162,6 @@ signature constructors
 
 	SXFalse: SXBool
 	SXTrue:  SXBool
-
+	
+	SXLeft:  a -> SXEither(a, b)
+	SXRight: b -> SXEither(a, b)
