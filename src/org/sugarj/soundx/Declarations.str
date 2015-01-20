@@ -1,0 +1,21 @@
+/**
+ * All the declarations of a base language definition and of extensions
+ * set to fail such that they can be referred to.
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/soundx/Declarations
+
+/**
+ * Declarations defined in the base language
+ */
+strategies
+	sx-inference-rules = fail
+	sx-ToplevelDeclaration = fail
+	sx-interface-judgement = fail
+	sx-cons-names = fail
+	sx-base-file-ext = fail
+	sx-extensible-file-ext = fail
+	sx-body-decs = fail
+	sx-namespace-dec = fail
+	sx-import-dec = fail
