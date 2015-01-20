@@ -24,20 +24,28 @@ strategies
 	 * @type (List(SXDeriv), List(SXInfRule), SXJudgement) -> SXEither(List(SXDeriv), SXDeriv)
 	 */
 	sx-res-build-derivation =
-		id
+		?(asms, inf-rules, judg);
+		<sx-vars> asms => vars-asms;
+		sx-res-empty-store => store;
+		<sx-res-derive-answers(|vars-asms)> (asms, inf-rules, store, judg) => answers;
+		<sx-res-sub-variables(|vars-asms)> answers => answers1;
+		if !answers1; ?[answer@(store, deriv)] then
+			<sx-is-failure-deriv> deriv < !SXLeft(answers1) + !SXRight(answer)
+		else
+			!SXLeft(answers1)
+		end
 
 	/**
 	 * Derives a list of answers (pair of derivation and store) for a goal
 	 *
-	 * @param vars List(SXMetaVar)
 	 * @param vars-asms List(SXMetaVar)
 	 *
 	 * @type (List(SXDeriv), List(SXInfRule), SXStore, SXJudgement) -> List(SXAnswer)
 	 */
-	sx-res-derive-answers(|vars, vars-asms) =
-		// TODO
+	sx-res-derive-answers(|vars-asms) =
+		// TODO SXGetInterface
 		fail
-	sx-res-derive-answers(|vars, vars-asms) =
+	sx-res-derive-answers(|vars-asms) =
 		// Inequality judgement
 		?(asms, inf-rules, store, judg@SXNeq(expr1, expr2));
 		<sx-res-propagate(|vars-asms)> ([judg], store) => (ok, store1);
@@ -48,11 +56,11 @@ strategies
 		end => answers-constr;
 		<sx-res-derive-by-asm(|vars-asms)> (asms, store, judg) => answers-asm;
 		<sx-res-filter-answers> (<conc> (answers-constr, answers-asm))
-	sx-res-derive-answers(|vars, vars-asms) =
+	sx-res-derive-answers(|vars-asms) =
 		// Inductively defined judgement
 		?(asms, inf-rules, store, judg);
 		<sx-is-ind-def-judgement> judg => (name, args);
-		<sx-res-possible-rules(|vars, vars-asms)> (inf-rules, judg, store) => candidates;
+		<sx-res-possible-rules(|vars-asms)> (inf-rules, judg, store) => candidates;
 		let map-s1 =
 			{ premises, name, eqs:
 				?(premises, name, eqs);
@@ -68,7 +76,7 @@ strategies
 						let map-accum-s(|store2) =
 							{ premise:
 								?premise;
-								<sx-res-derive-answers(|vars, vars-asms)>
+								<sx-res-derive-answers(|vars-asms)>
 									(asms, inf-rules, store2, premise) 
 							}
 						in
@@ -146,16 +154,16 @@ strategies
 	 * @type (List(SXInfRule), SXJudgement, SXStore)
 	 *       -> List((List(SXJudgement), String, SXStore))
 	 */
-	sx-res-possible-rules(|vars, vars-asms) =
+	sx-res-possible-rules(|vars-asms) =
 		?([], judg, store); ![]
-	sx-res-possible-rules(|vars, vars-asms) =
+	sx-res-possible-rules(|vars-asms) =
 		?([inf-rule|inf-rules], judg, store);
  		<sx-fresh-inf-rule> inf-rule => rule-fresh;
  		<sx-vars> rule-fresh => vars-rule;
  		<sx-vars> judg => vars-judg;
  		<diff> (<union> (vars-rule, vars-judg), vars-asms) => vars-unify;
  		<sx-unify(|vars-unify)> (<sx-concl> rule-fresh, judg) => result;
- 		<sx-res-possible-rules(|vars, vars-asms)> inf-rules => candidates;
+ 		<sx-res-possible-rules(|vars-asms)> inf-rules => candidates;
  		if !result; SXTrue() then
  			<sx-inf-rule-premises> rule-fresh => premises;
  			<sx-inf-rule-premises> rule-fresh => name;
@@ -172,12 +180,30 @@ strategies
 	 */
 	sx-res-filter-answers =
 		?answers;
-		<filter(not(sx-is-failure-deriv))> answers => answers-valid;
+		let filter-s =
+			{ store, deriv:
+				?(store, deriv);
+				<not(sx-is-failure-deriv)> deriv
+			}
+		in
+			<filter(not(sx-is-failure-deriv))> answers
+		end  => answers-valid;
 		if !answers-valid; ?[] then
 			!answers
 		else
 			!answers-valid
 		end
+
+	/**
+	 * Solves the constraint store and apply solution to the derivation
+	 *
+	 * @type SXAnswer -> SXAnswer
+	 */
+	sx-res-sub-variables(|vars-asms)=
+		?(store, deriv);
+		<sx-res-solve(|vars-asms)> store => sub;
+		<sx-sub-apply> (sub, deriv) => deriv1;
+		!(store, deriv1)
 
 /**
  * Constraint store
@@ -380,11 +406,11 @@ strategies
 	 */
 	sx-res-remove-conflicting-neqs =
 		?[]
-	sx-remove-conflicting-neqs =
+	sx-res-remove-conflicting-neqs =
 		?[constr@SXEq(_, _) | constrs];
 		<sx-res-remove-conflicting-neqs> constrs => constrs1;
 		![constr|constrs1]
-	sx-remove-conflicting-neqs =
+	sx-res-remove-conflicting-neqs =
 		?[constr@SXGetInterface(_, _) | constrs];
 		<sx-res-remove-conflicting-neqs> constrs => constrs1;
 		![constr|constrs1]
