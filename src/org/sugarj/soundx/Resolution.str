@@ -12,6 +12,173 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Unification
 		org/sugarj/soundx/Substitution
 
+
+/**
+ * Derivation building
+ */
+strategies
+	/**
+	 * Builds a derivation given a list of assumptions, inference rules,
+	 * and a goal judgement
+	 *
+	 * @type (List(SXDeriv), List(SXInfRule), SXJudgement) -> SXEither(List(SXDeriv), SXDeriv)
+	 */
+	sx-res-build-derivation =
+		id
+
+	/**
+	 * Derives a list of answers (pair of derivation and store) for a goal
+	 *
+	 * @param vars List(SXMetaVar)
+	 * @param vars-asms List(SXMetaVar)
+	 *
+	 * @type (List(SXDeriv), List(SXInfRule), SXStore, SXJudgement) -> List(SXAnswer)
+	 */
+	sx-res-derive-answers(|vars, vars-asms) =
+		// TODO
+		fail
+	sx-res-derive-answers(|vars, vars-asms) =
+		// Inequality judgement
+		?(asms, inf-rules, store, judg@SXNeq(expr1, expr2));
+		<sx-res-propagate(|vars-asms)> ([judg], store) => (ok, store1);
+		if !ok; ?SXTrue() then
+			![(store1, SXDerivFail(judg))]
+		else
+			![(store1, SXDerivInst([], "Neq", judg))]
+		end => answers-constr;
+		<sx-res-derive-by-asm(|vars-asms)> (asms, store, judg) => answers-asm;
+		<sx-res-filter-answers> (<conc> (answers-constr, answers-asm))
+	sx-res-derive-answers(|vars, vars-asms) =
+		// Inductively defined judgement
+		?(asms, inf-rules, store, judg);
+		<sx-is-ind-def-judgement> judg => (name, args);
+		<sx-res-possible-rules(|vars, vars-asms)> (inf-rules, judg, store) => candidates;
+		let map-s1 =
+			{ premises, name, eqs:
+				?(premises, name, eqs);
+				<sx-res-propagate(|vars-asms)> (eqs, store) => (ok, store1);
+				if !ok; ?SXTrue() then
+					let map-s2 =
+						{ store3, deriv, store4:
+							?(store3, derivs);
+							<sx-res-remove-conflicting-neqs> store3 => store4;
+							![(store4, SXDerivInst(derivs, name, judg))]
+						}
+					in
+						let map-accum-s(|store2) =
+							{ premise:
+								?premise;
+								<sx-res-derive-answers(|vars, vars-asms)>
+									(asms, inf-rules, store2, premise) 
+							}
+						in
+							<sx-mapconcat-accuml(map-accum-s|store1)> premises => answers;
+							<mapconcat(map-s2)> answers
+						end 
+					end
+				else
+					![]
+				end
+			}
+		in
+			<mapconcat(map-s1)> candidates
+		end => answers-inf-rules;
+		<sx-res-derive-by-asm(|vars-asms)> (asms, store, judg) => asnwers-asms
+
+	/**
+	 * Tries to derive answers for a judgement using only the assumptions
+	 *
+	 * @param vars List(SXMetaVar)
+	 *
+	 * @type (List(SXDeriv), SXStore, SXJudgement) -> List(SXAnswer)
+	 */
+	sx-res-derive-by-asm(|vars-asms) =
+		?(asms, store, judg);
+		<sx-res-possible-assumptions(|vars-asms)> (asms, judg) => candidates;
+		let map-s =
+			{ deriv, eqs, ok, store1:
+				?(deriv,eqs);
+				<sx-res-propagate(|vars-asms)> (eqs, store) => (ok, store1);
+				if !ok; ?SXTrue() then
+					![(store1, deriv)]
+				else
+					![]
+				end
+			}
+		in
+			<mapconcat(map-s)> candidates
+		end
+
+	/**
+	 * Finds assumptions that possible solve the goal judgement
+	 *
+	 * The result is a list of pairs of assumptions and constraints.
+	 * The constraints must hold for the accompagnying assumption to
+	 * possibly solve the goal.
+	 *
+	 * @param vars-asm List(SXMetaVars)
+	 *
+	 * @type (List(SXDeriv), SXJudgement) -> List((SXDeriv, SXStore))
+	 */
+	sx-res-possible-assumptions(|vars-asms) =
+		?([], judg); ![]
+	sx-res-possible-assumptions(|vars-asms) =
+		?([deriv|derivs], judg);
+		<diff> (<sx-vars> judg, vars-asms) => vars-unify;
+		<sx-unify(|vars-unify)> (<sx-concl> deriv, judg) => result;
+		<sx-res-possible-assumptions(|vars-asms)> (derivs, judg) => candidates;
+		if !result; ?SXUnificationFailure(_) then
+			!candidates
+		else
+			![(deriv, <sx-res-sub-to-eqs> result) | candidates]
+		end
+
+	/**
+	 * Finds inference rules that possibly solve the given goal
+	 *
+	 * The result is a list of tuples of the premises to satisfy, the
+	 * rule name, and constraints. The constraints must hold for
+	 * this rule to possible prove a derivation of the goal.
+	 *
+	 * @param vars List(SXMetaVar)
+	 * @param vars-asm List(SXMetaVar)
+	 *
+	 * @type (List(SXInfRule), SXJudgement, SXStore)
+	 *       -> List((List(SXJudgement), String, SXStore))
+	 */
+	sx-res-possible-rules(|vars, vars-asms) =
+		?([], judg, store); ![]
+	sx-res-possible-rules(|vars, vars-asms) =
+		?([inf-rule|inf-rules], judg, store);
+ 		<sx-fresh-inf-rule> inf-rule => rule-fresh;
+ 		<sx-vars> rule-fresh => vars-rule;
+ 		<sx-vars> judg => vars-judg;
+ 		<diff> (<union> (vars-rule, vars-judg), vars-asms) => vars-unify;
+ 		<sx-unify(|vars-unify)> (<sx-concl> rule-fresh, judg) => result;
+ 		<sx-res-possible-rules(|vars, vars-asms)> inf-rules => candidates;
+ 		if !result; SXTrue() then
+ 			<sx-inf-rule-premises> rule-fresh => premises;
+ 			<sx-inf-rule-premises> rule-fresh => name;
+ 			<sx-res-sub-to-eqs> result => eqs;
+ 			![(premises, name, eqs) | candidates]
+ 		else
+ 			!candidates
+ 		end
+ 		
+	/**
+	 * Picks the first non failure answer or keeps all (failure) answers
+	 *
+	 * @type List(SXAnswer) -> List(SXAnswer)
+	 */
+	sx-res-filter-answers =
+		?answers;
+		<filter(not(sx-is-failure-deriv))> answers => answers-valid;
+		if !answers-valid; ?[] then
+			!answers
+		else
+			!answers-valid
+		end
+
 /**
  * Constraint store
  */
@@ -205,3 +372,86 @@ strategies
 		else
 			!name1
 		end
+
+	/**
+	 * Removes inequalities that cannot be satisfied from the store
+	 *
+	 * @type SXStore -> SXStore
+	 */
+	sx-res-remove-conflicting-neqs =
+		?[]
+	sx-remove-conflicting-neqs =
+		?[constr@SXEq(_, _) | constrs];
+		<sx-res-remove-conflicting-neqs> constrs => constrs1;
+		![constr|constrs1]
+	sx-remove-conflicting-neqs =
+		?[constr@SXGetInterface(_, _) | constrs];
+		<sx-res-remove-conflicting-neqs> constrs => constrs1;
+		![constr|constrs1]
+	sx-res-remove-conflicting-neqs =
+		?[constr@SXNeq(expr1, expr2) | constrs];
+		<sx-is-metavar> expr1;
+		<sx-is-metavar> expr2;
+		<sx-res-remove-conflicting-neqs> constrs => constrs1;
+		if <eq> (expr1, expr2) then
+			!constrs1
+		else
+			![constr|constrs1]
+		end
+	sx-res-remove-conflicting-neqs =
+		?[constr@SXNeq(expr1, expr2) | constrs];
+		<sx-is-metavar> expr1;
+		<not(sx-is-metavar)> expr2;
+		![constr | <sx-res-remove-conflicting-neqs> constrs]
+	sx-res-remove-conflicting-neqs =
+		?[constr@SXNeq(expr1, expr2) | constrs];
+		<not(sx-is-metavar)> expr1;
+		<sx-is-metavar> expr2;
+		![constr | <sx-res-remove-conflicting-neqs> constrs]
+	sx-res-remove-conflicting-neqs =
+		?[constr@SXNeq(expr1, expr2) | constrs];
+		<not(sx-is-metavar)> expr1;
+		<not(sx-is-metavar)> expr2;
+		<sx-res-remove-conflicting-neqs> constrs => constrs1;
+		if <eq> (expr1, expr2) then
+			!constrs1
+		else
+			![constr|constrs1]
+		end
+		
+/**
+ * Various
+ */
+strategies
+	/**
+	 * A combination of map-accuml and mapconcat
+	 *
+	 * @param s(|a) b -> List((a, List(c)))
+	 * @param acc a
+	 *
+	 * @type List(b) -> List((a, List(c)))))
+	 */
+	sx-mapconcat-accuml(s|acc) =
+		?[]; ![(acc,[])]
+	sx-mapconcat-accuml(s|acc) =
+		?[x|xs];
+		let map-s1 =
+			{ acc1, x1:
+				?(acc1, x1);
+				let map-s2 =
+					{ acc2, xs2:
+						?(acc2, xs2);
+						![(acc2, [x1|xs2])]
+					}
+				in
+					<mapconcat(map-s2)> (<sx-mapconcat-accuml(s|acc1)> xs)
+				end
+			}
+		in
+			!x; s(|acc); mapconcat(map-s1) 
+		end
+		// The code is a conversion of the list comprehension
+		// [ (acc, x1:xs2)
+		// | (acc1, x1) <- f acc x
+        // , (acc2, xs2) <- concatMapAccumL f acc1 xs ]
+        // from the Haskell prototype

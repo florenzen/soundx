@@ -51,11 +51,60 @@ strategies
 	sx-metavar-name:
 		SXMetaVarGen(name, num) -> <conc-strings> (name, <int-to-string> num)
 
+	/**
+	 * Returns a fresh variant of a meta variable
+	 *
+	 * The result is always an SXMetaVarGen(name, num).
+	 *
+	 * @type SXMetaVar -> SXMetaVar
+	 */
+	sx-fresh-metavar =
+		?SXMetaVar(name);
+		<newname> ""; string-to-int => num;
+		!SXMetaVarGen(name, num)
+	sx-fresh-metavar =
+		?SXMetaVarGen(name, _);
+		<newname> ""; string-to-int => num;
+		!SXMetaVarGen(name, num)
+
 /**
  * Inference rules
  */
 signature constructors
-	SXInfRule: List(SXJudgement) * SXJudgement -> SXAbsInfRule
+	SXInfRule: List(SXJudgement) * String * SXJudgement -> SXAbsInfRule
+
+strategies
+	/**
+	 * Returns a fresh variant of an inference rule
+	 *
+	 * @type SXInfRule -> SXInfRule
+	 */
+	sx-fresh-inf-rule =
+		topdown(try(sx-fresh-metavar))
+
+	/**
+	 * Returns the conclusions of an inference rule.
+	 *
+	 * @type SXInfRule -> SXJudgement
+	 */
+	sx-concl =
+		?SXInfRule(_, _, concl); !concl
+
+	/**
+	 * Returns the name of an inference rule
+	 *
+	 * @type SXInfRule -> String
+	 */
+	sx-inf-rule-name =
+		?SXInfRule(_, name, _); !name
+
+	/**
+	 * Returns the premises of an inference rule
+	 *
+	 * @type SXInfRule -> List(SXJudgement)
+	 */
+	sx-inf-rule-premises =
+		?SXInfRule(premises, _, _); !premises
 
 /**
  * Judgements
@@ -153,6 +202,17 @@ strategies
 		SXDerivAsm(concl) -> concl
 	sx-concl:
 		SXDerivFail(concl) -> concl
+
+	/**
+	 * Checks if a derivation is a failure derivation
+	 *
+	 * A derivation is a failure derivation if it contains at
+	 * least one SXDerivFail node.
+	 *
+	 * @type SXDeriv -> SXDeriv
+	 */
+	sx-is-failure-deriv =
+		where(collect-one(?SXDerivFail(_)))
 
 /**
  * Various
