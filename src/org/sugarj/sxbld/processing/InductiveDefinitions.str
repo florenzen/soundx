@@ -50,9 +50,9 @@ strategies
      * @type SXInferenceRule -> SXInfRule
      */
 	sxbld-analyze-named-infrule-to-abs =
-		?SXInferenceRule(premises, _, concl);
+		?SXInferenceRule(premises, name, concl);
 		<collect-all(sx-is-judgement, conc)> premises => premises-list;
-		!SXInfRule(premises-list, concl)
+		!SXInfRule(premises-list, name, concl)
 
 	/**
 	 * Adds an inference rule to the environment
