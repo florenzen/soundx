@@ -167,7 +167,7 @@ strategies
 			}
 		in
 			new-hashtable => sub1;
-			list-fold(fold-s|sub1)
+			<list-fold(fold-s|sub1)> alist
 		end
 
     /**

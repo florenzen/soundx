@@ -60,7 +60,8 @@ strategies
 		if <elem> (var1, vars) then
 			<sx-vars> expr2 => vars-expr2;
 			if <elem> (var1, vars-expr2) then
-				id
+				// TODO: better error message
+				!SXUnificationFailure("occurs check failed")
 			else
 				<sx-sub-singleton> (var1, expr2) => sub1;
 				<map(\pair -> <sx-sub-apply> (sub1, pair)\)> pairs => pairs1;
