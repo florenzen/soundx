@@ -38,6 +38,13 @@ strategies
 		?ast;
 		sxbld-extract-errors;
 		map(!(ast, <id>))
+	// TODO: there is the following problem: if there is an error in some
+	// declaration in the base language definition no more grammars are produced.
+	// As a consequence, parse errors may occur later since the input depends on
+	// the previous syntax definitions. But if there is a parse error,
+	// constraint-error is not executed and the former error which caused
+	// parsing to fail is not reported. This can only be repaired in the SugarJ
+	// driver.
 
 	/**
 	 * Starts the analysis only if failed is not set
