@@ -49,7 +49,6 @@ strategies
      * @type Grammar -> List(Grammar)
      */
     sxbld-analyze-grammar-elem =
-    	// debug(!"INPUT ANA GRM ");
         ((sxbld-analyze-sorts +
           sxbld-analyze-cf-syntax +
           sxbld-analyze-lex-syntax +
@@ -60,9 +59,8 @@ strategies
           sxbld-analyze-cf-restrictions) <+
          sxbld-analyze-unsupported(|"Unsupported SDF 2 section"));
         (?[_|_] <+ ![<id>])
-        //;debug(!"RESULT OF ANA GRM ")
 
-	// TODO: restrictions, priorities must also be doubled like
+	// TODO: priorities must also be doubled like
 	// productions
 
 	/**

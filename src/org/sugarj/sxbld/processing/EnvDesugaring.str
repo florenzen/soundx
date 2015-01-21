@@ -45,7 +45,6 @@ strategies
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems,
   	    	extension-elems-body-dec, extension-elems-namespace-dec,
   	    	extension-elems-import-dec))
-  	    //;debug(!"ALL EXT ELEMS ")
 
 	/**
 	 * Generates a Stratego definition key = term
@@ -171,7 +170,6 @@ strategies
     	  	}
     	  in
     	  	<mapconcat(map-s)> decs
-    	    //<map(\(_, symbol) -> prod([symbol], sort(name), no-attrs())\)> decs => prods;
     	  end => prods;
     	  ![grammar-elem(context-free-syntax(prods))]
     	 ) <+ ![]) => grm;
@@ -204,7 +202,6 @@ strategies
 		  	}
 		  in
 		  	<mapconcat(map-s)> decs
-    	  	//<map(\(_, _, symbol) -> prod([symbol], sort(name), no-attrs())\)> decs => prods
     	  end => prods;
     	  ![grammar-elem(context-free-syntax(prods))]
     	 ) <+ ![]) => grm;
