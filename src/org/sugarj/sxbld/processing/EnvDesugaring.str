@@ -35,7 +35,7 @@ strategies
 	     ) <+ ![]) => trans-intf-judg;
 	    <sxbld-env-get> "cons-names" => cons-names;
 	    sxbld-env-decls-to-stratego(|cons-names, "cons-names") => trans-cons-names;
-	    <sxbld-env-get; hashtable-getlist> "inference-rules" => inf-rules;
+	    <sxbld-env-get; hashtable-values> "inference-rules" => inf-rules;
 	    sxbld-env-decls-to-stratego(|inf-rules, "inference-rules") => trans-infrules;
 	    <conc> (trans-intf-judg, trans-cons-names, trans-infrules,
 	            trans-base-file-ext, trans-ext-file-ext) => transformation-elems;
