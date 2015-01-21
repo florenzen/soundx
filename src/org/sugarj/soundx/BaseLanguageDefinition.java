@@ -535,7 +535,7 @@ public class BaseLanguageDefinition {
 		IStrategoTerm imports = term.getSubterm(1);
 		StrategoList body = (StrategoList) term.getSubterm(2);
 		String cfSection = "exports(context-free-syntax([prod([sort(\""
-				+ baseLanguageName + toplevelDeclarationNonterminal
+				+ baseLanguageName + "Gnd" + toplevelDeclarationNonterminal
 				+ "\")], sort(\"ToplevelDeclaration\"), no-attrs())]))";
 		IStrategoTerm cf = ATermCommands.atermFromString(cfSection);
 		IStrategoTerm newBody = new StrategoList(cf, body,

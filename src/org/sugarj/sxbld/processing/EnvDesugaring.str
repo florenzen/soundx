@@ -9,6 +9,7 @@ imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/sxbld/processing/MetaExplode
         org/sugarj/sxbld/processing/SDF2
+        org/sugarj/sxbld/processing/SortPrefixing
 
 imports org/sugarj/languages/SXBld
 
@@ -44,6 +45,7 @@ strategies
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems,
   	    	extension-elems-body-dec, extension-elems-namespace-dec,
   	    	extension-elems-import-dec))
+  	    //;debug(!"ALL EXT ELEMS ")
 
 	/**
 	 * Generates a Stratego definition key = term
@@ -156,8 +158,21 @@ strategies
     sxbld-env-make-toplevel-dec-body =
     	sxbld-env-get-body-decs => decs;
     	((sxbld-env-is-toplevel-declaration-defined;
-    	  sxbld-env-get-toplevel-declaration; sxbld-env-prefix-name => name;
-    	  <map(\(_, symbol) -> prod([symbol], sort(name), no-attrs())\)> decs => prods;
+    	  sxbld-env-get-toplevel-declaration => name;
+    	  <sxbld-env-prefix-name> name => meta-name;
+		  <conc-strings> ("Gnd", name); sxbld-env-prefix-name => gnd-name;
+    	  let map-s =
+    	  	{ symbol, gnd-symbol, meta-symbol:
+    	  		?(_, symbol);
+    	  		<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => gnd-symbol;
+				<sxbld-prefix-all-sorts-base-lang> symbol => meta-symbol;
+				![prod([gnd-symbol], sort(gnd-name), no-attrs()),
+				  prod([meta-symbol], sort(meta-name), no-attrs())]
+    	  	}
+    	  in
+    	  	<mapconcat(map-s)> decs
+    	    //<map(\(_, symbol) -> prod([symbol], sort(name), no-attrs())\)> decs => prods;
+    	  end => prods;
     	  ![grammar-elem(context-free-syntax(prods))]
     	 ) <+ ![]) => grm;
     	<map(\(name, _) -> name\)> decs => cons-names;
@@ -176,8 +191,21 @@ strategies
 	sxbld-env-make-toplevel-dec-import =
 		sxbld-env-get-import-decs => decs;
     	((sxbld-env-is-toplevel-declaration-defined;
-    	  sxbld-env-get-toplevel-declaration; sxbld-env-prefix-name => name;
-    	  <map(\(_, _, symbol) -> prod([symbol], sort(name), no-attrs())\)> decs => prods;
+    	  sxbld-env-get-toplevel-declaration => name;
+    	  <sxbld-env-prefix-name> name => meta-name;
+		  <conc-strings> ("Gnd", name); sxbld-env-prefix-name => gnd-name;
+		  let map-s =
+		  	{ symbol, gnd-symbol, meta-symbol:
+		  		?(_, _, symbol);
+		  		<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => gnd-symbol;
+				<sxbld-prefix-all-sorts-base-lang> symbol => meta-symbol;
+				![prod([gnd-symbol], sort(gnd-name), no-attrs()),
+				  prod([meta-symbol], sort(meta-name), no-attrs())]
+		  	}
+		  in
+		  	<mapconcat(map-s)> decs
+    	  	//<map(\(_, _, symbol) -> prod([symbol], sort(name), no-attrs())\)> decs => prods
+    	  end => prods;
     	  ![grammar-elem(context-free-syntax(prods))]
     	 ) <+ ![]) => grm;
     	<map(\(name, index, _) -> (name, index)\)> decs => cons-names-indices;
@@ -192,10 +220,15 @@ strategies
 	sxbld-env-make-toplevel-dec-namespace =
 		if sxbld-env-is-namespace-dec-defined then
 			sxbld-env-get-namespace-dec => (cons-name, index, symbol);
+			<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => gnd-symbol;
+			<sxbld-prefix-all-sorts-base-lang> symbol => meta-symbol;
 			((sxbld-env-is-toplevel-declaration-defined;
-			  sxbld-env-get-toplevel-declaration; sxbld-env-prefix-name => name;
+			  sxbld-env-get-toplevel-declaration => name;
+			  <sxbld-env-prefix-name> name => meta-name;
+			  <conc-strings> ("Gnd", name); sxbld-env-prefix-name => gnd-name;
 			  ![grammar-elem(context-free-syntax([
-			  	  prod([symbol], sort(name), no-attrs())
+			  	  prod([meta-symbol], sort(meta-name), no-attrs()),
+			  	  prod([gnd-symbol], sort(gnd-name), no-attrs())
 			    ]))]
 			 ) <+ ![]) => grm;
 			sxbld-env-decls-to-stratego(|(cons-name, index), "namespace-dec") => trans;

@@ -49,6 +49,7 @@ strategies
      * @type Grammar -> List(Grammar)
      */
     sxbld-analyze-grammar-elem =
+    	// debug(!"INPUT ANA GRM ");
         ((sxbld-analyze-sorts +
           sxbld-analyze-cf-syntax +
           sxbld-analyze-lex-syntax +
@@ -59,6 +60,7 @@ strategies
           sxbld-analyze-cf-restrictions) <+
          sxbld-analyze-unsupported(|"Unsupported SDF 2 section"));
         (?[_|_] <+ ![<id>])
+        //;debug(!"RESULT OF ANA GRM ")
 
 	// TODO: restrictions, priorities must also be doubled like
 	// productions
@@ -214,8 +216,8 @@ strategies
 			if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-body-dec")> attributes then
 				<sxbld-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
 				<sxbld-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
-				<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
-				<sxbld-env-add-body-dec> (cons-name, prefixed-symbol)
+				//<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
+				<sxbld-env-add-body-dec> (cons-name, symbol)
 			else
 				id
 			end)
@@ -240,8 +242,8 @@ strategies
 					<sxbld-sdf2-get-args-from-aterm-attribute> namespace-attrib => namespace-args;
 					if ?[fun(unquoted(label))] then
 						if <sxbld-sdf2-find-index-of-labelled-symbol(|label)> symbols => index then
-							<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
-							<sxbld-env-set-namespace-dec> (cons-name, index, prefixed-symbol)
+							//<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
+							<sxbld-env-set-namespace-dec> (cons-name, index, symbol)
 						else
 							<sxbld-analyze-fail(|"Label of `sx-namespace-dec' must be attached to symbol on lhs")> label
 						end
@@ -270,8 +272,8 @@ strategies
 				<sxbld-sdf2-get-args-from-aterm-attribute> import-attrib => import-args;
 				if ?[fun(unquoted(label))] then
 					if <sxbld-sdf2-find-index-of-labelled-symbol(|label)> symbols => index then
-						<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
-						<sxbld-env-add-import-dec> (cons-name, index, prefixed-symbol)
+						//<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
+						<sxbld-env-add-import-dec> (cons-name, index, symbol)
 					else
 						<sxbld-analyze-fail(|"Label of `sx-import-dec' must be attached to symbol on lhs")> label
 					end
