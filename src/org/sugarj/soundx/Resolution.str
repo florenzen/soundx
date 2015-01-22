@@ -63,12 +63,12 @@ strategies
 		// Inductively defined judgement
 		?(asms, inf-rules, store, judg);
 		<debug(!"GOAL ")> judg;
-		<debug(!"WITH STORE ")> store;
+		//<debug(!"WITH STORE ")> store;
 		//<debug(!"STORE ")> store;
 		<sx-is-ind-def-judgement> judg => (name, args);
 		//debug(!"IS IND DEF JUDG ");
 		<sx-res-possible-rules(|vars-asms)> (inf-rules, judg, store) => candidates;
-		where(map(\(r,n,st)->(n, st, r)\); debug(!"POSSIBLE RULES "));
+		where(map(\(r,n,st)->(n)\); debug(!"POSSIBLE RULES "));
 		//debug(!"POSSIBLE INF RULES");
 		let map-s1 =
 			{ premises, name, eqs, ok, store1, answers:
@@ -76,7 +76,7 @@ strategies
 				<sx-res-propagate(|vars-asms)> (eqs, store) => (ok, store1);
 				if !ok; ?SXTrue() then
 					<debug(!"TRYING ")> name;
-					<debug(!"WITH STORE ")> store1;
+					//<debug(!"WITH STORE ")> store1;
 					let map-s2 =
 						{ store3, deriv, store4:
 							?(store3, derivs);
@@ -108,8 +108,13 @@ strategies
 			//; debug(!"MAPC S1 RESULT")
 		end => answers-inf-rules;
 		//debug(!"ANSWERS IFN RULES");
+		if !answers-inf-rules; ?[] then
+			![(store, SXDerivFail(judg))]
+		else
+			!answers-inf-rules
+		end => answers-inf-rules1;
 		<sx-res-derive-by-asm(|vars-asms)> (asms, store, judg) => answers-asms;
-		<sx-res-filter-answers> (<conc> (answers-inf-rules, answers-asms))
+		<sx-res-filter-answers> (<conc> (answers-inf-rules1, answers-asms))
 		;debug(!"ANSWERS TOTAL")
 
 	/**
@@ -277,7 +282,7 @@ strategies
 	 * @type SXStore -> (SXBool, SXStore)
 	 */
 	sx-res-simplify(|vars-asm) =
-		debug(!"ENTERED SIMPLIFY ");
+		//debug(!"ENTERED SIMPLIFY ");
 		?store;
 		<sx-res-partition-store> store => (eqs, neqs);
 		//debug(!"partitioned");
@@ -289,7 +294,7 @@ strategies
 			//debug(!"FAILED");
 			!(SXFalse(), store)
 		else
-			where(hashtable-getlist; debug(!"SUCCEEDED"));
+			//where(hashtable-getlist; debug(!"SUCCEEDED"));
 			<sx-sub-apply> (result, neqs) => neqs1;
 			//where(debug(!"NEQS 1 "));
 			<sx-res-sub-to-eqs> result => eqs1;
