@@ -7,6 +7,8 @@ module org/sugarj/soundx/AbstractSyntax
 
 imports org/sugarj/sxbld/processing/MetaExplode
 
+imports org/sugarj/soundx/Substitution
+
 
 /**
  * Metavariables
@@ -80,7 +82,26 @@ strategies
 	 * @type SXInfRule -> SXInfRule
 	 */
 	sx-fresh-inf-rule =
-		topdown(try(sx-fresh-metavar))
+		?inf-rule;
+		let fresh =
+			{ expr, sub, var, sub1:
+				debug(!"INN ");
+				?(expr, sub);
+				debug(!"FRESH ");
+				<sx-is-metavar> expr;
+				if <sx-sub-defines> (sub, expr) then
+					!(<sx-sub-apply> (sub, expr), sub)
+				else
+					<sx-fresh-metavar> expr => var;
+					<sx-sub-compose> (<sx-sub-singleton> (expr, var), sub) => sub1;
+					!(var, sub1)
+				end
+			}
+		in
+			sx-sub-empty => sub-empty;
+			<thread-bottomup(try(fresh))> (inf-rule, sub-empty) => (rule-fresh, _);
+			!rule-fresh
+		end
 
 	/**
 	 * Returns the conclusions of an inference rule.
