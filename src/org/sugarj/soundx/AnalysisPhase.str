@@ -14,6 +14,8 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Declarations
 		org/sugarj/soundx/Unification
 
+imports org/sugarj/languages/Sdf2 // DEVEL
+
 /**
  * Hook analysis into SugarJ
  */
@@ -26,9 +28,11 @@ strategies
 	 */
 	sx-analysis =
 		?SXFinished(decls) < !SXFinished(decls) +
-		(sx-env-add-toplevel-declaration;
+		(debug(!"CURRENT TOPLEVEL DECL ");
+		 sx-env-add-toplevel-declaration;
 		 if sx-is-last-toplevel-decl then
 		 	 sx-env-get-toplevel-declarations;
+		 	 debug(!"LIST OF TOPLEVEL DECLARATIONS ");
 		 	 sx-list-to-toplevel-decls => toplevel-decs;
 		 	 sx-context-analysis;
 		 	 
@@ -61,7 +65,7 @@ strategies
 		 	//sx-interface-judgement; debug(!"Interface judgement")
 		 	 )
 		 else
-		 	 ![]
+		 	 fail
 		 end)
 
 strategies
@@ -69,24 +73,42 @@ strategies
 		?toplevel-decls;
 		sx-inference-rules => inf-rules;
 		sx-interface-judgement => (tlds-pattern, intf-pattern, judg);
-		//<sx-vars> tlds-pattern => vars-tlds;
-		//<sx-unify(|vars-tlds)> (tlds-pattern, toplevel-decls) => result;
-		//!result; not(?SXUnificationFailure(_));
-		//<sx-sub-apply> (result, judg) => goal;
-		//debug(!"GOAL ");
-		!SXJudgement4(SXCons2(), STLCNat("1"), SXMetaVar("U")) => goal1;
+		<sx-vars> tlds-pattern => vars-tlds;
+		<sx-unify(|vars-tlds)> (tlds-pattern, toplevel-decls) => result;
+		!result; not(?SXUnificationFailure(_));
+		<sx-sub-apply> (result, judg) => goal;
+		//!SXJudgement4(SXCons2(), STLCNat("1"), SXMetaVar("U")) => goal;
+		//!SXJudgement4(SXCons2(), STLCAdd(STLCNat("1"), STLCNat("1")), SXMetaVar("U")) => goal;
+		//!SXJudgement4(SXCons3(SXCons2(),"x",SXCons0()), STLCVar("x"), SXMetaVar("U")) => goal;
+		//!SXJudgement4(SXCons3(SXCons3(SXCons2(), "x", SXCons0()), "y", SXCons0()), STLCVar("x"), SXMetaVar("U")) => goal;
+		//!SXJudgement4(SXCons3(SXCons3(SXCons3(SXCons2(), "b", SXCons0()), "x", SXCons0()), "y", SXCons0()), STLCVar("a"), SXMetaVar("U")) => goal;
 		debug(!"GOAL");
-		<sx-res-build-derivation> ([], inf-rules, goal1) => result-deriv;
+		<sx-res-build-derivation> ([], inf-rules, goal) => result-deriv;
 		debug(!"RESULT")
+		
 
-signature constructors
+
+signature constructors // DEVEL
 	SXJudgement4: a * a * a -> a
 	SXCons2:  a
 	STLCNat: a -> a
-
+	STLCAdd: a * a -> a
+	STLCVar: a -> a
+	SXCons0: a
+	SXCons3: a * a * a -> a
 strategies
 	/**
  	 * Checks if the current toplevel declaration is the last one
  	 */
 	sx-is-last-toplevel-decl =
 		prim("SUGARJ_is_last_toplevel_declaration")
+
+
+
+		// EXP w/ pp
+		// !'module("foo", [], [
+		// 	context-free-syntax([lit("a")],
+		// 	sort("A"),attrs([term(default(appl(unquoted("cons"),
+		// 	  [fun(quoted("\"A\""))])))]))]) => grammar;
+		// <ppgenerate> grammar => pptable;
+		// debug(!"PP TABLE ")
