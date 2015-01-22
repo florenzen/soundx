@@ -82,6 +82,13 @@ strategies
 		//!SXJudgement4(SXCons3(SXCons2(),"x",SXCons0()), STLCVar("x"), SXMetaVar("U")) => goal;
 		//!SXJudgement4(SXCons3(SXCons3(SXCons2(), "x", SXCons0()), "y", SXCons0()), STLCVar("x"), SXMetaVar("U")) => goal;
 		//!SXJudgement4(SXCons3(SXCons3(SXCons3(SXCons2(), "b", SXCons0()), "x", SXCons0()), "y", SXCons0()), STLCVar("a"), SXMetaVar("U")) => goal;
+		//!SXJudgement13("a", SXCons2()) => goal;
+		//!SXJudgement13("a", SXCons3(SXCons3(SXCons2(), "c", SXCons0()), "b", SXCons0())) => goal;
+		//!SXJudgement13("c", SXCons3(SXCons3(SXCons2(), "c", SXCons0()), "b", SXCons0())) => goal;
+		//!SXJudgement12(SXMetaVar("C"), SXCons2(), SXCons3(SXCons3(SXCons2(), "a", SXCons0()), "b", SXCons0())) => goal;
+		//!SXJudgement12(SXMetaVar("C"), SXCons3(SXCons2(),"c",SXCons0()), SXCons3(SXCons3(SXCons2(), "a", SXCons0()), "b", SXCons0())) => goal;
+		//!SXJudgement12(SXMetaVar("C"), SXCons3(SXCons3(SXCons2(),"c",SXCons0()),"d",SXCons0()), SXCons3(SXCons3(SXCons2(), "a", SXCons0()), "b", SXCons0())) => goal;
+		//!SXJudgement12(SXMetaVar("C"), SXCons3(SXCons3(SXCons2(),"c",SXCons0()),"a",SXCons0()), SXCons3(SXCons3(SXCons2(), "a", SXCons0()), "b", SXCons0())) => goal;
 		debug(!"GOAL");
 		<sx-res-build-derivation> ([], inf-rules, goal) => result-deriv;
 		debug(!"RESULT")
@@ -90,6 +97,9 @@ strategies
 
 signature constructors // DEVEL
 	SXJudgement4: a * a * a -> a
+	SXJudgement13: a * a -> a
+	SXJudgement12: a * a * a -> a
+
 	SXCons2:  a
 	STLCNat: a -> a
 	STLCAdd: a * a -> a

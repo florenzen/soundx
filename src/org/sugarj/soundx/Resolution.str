@@ -63,7 +63,7 @@ strategies
 		// Inductively defined judgement
 		?(asms, inf-rules, store, judg);
 		<debug(!"GOAL ")> judg;
-		//<debug(!"WITH STORE ")> store;
+		<debug(!"WITH STORE ")> store;
 		//<debug(!"STORE ")> store;
 		<sx-is-ind-def-judgement> judg => (name, args);
 		//debug(!"IS IND DEF JUDG ");
@@ -76,7 +76,7 @@ strategies
 				<sx-res-propagate(|vars-asms)> (eqs, store) => (ok, store1);
 				if !ok; ?SXTrue() then
 					<debug(!"TRYING ")> name;
-					//<debug(!"WITH STORE ")> store1;
+					<debug(!"WITH STORE ")> store1;
 					let map-s2 =
 						{ store3, deriv, store4:
 							?(store3, derivs);
@@ -97,6 +97,7 @@ strategies
 							//;debug(!"GOT ANSWERS 2")
 						end 
 					end
+					;where(<debug(!"FINISHED ")> name)
 				else
 					<debug(!"KICKED ")> name;
 					![]

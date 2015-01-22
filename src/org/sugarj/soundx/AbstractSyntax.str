@@ -85,9 +85,7 @@ strategies
 		?inf-rule;
 		let fresh =
 			{ expr, sub, var, sub1:
-				debug(!"INN ");
 				?(expr, sub);
-				debug(!"FRESH ");
 				<sx-is-metavar> expr;
 				if <sx-sub-defines> (sub, expr) then
 					!(<sx-sub-apply> (sub, expr), sub)
