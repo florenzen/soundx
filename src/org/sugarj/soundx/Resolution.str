@@ -184,7 +184,7 @@ strategies
  			!candidates 			
  		else
  			<sx-inf-rule-premises> rule-fresh => premises;
- 			<sx-inf-rule-premises> rule-fresh => name;
+ 			<sx-inf-rule-name> rule-fresh => name;
  			debug(!"NAME ");
  			<sx-res-sub-to-eqs> result => eqs;
  			![(premises, name, eqs) | candidates];
