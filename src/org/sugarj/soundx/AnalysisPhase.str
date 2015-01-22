@@ -12,6 +12,7 @@ imports org/sugarj/soundx/AbstractSyntax
         org/sugarj/soundx/Substitution
         org/sugarj/soundx/Resolution
 		org/sugarj/soundx/Declarations
+		org/sugarj/soundx/Unification
 
 /**
  * Hook analysis into SugarJ
@@ -28,8 +29,11 @@ strategies
 		(sx-env-add-toplevel-declaration;
 		 if sx-is-last-toplevel-decl then
 		 	 sx-env-get-toplevel-declarations;
-		 	 sx-list-to-toplevel-decls;
-		 	 !SXFinished(<id>);
+		 	 sx-list-to-toplevel-decls => toplevel-decs;
+		 	 sx-context-analysis;
+		 	 
+		 	 
+		 	 !SXFinished(toplevel-decs);
 		 	 // DEVEL
 		 	 where(
 		 	//  	<sx-sub-singleton> (SXMetaVar("a"), "String") => sub;
@@ -52,17 +56,37 @@ strategies
 		 	//   	<sx-res-sub-to-eqs> subA1; debug(!"SUB TO EQS ");
 		 	//   	![SXNeq("a", "b"), SXNeq(SXMetaVar("foo"), SXMetaVarGen("bar", 1)), SXNeq("a", SXMetaVar("baz"))];
 		 	//   	sx-res-assign-neqs; debug(!"ASSIGN ")
-		 	
-		 	sx-inference-rules; debug(!"Inference rules ")
-		 	
+		 	id
+		 	//sx-inference-rules; debug(!"Inference rules ");
+		 	//sx-interface-judgement; debug(!"Interface judgement")
 		 	 )
 		 else
 		 	 ![]
 		 end)
 
-/**
- * Checks if the current toplevel declaration is the last one
- */
 strategies
+	sx-context-analysis =
+		?toplevel-decls;
+		sx-inference-rules => inf-rules;
+		sx-interface-judgement => (tlds-pattern, intf-pattern, judg);
+		//<sx-vars> tlds-pattern => vars-tlds;
+		//<sx-unify(|vars-tlds)> (tlds-pattern, toplevel-decls) => result;
+		//!result; not(?SXUnificationFailure(_));
+		//<sx-sub-apply> (result, judg) => goal;
+		//debug(!"GOAL ");
+		!SXJudgement4(SXCons2(), STLCNat("1"), SXMetaVar("U")) => goal1;
+		debug(!"GOAL");
+		<sx-res-build-derivation> ([], inf-rules, goal1) => result-deriv;
+		debug(!"RESULT")
+
+signature constructors
+	SXJudgement4: a * a * a -> a
+	SXCons2:  a
+	STLCNat: a -> a
+
+strategies
+	/**
+ 	 * Checks if the current toplevel declaration is the last one
+ 	 */
 	sx-is-last-toplevel-decl =
 		prim("SUGARJ_is_last_toplevel_declaration")

@@ -213,6 +213,12 @@ strategies
 	 */
 	sx-is-failure-deriv =
 		where(collect-one(?SXDerivFail(_)))
+		// ?deriv;
+		// if <collect-one(?SXDerivFail(_))> deriv then
+		// 	debug(!"IS FAILED"); !deriv
+		// else
+		// 	debug(!"IS NOT FAILED ")
+		// end
 
 /**
  * Various

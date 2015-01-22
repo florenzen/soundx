@@ -27,10 +27,13 @@ strategies
 		?(asms, inf-rules, judg);
 		<sx-vars> asms => vars-asms;
 		sx-res-empty-store => store;
+		debug(!"STORE ");
 		<sx-res-derive-answers(|vars-asms)> (asms, inf-rules, store, judg) => answers;
-		<sx-res-sub-variables(|vars-asms)> answers => answers1;
-		if !answers1; ?[answer@(store, deriv)] then
-			<sx-is-failure-deriv> deriv < !SXLeft(answers1) + !SXRight(answer)
+		debug(!"ANSWERS DERIVED ");
+		<map(sx-res-sub-variables(|vars-asms))> answers => answers1;
+		debug(!"PREP ANSWERS");
+		if !answers1; ?[(_, deriv)] then
+			<sx-is-failure-deriv> deriv < !SXLeft(answers1) + !SXRight(deriv)
 		else
 			!SXLeft(answers1)
 		end
@@ -42,9 +45,9 @@ strategies
 	 *
 	 * @type (List(SXDeriv), List(SXInfRule), SXStore, SXJudgement) -> List(SXAnswer)
 	 */
-	sx-res-derive-answers(|vars-asms) =
+	//sx-res-derive-answers(|vars-asms) =
 		// TODO SXGetInterface
-		fail
+		//fail
 	sx-res-derive-answers(|vars-asms) =
 		// Inequality judgement
 		?(asms, inf-rules, store, judg@SXNeq(expr1, expr2));
@@ -60,7 +63,9 @@ strategies
 		// Inductively defined judgement
 		?(asms, inf-rules, store, judg);
 		<sx-is-ind-def-judgement> judg => (name, args);
+		debug(!"IS IND DEF JUDG ");
 		<sx-res-possible-rules(|vars-asms)> (inf-rules, judg, store) => candidates;
+		debug(!"POSSIBLE INF RULES");
 		let map-s1 =
 			{ premises, name, eqs:
 				?(premises, name, eqs);
@@ -91,7 +96,10 @@ strategies
 		in
 			<mapconcat(map-s1)> candidates
 		end => answers-inf-rules;
-		<sx-res-derive-by-asm(|vars-asms)> (asms, store, judg) => asnwers-asms
+		debug(!"ANSWERS IFN RULES");
+		<sx-res-derive-by-asm(|vars-asms)> (asms, store, judg) => answers-asms;
+		<sx-res-filter-answers> (<conc> (answers-inf-rules, answers-asms))
+		;debug(!"ANSWERS TOTAL")
 
 	/**
 	 * Tries to derive answers for a judgement using only the assumptions
@@ -159,18 +167,29 @@ strategies
 	sx-res-possible-rules(|vars-asms) =
 		?([inf-rule|inf-rules], judg, store);
  		<sx-fresh-inf-rule> inf-rule => rule-fresh;
+ 		//debug(!"FRESH RULE ");
  		<sx-vars> rule-fresh => vars-rule;
  		<sx-vars> judg => vars-judg;
+ 		//debug(!"VARS JUDG ");
  		<diff> (<union> (vars-rule, vars-judg), vars-asms) => vars-unify;
+ 		//debug(!"DIFF ");
+ 		<debug(!"Trying to unify\n ")> (<sx-concl> rule-fresh);
+ 		<debug(!"and            \n ")> judg;
  		<sx-unify(|vars-unify)> (<sx-concl> rule-fresh, judg) => result;
- 		<sx-res-possible-rules(|vars-asms)> inf-rules => candidates;
- 		if !result; SXTrue() then
+ 		debug(!"UNIFIED ");
+ 		<sx-res-possible-rules(|vars-asms)> (inf-rules, judg, store) => candidates;
+ 		//debug(!"CANDIDATES ");
+ 		if !result; ?SXUnificationFailure(_) then
+ 			debug(!"UNIF FAIL ");
+ 			!candidates 			
+ 		else
  			<sx-inf-rule-premises> rule-fresh => premises;
  			<sx-inf-rule-premises> rule-fresh => name;
+ 			debug(!"NAME ");
  			<sx-res-sub-to-eqs> result => eqs;
- 			![(premises, name, eqs) | candidates]
- 		else
- 			!candidates
+ 			![(premises, name, eqs) | candidates];
+ 			debug(!"POSSIBLE RULES")
+
  		end
  		
 	/**
@@ -199,9 +218,11 @@ strategies
 	 *
 	 * @type SXAnswer -> SXAnswer
 	 */
-	sx-res-sub-variables(|vars-asms)=
+	sx-res-sub-variables(|vars-asms) =
 		?(store, deriv);
+		debug(!"RES SUB VARS ");
 		<sx-res-solve(|vars-asms)> store => sub;
+		debug(!"Solution to store ");
 		<sx-sub-apply> (sub, deriv) => deriv1;
 		!(store, deriv1)
 
@@ -242,8 +263,10 @@ strategies
 	 * @type SXStore -> (SXBool, SXStore)
 	 */
 	sx-res-simplify(|vars-asm) =
+		debug(!"ENTERED SIMPLIFY ");
 		?store;
 		<sx-res-partition-store> store => (eqs, neqs);
+		debug(!"partitioned");
 		<sx-vars> eqs => vars-eqs;
 		<diff> (vars-eqs, vars-asm);
 		<map(\SXEq(expr1, expr2) -> (expr1, expr2)\)> eqs => eq-pairs;
@@ -293,6 +316,7 @@ strategies
 	 * @type List(SXJudgement) -> SXSub
 	 */
 	sx-res-eqs-to-sub =
+		?eqs;
 		let fold-s(|sub1) =
 			{var, expr:
 				?SXEq(var, expr);
@@ -301,7 +325,7 @@ strategies
 			}
 		in
 			sx-sub-empty => sub-empty;
-			list-fold(fold-s|sub-empty)
+			<list-fold(fold-s|sub-empty)> eqs
 		end
 
 	/**
@@ -353,9 +377,12 @@ strategies
 	sx-res-solve(|vars-asm) =
 		?store;
 		<sx-res-simplify(|vars-asm)> store => (ok, store1);
+		debug(!"simplified");
 		if !ok; ?SXTrue() then
 			<sx-res-partition-store> store1 => (eqs, neqs);
+			debug(!"PART IN RES SOL");
 			<sx-res-eqs-to-sub> eqs => sub-eqs;
+			debug(!"SUB TO EQS ");
 			<sx-res-assign-neqs> neqs => sub-neqs;
 			<sx-sub-compose> (sub-neqs, sub-eqs)
 		else
