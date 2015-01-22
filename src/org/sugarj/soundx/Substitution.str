@@ -62,7 +62,7 @@ strategies
 		//debug(!"START OF APPLY ");
 		?(sub, expr);
 		let apply =
-			{ var:
+			{ var, expr1:
 				?var;
 				//debug(!"APPLY VAR ");
 				if <hashtable-get(|var)> sub => expr1 then
