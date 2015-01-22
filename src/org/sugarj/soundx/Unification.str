@@ -22,13 +22,13 @@ strategies
 	sx-unify(|vars) =
 		// Empty list, termination case
 		?[]; sx-sub-empty
-		;where(hashtable-getlist; debug(!"RESULT "))
+		//;where(hashtable-getlist; debug(!"RESULT "))
 	sx-unify(|vars) =
 		// Two variables
 		?[(var1, var2) | pairs];
 		<sx-is-metavar> var1;
 		<sx-is-metavar> var2;
-		<debug(!"V V ")> (var1, var2);
+		//<debug(!"V V ")> (var1, var2);
 		if <eq> (var1, var2) then
 			<sx-unify(|vars)> pairs
 		else
@@ -46,12 +46,12 @@ strategies
 				!result
 			else
 				<map(\pair -> <sx-sub-apply> (result, pair)\)> pairs => pairs1;
-				<sx-unify(|vars)> pairs => result1;
+				<sx-unify(|vars)> pairs1 => result1;
 				if !result1; ?SXUnificationFailure(_) then
 					!result1
 				else
 					<sx-sub-compose> (result1, result)
-					;where(hashtable-getlist; debug(!"RESULT "))
+					//;where(hashtable-getlist; debug(!"RESULT "))
 				end
 			end
 		end
@@ -60,9 +60,9 @@ strategies
 		?[(var1, expr2) | pairs];
 		<sx-is-metavar> var1;
 		<not(sx-is-metavar)> expr2;
-		<debug(!" V E ")> [(var1, expr2)|pairs];
+		//<debug(!" V E ")> [(var1, expr2)|pairs];
 		if <elem> (var1, vars) then
-			debug(!" V E IF ");
+			//debug(!" V E IF ");
 			<sx-vars> expr2 => vars-expr2;
 			if <elem> (var1, vars-expr2) then
 				// TODO: better error message
@@ -81,7 +81,7 @@ strategies
 				end
 			end
 		else
-			debug(!"V E ELSE ");
+			//debug(!"V E ELSE ");
 			// TODO: better error message
 			!SXUnificationFailure("not a unification variable")
 		end
@@ -90,29 +90,30 @@ strategies
 		?[(expr1, var2) | pairs];
 		<not(sx-is-metavar)> expr1;
 		<sx-is-metavar> var2;
-		<debug(!" E V ")> (expr1, var2);
+		//<debug(!" E V ")> (expr1, var2);
 		<sx-unify(|vars)> [(var2, expr1) | pairs]
-		;where(hashtable-getlist; debug(!"RESULT "))
+		//;where(hashtable-getlist; debug(!"RESULT "))
 	sx-unify(|vars) =
 		// Two non-variable expressions
 		?[(expr1, expr2) | pairs];
 		<not(sx-is-metavar)> expr1;
 		<not(sx-is-metavar)> expr2;
-		<debug(!" E E ")> (expr1, expr2);
+		//<debug(!" E E ")> (expr1, expr2);
 		!expr1; ?con1#(args1);
 		!expr2; ?con2#(args2);
 		if <eq> (con1, con2) then
 			if <eq> (<length> args1, <length> args2) then
 				//where(<debug(!"ARGS ARGS ")> (args1, args2));
 				<sx-unify(|vars)> (<conc> (<zip> (args1, args2), pairs))
-				;where(debug(!"RESULT "))
+				//;where(debug(!"RESULT "))
 			else
 				// TODO: better error message
 				!SXUnificationFailure("differen number of arguments")
 			end
 		else
-			debug(!"DIFFEREN CONS ");
+			//debug(!"DIFFEREN CONS ");
 			!SXUnificationFailure(<conc-strings> ("different constructor names ", con1, " ", con2))
+			//;debug(!"UN FAIL ")
 		end
 
 	/**

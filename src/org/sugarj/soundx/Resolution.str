@@ -53,9 +53,9 @@ strategies
 		?(asms, inf-rules, store, judg@SXNeq(expr1, expr2));
 		<sx-res-propagate(|vars-asms)> ([judg], store) => (ok, store1);
 		if !ok; ?SXTrue() then
-			![(store1, SXDerivFail(judg))]
-		else
 			![(store1, SXDerivInst([], "Neq", judg))]
+		else
+			![(store1, SXDerivFail(judg))]
 		end => answers-constr;
 		<sx-res-derive-by-asm(|vars-asms)> (asms, store, judg) => answers-asm;
 		<sx-res-filter-answers> (<conc> (answers-constr, answers-asm))
@@ -63,11 +63,12 @@ strategies
 		// Inductively defined judgement
 		?(asms, inf-rules, store, judg);
 		<debug(!"GOAL ")> judg;
-		<debug(!"STORE ")> store;
+		<debug(!"WITH STORE ")> store;
+		//<debug(!"STORE ")> store;
 		<sx-is-ind-def-judgement> judg => (name, args);
 		//debug(!"IS IND DEF JUDG ");
 		<sx-res-possible-rules(|vars-asms)> (inf-rules, judg, store) => candidates;
-		where(map(\(_,n,st)->(n, st)\); debug(!"POSSIBLE RULES "));
+		where(map(\(r,n,st)->(n, st, r)\); debug(!"POSSIBLE RULES "));
 		//debug(!"POSSIBLE INF RULES");
 		let map-s1 =
 			{ premises, name, eqs, ok, store1, answers:
@@ -75,6 +76,7 @@ strategies
 				<sx-res-propagate(|vars-asms)> (eqs, store) => (ok, store1);
 				if !ok; ?SXTrue() then
 					<debug(!"TRYING ")> name;
+					<debug(!"WITH STORE ")> store1;
 					let map-s2 =
 						{ store3, deriv, store4:
 							?(store3, derivs);
@@ -90,22 +92,22 @@ strategies
 							}
 						in
 							<sx-mapconcat-accuml(map-accum-s|store1)> premises => answers;
-							debug(!"GOT ANSWERS ");
+							//debug(!"GOT ANSWERS ");
 							<mapconcat(map-s2)> answers
-							;debug(!"GOT ANSWERS 2")
+							//;debug(!"GOT ANSWERS 2")
 						end 
 					end
 				else
 					<debug(!"KICKED ")> name;
 					![]
 				end
-				;debug(!"MAP S1 RESULT ")
+				//;debug(!"MAP S1 RESULT ")
 			}
 		in
 			<mapconcat(map-s1)> candidates
-			; debug(!"MAPC S1 RESULT")
+			//; debug(!"MAPC S1 RESULT")
 		end => answers-inf-rules;
-		debug(!"ANSWERS IFN RULES");
+		//debug(!"ANSWERS IFN RULES");
 		<sx-res-derive-by-asm(|vars-asms)> (asms, store, judg) => answers-asms;
 		<sx-res-filter-answers> (<conc> (answers-inf-rules, answers-asms))
 		;debug(!"ANSWERS TOTAL")
@@ -175,7 +177,9 @@ strategies
 		?([], judg, store); ![]
 	sx-res-possible-rules(|vars-asms) =
 		?([inf-rule|inf-rules], judg, store);
+ 		//where(<debug(!"ORIG RULE  ")> inf-rule);
  		<sx-fresh-inf-rule> inf-rule => rule-fresh;
+		//where(<debug(!"FRESH RULE ")> rule-fresh);
  		//debug(!"FRESH RULE ");
  		<sx-vars> rule-fresh => vars-rule;
  		<sx-vars> judg => vars-judg;
@@ -227,10 +231,13 @@ strategies
 	 */
 	sx-res-sub-variables(|vars-asms) =
 		?(store, deriv);
-		//debug(!"RES SUB VARS ");
+		debug(!"RES SUB VARS ");
 		<sx-res-solve(|vars-asms)> store => sub;
-		//debug(!"Solution to store ");
+		where(hashtable-getlist; debug(!"SOLUTION TO STORE "));
 		<sx-sub-apply> (sub, deriv) => deriv1;
+		where(<debug(!"DERIV  ")> deriv);
+		where(<debug(!"DERIV 1 ")> deriv1);
+
 		!(store, deriv1)
 
 /**
@@ -270,20 +277,23 @@ strategies
 	 * @type SXStore -> (SXBool, SXStore)
 	 */
 	sx-res-simplify(|vars-asm) =
-		//debug(!"ENTERED SIMPLIFY ");
+		debug(!"ENTERED SIMPLIFY ");
 		?store;
 		<sx-res-partition-store> store => (eqs, neqs);
 		//debug(!"partitioned");
 		<sx-vars> eqs => vars-eqs;
-		<diff> (vars-eqs, vars-asm);
+		<diff> (vars-eqs, vars-asm) => vars-unify;
 		<map(\SXEq(expr1, expr2) -> (expr1, expr2)\)> eqs => eq-pairs;
-		<sx-unify(|vars-eqs)> eq-pairs => result;
+		<sx-unify(|vars-unify)> eq-pairs => result;
 		if !result; ?SXUnificationFailure(_) then
+			//debug(!"FAILED");
 			!(SXFalse(), store)
 		else
+			where(hashtable-getlist; debug(!"SUCCEEDED"));
 			<sx-sub-apply> (result, neqs) => neqs1;
+			//where(debug(!"NEQS 1 "));
 			<sx-res-sub-to-eqs> result => eqs1;
-			<conc> (eqs1, neqs) => store1;
+			<conc> (eqs1, neqs1) => store1;
 			if <sx-res-satisfiable> neqs1 then
 				!(SXTrue(), store1)
 			else
@@ -384,7 +394,7 @@ strategies
 	sx-res-solve(|vars-asm) =
 		?store;
 		<sx-res-simplify(|vars-asm)> store => (ok, store1);
-		//debug(!"simplified");
+		debug(!"SIMLIFIED ");
 		if !ok; ?SXTrue() then
 			<sx-res-partition-store> store1 => (eqs, neqs);
 			//debug(!"PART IN RES SOL");
