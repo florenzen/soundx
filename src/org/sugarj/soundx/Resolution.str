@@ -210,7 +210,7 @@ strategies
  		end
  		
 	/**
-	 * Picks the first non failure answer or keeps all (failure) answers
+	 * Picks all non failure answers or keeps all (failure) answers
 	 *
 	 * @type List(SXAnswer) -> List(SXAnswer)
 	 */
