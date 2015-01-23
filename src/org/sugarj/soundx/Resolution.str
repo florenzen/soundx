@@ -71,8 +71,9 @@ strategies
 		where(map(\(r,n,st)->(n)\); debug(!"POSSIBLE RULES "));
 		//debug(!"POSSIBLE INF RULES");
 		let map-s1 =
-			{ premises, name, eqs, ok, store1, answers:
+			{ premises, name, eqs, ok, store1, answers, inf-rules1:
 				?(premises, name, eqs);
+				<sx-res-push-back-rule> (name, inf-rules) => inf-rules1;
 				<sx-res-propagate(|vars-asms)> (eqs, store) => (ok, store1);
 				if !ok; ?SXTrue() then
 					<debug(!"TRYING ")> name;
@@ -88,7 +89,7 @@ strategies
 							{ premise:
 								?premise;
 								<sx-res-derive-answers(|vars-asms)>
-									(asms, inf-rules, store2, premise) 
+									(asms, inf-rules1, store2, premise) 
 							}
 						in
 							<sx-mapconcat-accuml(map-accum-s|store1)> premises => answers;
@@ -117,6 +118,30 @@ strategies
 		<sx-res-derive-by-asm(|vars-asms)> (asms, store, judg) => answers-asms;
 		<sx-res-filter-answers> (<conc> (answers-inf-rules1, answers-asms))
 		;debug(!"ANSWERS TOTAL")
+
+	/**
+	 * Moves the given inference to the front of the list
+	 *
+	 * Resolution tries inference rules from the end of the list,
+	 * so putting it at the front pushes the rule to be tried again later.
+	 *
+	 * @type (String, List(SXInfRule)) -> List(InfRule)
+	 */
+	sx-res-push-back-rule =
+		?(name, inf-rules);
+		let move-front =
+			{ name, rule, name1, inf-rules, inf-rules1, inf-rules-rest:
+				?(name, [rule@SXInfRule(_, name1, _) | inf-rules], inf-rules1);
+				if <eq> (name, name1) then
+					<conc> (inf-rules, inf-rules1) => inf-rules-rest;
+					![rule|inf-rules-rest]
+				else
+					<move-front> (name, inf-rules, [rule|inf-rules1])
+				end
+			}
+		in
+			<move-front> (name, inf-rules, [])
+		end
 
 	/**
 	 * Tries to derive answers for a judgement using only the assumptions

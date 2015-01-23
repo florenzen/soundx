@@ -76,7 +76,7 @@ strategies
 		<sx-vars> tlds-pattern => vars-tlds;
 		<sx-unify(|vars-tlds)> (tlds-pattern, toplevel-decls) => result;
 		!result; not(?SXUnificationFailure(_));
-		<sx-sub-apply> (result, judg) => goal;
+		//<sx-sub-apply> (result, judg) => goal;
 		//!SXJudgement4(SXCons2(), STLCNat("1"), SXMetaVar("U")) => goal;
 		//!SXJudgement4(SXCons2(), STLCAdd(STLCNat("1"), STLCNat("1")), SXMetaVar("U")) => goal;
 		//!SXJudgement4(SXCons3(SXCons2(),"x",SXCons0()), STLCVar("x"), SXMetaVar("U")) => goal;
@@ -89,6 +89,7 @@ strategies
 		//!SXJudgement12(SXMetaVar("C"), SXCons3(SXCons2(),"c",SXCons0()), SXCons3(SXCons3(SXCons2(), "a", SXCons0()), "b", SXCons0())) => goal;
 		//!SXJudgement12(SXMetaVar("C"), SXCons3(SXCons3(SXCons2(),"c",SXCons0()),"d",SXCons0()), SXCons3(SXCons3(SXCons2(), "a", SXCons0()), "b", SXCons0())) => goal;
 		//!SXJudgement12(SXMetaVar("C"), SXCons3(SXCons3(SXCons2(),"c",SXCons0()),"a",SXCons0()), SXCons3(SXCons3(SXCons2(), "a", SXCons0()), "b", SXCons0())) => goal;
+		!SXJudgement12(SXMetaVar("C"), SXMetaVar("C1"), SXCons3(SXCons2(), SXMetaVar("x"), SXMetaVar("T"))) => goal;
 		debug(!"GOAL");
 		<sx-res-build-derivation> ([], inf-rules, goal) => result-deriv;
 		debug(!"RESULT")
