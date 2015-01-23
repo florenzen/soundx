@@ -76,7 +76,7 @@ strategies
 				else
 					//where(<hashtable-getlist; debug(!"BEFORE RESULT 1")> sub1);
 					//where(<hashtable-getlist; debug(!"BEFORE RESULT 2")> result);
-					<sx-sub-compose> (sub1, result)
+					<sx-sub-compose> (result, sub1)
 					//;where(hashtable-getlist; debug(!"RESULT "))
 				end
 			end
