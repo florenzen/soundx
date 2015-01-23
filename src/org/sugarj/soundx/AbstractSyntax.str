@@ -160,6 +160,22 @@ strategies
 		!(c, args)
 
 	/**
+	 * Checks if aterm is a primitive judgement
+	 *
+	 * @type a -> a
+	 */
+    sx-is-prim-judgement =
+    	sx-is-neq-judgement
+
+	/**
+	 * Checks if aterm is an SXEq judgement
+	 *
+	 * @type a -> a
+	 */
+	sx-is-neq-judgement =
+		?SXNeq(_, _)
+
+	/**
 	 * Checks if aterm is an SXEq judgement
 	 *
 	 * @type a -> a

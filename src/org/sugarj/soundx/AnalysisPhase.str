@@ -13,6 +13,7 @@ imports org/sugarj/soundx/AbstractSyntax
         org/sugarj/soundx/Resolution
 		org/sugarj/soundx/Declarations
 		org/sugarj/soundx/Unification
+		org/sugarj/soundx/DepthFirstBC
 
 imports org/sugarj/languages/Sdf2 // DEVEL
 
@@ -76,7 +77,8 @@ strategies
 		<sx-vars> tlds-pattern => vars-tlds;
 		<sx-unify(|vars-tlds)> (tlds-pattern, toplevel-decls) => result;
 		!result; not(?SXUnificationFailure(_));
-		//<sx-sub-apply> (result, judg) => goal;
+		<sx-sub-apply> (result, judg) => goal;
+		//!SXNeq("x", "y") => goal;
 		//!SXJudgement4(SXCons2(), STLCNat("1"), SXMetaVar("U")) => goal;
 		//!SXJudgement4(SXCons2(), STLCAdd(STLCNat("1"), STLCNat("1")), SXMetaVar("U")) => goal;
 		//!SXJudgement4(SXCons3(SXCons2(),"x",SXCons0()), STLCVar("x"), SXMetaVar("U")) => goal;
@@ -89,10 +91,16 @@ strategies
 		//!SXJudgement12(SXMetaVar("C"), SXCons3(SXCons2(),"c",SXCons0()), SXCons3(SXCons3(SXCons2(), "a", SXCons0()), "b", SXCons0())) => goal;
 		//!SXJudgement12(SXMetaVar("C"), SXCons3(SXCons3(SXCons2(),"c",SXCons0()),"d",SXCons0()), SXCons3(SXCons3(SXCons2(), "a", SXCons0()), "b", SXCons0())) => goal;
 		//!SXJudgement12(SXMetaVar("C"), SXCons3(SXCons3(SXCons2(),"c",SXCons0()),"a",SXCons0()), SXCons3(SXCons3(SXCons2(), "a", SXCons0()), "b", SXCons0())) => goal;
-		!SXJudgement12(SXMetaVar("C"), SXMetaVar("C1"), SXCons3(SXCons2(), SXMetaVar("x"), SXMetaVar("T"))) => goal;
+		//!SXJudgement12(SXMetaVar("C"), SXMetaVar("C1"), SXCons3(SXCons2(), SXMetaVar("x"), SXMetaVar("T"))) => goal;
+		//!SXJudgement4(SXCons2(), STLCAbs("x", SXCons0(), STLCVar("x")), SXMetaVar("U")) => goal;
+		//!SXJudgement4(SXCons2(), STLCApp(STLCAbs("x", SXCons0(), STLCVar("x")), STLCNat("2")), SXMetaVar("U")) => goal;
 		debug(!"GOAL");
-		<sx-res-build-derivation> ([], inf-rules, goal) => result-deriv;
-		debug(!"RESULT")
+		if <sx-dfsbc-build-derivations(|[])> ([], inf-rules, [goal]) => (sub, result-deriv) then
+			<debug(!"RESULT")> result-deriv
+			//;<hashtable-getlist; debug(!"SUB ")> sub
+		else
+			debug(!"FAILED")
+		end
 		
 
 
@@ -101,6 +109,8 @@ signature constructors // DEVEL
 	SXJudgement13: a * a -> a
 	SXJudgement12: a * a * a -> a
 
+	STLCApp: a * a -> a
+	STLCAbs: a * a * a -> a
 	SXCons2:  a
 	STLCNat: a -> a
 	STLCAdd: a * a -> a
