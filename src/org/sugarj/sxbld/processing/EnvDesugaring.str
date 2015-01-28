@@ -30,6 +30,7 @@ strategies
   	    sxbld-env-make-toplevel-dec-body => extension-elems-body-dec;
   	    sxbld-env-make-toplevel-dec-import => extension-elems-import-dec;
   	    sxbld-env-make-toplevel-dec-namespace => extension-elems-namespace-dec;
+  	    sxbld-env-make-extension-delimiters => grm-elems-delims;
 	    ((sxbld-env-is-interface-judgement-defined;
 	      sxbld-env-get-interface-judgement => intf-judg;
 	      sxbld-env-decls-to-stratego(|intf-judg, "interface-judgement")
@@ -41,7 +42,8 @@ strategies
 	    <conc> (trans-intf-judg, trans-cons-names, trans-infrules,
 	            trans-base-file-ext, trans-ext-file-ext) => transformation-elems;
 	    <conc> (grm-elems-plain, grm-elems-toplevel-decs, grm-elems-intf-judg,
-	    	grm-elems-get-intf-judg, grm-elems-toplevel-declaration) => grammar-elems;
+	    	grm-elems-get-intf-judg, grm-elems-toplevel-declaration,
+	    	grm-elems-delims) => grammar-elems;
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems,
   	    	extension-elems-body-dec, extension-elems-namespace-dec,
   	    	extension-elems-import-dec))
@@ -60,6 +62,20 @@ strategies
     	![transformation-elem(
     		Strategies([SDefNoArgs(strategy-name, Build(stratego-alist))])
     	 )]
+
+	/**
+	 * Generates the productions for the extension delimiters
+	 *
+	 * @type _ -> List(ExtensionElem)
+	 */
+	sxbld-env-make-extension-delimiters =
+		((sxbld-env-is-extension-begin-defined;
+		  sxbld-env-get-extension-begin => sort-begin
+		 ) <+ ![]) => grm-begin;
+		((sxbld-env-is-extension-end-defined;
+		  sxbld-env-get-extension-end => sort-end
+		 ) <+ ![]) => grm-end;
+		<conc> (grm-begin, grm-end)
 
     /**
      * Saves toplevel-declaration in Stratego file
