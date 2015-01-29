@@ -14,6 +14,9 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Declarations
 		org/sugarj/soundx/Unification
 		org/sugarj/soundx/DepthFirstBC
+		org/sugarj/soundx/ExtensionDefinition
+		org/sugarj/soundx/InductiveDefinitions
+		org/sugarj/soundx/AnalysisFunctions
 
 imports org/sugarj/languages/Sdf2 // DEVEL
 
@@ -21,16 +24,34 @@ imports org/sugarj/languages/Sdf2 // DEVEL
  * Hook analysis into SugarJ
  */
 strategies
-	start-analysis = changed-tree-or-analysis-data(sx-analysis)
-
-strategies
 	/**
-	 * The main SoundX analysis
+     * Collects all errors from the annotations
+     *
+     * @type a -> List((a, String))
+     */
+	constraint-error =
+		?ast;
+		sx-analysis-extract-errors;
+		map(!(ast, <id>))
+
+	start-analysis = sx-analysis-unless-failed(changed-tree-or-analysis-data(sx-analysis))
+
+	/**
+	 * Analyzes a term unless the failed flag is set
+	 *
+	 * @type a -> SXBldFinishedAnalysis(a)
 	 */
+	sx-analysis-unless-failed(s) =
+		where(<sx-env-get-failed> () => SXFalse()); s
+
+/**
+ * The main SoundX analysis
+ */
+strategies
 	sx-analysis =
 		?SXFinished(decls) < !SXFinished(decls) +
 		(debug(!"CURRENT TOPLEVEL DECL ");
-		 sx-env-add-toplevel-declaration;
+		 sx-process-toplevel-declaration;
 		 if sx-is-last-toplevel-decl then
 		 	 sx-env-get-toplevel-declarations;
 		 	 debug(!"LIST OF TOPLEVEL DECLARATIONS ");
@@ -68,6 +89,37 @@ strategies
 		 else
 		 	 fail
 		 end)
+
+strategies
+	sx-process-toplevel-declaration =
+		sx-process-extension-begin <+
+		sx-process-extension-end <+
+		sx-process-grammar-elems <+
+		sx-process-desugarings <+
+		sx-process-inductive-defs <+
+		sx-process-inductive-defs-desugarings <+
+		sx-process-language-toplevel
+		
+	sx-process-language-toplevel =
+		sx-env-add-toplevel-declaration
+		
+	sx-process-extension-begin =
+		?SXExtensionBegin(_)
+		
+	sx-process-extension-end =
+		?SXExtensionEnd(_)
+
+	sx-process-grammar-elems =
+		?SXGrammarElems(_)
+		
+	sx-process-desugarings =
+		?SXDesugarings(_)
+
+	sx-process-inductive-defs =
+		?SXInductiveDefinitions(_)
+
+	sx-process-inductive-defs-desugarings =
+		?SXInductiveDefinitionsDesugarings(_)
 
 strategies
 	sx-context-analysis =

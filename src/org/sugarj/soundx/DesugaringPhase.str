@@ -9,6 +9,7 @@ imports org/sugarj/stdlib/StdTrans
 
 imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Environment
+		org/sugarj/soundx/ExtensionDefinition
 
 
 /**
@@ -29,3 +30,7 @@ strategies
 		?SXFinished(_);
 		sx-env-get-toplevel-declarations => [decl|_];
 		![decl]
+	sx-desugar =
+		?SXExtensionEnd(_); ![]
+	sx-desugar =
+		?SXExtensionBegin(_); ![]

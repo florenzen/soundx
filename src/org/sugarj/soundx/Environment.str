@@ -5,6 +5,7 @@
  */
 module org/sugarj/soundx/Environment
 
+imports org/sugarj/soundx/AbstractSyntax
 
 /**
  * Basic handling of the environment hash table
@@ -42,7 +43,8 @@ strategies
      */
     sx-env-new-hashtable =
   	    new-hashtable;
-  	    hashtable-put(|"toplevel-declarations", [])
+  	    hashtable-put(|"toplevel-declarations", []);
+  	    hashtable-put(|"failed", SXFalse())
 
     /**
      * Looks up a key in the environment
@@ -86,3 +88,32 @@ strategies
     	?decl;
     	<sx-env-get> "toplevel-declarations" => decls;
     	<sx-env-set> ("toplevel-declarations", <conc> (decls, [decl]))
+
+/**
+ * Handling of the failed flags
+ */
+strategies
+	/**
+	 * Gets failed flag
+	 *
+	 * @type _ -> SXBldBool
+	 */
+    sx-env-get-failed =
+        <sx-env-get> "failed"
+
+    /**
+     * Sets the failed flag
+     *
+     * @type SXBldBool -> SXEnv
+     */
+    sx-env-set-failed =
+        ?failed-new;
+  	    <sx-env-set> ("failed", failed-new)
+
+    /**
+     * Set failed flag to true
+     *
+     * @type _ -> SXEnv
+     */
+    sx-env-failed =
+    	<sx-env-set-failed> SXTrue()

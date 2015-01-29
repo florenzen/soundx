@@ -71,9 +71,9 @@ strategies
 		  //debug(!"JUDGS1 ");
 		  <sx-dfsbc-build-derivations(|vars-asms)> (asms, all-inf-rules, judgs1) => (sub, derivs);
 		  //debug(!"SUB DERIVS ");
-		  where(<debug(!"RULE ")> name);
-		  where(<hashtable-getlist; debug(!"SUB *** ")> sub);
-		  where(<hashtable-getlist;debug(!"MGU *** ")> mgu);
+		  //where(<debug(!"RULE ")> name);
+		  //where(<hashtable-getlist; debug(!"SUB *** ")> sub);
+		  //where(<hashtable-getlist;debug(!"MGU *** ")> mgu);
 		  <split-at(|<length> premises)> derivs => (derivs-prem, derivs-other);
 		  <sx-sub-compose> (sub, mgu) => sub1;
 		  <sx-sub-apply> (sub1, judg) => judg1;

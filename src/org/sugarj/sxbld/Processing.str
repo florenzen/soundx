@@ -75,11 +75,8 @@ strategies
 	 * All analyses for toplevel declarations must be wrapped
 	 * by this strategy to avoid follow-up errors.
 	 *
-	 * Wraps the result of analysis in a SXBldFinishedAnalysis
-	 * to stop the iteration in org/sugarj/transformation/analysis/Data.
-	 *
-	 * @type s a -> a
-	 * @type a -> SXBldFinishedAnalysis(a)
+	 * @param s a -> a
+	 * @type a -> a
 	 */
 	sxbld-analyze-unless-failed(s) =
 		where(<sxbld-env-get-failed> () => SXBldFalse()); s

@@ -3,17 +3,14 @@
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */
-module org/sugarj/sxbld/processing/GrammarElems
-
-imports org/sugarj/languages/SXBld
+module org/sugarj/soundx/processing/GrammarElems
 
 imports org/sugarj/soundx/AbstractSyntax
-		org/sugarj/soundx/SDF2
-
-imports org/sugarj/sxbld/Environment
-        org/sugarj/sxbld/processing/AnalysisFunctions
+		org/sugarj/soundx/Environment
+        org/sugarj/soundx/AnalysisFunctions
 
 imports org/sugarj/sxbld/processing/SortPrefixing
+        org/sugarj/sxbld/processing/SDF2
 
 
 /**
@@ -180,22 +177,22 @@ strategies
     	// bracket attribute, return attributes untouched
     	id +
     	// No bracket attribute
-    	(partition(sx-sdf2-is-attribute(|"cons")) => (cons-attribs, other-attribs);
+    	(partition(sxbld-sdf2-is-attribute(|"cons")) => (cons-attribs, other-attribs);
     	 ((// No cons attribute, generate one
     	   !cons-attribs; ?[];
      	   sxbld-env-fresh-cons-name => cons-name;
 		   sxbld-env-add-cons-name;
-    	   ![<sx-sdf2-cons-attribute> cons-name | other-attribs]) <+
+    	   ![<sxbld-sdf2-cons-attribute> cons-name | other-attribs]) <+
     	  (// One cons attribute, prefix it
     	   !cons-attribs; ?[cons-attrib];
-    	   <sx-sdf2-cons-attribute-name-quoted> cons-attrib => cons-name-quoted;
+    	   <sxbld-sdf2-cons-attribute-name-quoted> cons-attrib => cons-name-quoted;
     	   <un-double-quote> cons-name-quoted => cons-name;
     	   <sxbld-env-prefix-name> cons-name => prefixed-cons-name;
 		   if sxbld-env-cons-name-defined then
 		   	   <sxbld-analyze-fail(|"Duplicate constructor name")> cons-name-quoted
 		   else
 		   	   <sxbld-env-add-cons-name> prefixed-cons-name;
-    	       ![<sx-sdf2-cons-attribute> prefixed-cons-name | other-attribs]
+    	       ![<sxbld-sdf2-cons-attribute> prefixed-cons-name | other-attribs]
     	   end) <+
     	  (// More than one cons attribute, error
     	   !cons-attribs; ?[_,_|_];
@@ -211,9 +208,9 @@ strategies
 	sxbld-analyze-body-dec =
 		?(symbol, attributes);
 		where(
-			if <sx-sdf2-is-aterm-attribute-defined(|"sx-body-dec")> attributes then
-				<sx-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
-				<sx-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
+			if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-body-dec")> attributes then
+				<sxbld-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
+				<sxbld-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
 				//<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
 				<sxbld-env-add-body-dec> (cons-name, symbol)
 			else
@@ -230,16 +227,16 @@ strategies
 	sxbld-analyze-namespace-dec =
 		?(symbols, symbol, attributes);
 		where(
-			if <sx-sdf2-is-aterm-attribute-defined(|"sx-namespace-dec")> attributes then
-				<sx-sdf2-extract-aterm-attribute(|"sx-namespace-dec")> attributes => namespace-attrib;
+			if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-namespace-dec")> attributes then
+				<sxbld-sdf2-extract-aterm-attribute(|"sx-namespace-dec")> attributes => namespace-attrib;
 				if sxbld-env-is-namespace-dec-defined then
 					<sxbld-analyze-fail(|"Only one `sx-namespace-dec' allowed")> namespace-attrib
 				else
-					<sx-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
-					<sx-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
-					<sx-sdf2-get-args-from-aterm-attribute> namespace-attrib => namespace-args;
+					<sxbld-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
+					<sxbld-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
+					<sxbld-sdf2-get-args-from-aterm-attribute> namespace-attrib => namespace-args;
 					if ?[fun(unquoted(label))] then
-						if <sx-sdf2-find-index-of-labelled-symbol(|label)> symbols => index then
+						if <sxbld-sdf2-find-index-of-labelled-symbol(|label)> symbols => index then
 							//<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
 							<sxbld-env-set-namespace-dec> (cons-name, index, symbol)
 						else
@@ -263,13 +260,13 @@ strategies
 	sxbld-analyze-import-dec =
 		?(symbols, symbol, attributes);
 		where(
-			if <sx-sdf2-is-aterm-attribute-defined(|"sx-import-dec")> attributes then
-				<sx-sdf2-extract-aterm-attribute(|"sx-import-dec")> attributes => import-attrib;
-				<sx-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
-				<sx-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
-				<sx-sdf2-get-args-from-aterm-attribute> import-attrib => import-args;
+			if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-import-dec")> attributes then
+				<sxbld-sdf2-extract-aterm-attribute(|"sx-import-dec")> attributes => import-attrib;
+				<sxbld-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
+				<sxbld-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
+				<sxbld-sdf2-get-args-from-aterm-attribute> import-attrib => import-args;
 				if ?[fun(unquoted(label))] then
-					if <sx-sdf2-find-index-of-labelled-symbol(|label)> symbols => index then
+					if <sxbld-sdf2-find-index-of-labelled-symbol(|label)> symbols => index then
 						//<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
 						<sxbld-env-add-import-dec> (cons-name, index, symbol)
 					else
@@ -315,9 +312,9 @@ strategies
      */
     sxbld-analyze-neq-judg =
     	?(attributes, symbol);
-    	if <sx-sdf2-is-aterm-attribute-defined(|"sx-requires-inequality")> attributes then
+    	if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-requires-inequality")> attributes then
     		![prod([symbol, lit("=/="), symbol], sort("SXJudgement"),
-    	           attrs([<sx-sdf2-cons-attribute> "SXNeq"]))]
+    	           attrs([<sxbld-sdf2-cons-attribute> "SXNeq"]))]
     	else
     		![]
     	end
@@ -330,9 +327,9 @@ strategies
     sxbld-analyze-namespace-kind =
     	?(attributes, symbol);
     	where(
-    		if <sx-sdf2-is-aterm-attribute-defined(|"sx-namespace-flat")> attributes then
+    		if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-namespace-flat")> attributes then
     			if sxbld-env-is-namespace-kind-defined then
-    				<sx-sdf2-extract-aterm-attribute(|"sx-namespace-flat")> attributes => attrib;
+    				<sxbld-sdf2-extract-aterm-attribute(|"sx-namespace-flat")> attributes => attrib;
     				<sxbld-analyze-fail(|"Only one `sx-namespace' attribute allowed")> attrib
     			else
     				<sxbld-env-set-namespace-kind> SXBldNamespaceFlat();

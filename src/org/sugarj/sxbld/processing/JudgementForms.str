@@ -6,11 +6,11 @@
 module org/sugarj/sxbld/processing/JudgementForms
 
 imports org/sugarj/soundx/AbstractSyntax
+        org/sugarj/soundx/SDF2
 
 imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/sxbld/processing/SortPrefixing
-        org/sugarj/sxbld/processing/SDF2
 
 imports org/sugarj/languages/SXBld
 
@@ -48,4 +48,4 @@ strategies
 		?SXBldJudgementForm(symbols);
 	    <sxbld-env-fresh-judgement-name> () => judgement-name;
     	<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
-    	!prod(prefixed-symbols, sort("SXJudgement"), attrs([<sxbld-sdf2-cons-attribute> judgement-name]))
+    	!prod(prefixed-symbols, sort("SXJudgement"), attrs([<sx-sdf2-cons-attribute> judgement-name]))

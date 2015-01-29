@@ -1,0 +1,62 @@
+/**
+ * Functions to signal errors
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/soundx/AnalysisFunctions
+
+imports org/sugarj/stdlib/StdTrans
+
+imports org/sugarj/soundx/Environment
+		org/sugarj/soundx/AbstractSyntax
+
+
+strategies
+    /**
+     * Annotates error message, set failed flag, and abort analysis with fail
+     *
+     * Analysis is aborted after the first error to avoid
+     * follow-up errors. Otherwise, all analyses would have
+     * to check the failed flag and ignore certain errors as follow-ups.
+     *
+     * @param String
+     * @type a -> a
+     */
+    sx-analysis-fail(|msg) =
+    	where(<sx-env-failed> ());
+    	sx-analysis-annotate-error(|msg);
+    	fail
+
+    /**
+     * Annotates error message only if not failed and sets failed flag
+     *
+     * This strategy is intended for default case handling, e. g.
+     * using (... + ... + ...) <+ sxbld-analyze-unsupported(...)
+     *
+     * @param msg String
+     * @type a -> a
+     */
+    sx-analysis-unsupported(|msg) =
+    	where(<sx-env-get-failed> () => SXFalse());
+    	where(<sx-env-failed> ());
+    	sx-analysis-annotate-error(|msg);
+    	fail
+
+    /**
+     * Extract list of error messages from term
+     *
+     * @type a -> List(String)
+     */
+	sx-analysis-extract-errors =
+		get-analysis-data(|"errors") <+ ![]    	
+
+    /**
+     * Adds error message to a term
+     *
+     * @param msg String
+     * @type a -> a
+     */
+    sx-analysis-annotate-error(|msg) =
+    	?ast;
+    	sx-analysis-extract-errors => msgs;
+    	<put-analysis-data(|"errors", [msg|msgs])> ast

@@ -5,10 +5,11 @@
  */
 module org/sugarj/sxbld/processing/EnvDesugaring
 
+imports org/sugarj/soundx/SDF2
+
 imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/sxbld/processing/MetaExplode
-        org/sugarj/sxbld/processing/SDF2
         org/sugarj/sxbld/processing/SortPrefixing
 
 imports org/sugarj/languages/SXBld
@@ -129,8 +130,8 @@ strategies
          sxbld-env-get-toplevel-declarations; sxbld-env-prefix-name => decs;
          ![grammar-elem(context-free-syntax([
     	     prod([sort(dec), sort(decs)], sort(decs),
-    			   attrs([<sxbld-sdf2-cons-attribute> "SXToplevelDeclarationsCons"])),
-    	     prod([], sort(decs), attrs([<sxbld-sdf2-cons-attribute> "SXToplevelDeclarationsNil"]))
+    			   attrs([<sx-sdf2-cons-attribute> "SXToplevelDeclarationsCons"])),
+    	     prod([], sort(decs), attrs([<sx-sdf2-cons-attribute> "SXToplevelDeclarationsNil"]))
           ]))]
     	) <+ ![]
 
@@ -163,7 +164,7 @@ strategies
 		 ![grammar-elem(context-free-syntax([
 		 	prod([sort(intf), lit("="), lit("interface"), lit("("), symbol, lit(")")],
 		 	     sort("SXJudgement"), 
-		 	     attrs([<sxbld-sdf2-cons-attribute> "SXGetInterface"]))
+		 	     attrs([<sx-sdf2-cons-attribute> "SXGetInterface"]))
 		 ]))]) <+ ![]
 
 	/**

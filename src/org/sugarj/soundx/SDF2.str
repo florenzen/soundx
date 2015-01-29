@@ -3,7 +3,7 @@
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */
-module org/sugarj/sxbld/processing/SDF2
+module org/sugarj/soundx/SDF2
 
 imports org/sugarj/languages/Sdf2
 
@@ -14,7 +14,7 @@ strategies
 	 *
 	 * @type String -> Sdf2Attribute
 	 */
-	sxbld-sdf2-cons-attribute:
+	sx-sdf2-cons-attribute:
 		cons-name -> attribute
 		where 
 			<double-quote> cons-name => cons-name-quoted;
@@ -26,7 +26,7 @@ strategies
      *
      * @type Sdf2Attribute -> String
      */
-    sxbld-sdf2-cons-attribute-name-quoted:
+    sx-sdf2-cons-attribute-name-quoted:
     	term(default(appl(unquoted("cons"), [fun(quoted(cons-name-quoted))]))) -> cons-name-quoted
 
     /**
@@ -36,7 +36,7 @@ strategies
      *
      * @type Sdf2Attribute -> Sdf2Attribute
      */
-    sxbld-sdf2-is-attribute(|attrib-name) =
+    sx-sdf2-is-attribute(|attrib-name) =
     	?term(default(appl(unquoted(attrib-name), _))) +
     	?term(default(fun(unquoted(attrib-name))))
 
@@ -47,13 +47,13 @@ strategies
      *
      * @type Sdf2Attributes -> Sdf2Attributes
      */
-    sxbld-sdf2-is-aterm-attribute-defined(|attrib-name) =
+    sx-sdf2-is-aterm-attribute-defined(|attrib-name) =
     	if ?no-attrs() then
     		fail
     	else
     		?attrs(attribs);
     		where(
-    			<elem(\(_, a2) -> <sxbld-sdf2-is-attribute(|attrib-name)> a2\)> (attrib-name, attribs))
+    			<elem(\(_, a2) -> <sx-sdf2-is-attribute(|attrib-name)> a2\)> (attrib-name, attribs))
     	end
 
 	/**
@@ -63,12 +63,12 @@ strategies
 	 *
 	 * @type Sdf2Attributes -> Sdf2Attribute
 	 */
-    sxbld-sdf2-extract-aterm-attribute(|attrib-name) =
+    sx-sdf2-extract-aterm-attribute(|attrib-name) =
     	if ?no-attrs() then
     		fail
     	else
     		?attrs(attribs);
-    		<fetch-elem(sxbld-sdf2-is-attribute(|attrib-name))> attribs
+    		<fetch-elem(sx-sdf2-is-attribute(|attrib-name))> attribs
     	end
 
 	/**
@@ -80,7 +80,7 @@ strategies
 	 *
 	 * @type Sdf2Attribute -> Sdf2ATerm
 	 */
-    sxbld-sdf2-get-arg-from-aterm-attribute(|index) =
+    sx-sdf2-get-arg-from-aterm-attribute(|index) =
     	?term(default(appl(_, args)));
     	<index> (index, args)
 
@@ -89,7 +89,7 @@ strategies
      *
      * @type Sdf2Attribute -> List(Sdf2ATerm)
      */
-    sxbld-sdf2-get-args-from-aterm-attribute =
+    sx-sdf2-get-args-from-aterm-attribute =
     	(?term(default(appl(_, args))); !args) +
     	(?term(default(fun(_))); ![])
 
@@ -104,12 +104,12 @@ strategies
 	 *
 	 * @type List(Sdf2Symbols) -> Int
 	 */
-	sxbld-sdf2-find-index-of-labelled-symbol(|label) =
+	sx-sdf2-find-index-of-labelled-symbol(|label) =
 		(?[]; fail) <+
 		(?[label(unquoted(label), symbol)|_];
 		 !0) <+
 		(?[lit(_)|symbols];
-		 <sxbld-sdf2-find-index-of-labelled-symbol(|label)> symbols) <+
+		 <sx-sdf2-find-index-of-labelled-symbol(|label)> symbols) <+
 		(?[symbol|symbols];
-		 <sxbld-sdf2-find-index-of-labelled-symbol(|label)> symbols => index;
+		 <sx-sdf2-find-index-of-labelled-symbol(|label)> symbols => index;
 		 !(<add> (1, index)))
