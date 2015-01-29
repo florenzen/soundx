@@ -65,7 +65,6 @@ strategies
   	    hashtable-put(|"grammar-elems", []);
   	    hashtable-put(|"base-language-name", "");
   	    hashtable-put(|"name-counter", 0);
-  	    hashtable-put(|"cons-names", []);
   	    hashtable-put(|"inference-rules", <new-hashtable> ());
   	    hashtable-put(|"toplevel-declaration", "");
   	    hashtable-put(|"toplevel-declarations", "");

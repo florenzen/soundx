@@ -1,0 +1,17 @@
+module org/sugarj/soundx/processing/Import
+
+imports org/sugarj/soundx/Declarations
+		org/sugarj/soundx/Environment
+
+imports org/sugarj/soundx/Debug
+
+strategies
+	sx-process-register-import =
+		?decl@con#(args);
+		where(
+			sx-import-decs => decs;
+			<fetch-elem(\(cons-name, _) -> <eq> (cons-name, con)\)> decs => (_, index);
+			<index> (<add> (index, 1), args) => import;
+			<sx-debug(|"registered import ")> import;
+			<sx-env-add-import> import
+		)

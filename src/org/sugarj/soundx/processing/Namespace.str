@@ -1,0 +1,20 @@
+module org/sugarj/soundx/processing/Namespace
+
+imports org/sugarj/soundx/Declarations
+		org/sugarj/soundx/Environment
+
+imports org/sugarj/soundx/Debug
+
+strategies
+	sx-process-register-namespace =
+		?decl@con#(args);
+		where(
+			sx-namespace-dec => (cons-name, index);
+			if <eq> (con, cons-name) then
+				<index> (<add> (index, 1), args) => namespace;
+				<sx-debug(|"registered namespace ")> namespace;
+				<sx-env-set-namespace> namespace
+			else
+				id
+			end)
+		

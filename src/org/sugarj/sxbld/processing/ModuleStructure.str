@@ -8,9 +8,7 @@ module org/sugarj/sxbld/processing/ModuleStructure
 imports org/sugarj/sxbld/Environment
  	    org/sugarj/sxbld/processing/AnalysisFunctions
 
-
-imports org/sugarj/sxbld/processing/SDF2
-	    org/sugarj/soundx/AbstractSyntax
+imports org/sugarj/soundx/AbstractSyntax
 
 imports org/sugarj/languages/SXBld
 

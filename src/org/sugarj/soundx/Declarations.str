@@ -18,4 +18,5 @@ strategies
 	sx-extensible-file-ext = fail
 	sx-body-decs = fail
 	sx-namespace-dec = fail
-	sx-import-dec = fail
+	sx-import-decs = fail
+	sx-base-language-name = fail

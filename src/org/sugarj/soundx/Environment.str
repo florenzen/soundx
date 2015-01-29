@@ -44,7 +44,11 @@ strategies
     sx-env-new-hashtable =
   	    new-hashtable;
   	    hashtable-put(|"toplevel-declarations", []);
-  	    hashtable-put(|"failed", SXFalse())
+  	    hashtable-put(|"failed", SXFalse());
+  	    hashtable-put(|"namespace", "");
+  	    hashtable-put(|"imports", []);
+  	    hashtable-put(|"cons-names", [])
+
 
     /**
      * Looks up a key in the environment
@@ -117,3 +121,78 @@ strategies
      */
     sx-env-failed =
     	<sx-env-set-failed> SXTrue()
+
+/**
+ * Handling of namespace
+ */
+strategies
+	/**
+	 * Gets namespace
+	 *
+	 * @type _ -> String
+	 */
+	sx-env-get-namespace =
+		<sx-env-get> "namespace"
+
+	/**
+	 * Sets namespace
+	 *
+	 * @type String -> SXEnv
+	 */		
+    sx-env-set-namespace =
+    	?string;
+    	<sx-env-set> ("namespace", string)
+
+    /**
+     * Succeeds if namespace is defined
+     *
+     * @type _ -> String
+     */
+    sx-env-is-namespace-defined =
+    	sx-env-get-namespace; not(?"")
+
+/**
+ * Handling of imports
+ */
+strategies
+	/**
+	 * Adds an import
+	 *
+	 * @type String -> SXEnv
+	 */
+	sx-env-add-import =
+		?import;
+		<sx-env-get> "imports" => imports;
+		<sx-env-set> ("imports", [import|imports])
+
+    /**
+     * Gets the list of imports
+     *
+     * @type _ -> List(String)
+     */
+	sx-env-get-imports =
+		<sx-env-get> "import"
+
+/**
+ * Handling of constructor names
+ */
+strategies
+	/**
+	 * Adds a constructor name
+	 *
+	 * @type String -> SXEnv
+	 */
+	sx-env-add-cons-name =
+		?name;
+		<sx-env-get> "cons-names" => names;
+		<sx-env-set> ("cons-names", [name|names])
+
+    /**
+     * Succeeds if a constructor name is defined
+     *
+     * @type String -> List(String)
+     */
+	sx-env-cons-name-defined =
+		?name;
+		<sx-env-get> "cons-names" => names;
+		<elem> (name, names)

@@ -1,0 +1,66 @@
+/**
+ * Prefixing of SDF2 sort names
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/soundx/processing/Prefixing
+
+imports org/sugarj/languages/Sdf2
+
+imports org/sugarj/soundx/Declarations
+		org/sugarj/soundx/Environment
+
+
+strategies
+	/**
+	 * Prefixes all sort names with the base language name
+	 *
+	 * @type a -> a
+	 */
+	sx-prefix-all-sorts-base-lang = topdown(try(sx-prefix-sort-base-lang))
+
+    /**
+     * Prefixes all sort names with the given prefix
+     *
+     * @param prefix String
+     *
+     * @type a -> a
+     */
+	sx-prefix-all-sorts(|prefix) = topdown(try(sx-prefix-sort(|prefix)))
+	
+	/**
+	 * Prefixes the sort name with the base language name
+	 *
+	 * @type Sdf2Symbol -> Sdf2Symbol
+	 */
+	sx-prefix-sort-base-lang =
+		where(sx-base-language-name => prefix);
+		sx-prefix-sort(|prefix)
+
+    /**
+     * Prefixes the sort name with the given prefix
+     *
+     * @param prefix String
+     *
+     * @type Sdf2Symbol -> Sdf2Symbol
+     */
+	sx-prefix-sort(|prefix) =
+		let conc-prefix = ?orig-name; <conc-strings> (prefix, orig-name)
+		in
+			sort(conc-prefix) +
+			parameterized-sort(conc-prefix, id)
+		end
+
+	/**
+	 * Prefixes the string with the base language name and the namespace
+	 *
+	 * @type String -> String
+	 */
+	sx-prefix-name =
+		?name;
+		sx-base-language-name => prefix;
+		sx-env-get-namespace => namespace;
+		<conc> (prefix, namespace, name)
+		// TODO: the namespace may have to be mangled
+
+				

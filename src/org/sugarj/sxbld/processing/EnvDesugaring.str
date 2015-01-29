@@ -31,6 +31,7 @@ strategies
   	    sxbld-env-make-toplevel-dec-body => extension-elems-body-dec;
   	    sxbld-env-make-toplevel-dec-import => extension-elems-import-dec;
   	    sxbld-env-make-toplevel-dec-namespace => extension-elems-namespace-dec;
+  	    sxbld-env-make-base-language-name => extension-elems-base-lang-name;
   	    sxbld-env-make-extension-delimiters => grm-elems-delims;
 	    ((sxbld-env-is-interface-judgement-defined;
 	      sxbld-env-get-interface-judgement => intf-judg;
@@ -47,7 +48,7 @@ strategies
 	    	grm-elems-delims) => grammar-elems;
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems,
   	    	extension-elems-body-dec, extension-elems-namespace-dec,
-  	    	extension-elems-import-dec))
+  	    	extension-elems-import-dec, extension-elems-base-lang-name))
 
 	/**
 	 * Generates a Stratego definition key = term
@@ -81,6 +82,15 @@ strategies
 		  	[prod([sort(sort-end)], sort("SXExtensionEnd"), no-attrs())]))]
 		 ) <+ ![]) => grm-end;
 		<conc> (grm-begin, grm-end)
+
+    /**
+     * Saves base-language-name in Stratego file
+     *
+     * @type _ -> List(ExtensionElem)
+     */
+    sxbld-env-make-toplevel-declaration =
+    	 sxbld-env-get-base-language-name => dec;
+    	 sxbld-env-decls-to-stratego(|dec, "base-language-name")
 
     /**
      * Saves toplevel-declaration in Stratego file

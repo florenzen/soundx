@@ -18,6 +18,10 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/InductiveDefinitions
 		org/sugarj/soundx/AnalysisFunctions
 
+imports org/sugarj/soundx/processing/GrammarElems
+		org/sugarj/soundx/processing/Namespace
+		org/sugarj/soundx/processing/Import
+
 imports org/sugarj/languages/Sdf2 // DEVEL
 
 /**
@@ -101,7 +105,10 @@ strategies
 		sx-process-language-toplevel
 		
 	sx-process-language-toplevel =
-		sx-env-add-toplevel-declaration
+		?decl;
+		<sx-env-add-toplevel-declaration> decl;
+		<sx-process-register-import> decl;
+		<sx-process-register-namespace> decl
 		
 	sx-process-extension-begin =
 		?SXExtensionBegin(_)

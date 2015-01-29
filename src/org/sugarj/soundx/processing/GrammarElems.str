@@ -8,16 +8,10 @@ module org/sugarj/soundx/processing/GrammarElems
 imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Environment
         org/sugarj/soundx/AnalysisFunctions
+        org/sugarj/soundx/SDF2
 
-imports org/sugarj/sxbld/processing/SortPrefixing
-        org/sugarj/sxbld/processing/SDF2
+imports org/sugarj/soundx/processing/Prefixing
 
-
-/**
- * Register analyses
- */
-strategies
-	sxbld-start-analysis = sxbld-analyze-grammar-elems
 
 /**
  * Analyses
@@ -30,13 +24,13 @@ strategies
 	 *
 	 * @type SXBldGrammarElems -> SXBldGrammarElems
 	 */
-	sxbld-analyze-grammar-elems =
-		?SXBldGrammarElems(grammars);
+	sx-process-grammar-elems =
+		?SXGrammarElems(grammars);
 		where(
-			<map(sxbld-analyze-grammar-elem); concat> grammars;
+			<map(sx-process-grammar-elem); concat> grammars;
 		    // Not using mapconcat here because it traverses the list from the end to front
 		    // which lowers quality of error messages
-			sxbld-add-grammar-elems)
+			sx-add-grammar-elems)
 
     /**
      * Analyzes and transforms a single SDF2 section
@@ -45,16 +39,16 @@ strategies
      *
      * @type Grammar -> List(Grammar)
      */
-    sxbld-analyze-grammar-elem =
-        ((sxbld-analyze-sorts +
-          sxbld-analyze-cf-syntax +
-          sxbld-analyze-lex-syntax +
-          sxbld-analyze-variables +
-          sxbld-analyze-lex-priorities +
-          sxbld-analyze-cf-priorities +
-          sxbld-analyze-lex-restrictions +
-          sxbld-analyze-cf-restrictions) <+
-         sxbld-analyze-unsupported(|"Unsupported SDF 2 section"));
+    sx-process-grammar-elem =
+        ((sx-process-sorts +
+          sx-process-cf-syntax +
+          sx-process-lex-syntax +
+          sx-process-variables +
+          sx-process-lex-priorities +
+          sx-process-cf-priorities +
+          sx-process-lex-restrictions +
+          sx-process-cf-restrictions) <+
+         sx-analysis-unsupported(|"Unsupported SDF 2 section"));
         (?[_|_] <+ ![<id>])
 
 	// TODO: priorities must also be doubled like
@@ -65,26 +59,26 @@ strategies
 	 *
 	 * @type Grammar -> Grammar
 	 */
-	sxbld-analyze-lex-priorities =
-		lexical-priorities(sxbld-prefix-all-sorts-base-lang)
+	sx-process-lex-priorities =
+		lexical-priorities(sx-prefix-all-sorts-base-lang)
 	
    /**
 	 * Prefixes sorts in context-free priorities
 	 *
 	 * @type Grammar -> Grammar
 	 */
-	sxbld-analyze-cf-priorities =
-		context-free-priorities(sxbld-prefix-all-sorts-base-lang)
+	sx-process-cf-priorities =
+		context-free-priorities(sx-prefix-all-sorts-base-lang)
 
     /**
 	 * Prefixes sorts in lexical restrictions
 	 *
 	 * @type Grammar -> Grammar
 	 */
-	sxbld-analyze-lex-restrictions =
+	sx-process-lex-restrictions =
 		?lexical-restrictions(restr);
-	    <sxbld-prefix-all-sorts(|"Gnd")> restr => restr-gnd;
-		<conc; sxbld-prefix-all-sorts-base-lang> (restr, restr-gnd) => restr-prefixed;
+	    <sx-prefix-all-sorts(|"Gnd")> restr => restr-gnd;
+		<conc; sx-prefix-all-sorts-base-lang> (restr, restr-gnd) => restr-prefixed;
 	    !lexical-restrictions(restr-prefixed)
 
 	/**
@@ -92,24 +86,24 @@ strategies
 	 *
 	 * @type Grammar -> Grammar
 	 */
-	sxbld-analyze-cf-restrictions =
-		context-free-restrictions(sxbld-prefix-all-sorts-base-lang)
+	sx-process-cf-restrictions =
+		context-free-restrictions(sx-prefix-all-sorts-base-lang)
 
 	/**
 	 * Prefixes sorts in variables
 	 *
 	 * @type Grammar -> Grammar
 	 */
-	sxbld-analyze-variables =
-	    variables(sxbld-prefix-all-sorts-base-lang)
+	sx-process-variables =
+	    variables(sx-prefix-all-sorts-base-lang)
 
     /**
      * Prefixes sorts in sorts
      *
      * @type Grammar -> Grammar
      */
-    sxbld-analyze-sorts =
-        'sorts(sxbld-prefix-all-sorts-base-lang)
+    sx-process-sorts =
+        'sorts(sx-prefix-all-sorts-base-lang)
     	// <map(sxbld-analyze-symbol); sxbld-prefix-all-sorts-base-lang> symbols => analyzed-symbols;
    	 //    !'sorts(analyzed-symbols)
 
@@ -118,9 +112,9 @@ strategies
      *
      * @type Grammar -> Grammar
      */
-    sxbld-analyze-cf-syntax =
+    sx-process-cf-syntax =
     	?context-free-syntax(prods);
-    	<map(sxbld-analyze-cf-production); concat> prods => analyzed-prods;
+    	<map(sx-process-cf-production); concat> prods => analyzed-prods;
         !context-free-syntax(analyzed-prods)
 
     /**
@@ -128,16 +122,13 @@ strategies
      *
      * @type Sdf2Production -> Sdf2Production
      */
-    sxbld-analyze-cf-production =
+    sx-process-cf-production =
     	?prod(symbols, symbol, attributes);
-    	<sxbld-analyze-cf-attributes> attributes => analyzed-attributes;
-    	<sxbld-analyze-body-dec> (symbol, analyzed-attributes);
-    	<sxbld-analyze-namespace-dec> (symbols, symbol, analyzed-attributes);
-    	<sxbld-analyze-import-dec> (symbols, symbol, analyzed-attributes);
-    	<sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
-    	<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
-    	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => prefixed-ground-symbols;
-    	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-ground-symbol;
+    	<sx-process-cf-attributes> attributes => analyzed-attributes;
+    	<sx-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
+    	<sx-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
+    	<sx-prefix-all-sorts(|"Gnd"); sx-prefix-all-sorts-base-lang> symbols => prefixed-ground-symbols;
+    	<sx-prefix-all-sorts(|"Gnd"); sx-prefix-all-sorts-base-lang> symbol => prefixed-ground-symbol;
     	![prod(prefixed-symbols, prefixed-symbol, analyzed-attributes),
     	  prod(prefixed-ground-symbols, prefixed-ground-symbol, analyzed-attributes)]
 
@@ -152,10 +143,10 @@ strategies
      *
      * @type Sdf2Attributes -> Sdf2Attributes
      */
-    sxbld-analyze-cf-attributes =
+    sx-process-cf-attributes =
     	((?no-attrs(); ![]) +
     	 (?attrs(attrib-list); !attrib-list));
-    	sxbld-analyze-cf-attribute-list-cons => attrib-list-with-cons;
+    	sx-process-cf-attribute-list-cons => attrib-list-with-cons;
     	!attrs(attrib-list-with-cons)
 
     /**
@@ -172,31 +163,31 @@ strategies
      *   constructor name
      * @type List(Sdf2Attribute) -> List(Sdf2Attribute)
      */
-    sxbld-analyze-cf-attribute-list-cons =
+    sx-process-cf-attribute-list-cons =
     	where(<elem> (bracket(), <id>)) <
     	// bracket attribute, return attributes untouched
     	id +
     	// No bracket attribute
-    	(partition(sxbld-sdf2-is-attribute(|"cons")) => (cons-attribs, other-attribs);
+    	(partition(sx-sdf2-is-attribute(|"cons")) => (cons-attribs, other-attribs);
     	 ((// No cons attribute, generate one
     	   !cons-attribs; ?[];
-     	   sxbld-env-fresh-cons-name => cons-name;
-		   sxbld-env-add-cons-name;
-    	   ![<sxbld-sdf2-cons-attribute> cons-name | other-attribs]) <+
+     	   sx-env-fresh-cons-name => cons-name;
+     	   sx-env-add-cons-name;
+    	   ![<sx-sdf2-cons-attribute> cons-name | other-attribs]) <+
     	  (// One cons attribute, prefix it
     	   !cons-attribs; ?[cons-attrib];
-    	   <sxbld-sdf2-cons-attribute-name-quoted> cons-attrib => cons-name-quoted;
+    	   <sx-sdf2-cons-attribute-name-quoted> cons-attrib => cons-name-quoted;
     	   <un-double-quote> cons-name-quoted => cons-name;
-    	   <sxbld-env-prefix-name> cons-name => prefixed-cons-name;
-		   if sxbld-env-cons-name-defined then
-		   	   <sxbld-analyze-fail(|"Duplicate constructor name")> cons-name-quoted
+    	   <sx-prefix-name> cons-name => prefixed-cons-name;
+		   if sx-env-cons-name-defined then
+		   	   <sx-analysis-fail(|"Duplicate constructor name")> cons-name-quoted
 		   else
-		   	   <sxbld-env-add-cons-name> prefixed-cons-name;
-    	       ![<sxbld-sdf2-cons-attribute> prefixed-cons-name | other-attribs]
+		   	   <sx-env-add-cons-name> prefixed-cons-name;
+    	       ![<sx-sdf2-cons-attribute> prefixed-cons-name | other-attribs]
     	   end) <+
     	  (// More than one cons attribute, error
     	   !cons-attribs; ?[_,_|_];
-    	   <map(sxbld-analyze-fail(|"Several cons attributes are not allowed"))> cons-attribs)))
+    	   <map(sx-analysis-fail(|"Several cons attributes are not allowed"))> cons-attribs)))
 
 	/**
 	 * Registers constructor and sort of body declaration if sx-body-dec attribute is given
@@ -205,7 +196,7 @@ strategies
 	 *
 	 * @type (Sdf2Symbol, Sdf2Attributes) -> (Sdf2Symbol, Sdf2Attributes)
 	 */
-	sxbld-analyze-body-dec =
+	sx-process-body-dec =
 		?(symbol, attributes);
 		where(
 			if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-body-dec")> attributes then
