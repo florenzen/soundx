@@ -12,5 +12,6 @@ imports org/sugarj/stdlib/StdTrans
 
 imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/InductiveDefinitions
+		org/sugarj/soundx/ExtensionDefinition
 		org/sugarj/soundx/AnalysisPhase
 		org/sugarj/soundx/DesugaringPhase

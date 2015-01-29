@@ -1,3 +1,5 @@
 module org/sugarj/soundx/SoundX
 
 imports org/sugarj/stdlib/Common
+
+imports org/sugarj/soundx/ExtensionDefinition

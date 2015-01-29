@@ -1,0 +1,12 @@
+module org/sugarj/soundx/ExtensionDefinition
+
+imports org/sugarj/soundx/InductiveDefinitions
+
+signature constructors
+	SXExtensionBegin: SXExtensionBegin   -> ToplevelDeclaration
+	SXExtensionEnd:   SXExtensionEnd     -> ToplevelDeclaration
+	SXDesugarings:    List(SXDesugaring) -> ToplevelDeclaration
+	SXGrammarElems:   List(Grammar)      -> ToplevelDeclaration
+
+	SXInductiveDefinitionsDesugarings: List(SXInductiveDefinitionDesugaring)
+	                                -> ToplevelDeclaration

@@ -1,0 +1,25 @@
+module org/sugarj/soundx/ExtensionDefinition
+
+imports org/sugarj/languages/Sugar
+
+imports org/sugarj/soundx/InductiveDefinitions
+
+
+exports
+	context-free syntax
+		SXExtensionBegin -> ToplevelDeclaration {cons("SXExtensionBegin")}
+		SXExtensionEnd   -> ToplevelDeclaration {cons("SXExtensionEnd")}
+		
+		SXInductiveDefinitions -> ToplevelDeclaration
+		
+		Grammar+ -> ToplevelDeclaration {cons("SXGrammarElems")}
+		
+		SXDesugarings -> ToplevelDeclaration
+		
+		SXInductiveDefinitionsDesugarings -> ToplevelDeclaration
+
+
+		"desugarings" SXDesugaring+ -> SXDesugarings {cons("SXDesugarings")}
+
+		"inductive" "definitions" "and" "desugarings" SXInductiveDefinitionDesugaring+
+			-> SXInductiveDefinitionsDesugarings {cons("SXInductiveDefinitionDesugarings")}

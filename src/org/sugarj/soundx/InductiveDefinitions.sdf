@@ -2,7 +2,7 @@ module org/sugarj/soundx/InductiveDefinitions
 
 exports
   sorts
-  	SXInferenceRule
+  	SXInferenceRule SXInductiveDefinitions
 
   lexical syntax
   	"---" "-"* -> SXRULESEP

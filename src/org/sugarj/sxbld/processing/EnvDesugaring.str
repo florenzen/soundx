@@ -64,16 +64,20 @@ strategies
     	 )]
 
 	/**
-	 * Generates the productions for the extension delimiters
+	 * Generates productions for SXExtensionBegin and End
 	 *
 	 * @type _ -> List(ExtensionElem)
 	 */
 	sxbld-env-make-extension-delimiters =
 		((sxbld-env-is-extension-begin-defined;
-		  sxbld-env-get-extension-begin => sort-begin
+		  sxbld-env-get-extension-begin; sxbld-env-prefix-name => sort-begin;
+		  ![grammar-elem(context-free-syntax(
+		  	[prod([sort(sort-begin)], sort("SXExtensionBegin"), no-attrs())]))]
 		 ) <+ ![]) => grm-begin;
 		((sxbld-env-is-extension-end-defined;
-		  sxbld-env-get-extension-end => sort-end
+		  sxbld-env-get-extension-end; sxbld-env-prefix-name => sort-end;
+		  ![grammar-elem(context-free-syntax(
+		  	[prod([sort(sort-end)], sort("SXExtensionEnd"), no-attrs())]))]
 		 ) <+ ![]) => grm-end;
 		<conc> (grm-begin, grm-end)
 
