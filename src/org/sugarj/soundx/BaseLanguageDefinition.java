@@ -45,6 +45,8 @@ import org.sugarj.util.Pair;
 
 // TODO fail if some essential declaration is missing in the
 // base language definition (like "interface" or "toplevel declaration").
+// This check is better off in the sxbld processing. See TODO in
+// org/sugarj/sxbld/Processing
 
 /**
  * Generation of SugarJ files from a SoundX base language definition.

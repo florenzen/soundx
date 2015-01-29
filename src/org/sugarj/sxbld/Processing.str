@@ -54,6 +54,12 @@ strategies
 	start-analysis =
 	    sxbld-analyze-unless-failed(changed-tree-or-analysis-data(sxbld-start-analysis))
 
+	// TODO: when the last toplevel declaration has been seen, check that all
+	// the required stuff has been mentioned in the base language definition.
+	// This way, the language library can assume that all necessary declarations
+	// are available and no checks have to be performed in BaseLanguageDefinition.java.
+	// This can be done using the new SUGARJ_is_last_toplevel_declaration primitive.
+
     /**
      * Performs the actual analysis
      *
