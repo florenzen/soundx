@@ -47,7 +47,9 @@ strategies
   	    hashtable-put(|"failed", SXFalse());
   	    hashtable-put(|"namespace", "");
   	    hashtable-put(|"imports", []);
-  	    hashtable-put(|"cons-names", [])
+  	    hashtable-put(|"cons-names", []);
+  	    hashtable-put(|"extension-processing", SXFalse());
+  	    hashtable-put(|"errors", [])
 
 
     /**
@@ -70,6 +72,28 @@ strategies
         ?(key, value);
   	    <sx-env-get-hashtable> ();
   	    hashtable-put(|key, value)
+
+/**
+ * Handling of errors
+ */
+strategies
+	/**
+	 * Adds an error to the list of errors
+	 *
+	 * @type (a, String) -> SXEnv
+	 */
+	sx-env-add-error =
+		?error;
+		<sx-env-get> "errors" => errors;
+		<sx-env-set> ("errors", [error|errors])
+
+	/**
+	 * Gets all errors
+	 *
+	 * @type _ -> List((a, String))
+	 */
+	sx-env-get-errors =
+		<sx-env-get> "errors"
 
 /**
  * Handling of toplevel-declarations
@@ -173,6 +197,34 @@ strategies
 	sx-env-get-imports =
 		<sx-env-get> "import"
 
+/**
+ * Handling of extension-processing
+ */
+strategies
+	/**
+	 * Set extension-processing
+	 *
+	 * @type _ -> SXEnv
+	 */
+	sx-env-set-extension-processing =
+		<sx-env-set> ("extension-processing", SXTrue())
+
+	/**
+	 * Checks if extension-processing is set
+	 *
+	 * @type _ -> _
+	 */
+	sx-env-is-extension-processing =
+		<sx-env-get> "extension-processing"; not(?SXFalse())
+
+	/**
+	 * Unset extension processing
+	 *
+	 * @type _ -> SXEnv
+	 */
+	sx-env-unset-extension-processing =
+		<sx-env-set> ("extension-processing", SXFalse())
+		
 /**
  * Handling of constructor names
  */

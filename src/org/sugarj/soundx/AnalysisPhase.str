@@ -17,6 +17,8 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/ExtensionDefinition
 		org/sugarj/soundx/InductiveDefinitions
 		org/sugarj/soundx/AnalysisFunctions
+		org/sugarj/soundx/Utils
+
 
 imports org/sugarj/soundx/Debug
 
@@ -26,19 +28,20 @@ imports //org/sugarj/soundx/processing/GrammarElems
 
 imports org/sugarj/languages/Sdf2 // DEVEL
 
+
 /**
  * Hook analysis into SugarJ
  */
 strategies
 	/**
-     * Collects all errors from the annotations
+     * Collects all errors from the annotation all-errors
      *
      * @type a -> List((a, String))
      */
 	constraint-error =
 		?ast;
-		sx-analysis-extract-errors;
-		map(!(ast, <id>))
+		(<get-analysis-data(|"all-errors")> ast <+ ![])
+
 
 	start-analysis = sx-analysis-unless-failed(changed-tree-or-analysis-data(sx-analysis))
 
@@ -100,6 +103,7 @@ strategies
 		 	// fail
 		 //end)
 
+	
 strategies
 	sx-process-toplevel-declaration =
 		sx-process-extension-begin +
@@ -133,10 +137,22 @@ strategies
 		<sx-debug(|"processsed body decl")> ""
 		
 	sx-process-extension-begin =
-		?SXExtensionBegin(_)
+		?decl@SXExtensionBegin(_);
+		if sx-env-is-extension-processing then
+			<sx-analysis-fail(|"extensions cannot be nested")> decl
+		else
+			sx-env-set-extension-processing;
+			sx-debug(|"switched extension processing on")
+		end
 		
 	sx-process-extension-end =
-		?SXExtensionEnd(_)
+		?decl@SXExtensionEnd(_);
+		if sx-env-is-extension-processing then
+			sx-env-unset-extension-processing;
+			sx-debug(|"switched extension processing off")
+		else
+			<sx-analysis-fail(|"extension end without extension begin")> decl
+		end
 
 	sx-process-grammar-elems =
 		?SXGrammarElems(_)
@@ -200,12 +216,7 @@ signature constructors // DEVEL
 	STLCVar: a -> a
 	SXCons0: a
 	SXCons3: a * a * a -> a
-strategies
-	/**
- 	 * Checks if the current toplevel declaration is the last one
- 	 */
-	sx-is-last-toplevel-decl =
-		prim("SUGARJ_is_last_toplevel_declaration")
+
 
 
 

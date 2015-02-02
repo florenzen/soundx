@@ -12,13 +12,16 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/ExtensionDefinition
 		org/sugarj/soundx/Declarations
 		org/sugarj/soundx/InductiveDefinitions
+		org/sugarj/soundx/Utils
+		org/sugarj/soundx/Debug
+
 
 
 /**
  * Hook desugaring into SugarJ
  */
 strategies
-	desugar = changed-tree(sx-desugar)
+	internal-main = sx-desugar
 
 strategies
 	/**
@@ -29,18 +32,46 @@ strategies
 	 * handle.
 	 */
 	sx-desugar =
+		?decl;
 		sx-is-toplevel-declaration;
-		// sx-desugar-env
-		// if last topleve declaration: fire the entire desugaring procedure
-		![]		
-
+		if sx-is-last-toplevel-decl then
+			sx-env-get-errors => errors;
+			if !errors; ?[] then
+				![] // env desugaring and derivation desugaring
+			else
+				// If there are errors, attach them all to the last
+				// declaration. Desugar the declaration into the empty
+				// string such that it gets added to the list of sugared
+				// toplevel declarations in the SugarJ driver and
+				// can be extracted by constraint-error.
+				<put-analysis-data(|"all-errors", errors)> decl;
+				!""
+			end
+		else
+			![] // env desugaring
+		end
+		
 	sx-is-toplevel-declaration =
-		?SXExtensionEnd(_) +
-		?SXExtensionBegin(_) +
-		?SXGrammarElems(_) +
-		?SXInductiveDefinitions(_) +
-		?SXDesugarings(_) +
+		sx-is-extension-end +
+		sx-is-extension-begin +
+		sx-is-grammar-elems +
+		sx-is-inductive-definitions +
+		sx-is-desugarings +
 		sx-is-import-decl +
 		sx-is-namespace-decl +
 		sx-is-body-decl
 
+	sx-is-extension-end =
+		?SXExtensionEnd(_)
+
+	sx-is-extension-begin =
+		?SXExtensionBegin(_)
+
+	sx-is-grammar-elems =
+		?SXGrammarElems(_)
+
+	sx-is-inductive-definitions =
+		?SXInductiveDefinitions(_)
+
+	sx-is-desugarings =
+		?SXDesugarings(_)

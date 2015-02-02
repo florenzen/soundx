@@ -1,0 +1,8 @@
+module org/sugarj/soundx/Utils
+
+strategies
+	/**
+ 	 * Checks if the current toplevel declaration is the last one
+ 	 */
+	sx-is-last-toplevel-decl =
+		prim("SUGARJ_is_last_toplevel_declaration")

@@ -260,3 +260,5 @@ signature constructors
 	
 	SXLeft:  a -> SXEither(a, b)
 	SXRight: b -> SXEither(a, b)
+
+	SXErrors: List((a, String)) -> SXErrors

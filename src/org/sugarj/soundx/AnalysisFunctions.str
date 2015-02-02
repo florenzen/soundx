@@ -24,7 +24,7 @@ strategies
      */
     sx-analysis-fail(|msg) =
     	where(<sx-env-failed> ());
-    	sx-analysis-annotate-error(|msg);
+    	sx-analysis-store-error(|msg);
     	fail
 
     /**
@@ -39,24 +39,15 @@ strategies
     sx-analysis-unsupported(|msg) =
     	where(<sx-env-get-failed> () => SXFalse());
     	where(<sx-env-failed> ());
-    	sx-analysis-annotate-error(|msg);
+    	sx-analysis-store-error(|msg);
     	fail
 
     /**
-     * Extract list of error messages from term
-     *
-     * @type a -> List(String)
-     */
-	sx-analysis-extract-errors =
-		get-analysis-data(|"errors") <+ ![]    	
-
-    /**
-     * Adds error message to a term
+     * Adds error message to the environment
      *
      * @param msg String
      * @type a -> a
      */
-    sx-analysis-annotate-error(|msg) =
+    sx-analysis-store-error(|msg) =
     	?ast;
-    	sx-analysis-extract-errors => msgs;
-    	<put-analysis-data(|"errors", [msg|msgs])> ast
+    	<sx-env-add-error> (ast, msg)

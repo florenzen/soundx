@@ -9,6 +9,7 @@
 module org/sugarj/soundx/SoundX
 
 imports org/sugarj/stdlib/StdTrans
+		org/sugarj/languages/Sugar
 
 imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/InductiveDefinitions
