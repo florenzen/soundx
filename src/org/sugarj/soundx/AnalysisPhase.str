@@ -128,14 +128,14 @@ strategies
 			<sx-analysis-fail(|"extensions cannot be nested")> decl
 		else
 			sx-env-set-extension-processing;
-			sx-debug(|"switched extension processing on")
+			<sx-debug(|"switched extension processing on")> ""
 		end
 		
 	sx-process-extension-end =
 		?decl@SXExtensionEnd(_);
 		if sx-env-is-extension-processing then
 			sx-env-unset-extension-processing;
-			sx-debug(|"switched extension processing off")
+			<sx-debug(|"switched extension processing off")> ""
 		else
 			<sx-analysis-fail(|"extension end without extension begin")> decl
 		end

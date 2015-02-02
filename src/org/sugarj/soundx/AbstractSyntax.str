@@ -23,7 +23,7 @@ strategies
 	 *
 	 * @type a -> a
 	 */
-    sxbld-meta-var-to-sx-metavar =
+    sx-meta-var-to-sx-metavar =
     	topdown(try(\meta-var(name) -> SXMetaVar(name)\))
 
 	/**

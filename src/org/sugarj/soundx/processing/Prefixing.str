@@ -9,6 +9,7 @@ imports org/sugarj/languages/Sdf2
 
 imports org/sugarj/soundx/Declarations
 		org/sugarj/soundx/Environment
+		org/sugarj/soundx/AnalysisFunctions
 
 
 strategies
@@ -59,7 +60,8 @@ strategies
 	sx-prefix-name =
 		?name;
 		sx-base-language-name => prefix;
-		sx-env-get-namespace => namespace;
+		(sx-env-get-namespace => namespace <+
+		 <sx-analysis-fail(|"no namespace defined")> name);
 		<conc> (prefix, namespace, name)
 		// TODO: the namespace may have to be mangled
 

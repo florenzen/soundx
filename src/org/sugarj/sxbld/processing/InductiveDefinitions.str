@@ -41,7 +41,7 @@ strategies
      */
 	sxbld-analyze-inference-rule =
 		?SXNamedInferenceRule(name, rule);
-		<sxbld-analyze-named-infrule-to-abs(|name); sxbld-meta-var-to-sx-metavar> rule => analyzed-rule;
+		<sxbld-analyze-named-infrule-to-abs(|name); sx-meta-var-to-sx-metavar> rule => analyzed-rule;
 		<sxbld-analyze-add-inference-rule> (name, analyzed-rule)
 
     /**

@@ -75,7 +75,7 @@ strategies
     	where(
     		(sxbld-env-is-interface-judgement-defined;
     		 <sxbld-analyze-fail(|"Only one `interface for - is - derived by -' allowed")> decl) <+
-    		<sxbld-meta-var-to-sx-metavar; sxbld-env-set-interface-judgement> (toplevel, intf, judg))
+    		<sx-meta-var-to-sx-metavar; sxbld-env-set-interface-judgement> (toplevel, intf, judg))
 
     /**
      * Stores sort of extension begin

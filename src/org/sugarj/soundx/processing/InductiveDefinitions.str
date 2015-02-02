@@ -1,0 +1,59 @@
+module org/sugarj/soundx/processing/InductiveDefinitions
+
+imports org/sugarj/soundx/AbstractSyntax
+		org/sugarj/soundx/InductiveDefinitions
+		org/sugarj/soundx/Environment
+		org/sugarj/soundx/AnalysisFunctions
+
+imports	org/sugarj/soundx/processing/Prefixing
+
+/**
+ * Analysis
+ */
+strategies
+	/**
+	 * Adds all inference rules to the environment
+	 *
+	 * @type SXInductiveDefinitions -> SXInductiveDefinitions
+	 */
+	sx-process-inductive-defs =
+		where(SXInductiveDefinitions(map(sx-process-inference-rule)))
+
+    /**
+     * Adds one inference rule to the environment
+     *
+     * Converts meta-var to SXMetaVar
+     * 
+     * @type SXNamedInferenceRule -> SXEnv
+     */
+	sx-process-inference-rule =
+		?SXNamedInferenceRule(name, rule);
+		<sx-prefix-name> name => prefixed-name;
+		<sx-process-named-infrule-to-abs(|prefixed-name); sx-meta-var-to-sx-metavar> rule => analyzed-rule;
+		<sx-process-add-inference-rule> (name, analyzed-rule)
+
+    /**
+     * Convert named inference rule to abstract syntax
+     *
+     * @type SXInferenceRule -> SXInfRule
+     */
+	sx-process-named-infrule-to-abs(|name) =
+		?SXInferenceRule(premises, _, concl);
+		<collect-all(sx-is-judgement, conc)> premises => premises-list;
+		!SXInfRule(premises-list, name, concl)
+
+	/**
+	 * Adds an inference rule to the environment
+	 *
+	 * Fails if a rule of that name is already defined
+	 *
+	 * @type (String, SXInfRule) -> SXEnv
+	 */
+	sx-process-add-inference-rule =
+		?(name, rule);
+		<sx-env-get-inference-rule> name;
+		if ?None() then
+			<sx-env-add-inference-rule> (name, rule)
+		else
+			<sx-analysis-fail(|"Duplicate inference rule name")> name
+		end
