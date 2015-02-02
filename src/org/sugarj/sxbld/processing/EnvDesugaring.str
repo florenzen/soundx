@@ -84,15 +84,6 @@ strategies
 		<conc> (grm-begin, grm-end)
 
     /**
-     * Saves base-language-name in Stratego file
-     *
-     * @type _ -> List(ExtensionElem)
-     */
-    sxbld-env-make-toplevel-declaration =
-    	 sxbld-env-get-base-language-name => dec;
-    	 sxbld-env-decls-to-stratego(|dec, "base-language-name")
-
-    /**
      * Saves toplevel-declaration in Stratego file
      *
      * We cannot write it directly to SDF since this would allow
@@ -126,6 +117,17 @@ strategies
     	(sxbld-env-is-base-file-ext-defined;
     	 sxbld-env-get-base-file-ext => dec;
     	 sxbld-env-decls-to-stratego(|dec, "base-file-ext")
+    	) <+ ![]
+
+    /**
+     * Saves base-language-name in Stratego file
+     *
+     * @type _ -> List(ExtensionElem)
+     */
+    sxbld-env-make-base-language-name =
+    	(sxbld-env-is-base-language-name-defined;
+    	 sxbld-env-get-base-language-name => dec;
+    	 sxbld-env-decls-to-stratego(|dec, "base-language-name")
     	) <+ ![]
 
 	/**

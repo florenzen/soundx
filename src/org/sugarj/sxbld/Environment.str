@@ -75,6 +75,7 @@ strategies
   	    hashtable-put(|"namespace-kind", ());
   	    hashtable-put(|"body-decs", []);
   	    hashtable-put(|"namespace-dec", ());
+  	    hashtable-put(|"cons-names", []);
   	    hashtable-put(|"import-decs", []);
   	    hashtable-put(|"extension-begin", "");
   	    hashtable-put(|"extension-end", "");
@@ -177,6 +178,14 @@ strategies
     sxbld-env-set-base-language-name =
   	    ?name;
   	    <sxbld-env-set> ("base-language-name", name)
+
+    /**
+     * Succeeds if a base-language-name is defined
+     *
+     * @type _ -> String
+     */
+	sxbld-env-is-base-language-name-defined =
+		sxbld-env-get-base-language-name; not(?"")
 
 /**
  * Fresh names

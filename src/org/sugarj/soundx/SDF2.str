@@ -40,6 +40,18 @@ strategies
     	?term(default(appl(unquoted(attrib-name), _))) +
     	?term(default(fun(unquoted(attrib-name))))
 
+	/**
+	 * Generates a ATerm attribute with a string argument
+	 *
+	 * The first string is the name of the attribute, the second
+	 * string is its value.
+	 *
+	 * @type (String, String) -> Sdf2Attribute
+	 */
+	sx-sdf2-aterm-attribute =
+		?(name, string);
+		!term(name#([string]))
+
     /**
      * Succeeds if ATerm attribute of given name is defined in attributes
      *
@@ -113,3 +125,17 @@ strategies
 		(?[symbol|symbols];
 		 <sx-sdf2-find-index-of-labelled-symbol(|label)> symbols => index;
 		 !(<add> (1, index)))
+
+	/**
+	 * Counts how many abstract syntax subtree as list of symbols generates
+	 *
+	 * @type List(Sdf2Symbol) -> Int
+	 */
+	sx-sdf2-count-subtrees =
+		(?[];
+		 !0) <+
+		(?[lit(_) | symbols];
+		 <sx-sdf2-count-subtrees> symbols) <+
+		(?[symbol|symbols];
+		 <sx-sdf2-count-subtrees> symbols => num;
+		 !(<add> (1, num)))

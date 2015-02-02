@@ -33,19 +33,80 @@ strategies
 	sxbld-analyze-judgement-forms =
 		?SXBldJudgementForms(forms);
 		where(
-			<map(sxbld-analyze-judgement-form)> forms => prods;
+			<mapconcat(sxbld-analyze-judgement-form)> forms => prods;
 			<sxbld-env-add-grammar-elems> [grammar-elem(context-free-syntax(prods))])
 
+	/**
+	 * Generates judgement and desugaring productions
+	 *
+	 * @type SXBldJudgementForm -> List(Sdf2Productions)
+	 */
+	sxbld-analyze-judgement-form =
+		?SXBldJudgementForm(symbols);
+		<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
+		<sxbld-analyze-judgement-prod> prefixed-symbols => judg-prod;
+		!prefixed-symbols => [head|tail];
+		<sxbld-analyze-guarded-desugaring-prods> ([], head, tail) => des-prods;
+		![judg-prod|des-prods]
+		//![judg-prod]
+		
 	/**
 	 * Generates a production for SXJudgement
 	 *
 	 * Generates a constructor name for the judgement and
 	 * prefixes all sort names.
 	 *
-	 * @type SXBldJudgementForm -> Sdf2Production
+	 * @type List(Sdf2Symbol) -> Sdf2Production
 	 */
-	sxbld-analyze-judgement-form =
-		?SXBldJudgementForm(symbols);
+	sxbld-analyze-judgement-prod =
+		?symbols;
 	    <sxbld-env-fresh-judgement-name> () => judgement-name;
-    	<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
-    	!prod(prefixed-symbols, sort("SXJudgement"), attrs([<sx-sdf2-cons-attribute> judgement-name]))
+    	!prod(symbols, sort("SXJudgement"), attrs([<sx-sdf2-cons-attribute> judgement-name]))
+
+	/**
+	 * Generates productions for guarded desugarings
+	 *
+	 * The first list of symbols are go before the subject expression,
+	 * the second symbol is the subject expression, the third list
+	 * of symbols goes after the subject expression.
+	 * Literal symbols are skipped.<debug(!"BBBBBBBB")> ();
+	 *
+	 * @type (List(Sdf2Symbols), Sdf2Symbol, List(Sdf2Symbols))
+	 *    -> List(Sdf2Production)
+	 */
+	sxbld-analyze-guarded-desugaring-prods =
+		// Skip literal, is last symbol
+		(?(before-symbols, lit(_), []);
+		 ![]) <+
+		// Skip literal, more symbols to process
+		(?(before-symbols, symb@lit(_), [after-symbol|after-symbols]);
+		 <sxbld-analyze-guarded-desugaring-prods>
+		 (<conc> (before-symbols, [symb]), after-symbol, after-symbols)) <+
+		// Termination case (no after symbols left)
+		(?symbols@(before-symbols, subject-symbol, []);
+		 <sxbld-analyze-guarded-desugaring-prod> symbols => prod;
+		 ![prod]) <+
+		// Iteration case (some after symbols left)
+		(?symbols@(before-symbols, subject-symbol, [after-symbol|after-symbols]);
+		 <sxbld-analyze-guarded-desugaring-prod> symbols => prod;
+		 <sxbld-analyze-guarded-desugaring-prods>
+	 	 	(<conc> (before-symbols, [subject-symbol]), after-symbol, after-symbols) => prods;
+	 	 ![prod|prods])
+
+	sxbld-analyze-guarded-desugaring-prod =
+		?(before-symbols, subject-symbol, after-symbols);
+		<conc> ( // The symbols of the conclusion with [, ]
+			before-symbols,
+			[lit("["), subject-symbol, lit("]")],
+			after-symbols) => symbols-concl;
+		<conc> ( // The entire left-hand side with {, ~~~>, }
+			[lit("{"), sort("SXInfRulePremises"), sort("SXRULESEP")],
+			symbols-concl,
+			[lit("~~~>"), subject-symbol, lit("}")]) => lhs-desugaring;
+		<sx-sdf2-count-subtrees> before-symbols; int-to-string => index;
+		<conc-strings> ("SXGuardedDesugaring", index) => cons-name;
+		![
+			<sx-sdf2-cons-attribute> cons-name,
+			<sx-sdf2-aterm-attribute> ("layout", "1.first.col == 2.first.col && 2.first.col == 3.first.col")
+		 ] => attributes;
+		!prod(lhs-desugaring, sort("SXDesugaring"), attrs(attributes))
