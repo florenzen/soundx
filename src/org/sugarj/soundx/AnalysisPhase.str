@@ -142,7 +142,8 @@ strategies
 		?SXGrammarElems(_)
 		
 	sx-process-desugarings =
-		?SXDesugarings(_)
+		?SXDesugarings(_);
+		sx-debug(|"found these desugarings ")
 
 	sx-process-inductive-defs =
 		?SXInductiveDefinitions(_)

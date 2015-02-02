@@ -16,10 +16,12 @@ exports
 		
 		SXDesugarings -> ToplevelDeclaration
 		
-		SXInductiveDefinitionsDesugarings -> ToplevelDeclaration
+		%%SXInductiveDefinitionsDesugarings -> ToplevelDeclaration
 
 
 		"desugarings" SXDesugaring+ -> SXDesugarings {cons("SXDesugarings")}
 
-		"inductive" "definitions" "and" "desugarings" SXInductiveDefinitionDesugaring+
-			-> SXInductiveDefinitionsDesugarings {cons("SXInductiveDefinitionDesugarings")}
+		"~"* "~~~>" -> SXDESUGARINGSEP
+
+		%%"inductive" "definitions" "and" "desugarings" SXInductiveDefinitionDesugaring+
+		%%	-> SXInductiveDefinitionsDesugarings {cons("SXInductiveDefinitionDesugarings")}
