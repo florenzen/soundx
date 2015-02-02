@@ -49,8 +49,9 @@ strategies
   	    hashtable-put(|"imports", []);
   	    hashtable-put(|"cons-names", []);
   	    hashtable-put(|"extension-processing", SXFalse());
-  	    hashtable-put(|"errors", [])
-
+  	    hashtable-put(|"errors", []);
+  	    hashtable-put(|"desugarings", []);
+  	    hashtable-put(|"inference-rues", <new-hashtable> ())
 
     /**
      * Looks up a key in the environment
@@ -72,6 +73,52 @@ strategies
         ?(key, value);
   	    <sx-env-get-hashtable> ();
   	    hashtable-put(|key, value)
+
+/**
+ * Handling of desugarings
+ */
+strategies
+	/**
+	 * Adds an error to the list of errors
+	 *
+	 * @type (a, String) -> SXEnv
+	 */
+	sx-env-add-desugaring =
+		?desugaring;
+		<sx-env-get> "desugarings" => desugarings;
+		<sx-env-set> ("desugarings", [desugaring|desugarings])
+
+	/**
+	 * Gets all desugarings
+	 *
+	 * @type _ -> List(SXDesugaring)
+	 */
+	sx-env-get-errors =
+		<sx-env-get> "desugarings"
+
+/**
+ * Handling of inference rules
+ */
+strategies
+    /**
+	 * Gets an inference rule
+	 *
+	 * @type String -> Option(SXInfRule)
+	 */
+    sx-env-get-inference-rule =
+    	?name;
+  	    <sx-env-get> "inference-rules";
+  	    maybe(hashtable-get(|name))
+
+    /**
+     * Adds an inference rules
+     *
+     * @type (String, SXInfRule) -> SXEnv
+     */  
+    sx-env-add-inference-rule =
+  	    ?(name, rule);
+  	    <sx-env-get> "inference-rules";
+  	    hashtable-put(|name, rule)
 
 /**
  * Handling of errors
