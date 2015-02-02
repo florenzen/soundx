@@ -15,3 +15,10 @@ strategies
 			<sx-debug(|"registered import ")> import;
 			<sx-env-add-import> import
 		)
+
+	sx-process-import-decl =
+		?decl;
+		sx-is-import-decl;
+		<sx-env-add-toplevel-declaration> decl;
+		<sx-process-register-import> decl;
+		<sx-debug(|"processsed import decl")> ""
