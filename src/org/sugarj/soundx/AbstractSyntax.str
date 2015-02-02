@@ -184,6 +184,13 @@ strategies
 		?SXEq(_, _)
 
 /**
+ * Desugarings
+ */
+signature constructors
+	SXGuardDesug: List(SXJudgement) * List(SXExpr) * SXExpr * List(SXExpr) * SXExpr -> SXDesug
+	SXUnivDesug:  SXExpr * SXExpr -> SXDesug
+
+/**
  * Toplevel declaration list
  */
 signature constructors

@@ -1,0 +1,9 @@
+module org/sugarj/soundx/processing/Desugarings
+
+imports org/sugarj/soundx/AbstractSyntax
+		org/sugarj/soundx/Environment
+		org/sugarj/soundx/ExtensionDefinition
+
+strategies
+	sx-process-desugarings =
+		?SXDesugarings(_)

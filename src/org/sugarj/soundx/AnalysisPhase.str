@@ -25,6 +25,8 @@ imports org/sugarj/soundx/Debug
 imports //org/sugarj/soundx/processing/GrammarElems
 		org/sugarj/soundx/processing/Namespace
 		org/sugarj/soundx/processing/Import
+		org/sugarj/soundx/processing/InductiveDefinitions
+		org/sugarj/soundx/processing/Desugarings
 
 imports org/sugarj/languages/Sdf2 // DEVEL
 
@@ -142,9 +144,6 @@ strategies
 
 	sx-process-grammar-elems =
 		?SXGrammarElems(_)
-		
-	sx-process-desugarings =
-		?SXDesugarings(_)
 
 	sx-process-inductive-defs =
 		?SXInductiveDefinitions(_)
