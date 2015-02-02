@@ -93,6 +93,11 @@ strategies
 	 	 	(<conc> (before-symbols, [subject-symbol]), after-symbol, after-symbols) => prods;
 	 	 ![prod|prods])
 
+	/**
+	 * Generates a production for guarded desugaring ending with the given symbols
+	 *
+	 * @type (List(Sdf2Symbol), Sdf2Symbol, List(Sdf2Symbol)) -> Sdf2Production
+	 */
 	sxbld-analyze-guarded-desugaring-prod =
 		?(before-symbols, subject-symbol, after-symbols);
 		<conc> ( // The symbols of the conclusion with [, ]
@@ -103,7 +108,7 @@ strategies
 			[lit("{"), sort("SXInfRulePremises"), sort("SXRULESEP")],
 			symbols-concl,
 			[lit("~~~>"), subject-symbol, lit("}")]) => lhs-desugaring;
-		<sx-sdf2-count-subtrees> before-symbols; int-to-string => index;
+		<add> (1, <sx-sdf2-count-subtrees> before-symbols); int-to-string => index;
 		<conc-strings> ("SXGuardedDesugaring", index) => cons-name;
 		![
 			<sx-sdf2-cons-attribute> cons-name,
