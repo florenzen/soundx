@@ -18,7 +18,9 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/InductiveDefinitions
 		org/sugarj/soundx/AnalysisFunctions
 
-imports org/sugarj/soundx/processing/GrammarElems
+imports org/sugarj/soundx/Debug
+
+imports //org/sugarj/soundx/processing/GrammarElems
 		org/sugarj/soundx/processing/Namespace
 		org/sugarj/soundx/processing/Import
 
@@ -52,20 +54,24 @@ strategies
  * The main SoundX analysis
  */
 strategies
+	// analysis never changes its input (apart from error annotations)
 	sx-analysis =
-		?SXFinished(decls) < !SXFinished(decls) +
-		(debug(!"CURRENT TOPLEVEL DECL ");
-		 sx-process-toplevel-declaration;
-		 if sx-is-last-toplevel-decl then
-		 	 sx-env-get-toplevel-declarations;
-		 	 debug(!"LIST OF TOPLEVEL DECLARATIONS ");
-		 	 sx-list-to-toplevel-decls => toplevel-decs;
-		 	 sx-context-analysis;
+		where(
+			sx-debug(|"current toplevel declaration: ");
+		 	sx-process-toplevel-declaration;
+		 	if sx-is-last-toplevel-decl then
+		 		<sx-debug(|"last toplevel declaration")> "";
+		 	 	sx-env-get-toplevel-declarations;
+		 	 	sx-debug(|"list of toplevel declarations");
+		 	 	sx-list-to-toplevel-decls => toplevel-decs;
+		 	 	sx-context-analysis
+		 	 else
+		 	 	id
+		 	 end)
 		 	 
 		 	 
-		 	 !SXFinished(toplevel-decs);
 		 	 // DEVEL
-		 	 where(
+		 	// where(
 		 	//  	<sx-sub-singleton> (SXMetaVar("a"), "String") => sub;
 		 	//   	<sx-sub-map(\ _ -> 1 \)> sub => sub1;
 		 	//   	<hashtable-getlist; debug(!"SUB  ")> sub;
@@ -86,29 +92,45 @@ strategies
 		 	//   	<sx-res-sub-to-eqs> subA1; debug(!"SUB TO EQS ");
 		 	//   	![SXNeq("a", "b"), SXNeq(SXMetaVar("foo"), SXMetaVarGen("bar", 1)), SXNeq("a", SXMetaVar("baz"))];
 		 	//   	sx-res-assign-neqs; debug(!"ASSIGN ")
-		 	id
+		 	//id
 		 	//sx-inference-rules; debug(!"Inference rules ");
 		 	//sx-interface-judgement; debug(!"Interface judgement")
-		 	 )
-		 else
-		 	 fail
-		 end)
+		 	// )
+		 //else
+		 	// fail
+		 //end)
 
 strategies
 	sx-process-toplevel-declaration =
-		sx-process-extension-begin <+
-		sx-process-extension-end <+
-		sx-process-grammar-elems <+
-		sx-process-desugarings <+
-		sx-process-inductive-defs <+
-		sx-process-inductive-defs-desugarings <+
-		sx-process-language-toplevel
-		
-	sx-process-language-toplevel =
+		sx-process-extension-begin +
+		sx-process-extension-end +
+		//sx-process-grammar-elems +
+		sx-process-desugarings +
+		sx-process-inductive-defs +
+		sx-process-inductive-defs-desugarings +
+		sx-process-namespace-decl +
+		sx-process-import-decl +
+		sx-process-body-decl
+
+	sx-process-namespace-decl =
 		?decl;
+		sx-is-namespace-decl;
+		<sx-env-add-toplevel-declaration> decl;
+		<sx-process-register-namespace> decl;
+		<sx-debug(|"processsed namespace decl")> ""
+
+	sx-process-import-decl =
+		?decl;
+		sx-is-import-decl;
 		<sx-env-add-toplevel-declaration> decl;
 		<sx-process-register-import> decl;
-		<sx-process-register-namespace> decl
+		<sx-debug(|"processsed import decl")> ""
+
+	sx-process-body-decl =
+		?decl;
+		sx-is-body-decl;
+		<sx-env-add-toplevel-declaration> decl;
+		<sx-debug(|"processsed body decl")> ""
 		
 	sx-process-extension-begin =
 		?SXExtensionBegin(_)
@@ -127,6 +149,7 @@ strategies
 
 	sx-process-inductive-defs-desugarings =
 		?SXInductiveDefinitionsDesugarings(_)
+
 
 strategies
 	sx-context-analysis =
@@ -192,3 +215,10 @@ strategies
 		// 	  [fun(quoted("\"A\""))])))]))]) => grammar;
 		// <ppgenerate> grammar => pptable;
 		// debug(!"PP TABLE ")
+
+
+
+strategies
+	//current-guard = fail
+	
+

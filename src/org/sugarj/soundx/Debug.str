@@ -2,4 +2,4 @@ module org/sugarj/soundx/Debug
 
 strategies
 	sx-debug(|msg) =
-		debug(!<conc> ("DEBUG: ", msg))
+		debug(!<conc-strings> ("DEBUG: ", msg))

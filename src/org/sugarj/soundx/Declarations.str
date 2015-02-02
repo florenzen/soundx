@@ -20,3 +20,18 @@ strategies
 	sx-namespace-dec = fail
 	sx-import-decs = fail
 	sx-base-language-name = fail
+
+	sx-is-body-decl =
+		?con#(args);
+		sx-body-decs => cons-names;
+		<elem> (con, cons-names)
+
+	sx-is-namespace-decl =
+		?con#(args);
+		sx-namespace-dec => (cons-name, _);
+		<eq> (con, cons-name)
+
+	sx-is-import-decl =
+		?con#(args);
+		sx-import-decs; unzip => (cons-names, _);
+		<elem> (con, cons-names)

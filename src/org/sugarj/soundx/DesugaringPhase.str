@@ -10,6 +10,8 @@ imports org/sugarj/stdlib/StdTrans
 imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Environment
 		org/sugarj/soundx/ExtensionDefinition
+		org/sugarj/soundx/Declarations
+		org/sugarj/soundx/InductiveDefinitions
 
 
 /**
@@ -27,10 +29,18 @@ strategies
 	 * handle.
 	 */
 	sx-desugar =
-		?SXFinished(_);
-		sx-env-get-toplevel-declarations => [decl|_];
-		![decl]
-	sx-desugar =
-		?SXExtensionEnd(_); ![]
-	sx-desugar =
-		?SXExtensionBegin(_); ![]
+		sx-is-toplevel-declaration;
+		// sx-desugar-env
+		// if last topleve declaration: fire the entire desugaring procedure
+		![]		
+
+	sx-is-toplevel-declaration =
+		?SXExtensionEnd(_) +
+		?SXExtensionBegin(_) +
+		?SXGrammarElems(_) +
+		?SXInductiveDefinitions(_) +
+		?SXDesugarings(_) +
+		sx-is-import-decl +
+		sx-is-namespace-decl +
+		sx-is-body-decl
+
