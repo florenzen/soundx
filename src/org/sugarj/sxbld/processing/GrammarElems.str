@@ -129,7 +129,7 @@ strategies
     /**
      * Analyzes a context-free production
      *
-     * @type Sdf2Production -> Sdf2Production
+     * @type Sdf2Production -> List(Sdf2Production)
      */
     sxbld-analyze-cf-production =
     	?prod(symbols, symbol, attributes);
@@ -141,8 +141,23 @@ strategies
     	<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => prefixed-ground-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-ground-symbol;
-    	![prod(prefixed-symbols, prefixed-symbol, analyzed-attributes),
+    	<sxbld-analyze-universal-desugaring-prod> prefixed-symbol => univ-prod;
+    	![univ-prod,
+    	  prod(prefixed-symbols, prefixed-symbol, analyzed-attributes),
     	  prod(prefixed-ground-symbols, prefixed-ground-symbol, analyzed-attributes)]
+
+	/**
+	 * Generates a production for a universal desugaring
+	 *
+	 * @type Sdf2Symbol -> Sdf2Production
+	 */
+	sxbld-analyze-universal-desugaring-prod =
+		// This simple approach generates the production many times for
+		// a single sort blowing up the SDF2 code.
+		?symbol;
+		!prod([lit("{"), symbol, sort("SXDESUGARINGSEP"), symbol, lit("}")],
+			sort("SXDesugaring"),
+			attrs([<sx-sdf2-cons-attribute> "SXUniversalDesugaring"]))
 
     /**
      * Checks attributes of context-free production

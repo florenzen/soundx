@@ -6,6 +6,9 @@ imports org/sugarj/soundx/InductiveDefinitions
 
 
 exports
+	lexical syntax
+		"~"* "~~~>" -> SXDESUGARINGSEP
+
 	context-free syntax
 		SXExtensionBegin -> ToplevelDeclaration {cons("SXExtensionBegin")}
 		SXExtensionEnd   -> ToplevelDeclaration {cons("SXExtensionEnd")}
@@ -20,8 +23,6 @@ exports
 
 
 		"desugarings" SXDesugaring+ -> SXDesugarings {cons("SXDesugarings")}
-
-		"~"* "~~~>" -> SXDESUGARINGSEP
 
 		%%"inductive" "definitions" "and" "desugarings" SXInductiveDefinitionDesugaring+
 		%%	-> SXInductiveDefinitionsDesugarings {cons("SXInductiveDefinitionDesugarings")}
