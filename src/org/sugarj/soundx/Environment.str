@@ -93,7 +93,7 @@ strategies
 	 *
 	 * @type _ -> List(SXDesugaring)
 	 */
-	sx-env-get-errors =
+	sx-env-get-desugarings =
 		<sx-env-get> "desugarings"
 
 /**

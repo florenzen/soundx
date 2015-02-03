@@ -187,7 +187,7 @@ strategies
  * Desugarings
  */
 signature constructors
-	SXGuardDesug: List(SXJudgement) * List(SXExpr) * SXExpr * List(SXExpr) * SXExpr * String -> SXDesug
+	SXGuardDesug: List(SXJudgement) * List(SXExpr) * SXExpr * List(SXExpr) * String * SXExpr -> SXDesug
 	SXUnivDesug:  SXExpr * SXExpr                                                            -> SXDesug
 
 /**

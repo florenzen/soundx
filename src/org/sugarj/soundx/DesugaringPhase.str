@@ -35,7 +35,7 @@ strategies
 		?decl;
 		sx-is-toplevel-declaration;
 		if sx-is-last-toplevel-decl then
-			sx-env-get-errors => errors;
+			sx-env-get-errors  => errors;
 			if !errors; ?[] then
 				![] // env desugaring and derivation desugaring
 			else

@@ -2,6 +2,7 @@ module org/sugarj/soundx/processing/Namespace
 
 imports org/sugarj/soundx/Declarations
 		org/sugarj/soundx/Environment
+		org/sugarj/soundx/AnalysisFunctions
 
 imports org/sugarj/soundx/Debug
 
@@ -10,12 +11,16 @@ strategies
 		?decl@con#(args);
 		where(
 			sx-namespace-dec => (cons-name, index);
-			if <eq> (con, cons-name) then
-				<index> (<add> (index, 1), args) => namespace;
-				<sx-debug(|"registered namespace ")> namespace;
-				<sx-env-set-namespace> namespace
+			if sx-env-is-extension-processing then
+				<sx-analysis-fail(|"namespace declaration cannot be inside an extension")> decl
 			else
-				id
+				if <eq> (con, cons-name) then
+					<index> (<add> (index, 1), args) => namespace;
+					<sx-debug(|"registered namespace ")> namespace;
+					<sx-env-set-namespace> namespace
+				else
+					id
+				end
 			end)
 
 	sx-process-namespace-decl =

@@ -113,7 +113,6 @@ strategies
 		//sx-process-grammar-elems +
 		sx-process-desugarings +
 		sx-process-inductive-defs +
-		sx-process-inductive-defs-desugarings +
 		sx-process-namespace-decl +
 		sx-process-import-decl +
 		sx-process-body-decl
@@ -121,8 +120,12 @@ strategies
 	sx-process-body-decl =
 		?decl;
 		sx-is-body-decl;
-		<sx-env-add-toplevel-declaration> decl;
-		<sx-debug(|"processsed body decl")> ""
+		if sx-env-is-extension-processing then
+			<sx-analysis-fail(|"body declaration cannot be inside extension")> decl
+		else
+			<sx-env-add-toplevel-declaration> decl;
+			<sx-debug(|"processsed body decl")> ""
+		end
 		
 	sx-process-extension-begin =
 		?decl@SXExtensionBegin(_);
@@ -144,12 +147,6 @@ strategies
 
 	sx-process-grammar-elems =
 		?SXGrammarElems(_)
-
-	sx-process-inductive-defs =
-		?SXInductiveDefinitions(_)
-
-	sx-process-inductive-defs-desugarings =
-		?SXInductiveDefinitionsDesugarings(_)
 
 
 strategies

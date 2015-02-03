@@ -10,3 +10,5 @@ signature constructors
 
 	SXInductiveDefinitionsDesugarings: List(SXInductiveDefinitionDesugaring)
 	                                -> ToplevelDeclaration
+
+	SXUniversalDesugaring: SXExpr * SXDESUGARINGSEP * SXExpr -> SXDesugaring

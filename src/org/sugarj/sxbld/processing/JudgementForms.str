@@ -49,7 +49,6 @@ strategies
 		!prefixed-symbols => [head|tail];
 		<sxbld-analyze-guarded-desugaring-prods(|judgement-name)> ([], head, tail) => des-prods;
 		![judg-prod|des-prods]
-		//![judg-prod]
 		
 	/**
 	 * Generates a production for SXJudgement
