@@ -14,25 +14,27 @@ strategies
 		//debug(!"TRANS DESUG ");
 		<sx-env-get; hashtable-values> "inference-rules" => inf-rules;
 		//debug(!"INF RULES ");
-	    sx-env-decls-to-stratego(|inf-rules, "inference-rules") => trans-infrules;
+	    sx-env-module-decls-to-stratego(|inf-rules, "extension-inference-rules") => trans-infrules;
 	    //debug(!"TRANS INF RULES ");
 	    <conc> (trans-infrules, trans-desugarings) => transformation-elems;
 	    !SXExtensionDecl(transformation-elems)
 	    //;debug(!"EXTENSION DECL ")
 	  
 	/**
-	 * Generates a Stratego definition key = term
+	 * Generates a Stratego definition key = term under the module name
 	 *
 	 * @param term The term to explode
 	 * @param key The name of the definition
 	 *
 	 * @type _ -> List()
 	 */
-    sx-env-decls-to-stratego(|term, key) =
+    sx-env-module-decls-to-stratego(|term, key) =
     	<trm-explode> term => stratego-alist;
     	<conc-strings> ("sx-", key) => strategy-name;
+    	sx-env-get-namespace => namespace;
+    	!Seq(Match(Str(namespace)), Build(stratego-alist)) => rhs;
     	![transformation-elem(
-    		Strategies([SDefNoArgs(strategy-name, Build(stratego-alist))])
+    		Strategies([SDefNoArgs(strategy-name, rhs)])
     	 )]
 
 	sx-env-make-desugarings =
