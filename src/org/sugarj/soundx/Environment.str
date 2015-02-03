@@ -17,7 +17,7 @@ strategies
 	/**
 	 * The environment hash table
 	 *
-	 * Do not call directly, use sxbld-get-env-hashtable instead.
+	 * Do not call directly, use sx-env-get-hashtable instead.
 	 *
 	 * @type _ -> SXEnv
 	 */
@@ -51,7 +51,9 @@ strategies
   	    hashtable-put(|"extension-processing", SXFalse());
   	    hashtable-put(|"errors", []);
   	    hashtable-put(|"desugarings", []);
-  	    hashtable-put(|"inference-rules", <new-hashtable> ())
+  	    hashtable-put(|"inference-rules", <new-hashtable> ());
+  	    hashtable-put(|"grammar-elems", []);
+  	    hashtable-put(|"name-counter", 0)
 
     /**
      * Looks up a key in the environment
@@ -73,6 +75,83 @@ strategies
         ?(key, value);
   	    <sx-env-get-hashtable> ();
   	    hashtable-put(|key, value)
+
+/**
+ * Fresh names
+ */
+strategies
+	/**
+	 * Gets name-counter
+	 *
+	 * @type _ -> integer
+	 */
+	sx-env-get-name-counter =
+		<sx-env-get> "name-counter"
+
+    /**
+     * Sets name-counter
+     *
+     * @type integer -> SXEnv
+     */
+    sx-env-set-name-counter =
+    	?counter;
+    	<sx-env-set> ("name-counter", counter)
+
+    /**
+     * Generates a fresh name with the given prefix
+     *
+     * @type String -> String
+     */
+    sx-env-fresh-name:
+    	prefix -> fresh-name
+    	where
+    		<sx-env-get-name-counter> () => counter;
+    	    <sx-env-set-name-counter> (<add> (counter, 1));
+    	    <int-to-string> counter => suffix;
+    	    <conc-strings> (prefix, suffix) => fresh-name
+
+    /**
+     * Generates a fresh name for a constructor
+     *
+     * The namespace is included in the constructor name
+     * to make them distinct over all modules.
+     *
+     * @type _ -> String
+     */
+    sx-env-fresh-cons-name =
+    	sx-env-get-namespace => namespace;
+    	<sx-env-fresh-name> (<conc-strings> ("SXCons", namespace))
+  
+/**
+ * Handling of grammar-elems
+ */
+strategies
+	/**
+	 * Gets grammar-elems
+	 *
+	 * @type _ -> List(Grammar)
+	 */
+    sx-env-get-grammar-elems =
+        <sx-env-get> "grammar-elems"
+
+    /**
+     * Sets grammar-elems
+     *
+     * @type List(Grammar) -> SXEnv
+     */
+    sx-env-set-grammar-elems =
+        ?grammar-elems-new;
+  	    <sx-env-set> ("grammar-elems", grammar-elems-new)
+
+    /**
+     * Adds grammar-elems
+     *
+     * @type List(Grammar) -> SXEnv
+     */
+    sx-env-add-grammar-elems =
+  	    ?grammar-elems-new;
+  	    sx-env-get-grammar-elems => grammar-elems-old;
+  	    <sx-env-set-grammar-elems> (<conc> (grammar-elems-new, grammar-elems-old))
 
 /**
  * Handling of desugarings
@@ -171,7 +250,7 @@ strategies
 	/**
 	 * Gets failed flag
 	 *
-	 * @type _ -> SXBldBool
+	 * @type _ -> SXBool
 	 */
     sx-env-get-failed =
         <sx-env-get> "failed"
@@ -179,7 +258,7 @@ strategies
     /**
      * Sets the failed flag
      *
-     * @type SXBldBool -> SXEnv
+     * @type SXBool -> SXEnv
      */
     sx-env-set-failed =
         ?failed-new;

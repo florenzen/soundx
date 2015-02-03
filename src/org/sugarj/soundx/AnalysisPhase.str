@@ -22,7 +22,7 @@ imports org/sugarj/soundx/AbstractSyntax
 
 imports org/sugarj/soundx/Debug
 
-imports //org/sugarj/soundx/processing/GrammarElems
+imports org/sugarj/soundx/processing/GrammarElems
 		org/sugarj/soundx/processing/Namespace
 		org/sugarj/soundx/processing/Import
 		org/sugarj/soundx/processing/InductiveDefinitions
@@ -110,7 +110,7 @@ strategies
 	sx-process-toplevel-declaration =
 		sx-process-extension-begin +
 		sx-process-extension-end +
-		//sx-process-grammar-elems +
+		sx-process-grammar-elems +
 		sx-process-desugarings +
 		sx-process-inductive-defs +
 		sx-process-namespace-decl +

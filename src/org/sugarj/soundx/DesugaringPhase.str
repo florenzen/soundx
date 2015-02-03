@@ -28,10 +28,6 @@ strategies
 strategies
 	/**
 	 * Main SoundX desugaring procedure
-	 *
-	 * DEVEL: only spit out the module header (1st declaration in environment)
-	 * such that desugaring always produces something the pretty printer can
-	 * handle.
 	 */
 	sx-desugar =
 		?decl;

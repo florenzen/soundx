@@ -2,6 +2,8 @@ module org/sugarj/soundx/processing/EnvDesugaring
 
 imports org/sugarj/languages/Stratego
 
+imports org/sugarj/transformations/GenerateSignatures
+
 imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Environment
 		org/sugarj/soundx/MetaExplode
@@ -13,8 +15,10 @@ strategies
 		sx-env-make-desugarings => trans-desugarings;
 		<sx-env-get; hashtable-values> "inference-rules" => inf-rules;
 	    sx-env-module-decls-to-stratego(|inf-rules, "extension-inference-rules") => trans-infrules;
-	    <conc> (trans-infrules, trans-desugarings) => transformation-elems;
-	    !SXExtensionDecl(transformation-elems)
+	    sx-env-get-grammar-elems => grammar-elems;
+	    (<gen-signature> grammar-elems <+ ![]) => trans-signatures;
+	    <conc> (trans-signatures, trans-infrules, trans-desugarings) => transformation-elems;
+	    !SXExtensionDecl(<conc> (grammar-elems, transformation-elems))
 	  
 	/**
 	 * Generates a Stratego definition sx-<key> = ?<namespace>; !<term>

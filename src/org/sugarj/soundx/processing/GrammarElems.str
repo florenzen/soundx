@@ -9,6 +9,7 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Environment
         org/sugarj/soundx/AnalysisFunctions
         org/sugarj/soundx/SDF2
+        org/sugarj/soundx/ExtensionDefinition
 
 imports org/sugarj/soundx/processing/Prefixing
 
@@ -27,10 +28,14 @@ strategies
 	sx-process-grammar-elems =
 		?SXGrammarElems(grammars);
 		where(
-			<map(sx-process-grammar-elem); concat> grammars;
-		    // Not using mapconcat here because it traverses the list from the end to front
-		    // which lowers quality of error messages
-			sx-add-grammar-elems)
+			if sx-env-is-extension-processing then
+				<map(sx-process-grammar-elem); concat> grammars;
+		    	// Not using mapconcat here because it traverses the list from the end to front
+		    	// which lowers quality of error messages
+				sx-process-add-grammar-elems
+			else
+				sx-analysis-fail(|"grammars cannot appear outside extensions")
+			end)
 
     /**
      * Analyzes and transforms a single SDF2 section
@@ -189,95 +194,14 @@ strategies
     	   !cons-attribs; ?[_,_|_];
     	   <map(sx-analysis-fail(|"Several cons attributes are not allowed"))> cons-attribs)))
 
-	/**
-	 * Registers constructor and sort of body declaration if sx-body-dec attribute is given
-	 *
-	 * The attributes must contain a cons attribute.
-	 *
-	 * @type (Sdf2Symbol, Sdf2Attributes) -> (Sdf2Symbol, Sdf2Attributes)
-	 */
-	sx-process-body-dec =
-		?(symbol, attributes);
-		where(
-			if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-body-dec")> attributes then
-				<sxbld-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
-				<sxbld-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
-				//<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
-				<sxbld-env-add-body-dec> (cons-name, symbol)
-			else
-				id
-			end)
-
-	/**
-	 * Registers constructor and sort of namespace declaration if sx-namespace-dec is given
-	 *
-	 * The attributes must contain a cons attribute.
-	 *
-	 * @type (Sdf2Symbols, Sdf2Symbol, Sdf2Attributes) -> (Sdf2Symbols, Sdf2Symbol, Sdf2Attributes)
-	 */
-	sxbld-analyze-namespace-dec =
-		?(symbols, symbol, attributes);
-		where(
-			if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-namespace-dec")> attributes then
-				<sxbld-sdf2-extract-aterm-attribute(|"sx-namespace-dec")> attributes => namespace-attrib;
-				if sxbld-env-is-namespace-dec-defined then
-					<sxbld-analyze-fail(|"Only one `sx-namespace-dec' allowed")> namespace-attrib
-				else
-					<sxbld-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
-					<sxbld-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
-					<sxbld-sdf2-get-args-from-aterm-attribute> namespace-attrib => namespace-args;
-					if ?[fun(unquoted(label))] then
-						if <sxbld-sdf2-find-index-of-labelled-symbol(|label)> symbols => index then
-							//<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
-							<sxbld-env-set-namespace-dec> (cons-name, index, symbol)
-						else
-							<sxbld-analyze-fail(|"Label of `sx-namespace-dec' must be attached to symbol on lhs")> label
-						end
-					else
-						<sxbld-analyze-fail(|"`sx-namespace-dec' takes exatcly one argument")> namespace-attrib
-					end
-				end
-			else
-				id
-			end)
-
-	/**
-	 * Registers constructor and sort of import declaration if sx-import-dec is given
-	 *
-	 * The attributes must contain a cons attribute.
-	 *
-	 * @type (Sdf2Symbols, Sdf2Symbol, Sdf2Attributes) -> (Sdf2Symbols, Sdf2Symbol, Sdf2Attributes)
-	 */
-	sxbld-analyze-import-dec =
-		?(symbols, symbol, attributes);
-		where(
-			if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-import-dec")> attributes then
-				<sxbld-sdf2-extract-aterm-attribute(|"sx-import-dec")> attributes => import-attrib;
-				<sxbld-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
-				<sxbld-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
-				<sxbld-sdf2-get-args-from-aterm-attribute> import-attrib => import-args;
-				if ?[fun(unquoted(label))] then
-					if <sxbld-sdf2-find-index-of-labelled-symbol(|label)> symbols => index then
-						//<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
-						<sxbld-env-add-import-dec> (cons-name, index, symbol)
-					else
-						<sxbld-analyze-fail(|"Label of `sx-import-dec' must be attached to symbol on lhs")> label
-					end
-				else
-					<sxbld-analyze-fail(|"`sx-import-dec' takes exatcly one argument")> import-attrib
-				end
-			else
-				id
-			end)
-
     /**
      * Analyzes a lexical syntax section
 –     *
      * @type Grammar -> Gramar
      */
-    sxbld-analyze-lex-syntax =
+    sx-process-lex-syntax =
     	?lexical-syntax(prods);
-    	<map(sxbld-analyze-lex-production); unzip; (concat, concat)> prods => (lex-prods, cf-prods);
+    	<map(sx-process-lex-production); unzip; (concat, concat)> prods => (lex-prods, cf-prods);
         ![lexical-syntax(lex-prods), context-free-syntax(cf-prods)]
 
     /**
@@ -285,13 +209,12 @@ strategies
      *
      * @type Sdf2Production -> (List(Sdf2Production), List(Sdf2Production))
      */
-    sxbld-analyze-lex-production =
+    sx-process-lex-production =
     	?prod(symbols, symbol, attributes);
-    	<sxbld-prefix-all-sorts-base-lang> [symbol|symbols] => [prefixed-symbol|prefixed-symbols];
-    	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => ground-symbols;
-    	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => ground-symbol;
-    	<sxbld-analyze-neq-judg> (attributes, prefixed-symbol) => cf-prods;
-    	<sxbld-analyze-namespace-kind> (attributes, prefixed-symbol);
+    	<sx-prefix-all-sorts-base-lang> [symbol|symbols] => [prefixed-symbol|prefixed-symbols];
+    	<sx-prefix-all-sorts(|"Gnd"); sx-prefix-all-sorts-base-lang> symbols => ground-symbols;
+    	<sx-prefix-all-sorts(|"Gnd"); sx-prefix-all-sorts-base-lang> symbol => ground-symbol;
+    	<sx-process-neq-judg> (attributes, prefixed-symbol) => cf-prods;
     	!([prod(prefixed-symbols, prefixed-symbol, attributes),
     	   prod(ground-symbols, ground-symbol, attributes)],
     	  cf-prods)
@@ -301,40 +224,20 @@ strategies
      *
      * @type (Sdf2Attributes, Sdf2Symbol) -> List(Sdf2Production)
      */
-    sxbld-analyze-neq-judg =
+    sx-process-neq-judg =
     	?(attributes, symbol);
-    	if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-requires-inequality")> attributes then
+    	if <sx-sdf2-is-aterm-attribute-defined(|"sx-requires-inequality")> attributes then
     		![prod([symbol, lit("=/="), symbol], sort("SXJudgement"),
-    	           attrs([<sxbld-sdf2-cons-attribute> "SXNeq"]))]
+    	           attrs([<sx-sdf2-cons-attribute> "SXNeq"]))]
     	else
     		![]
     	end
     	    
     /**
-     * Records the module identifier sort and namespace kind if sx-namespace-flat is given
-     *
-     * @type (Sdf2Attributes, Sdf2Symbol) -> (Sdf2Attributes, Sdf2Symbol)
-     */
-    sxbld-analyze-namespace-kind =
-    	?(attributes, symbol);
-    	where(
-    		if <sxbld-sdf2-is-aterm-attribute-defined(|"sx-namespace-flat")> attributes then
-    			if sxbld-env-is-namespace-kind-defined then
-    				<sxbld-sdf2-extract-aterm-attribute(|"sx-namespace-flat")> attributes => attrib;
-    				<sxbld-analyze-fail(|"Only one `sx-namespace' attribute allowed")> attrib
-    			else
-    				<sxbld-env-set-namespace-kind> SXBldNamespaceFlat();
-    				<sxbld-env-set-namespace-identifier> symbol
-    			end
-    		else
-				id
-    		end)
-
-    /**
      * Adds the grammars to the environment
      *
      * @type SXBldGrammarElems -> SXEnv
      */   
-   sxbld-add-grammar-elems =
+   sx-process-add-grammar-elems =
    	   map(\grm -> grammar-elem(grm)\);
-   	   sxbld-env-add-grammar-elems
+   	   sx-env-add-grammar-elems
