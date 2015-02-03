@@ -15,6 +15,8 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Utils
 		org/sugarj/soundx/Debug
 
+imports org/sugarj/soundx/processing/EnvDesugaring
+
 
 
 /**
@@ -37,7 +39,8 @@ strategies
 		if sx-is-last-toplevel-decl then
 			sx-env-get-errors  => errors;
 			if !errors; ?[] then
-				![] // env desugaring and derivation desugaring
+				sx-env-extract-extension-decls
+				// env desugaring and derivation desugaring
 			else
 				// If there are errors, attach them all to the last
 				// declaration. Desugar the declaration into the empty
@@ -48,7 +51,15 @@ strategies
 				!""
 			end
 		else
-			![] // env desugaring
+			if sx-env-is-extension-processing then
+				sx-env-extract-extension-decls
+			else
+				if !decl; (sx-is-namespace-decl + sx-is-import-decl) then
+					!decl
+				else
+					![]
+				end
+			end
 		end
 		
 	sx-is-toplevel-declaration =
@@ -75,3 +86,5 @@ strategies
 
 	sx-is-desugarings =
 		?SXDesugarings(_)
+
+	sx-desugaring-guard = fail

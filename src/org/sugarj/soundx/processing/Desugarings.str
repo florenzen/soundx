@@ -24,7 +24,7 @@ strategies
 
 	sx-process-universal-desugaring =
 		?SXUniversalDesugaring(lhs, _, rhs);
-		!SXUnivDesug(lhs, rhs); sx-meta-var-to-sx-metavar => desugaring;
+		!SXUnivDesug(lhs, rhs) => desugaring;
 		<sx-env-add-desugaring> desugaring;
 		<sx-debug(|"added universal desugaring ")> desugaring
 
@@ -43,8 +43,7 @@ strategies
 		<drop(|2); take(|<subt> (len, 4))> args => concl-args;
 		<split-at(|<subt> (index, 1))> concl-args => (exprs-before, [expr-subject|exprs-after]);
 		//<debug(!"EXPRS BEFORE")> exprs-before;
-		!SXGuardDesug(premises-list, exprs-before, expr-subject,
-			exprs-after, judg-name, rhs); sx-meta-var-to-sx-metavar => desugaring;
+		!SXGuardDesug(premises-list, exprs-before, expr-subject, exprs-after, judg-name, rhs) => desugaring;
 		<sx-env-add-desugaring> desugaring;
 		<sx-debug(|"added guarded desugaring ")> desugaring
 

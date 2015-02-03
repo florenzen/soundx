@@ -184,7 +184,7 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 
 	@Override
 	public IStrategoTerm getExtensionBody(IStrategoTerm decl) {
-		return null;
-		// return getApplicationSubterm(decl, "SXBldExtensionDecl", 0);
+		IStrategoTerm term = getApplicationSubterm(decl, "SXExtensionDecl", 0);
+		return term;
 	}
 }

@@ -1,0 +1,71 @@
+module org/sugarj/soundx/processing/EnvDesugaring
+
+imports org/sugarj/languages/Stratego
+
+imports org/sugarj/soundx/AbstractSyntax
+		org/sugarj/soundx/Environment
+		org/sugarj/soundx/MetaExplode
+		org/sugarj/soundx/ExtensionDefinition
+		
+
+strategies
+	sx-env-extract-extension-decls =
+		sx-env-make-desugarings => trans-desugarings;
+		debug(!"TRANS DESUG ");
+		<sx-env-get; hashtable-values> "inference-rules" => inf-rules;
+		debug(!"INF RULES ");
+	    sx-env-decls-to-stratego(|inf-rules, "inference-rules") => trans-infrules;
+	    debug(!"TRANS INF RULES ");
+	    <conc> (trans-infrules, trans-desugarings) => transformation-elems;
+	    !SXExtensionDecl(transformation-elems)
+	    ;debug(!"EXTENSION DECL ")
+	  
+	/**
+	 * Generates a Stratego definition key = term
+	 *
+	 * @param term The term to explode
+	 * @param key The name of the definition
+	 *
+	 * @type _ -> List()
+	 */
+    sx-env-decls-to-stratego(|term, key) =
+    	<trm-explode> term => stratego-alist;
+    	<conc-strings> ("sx-", key) => strategy-name;
+    	![transformation-elem(
+    		Strategies([SDefNoArgs(strategy-name, Build(stratego-alist))])
+    	 )]
+
+	sx-env-make-desugarings =
+		sx-env-get-desugarings => desugarings;
+		debug(!"GOT DESUGARINGS ");
+		<partition(sx-is-universal-desugaring)> desugarings => (univ-desugs, guard-desugs);
+		<sx-env-make-univ-desugarings> univ-desugs => trans-univ;
+		<sx-env-make-guard-desugarings> guard-desugs => trans-guard;
+		<conc> (trans-univ, trans-guard)
+
+	sx-env-make-univ-desugarings =
+		?desugs;
+		sx-env-get-namespace => namespace;
+		debug(!"GET NAMESPACE ");
+		<map(sx-env-make-univ-desugaring)> desugs => strats;
+		debug(!"MADE STRATS ");
+		<foldl(\(strat, output) -> LChoice(strat, output)\)> (strats, Fail()) => alternatives;
+		debug(!"MADE ALTS ");
+		!Seq(Where(
+			Seq(
+				CallNoArgs(SVar("sx-desugaring-guard")),
+				Match(Str(namespace))
+			)), alternatives) => guarded-alternatives;
+		debug(!"GUARDED STUFF ");
+    	![transformation-elem(
+    		Strategies([SDefNoArgs("sx-universal-desugarings", guarded-alternatives)])
+    	 )]
+
+	sx-env-make-univ-desugaring =
+		?SXUnivDesug(lhs, rhs);
+		<trm-explode> lhs => stratego-lhs;
+		<trm-explode> rhs => stratego-rhs;
+		!Seq(Match(stratego-lhs), Build(stratego-rhs))
+
+	sx-env-make-guard-desugarings =
+		![]

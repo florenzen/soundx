@@ -51,7 +51,7 @@ strategies
   	    hashtable-put(|"extension-processing", SXFalse());
   	    hashtable-put(|"errors", []);
   	    hashtable-put(|"desugarings", []);
-  	    hashtable-put(|"inference-rues", <new-hashtable> ())
+  	    hashtable-put(|"inference-rules", <new-hashtable> ())
 
     /**
      * Looks up a key in the environment

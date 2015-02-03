@@ -5,7 +5,7 @@
  */
 module org/sugarj/soundx/AbstractSyntax
 
-imports org/sugarj/sxbld/processing/MetaExplode
+imports org/sugarj/soundx/MetaExplode
 
 imports org/sugarj/soundx/Substitution
 
@@ -189,6 +189,10 @@ strategies
 signature constructors
 	SXGuardDesug: List(SXJudgement) * List(SXExpr) * SXExpr * List(SXExpr) * String * SXExpr -> SXDesug
 	SXUnivDesug:  SXExpr * SXExpr                                                            -> SXDesug
+
+strategies
+	sx-is-universal-desugaring =
+		?SXUnivDesug(_, _)
 
 /**
  * Toplevel declaration list

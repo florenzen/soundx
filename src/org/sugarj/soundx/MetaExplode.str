@@ -1,4 +1,4 @@
-module org/sugarj/sxbld/processing/MetaExplode
+module org/sugarj/soundx/MetaExplode
 
 imports org/sugarj/languages/Stratego
 

@@ -179,7 +179,7 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 
 	@Override
 	public boolean isExtensionDecl(IStrategoTerm decl) {
-		return false;
+		return isApplication(decl, "SXExtensionDecl");
 	}
 
 	@Override

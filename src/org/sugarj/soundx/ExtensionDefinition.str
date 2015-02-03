@@ -2,6 +2,9 @@ module org/sugarj/soundx/ExtensionDefinition
 
 imports org/sugarj/soundx/InductiveDefinitions
 
+imports org/sugarj/languages/Sugar
+
+
 signature constructors
 	SXExtensionBegin: SXExtensionBegin   -> ToplevelDeclaration
 	SXExtensionEnd:   SXExtensionEnd     -> ToplevelDeclaration
@@ -12,3 +15,5 @@ signature constructors
 	                                -> ToplevelDeclaration
 
 	SXUniversalDesugaring: SXExpr * SXDESUGARINGSEP * SXExpr -> SXDesugaring
+
+	SXExtensionDecl: List(ExtensionElem) -> SXExtensionDecl

@@ -9,7 +9,7 @@ imports org/sugarj/soundx/SDF2
 
 imports org/sugarj/sxbld/Environment
 
-imports org/sugarj/sxbld/processing/MetaExplode
+imports org/sugarj/soundx/MetaExplode
         org/sugarj/sxbld/processing/SortPrefixing
 
 imports org/sugarj/languages/SXBld
