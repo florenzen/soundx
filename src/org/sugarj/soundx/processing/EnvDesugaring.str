@@ -11,22 +11,18 @@ imports org/sugarj/soundx/AbstractSyntax
 strategies
 	sx-env-extract-extension-decls =
 		sx-env-make-desugarings => trans-desugarings;
-		//debug(!"TRANS DESUG ");
 		<sx-env-get; hashtable-values> "inference-rules" => inf-rules;
-		//debug(!"INF RULES ");
 	    sx-env-module-decls-to-stratego(|inf-rules, "extension-inference-rules") => trans-infrules;
-	    //debug(!"TRANS INF RULES ");
 	    <conc> (trans-infrules, trans-desugarings) => transformation-elems;
 	    !SXExtensionDecl(transformation-elems)
-	    //;debug(!"EXTENSION DECL ")
 	  
 	/**
-	 * Generates a Stratego definition key = term under the module name
+	 * Generates a Stratego definition sx-<key> = ?<namespace>; !<term>
 	 *
 	 * @param term The term to explode
 	 * @param key The name of the definition
 	 *
-	 * @type _ -> List()
+	 * @type _ -> List(ExtensionElem)
 	 */
     sx-env-module-decls-to-stratego(|term, key) =
     	<trm-explode> term => stratego-alist;
