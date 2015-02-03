@@ -11,14 +11,14 @@ imports org/sugarj/soundx/AbstractSyntax
 strategies
 	sx-env-extract-extension-decls =
 		sx-env-make-desugarings => trans-desugarings;
-		debug(!"TRANS DESUG ");
+		//debug(!"TRANS DESUG ");
 		<sx-env-get; hashtable-values> "inference-rules" => inf-rules;
-		debug(!"INF RULES ");
+		//debug(!"INF RULES ");
 	    sx-env-decls-to-stratego(|inf-rules, "inference-rules") => trans-infrules;
-	    debug(!"TRANS INF RULES ");
+	    //debug(!"TRANS INF RULES ");
 	    <conc> (trans-infrules, trans-desugarings) => transformation-elems;
 	    !SXExtensionDecl(transformation-elems)
-	    ;debug(!"EXTENSION DECL ")
+	    //;debug(!"EXTENSION DECL ")
 	  
 	/**
 	 * Generates a Stratego definition key = term
@@ -37,7 +37,7 @@ strategies
 
 	sx-env-make-desugarings =
 		sx-env-get-desugarings => desugarings;
-		debug(!"GOT DESUGARINGS ");
+		//debug(!"GOT DESUGARINGS ");
 		<partition(sx-is-universal-desugaring)> desugarings => (univ-desugs, guard-desugs);
 		<sx-env-make-univ-desugarings> univ-desugs => trans-univ;
 		<sx-env-make-guard-desugarings> guard-desugs => trans-guard;
@@ -45,20 +45,15 @@ strategies
 
 	sx-env-make-univ-desugarings =
 		?desugs;
-		sx-env-get-namespace => namespace;
-		debug(!"GET NAMESPACE ");
 		<map(sx-env-make-univ-desugaring)> desugs => strats;
-		debug(!"MADE STRATS ");
-		<foldl(\(strat, output) -> LChoice(strat, output)\)> (strats, Fail()) => alternatives;
-		debug(!"MADE ALTS ");
-		!Seq(Where(
-			Seq(
-				CallNoArgs(SVar("sx-desugaring-guard")),
-				Match(Str(namespace))
-			)), alternatives) => guarded-alternatives;
-		debug(!"GUARDED STUFF ");
+		//debug(!"MADE STRATS ");
+		<sx-env-make-desugaring-alternatives> strats => alternatives;
+		//debug(!"MADE ALTS ");
+		sx-env-make-desugaring-activator => activator;
+		!Seq(activator, alternatives) => activator-alternatives;
+		//debug(!"ACTIVATOR STUFF ");
     	![transformation-elem(
-    		Strategies([SDefNoArgs("sx-universal-desugarings", guarded-alternatives)])
+    		Strategies([SDefNoArgs("sx-universal-desugarings", activator-alternatives)])
     	 )]
 
 	sx-env-make-univ-desugaring =
@@ -68,4 +63,43 @@ strategies
 		!Seq(Match(stratego-lhs), Build(stratego-rhs))
 
 	sx-env-make-guard-desugarings =
-		![]
+		?desugs;
+		<map(sx-env-make-guard-desugaring)> desugs => strats;
+		<sx-env-make-desugaring-alternatives> strats => alternatives;
+		//debug(!"MADE ALTS ");
+		sx-env-make-desugaring-activator => activator;
+		!Seq(activator, alternatives) => activator-alternatives;
+		//debug(!"ACTIVATOR STUFF ");
+    	![transformation-elem(
+    		Strategies([SDefNoArgs("sx-guarded-desugarings", activator-alternatives)])
+    	 )]
+
+	sx-env-make-guard-desugaring =
+		?SXGuardDesug(premises, before-exprs, subject-expr, after-exprs, judg-name, rhs);
+		<trm-explode> premises => stratego-premises;
+		// lhs conclusion
+		<conc> (before-exprs, [subject-expr], after-exprs) => lhs-args-concl;
+		!judg-name#(lhs-args-concl) => lhs-concl;
+		<trm-explode> lhs-concl => stratego-lhs-concl;
+		// rhs conclusion
+		<conc> (before-exprs, [rhs], after-exprs) => rhs-args-concl;
+		!judg-name#(rhs-args-concl) => rhs-concl;
+		<trm-explode> rhs-concl => stratego-rhs-concl;
+		// lhs rule pattern
+		!Op("SXInfRule", [stratego-premises, Var("sx-rule-name"), stratego-lhs-concl]) => stratego-lhs;
+		// rhs rule pattern
+		!Op("SXInfRule", [stratego-premises, Var("sx-rule-name"), stratego-rhs-concl]) => stratego-rhs;
+		// Rule
+		!Seq(Match(stratego-lhs), Build(stratego-rhs))		
+		
+	sx-env-make-desugaring-activator =
+		sx-env-get-namespace => namespace;
+		!Where(
+			Seq(
+				CallNoArgs(SVar("sx-desugaring-activator")),
+				Match(Str(namespace))
+			))
+
+	sx-env-make-desugaring-alternatives =
+		?strats;
+		<foldl(\(strat, output) -> LChoice(strat, output)\)> (strats, Fail())
