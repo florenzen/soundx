@@ -61,9 +61,9 @@ strategies
 				sx-env-extract-extension-decls
 			else
 				if !decl; (sx-is-namespace-decl + sx-is-import-decl) then
-					!decl
+					![decl, SXExtensionDecl([])]
 				else
-					![]
+					![SXExtensionDecl([])]
 				end
 			end
 		end
