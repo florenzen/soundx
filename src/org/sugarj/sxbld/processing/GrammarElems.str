@@ -60,16 +60,16 @@ strategies
          sxbld-analyze-unsupported(|"Unsupported SDF 2 section"));
         (?[_|_] <+ ![<id>])
 
-	// TODO: priorities must also be doubled like
-	// productions
-
 	/**
 	 * Prefixes sorts in lexical priorities
 	 *
 	 * @type Grammar -> Grammar
 	 */
 	sxbld-analyze-lex-priorities =
-		lexical-priorities(sxbld-prefix-all-sorts-base-lang)
+		?lexical-priorities(prios);
+		<sxbld-prefix-all-sorts(|"Gnd")> prios => prios-gnd;
+		<conc; sxbld-prefix-all-sorts-base-lang> (prios, prios-gnd) => prios-prefixed;
+		!lexical-priorities(prios-prefixed)
 	
    /**
 	 * Prefixes sorts in context-free priorities
@@ -77,7 +77,10 @@ strategies
 	 * @type Grammar -> Grammar
 	 */
 	sxbld-analyze-cf-priorities =
-		context-free-priorities(sxbld-prefix-all-sorts-base-lang)
+		?context-free-priorities(prios);
+		<sxbld-prefix-all-sorts(|"Gnd")> prios => prios-gnd;
+		<conc; sxbld-prefix-all-sorts-base-lang> (prios, prios-gnd) => prios-prefixed;
+		!context-free-priorities(prios-prefixed)
 
     /**
 	 * Prefixes sorts in lexical restrictions
