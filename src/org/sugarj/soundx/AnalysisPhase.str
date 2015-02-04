@@ -157,6 +157,7 @@ strategies
 			<sx-analysis-fail(|message)> head
 		else
 			<sx-sub-apply> (result, judg) => goal;
+			<sx-debug(|"interface goal ")> goal;
 			if <sx-dfsbc-build-derivations(|[])> ([], inf-rules, [goal]) => (sub, result-deriv) then
 				<sx-sub-apply> (sub, intf-pattern) => interface;				
 				<sx-debug(|"interface of module ")> interface;

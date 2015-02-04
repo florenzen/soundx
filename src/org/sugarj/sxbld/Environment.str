@@ -9,7 +9,7 @@ imports org/sugarj/languages/Stratego
 
 imports org/sugarj/languages/SXBld
 
-imports org/sugarj/sxbld/processing/MetaExplode
+imports org/sugarj/soundx/MetaExplode
 
 
 /**

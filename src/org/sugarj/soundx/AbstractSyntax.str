@@ -144,8 +144,7 @@ strategies
 	 */
 	sx-is-judgement =
 		where(sx-is-ind-def-judgement) +
-		?SXNeq(_, _) +
-		?SXGetInterface(_, _)
+		sx-is-prim-judgement
 
 	/**
 	 * Checks if an aterm is an inductively defined judgement.
@@ -165,7 +164,15 @@ strategies
 	 * @type a -> a
 	 */
     sx-is-prim-judgement =
-    	sx-is-neq-judgement
+    	sx-is-neq-judgement + sx-is-get-interface-judgement
+
+	/**
+	 * Checks if aterm is a "Get Interface" judgement
+	 *
+	 * @type a -> a
+	 */
+	sx-is-get-interface-judgement =
+		?SXGetInterface(_, _)
 
 	/**
 	 * Checks if aterm is an SXEq judgement
