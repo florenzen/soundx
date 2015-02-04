@@ -145,20 +145,16 @@ strategies
 			<sx-analysis-fail(|"extension end without extension begin")> decl
 		end
 
-	sx-process-grammar-elems =
-		?SXGrammarElems(_)
-
-
 strategies
 	sx-context-analysis =
-		?toplevel-decls;
+		?toplevel-decls@SXToplevelDeclarationsCons(head, tail);
 		sx-inference-rules => inf-rules;
 		sx-interface-judgement => (tlds-pattern, intf-pattern, judg);
 		<sx-vars> tlds-pattern => vars-tlds;
 		<sx-unify(|vars-tlds)> (tlds-pattern, toplevel-decls) => result;
 		if !result; ?SXUnificationFailure(msg) then
 			<conc-strings> ("could not instantiate interface judgement (", msg, ")") => message;
-			<sx-analysis-fail(|message)> (<sx-head> toplevel-decls)
+			<sx-analysis-fail(|message)> head
 		else
 			<sx-sub-apply> (result, judg) => goal;
 			if <sx-dfsbc-build-derivations(|[])> ([], inf-rules, [goal]) => (sub, result-deriv) then
@@ -167,7 +163,7 @@ strategies
 				<sx-env-set-interface> interface
 			else
 				!"The module contains type errors (error investigation is not yet implemented)" => message;
-				<sx-analysis-fail(|message)> (<sx-head> toplevel-decls)
+				<sx-analysis-fail(|message)> head
 			end
 		end
 		//!SXNeq("x", "y") => goal;
