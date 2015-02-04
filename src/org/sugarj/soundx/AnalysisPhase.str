@@ -165,7 +165,7 @@ strategies
 		?toplevel-decls@SXToplevelDeclarationsCons(head, tail);
 		sx-inference-rules => inf-rules-base;
 		sx-inference-rules-from-extensions => inf-rules-extensions;
-		debug(!"INFERENCE RULES FROM EXTENSIONS ");
+		<map(sx-inf-rule-name); sx-debug(|"inference rules from extesions ")> inf-rules-extensions;
 		<conc> (inf-rules-base, inf-rules-extensions) => inf-rules;
 		sx-interface-judgement => (tlds-pattern, intf-pattern, judg);
 		<sx-vars> tlds-pattern => vars-tlds;
