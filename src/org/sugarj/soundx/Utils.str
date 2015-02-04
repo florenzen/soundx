@@ -6,3 +6,9 @@ strategies
  	 */
 	sx-is-last-toplevel-decl =
 		prim("SUGARJ_is_last_toplevel_declaration")
+
+	sx-head:
+		[head|_] -> head
+
+	sx-tail:
+		[_|tail] -> tail

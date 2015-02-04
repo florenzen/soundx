@@ -156,8 +156,20 @@ strategies
 		sx-interface-judgement => (tlds-pattern, intf-pattern, judg);
 		<sx-vars> tlds-pattern => vars-tlds;
 		<sx-unify(|vars-tlds)> (tlds-pattern, toplevel-decls) => result;
-		!result; not(?SXUnificationFailure(_));
-		<sx-sub-apply> (result, judg) => goal;
+		if !result; ?SXUnificationFailure(msg) then
+			<conc-strings> ("could not instantiate interface judgement (", msg, ")") => message;
+			<sx-analysis-fail(|message)> (<sx-head> toplevel-decls)
+		else
+			<sx-sub-apply> (result, judg) => goal;
+			if <sx-dfsbc-build-derivations(|[])> ([], inf-rules, [goal]) => (sub, result-deriv) then
+				<sx-sub-apply> (sub, intf-pattern) => interface;				
+				<sx-debug(|"interface of module ")> interface;
+				<sx-env-set-interface> interface
+			else
+				!"The module contains type errors (error investigation is not yet implemented)" => message;
+				<sx-analysis-fail(|message)> (<sx-head> toplevel-decls)
+			end
+		end
 		//!SXNeq("x", "y") => goal;
 		//!SXJudgement4(SXCons2(), STLCNat("1"), SXMetaVar("U")) => goal;
 		//!SXJudgement4(SXCons2(), STLCAdd(STLCNat("1"), STLCNat("1")), SXMetaVar("U")) => goal;
@@ -174,13 +186,7 @@ strategies
 		//!SXJudgement12(SXMetaVar("C"), SXMetaVar("C1"), SXCons3(SXCons2(), SXMetaVar("x"), SXMetaVar("T"))) => goal;
 		//!SXJudgement4(SXCons2(), STLCAbs("x", SXCons0(), STLCVar("x")), SXMetaVar("U")) => goal;
 		//!SXJudgement4(SXCons2(), STLCApp(STLCAbs("x", SXCons0(), STLCVar("x")), STLCNat("2")), SXMetaVar("U")) => goal;
-		debug(!"GOAL");
-		if <sx-dfsbc-build-derivations(|[])> ([], inf-rules, [goal]) => (sub, result-deriv) then
-			<debug(!"RESULT")> result-deriv
-			//;<hashtable-getlist; debug(!"SUB ")> sub
-		else
-			debug(!"FAILED")
-		end
+
 		
 
 

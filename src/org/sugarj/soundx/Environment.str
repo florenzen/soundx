@@ -53,7 +53,8 @@ strategies
   	    hashtable-put(|"desugarings", []);
   	    hashtable-put(|"inference-rules", <new-hashtable> ());
   	    hashtable-put(|"grammar-elems", []);
-  	    hashtable-put(|"name-counter", 0)
+  	    hashtable-put(|"name-counter", 0);
+  	    hashtable-put(|"interface", SXFalse())
 
     /**
      * Looks up a key in the environment
@@ -75,6 +76,35 @@ strategies
         ?(key, value);
   	    <sx-env-get-hashtable> ();
   	    hashtable-put(|key, value)
+
+/**
+ * Handling of interface
+ */
+strategies
+	/**
+	 * Gets interface
+	 *
+	 * @type _ -> SXExpr
+	 */
+	sx-env-get-interface =
+		<sx-env-get> "interface"
+
+	/**
+	 * Sets interface
+	 *
+	 * @type SXExpr -> SXEnv
+	 */
+	sx-env-set-interface =
+		?intf;
+		<sx-env-set> ("interface", intf)
+
+	/**
+	 * Succeeds if interface has been set
+	 *
+	 * @type _ -> _
+	 */
+	sx-env-is-interface-defined =
+		sx-env-get-interface; not(?SXFalse())
 
 /**
  * Fresh names

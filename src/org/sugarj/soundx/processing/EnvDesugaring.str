@@ -17,7 +17,9 @@ strategies
 	    sx-env-module-decls-to-stratego(|inf-rules, "extension-inference-rules") => trans-infrules;
 	    sx-env-get-grammar-elems => grammar-elems;
 	    (<gen-signature> grammar-elems <+ ![]) => trans-signatures;
-	    <conc> (trans-signatures, trans-infrules, trans-desugarings) => transformation-elems;
+	    sx-env-make-interface => trans-interface;
+	    <conc> (trans-signatures, trans-infrules,
+	    	trans-desugarings, trans-interface) => transformation-elems;
 	    !SXExtensionDecl(<conc> (grammar-elems, transformation-elems))
 	  
 	/**
@@ -105,3 +107,11 @@ strategies
 	sx-env-make-desugaring-alternatives =
 		?strats;
 		<foldl(\(strat, output) -> LChoice(strat, output)\)> (strats, Fail())
+
+	sx-env-make-interface =
+		if sx-env-is-interface-defined then
+			sx-env-get-interface => interface;
+			sx-env-module-decls-to-stratego(|interface, "interface")
+		else
+			![]
+		end
