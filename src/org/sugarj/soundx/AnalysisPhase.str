@@ -19,16 +19,13 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/AnalysisFunctions
 		org/sugarj/soundx/Utils
 
-
-imports org/sugarj/soundx/Debug
-
 imports org/sugarj/soundx/processing/GrammarElems
 		org/sugarj/soundx/processing/Namespace
 		org/sugarj/soundx/processing/Import
 		org/sugarj/soundx/processing/InductiveDefinitions
 		org/sugarj/soundx/processing/Desugarings
 
-imports org/sugarj/languages/Sdf2 // DEVEL
+imports org/sugarj/soundx/Debug
 
 
 /**
@@ -45,12 +42,19 @@ strategies
 		(<get-analysis-data(|"all-errors")> ast <+ ![])
 
 
+	/**
+	 * Starts the SoundX analysis
+	 *
+	 * @type a -> a
+	 */
 	start-analysis = sx-analysis-unless-failed(changed-tree-or-analysis-data(sx-analysis))
 
 	/**
-	 * Analyzes a term unless the failed flag is set
+	 * Analyzes a term with s unless the failed flag is set
 	 *
-	 * @type a -> SXBldFinishedAnalysis(a)
+	 * @param s a -> a
+	 *
+	 * @type a -> a
 	 */
 	sx-analysis-unless-failed(s) =
 		where(<sx-env-get-failed> () => SXFalse()); s
@@ -59,14 +63,24 @@ strategies
  * The main SoundX analysis
  */
 strategies
-	// analysis never changes its input (apart from error annotations)
+	/**
+	 * Runs the SoundX analysis
+	 *
+	 * It is intended to run once for each toplevel declaration.
+	 * The toplevel declaration is processed depending on what kind of
+	 * declaration it is. If the current declaration is the last toplevel
+	 * declaration the context analysis is started.
+	 *
+	 * @type SXToplevelDecl -> SXToplevelDecl
+	 */
 	sx-analysis =
+		// analysis never changes its input (apart from error annotations)
 		where(
 			sx-debug(|"current toplevel declaration: ");
 		 	sx-process-toplevel-declaration;
 		 	if sx-is-last-toplevel-decl then
 		 		<sx-debug(|"last toplevel declaration")> "";
-		 	 	sx-analysis-build-re-exports;
+		 	 	sx-analysis-store-re-exports;
 		 	 	sx-env-get-toplevel-declarations => toplevel-decs-list;
 		 	 	sx-debug(|"list of toplevel declarations");
 		 	 	<sx-list-to-toplevel-decls> toplevel-decs-list => toplevel-decs;
@@ -74,8 +88,13 @@ strategies
 		 	 else
 		 	 	id
 		 	 end)
-		 	 
-	sx-analysis-build-re-exports =
+
+	/**
+	 * Stores the list of re-exports from the module's imports in the environment
+	 *
+	 * @type _ -> SXEnv
+	 */
+	sx-analysis-store-re-exports =
 		sx-env-get-imports => imports;
 		let map-s = {
 			mod, re-exp:
@@ -88,39 +107,56 @@ strategies
 			<sx-nub> re-exports => re-exp-nub;
 			<sx-env-set-re-exports> re-exp-nub
 		end
-		
-		 	 
-		 	 // DEVEL
-		 	// where(
-		 	//  	<sx-sub-singleton> (SXMetaVar("a"), "String") => sub;
-		 	//   	<sx-sub-map(\ _ -> 1 \)> sub => sub1;
-		 	//   	<hashtable-getlist; debug(!"SUB  ")> sub;
-		 	//   	<hashtable-getlist; debug(!"SUB1 ")> sub1;
-		 	//   	<sx-sub-apply; debug(!"SUB APPLY ")> (sub1, [[[SXMetaVarGen("b", 17), SXMetaVar("b"),SXMetaVar("a"), SXMetaVar("a")],[]],SXMetaVar("a"), [4, SXMetaVar("a"), SXMetaVar("b")]]);
-		 	//   	<hashtable-init> [(SXMetaVar("c"), "5"), (SXMetaVar("b"), "1")]=> subA1;
-		 	//   	//<hashtable-init> []=> subA2;
-		 	//   	<hashtable-init> [(SXMetaVar("a"), "String"), (SXMetaVar("b"), "1")]=> subA2;
-				// <hashtable-getlist> subA1; debug(!" subA1 ");
-		 	//   	<hashtable-getlist> subA2; debug(!" subA2 ");
-		 	//   	((<sx-sub-union> (subA1, subA2); hashtable-getlist) <+ !"FAILED") => subAmerged;
-		 	//   	<debug(!"MERGED ")> subAmerged;
-		 	//   	let folds(|v,e) =
-		 	//   		{acc: ?acc; ![(v,e)|acc]}
-		 	//   	in
-		 	//   	<hashtable-fold(folds|[])> subA1; debug(!"AS EQS ")
-		 	//   	end;
-		 	//   	<sx-res-sub-to-eqs> subA1; debug(!"SUB TO EQS ");
-		 	//   	![SXNeq("a", "b"), SXNeq(SXMetaVar("foo"), SXMetaVarGen("bar", 1)), SXNeq("a", SXMetaVar("baz"))];
-		 	//   	sx-res-assign-neqs; debug(!"ASSIGN ")
-		 	//id
-		 	//sx-inference-rules; debug(!"Inference rules ");
-		 	//sx-interface-judgement; debug(!"Interface judgement")
-		 	// )
-		 //else
-		 	// fail
-		 //end)
 
-	
+	/**
+	 * Performs the context analysis
+	 *
+	 * It sets up the interface judgement and tries to derive it
+	 * using the rules from the base language and the imported extensions.
+	 *
+	 * It stores the module's interface and the derivation in the environment.
+	 *
+	 * If the interface judgement cannot be derived this strategy aborts
+	 * the analysis phase with an error message stating that there are
+	 * context errors.
+	 *
+	 * TODO: integrate some error investigation procedure here.
+	 *
+	 * @type SXToplevelDeclarations -> SXEnv
+	 */
+	sx-context-analysis =
+		?toplevel-decls@SXToplevelDeclarationsCons(head, tail);
+		// fetch all inference rules
+		sx-inference-rules => inf-rules-base;
+		sx-inference-rules-from-extensions => inf-rules-extensions;
+		<map(sx-inf-rule-name); sx-debug(|"inference rules from extesions ")> inf-rules-extensions;
+		<conc> (inf-rules-base, inf-rules-extensions) => inf-rules;
+		// set up the interface judgement
+		sx-interface-judgement => (tlds-pattern, intf-pattern, judg);
+		<sx-vars> tlds-pattern => vars-tlds;
+		<sx-unify(|vars-tlds)> (tlds-pattern, toplevel-decls) => result;
+		if !result; ?SXUnificationFailure(msg) then
+			// if the tlds pattern cannot be matched with the input program
+			// this is an error of the base language
+			<conc-strings> ("could not instantiate interface judgement (", msg, ").",
+				"This is a defect in the base language definition") => message;
+			<sx-analysis-fail(|message)> head
+		else
+			<sx-sub-apply> (result, judg) => goal;
+			<sx-debug(|"interface goal ")> goal;
+			if <sx-dfsbc-build-derivations(|[])> ([], inf-rules, [goal]) => (sub, result-deriv) then
+				<sx-sub-apply> (sub, intf-pattern) => interface;				
+				<sx-debug(|"interface of module ")> interface;
+				<sx-env-set-interface> interface;
+				<sx-env-set-derivation> result-deriv
+			else
+				!"The module contains context errors (error investigation is not yet implemented)" => message;
+				<sx-analysis-fail(|message)> head
+			end
+		end
+		
+	sx-inference-rules-from-extensions =
+		sx-env-get-re-exports; mapconcat(sx-extension-inference-rules)
 strategies
 	sx-process-toplevel-declaration =
 		sx-process-extension-begin +
@@ -160,85 +196,4 @@ strategies
 			<sx-analysis-fail(|"extension end without extension begin")> decl
 		end
 
-strategies
-	sx-context-analysis =
-		?toplevel-decls@SXToplevelDeclarationsCons(head, tail);
-		sx-inference-rules => inf-rules-base;
-		sx-inference-rules-from-extensions => inf-rules-extensions;
-		<map(sx-inf-rule-name); sx-debug(|"inference rules from extesions ")> inf-rules-extensions;
-		<conc> (inf-rules-base, inf-rules-extensions) => inf-rules;
-		sx-interface-judgement => (tlds-pattern, intf-pattern, judg);
-		<sx-vars> tlds-pattern => vars-tlds;
-		<sx-unify(|vars-tlds)> (tlds-pattern, toplevel-decls) => result;
-		if !result; ?SXUnificationFailure(msg) then
-			<conc-strings> ("could not instantiate interface judgement (", msg, ")") => message;
-			<sx-analysis-fail(|message)> head
-		else
-			<sx-sub-apply> (result, judg) => goal;
-			<sx-debug(|"interface goal ")> goal;
-			if <sx-dfsbc-build-derivations(|[])> ([], inf-rules, [goal]) => (sub, result-deriv) then
-				<sx-sub-apply> (sub, intf-pattern) => interface;				
-				<sx-debug(|"interface of module ")> interface;
-				<sx-env-set-interface> interface;
-				<sx-env-set-derivation> result-deriv
-			else
-				!"The module contains type errors (error investigation is not yet implemented)" => message;
-				<sx-analysis-fail(|message)> head
-			end
-		end
-		
-	sx-inference-rules-from-extensions =
-		sx-env-get-re-exports; mapconcat(sx-extension-inference-rules)
-
-
-		//!SXNeq("x", "y") => goal;
-		//!SXJudgement4(SXCons2(), STLCNat("1"), SXMetaVar("U")) => goal;
-		//!SXJudgement4(SXCons2(), STLCAdd(STLCNat("1"), STLCNat("1")), SXMetaVar("U")) => goal;
-		//!SXJudgement4(SXCons3(SXCons2(),"x",SXCons0()), STLCVar("x"), SXMetaVar("U")) => goal;
-		//!SXJudgement4(SXCons3(SXCons3(SXCons2(), "x", SXCons0()), "y", SXCons0()), STLCVar("x"), SXMetaVar("U")) => goal;
-		//!SXJudgement4(SXCons3(SXCons3(SXCons3(SXCons2(), "b", SXCons0()), "x", SXCons0()), "y", SXCons0()), STLCVar("a"), SXMetaVar("U")) => goal;
-		//!SXJudgement13("a", SXCons2()) => goal;
-		//!SXJudgement13("a", SXCons3(SXCons3(SXCons2(), "c", SXCons0()), "b", SXCons0())) => goal;
-		//!SXJudgement13("c", SXCons3(SXCons3(SXCons2(), "c", SXCons0()), "b", SXCons0())) => goal;
-		//!SXJudgement12(SXMetaVar("C"), SXCons2(), SXCons3(SXCons3(SXCons2(), "a", SXCons0()), "b", SXCons0())) => goal;
-		//!SXJudgement12(SXMetaVar("C"), SXCons3(SXCons2(),"c",SXCons0()), SXCons3(SXCons3(SXCons2(), "a", SXCons0()), "b", SXCons0())) => goal;
-		//!SXJudgement12(SXMetaVar("C"), SXCons3(SXCons3(SXCons2(),"c",SXCons0()),"d",SXCons0()), SXCons3(SXCons3(SXCons2(), "a", SXCons0()), "b", SXCons0())) => goal;
-		//!SXJudgement12(SXMetaVar("C"), SXCons3(SXCons3(SXCons2(),"c",SXCons0()),"a",SXCons0()), SXCons3(SXCons3(SXCons2(), "a", SXCons0()), "b", SXCons0())) => goal;
-		//!SXJudgement12(SXMetaVar("C"), SXMetaVar("C1"), SXCons3(SXCons2(), SXMetaVar("x"), SXMetaVar("T"))) => goal;
-		//!SXJudgement4(SXCons2(), STLCAbs("x", SXCons0(), STLCVar("x")), SXMetaVar("U")) => goal;
-		//!SXJudgement4(SXCons2(), STLCApp(STLCAbs("x", SXCons0(), STLCVar("x")), STLCNat("2")), SXMetaVar("U")) => goal;
-
-		
-
-
-signature constructors // DEVEL
-	SXJudgement4: a * a * a -> a
-	SXJudgement13: a * a -> a
-	SXJudgement12: a * a * a -> a
-
-	STLCApp: a * a -> a
-	STLCAbs: a * a * a -> a
-	SXCons2:  a
-	STLCNat: a -> a
-	STLCAdd: a * a -> a
-	STLCVar: a -> a
-	SXCons0: a
-	SXCons3: a * a * a -> a
-
-
-
-
-		// EXP w/ pp
-		// !'module("foo", [], [
-		// 	context-free-syntax([lit("a")],
-		// 	sort("A"),attrs([term(default(appl(unquoted("cons"),
-		// 	  [fun(quoted("\"A\""))])))]))]) => grammar;
-		// <ppgenerate> grammar => pptable;
-		// debug(!"PP TABLE ")
-
-
-
-strategies
-	//current-guard = fail
-	
 
