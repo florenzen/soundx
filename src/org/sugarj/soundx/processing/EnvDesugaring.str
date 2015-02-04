@@ -98,7 +98,7 @@ strategies
 		sx-env-get-namespace => namespace;
 		!Where(
 			Seq(
-				CallNoArgs(SVar("sx-desugaring-activator")),
+				CallNoArgs(SVar("sx-desugaring-active-module")),
 				Match(Str(namespace))
 			))
 

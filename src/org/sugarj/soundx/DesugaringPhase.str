@@ -86,7 +86,7 @@ strategies
 
 	// Parts for the derivation desugaring procedure
 	// TODO should go in another module	
-	sx-desugaring-activator = fail
+	sx-desugaring-active-module = fail
 	sx-desugaring =
 		sx-guarded-desugarings +
 		sx-universal-desugarings
