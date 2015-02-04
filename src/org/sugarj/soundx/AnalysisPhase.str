@@ -161,7 +161,8 @@ strategies
 			if <sx-dfsbc-build-derivations(|[])> ([], inf-rules, [goal]) => (sub, result-deriv) then
 				<sx-sub-apply> (sub, intf-pattern) => interface;				
 				<sx-debug(|"interface of module ")> interface;
-				<sx-env-set-interface> interface
+				<sx-env-set-interface> interface;
+				<sx-env-set-derivation> result-deriv
 			else
 				!"The module contains type errors (error investigation is not yet implemented)" => message;
 				<sx-analysis-fail(|message)> head

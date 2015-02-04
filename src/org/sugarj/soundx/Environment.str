@@ -78,6 +78,35 @@ strategies
   	    hashtable-put(|key, value)
 
 /**
+ * Handling of derivation
+ */
+strategies
+	/**
+	 * Gets derivation
+	 *
+	 * @type _ -> SXExpr
+	 */
+	sx-env-get-derivation =
+		<sx-env-get> "derivation"
+
+	/**
+	 * Sets derivation
+	 *
+	 * @type SXExpr -> SXEnv
+	 */
+	sx-env-set-derivation =
+		?intf;
+		<sx-env-set> ("derivation", intf)
+
+	/**
+	 * Succeeds if derivation has been set
+	 *
+	 * @type _ -> _
+	 */
+	sx-env-is-derivation-defined =
+		sx-env-get-derivation; not(?SXFalse())
+
+/**
  * Handling of interface
  */
 strategies
