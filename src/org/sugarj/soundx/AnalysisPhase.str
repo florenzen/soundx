@@ -77,7 +77,6 @@ strategies
 		 	 
 	sx-analysis-build-re-exports =
 		sx-env-get-imports => imports;
-		debug(!"IMPORTS ");
 		let map-s = {
 			mod, re-exp:
 				?mod;
@@ -164,7 +163,10 @@ strategies
 strategies
 	sx-context-analysis =
 		?toplevel-decls@SXToplevelDeclarationsCons(head, tail);
-		sx-inference-rules => inf-rules;
+		sx-inference-rules => inf-rules-base;
+		sx-inference-rules-from-extensions => inf-rules-extensions;
+		debug(!"INFERENCE RULES FROM EXTENSIONS ");
+		<conc> (inf-rules-base, inf-rules-extensions) => inf-rules;
 		sx-interface-judgement => (tlds-pattern, intf-pattern, judg);
 		<sx-vars> tlds-pattern => vars-tlds;
 		<sx-unify(|vars-tlds)> (tlds-pattern, toplevel-decls) => result;
@@ -184,6 +186,11 @@ strategies
 				<sx-analysis-fail(|message)> head
 			end
 		end
+		
+	sx-inference-rules-from-extensions =
+		sx-env-get-re-exports; mapconcat(sx-extension-inference-rules)
+
+
 		//!SXNeq("x", "y") => goal;
 		//!SXJudgement4(SXCons2(), STLCNat("1"), SXMetaVar("U")) => goal;
 		//!SXJudgement4(SXCons2(), STLCAdd(STLCNat("1"), STLCNat("1")), SXMetaVar("U")) => goal;
