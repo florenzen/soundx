@@ -33,8 +33,11 @@ strategies
 
 	sx-is-import-decl =
 		?con#(args);
+		//debug(!"IS IMPORT DECL? ");
 		sx-import-decs; unzip => (cons-names, _);
+		//debug(!"POSSIBILITIES ");
 		<elem> (con, cons-names)
+		//;debug(!"YES")
 
 /**
  * Declarations defined in an extension module
@@ -47,3 +50,13 @@ strategies
 		sx-universal-desugarings
 	sx-guarded-desugarings = fail
 	sx-universal-desugarings = fail
+
+	sx-interface-expr =
+		?mod;
+		<sx-interface> mod => (expr, _);
+		!expr
+
+	sx-interface-re-exports =
+		?mod;
+		<sx-interface> mod => (_, re-exports);
+		!re-exports

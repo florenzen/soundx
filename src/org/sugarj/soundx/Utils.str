@@ -12,3 +12,23 @@ strategies
 
 	sx-tail:
 		[_|tail] -> tail
+
+	/**
+	 * Removes duplicates from the list
+	 *
+	 * It keeps the last occurence of a specific element.
+	 *
+	 * @type List(a) -> List(a)
+	 */
+	sx-nub:
+		[] -> []
+	sx-nub:
+		[x|xs] -> [x|xs1]
+		where
+			<not(elem)> (x, xs);
+			<sx-nub> xs => xs1
+	sx-nub:
+		[x|xs] -> xs1
+		where
+			<elem> (x, xs);
+			<sx-nub> xs => xs1

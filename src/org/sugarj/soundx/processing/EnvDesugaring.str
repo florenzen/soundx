@@ -111,7 +111,8 @@ strategies
 	sx-env-make-interface =
 		if sx-env-is-interface-defined then
 			sx-env-get-interface => interface;
-			sx-env-module-decls-to-stratego(|interface, "interface")
+			sx-env-get-re-exports => re-exports;
+			sx-env-module-decls-to-stratego(|(interface, re-exports), "interface")
 		else
 			![]
 		end

@@ -54,7 +54,8 @@ strategies
   	    hashtable-put(|"inference-rules", <new-hashtable> ());
   	    hashtable-put(|"grammar-elems", []);
   	    hashtable-put(|"name-counter", 0);
-  	    hashtable-put(|"interface", SXFalse())
+  	    hashtable-put(|"interface", SXFalse());
+  	    hashtable-put(|"re-exports", SXFalse())
 
     /**
      * Looks up a key in the environment
@@ -78,6 +79,35 @@ strategies
   	    hashtable-put(|key, value)
 
 /**
+ * Handling of re-exports
+ */
+strategies
+	/**
+	 * Gets re-exports
+	 *
+	 * @type _ -> List(String)
+	 */
+	sx-env-get-re-exports =
+		<sx-env-get> "re-exports"
+
+	/**
+	 * Sets re-exports
+	 *
+	 * @type List(String) -> SXEnv
+	 */
+	sx-env-set-re-exports =
+		?re-exports;
+		<sx-env-set> ("re-exports", re-exports)
+
+	/**
+	 * Succeeds if re-exports are set
+	 *
+	 * @type _ -> _
+	 */
+	sx-env-is-re-exports-defined =
+		sx-env-get-re-exports; not(?SXFalse())
+
+/**
  * Handling of derivation
  */
 strategies
@@ -95,8 +125,8 @@ strategies
 	 * @type SXExpr -> SXEnv
 	 */
 	sx-env-set-derivation =
-		?intf;
-		<sx-env-set> ("derivation", intf)
+		?deriv;
+		<sx-env-set> ("derivation", deriv)
 
 	/**
 	 * Succeeds if derivation has been set
@@ -380,7 +410,7 @@ strategies
      * @type _ -> List(String)
      */
 	sx-env-get-imports =
-		<sx-env-get> "import"
+		<sx-env-get> "imports"
 
 /**
  * Handling of extension-processing

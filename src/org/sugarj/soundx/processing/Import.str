@@ -14,10 +14,18 @@ strategies
 				if sx-env-is-extension-processing then
 					<sx-analysis-fail(|"import declaration cannot be inside an extension")> decl
 				else
-					<fetch-elem(\(cons-name, _) -> <eq> (cons-name, con)\)> decs => (_, index);
-					<index> (<add> (index, 1), args) => import;
-					<sx-debug(|"registered import ")> import;
-					<sx-env-add-import> import
+					let fetch-s =
+						{ cons-name, index:
+							?(cons-name, index);
+							<eq> (cons-name, con);
+							!index
+						}
+					in
+						<fetch-elem(fetch-s)> decs => index;//(_, index);
+						<index> (<add> (index, 1), args) => import;
+						<sx-debug(|"registered import ")> import;
+						<sx-env-add-import> import
+					end
 				end
 			)
 

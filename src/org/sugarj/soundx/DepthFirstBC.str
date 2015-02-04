@@ -68,7 +68,7 @@ strategies
 		// first argument must be a metavariable, second one must be bound to a string
 		<sx-is-metavar> var;
 		<is-string> mid;
-		<sx-interface> mid => interface; // Get interface
+		<sx-interface-expr> mid => interface; // Get interface
 		<sx-debug(|"Retrieved interface ")> (mid, interface);
 		<sx-sub-singleton> (var, interface) => sub-intf;
 		<sx-sub-apply> (sub-intf, judgs) => judgs1;

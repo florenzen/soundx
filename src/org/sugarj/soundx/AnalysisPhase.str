@@ -66,14 +66,30 @@ strategies
 		 	sx-process-toplevel-declaration;
 		 	if sx-is-last-toplevel-decl then
 		 		<sx-debug(|"last toplevel declaration")> "";
-		 	 	sx-env-get-toplevel-declarations;
+		 	 	sx-analysis-build-re-exports;
+		 	 	sx-env-get-toplevel-declarations => toplevel-decs-list;
 		 	 	sx-debug(|"list of toplevel declarations");
-		 	 	sx-list-to-toplevel-decls => toplevel-decs;
-		 	 	sx-context-analysis
+		 	 	<sx-list-to-toplevel-decls> toplevel-decs-list => toplevel-decs;
+		 	 	<sx-context-analysis> toplevel-decs
 		 	 else
 		 	 	id
 		 	 end)
 		 	 
+	sx-analysis-build-re-exports =
+		sx-env-get-imports => imports;
+		debug(!"IMPORTS ");
+		let map-s = {
+			mod, re-exp:
+				?mod;
+				<sx-interface-re-exports> mod => re-exp;
+				![mod|re-exp]
+			}
+		in
+			<map(map-s); concat> imports => re-exports;
+			<sx-nub> re-exports => re-exp-nub;
+			<sx-env-set-re-exports> re-exp-nub
+		end
+		
 		 	 
 		 	 // DEVEL
 		 	// where(
