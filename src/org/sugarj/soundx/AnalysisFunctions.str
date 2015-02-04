@@ -24,8 +24,14 @@ strategies
      * @type a -> a
      */
     sx-analysis-fail(|msg) =
+    	?term;
     	where(<sx-env-failed> ());
-    	sx-analysis-store-error(|msg);
+    	<debug(!"*** The following error occured ***")> "";
+    	<debug(<conc-strings> ("  ", msg))> "";
+    	<debug(!"  The input to blame is")> "";
+    	<debug(!"  ")> term;
+    	<debug(!"  (if a parse error follows this error it may not be reported at the end)")> "";
+    	<sx-analysis-store-error(|msg)> term;
     	fail
 
     /**
