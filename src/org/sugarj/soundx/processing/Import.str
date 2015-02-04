@@ -1,3 +1,8 @@
+/**
+ * Processing of an import declaration
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
 module org/sugarj/soundx/processing/Import
 
 imports org/sugarj/soundx/Declarations
@@ -6,7 +11,28 @@ imports org/sugarj/soundx/Declarations
 
 imports org/sugarj/soundx/Debug
 
+
 strategies
+	/**
+	 * Adds an import declaration to the list of toplevel declarations and
+	 * stored the name of the imported module in the environment
+	 *
+	 * @type ToplevelDeclaration -> SXEnv
+	 */
+	sx-process-import-decl =
+		?decl;
+		sx-is-import-decl;
+		<sx-env-add-toplevel-declaration> decl;
+		<sx-process-register-import> decl;
+		<sx-debug(|"processsed import decl")> ""
+
+	/**
+	 * Stores the imported module name in the environment
+	 *
+	 * It arborts if the import declaration is in an extension definition.
+	 *
+	 * @type ToplevelDeclaration -> SXEnv
+	 */
 	sx-process-register-import =
 		?decl@con#(args);
 		where(
@@ -14,6 +40,7 @@ strategies
 				if sx-env-is-extension-processing then
 					<sx-analysis-fail(|"import declaration cannot be inside an extension")> decl
 				else
+					// look up the import declaration in the base language definition
 					let fetch-s =
 						{ cons-name, index:
 							?(cons-name, index);
@@ -21,17 +48,11 @@ strategies
 							!index
 						}
 					in
-						<fetch-elem(fetch-s)> decs => index;//(_, index);
+						<fetch-elem(fetch-s)> decs => index;
+						// extract the name of the imported module
 						<index> (<add> (index, 1), args) => import;
 						<sx-debug(|"registered import ")> import;
 						<sx-env-add-import> import
 					end
 				end
 			)
-
-	sx-process-import-decl =
-		?decl;
-		sx-is-import-decl;
-		<sx-env-add-toplevel-declaration> decl;
-		<sx-process-register-import> decl;
-		<sx-debug(|"processsed import decl")> ""

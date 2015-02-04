@@ -1,3 +1,8 @@
+/**
+ * Code generation from the environment
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
 module org/sugarj/soundx/processing/EnvDesugaring
 
 imports org/sugarj/languages/Stratego
@@ -11,13 +16,25 @@ imports org/sugarj/soundx/AbstractSyntax
 		
 
 strategies
+	/**
+	 * Generates Stratego and SDF code from the environment
+	 *
+	 * @type _ -> List(ExtensionElem)
+	 */
 	sx-env-extract-extension-decls =
+		// generate Stratego definitions from the desugarings
 		sx-env-make-desugarings => trans-desugarings;
+		// generate a Stratego definition from the inference rules
 		<sx-env-get; hashtable-values> "inference-rules" => inf-rules;
 	    sx-env-module-decls-to-stratego(|inf-rules, "extension-inference-rules") => trans-infrules;
+	    // extract all the SDF2 sections
 	    sx-env-get-grammar-elems => grammar-elems;
+	    // Since the SoundX desugaring is hooked into the strategy internal-main
+	    // instead of desugaring gen-signature has to be called manually here
 	    (<gen-signature> grammar-elems <+ ![]) => trans-signatures;
+	    // generate a Stratego definition for the interface
 	    sx-env-make-interface => trans-interface;
+	    // concatenate everything into one list
 	    <conc> (trans-signatures, trans-infrules,
 	    	trans-desugarings, trans-interface) => transformation-elems;
 	    !SXExtensionDecl(<conc> (grammar-elems, transformation-elems))
@@ -39,45 +56,84 @@ strategies
     		Strategies([SDefNoArgs(strategy-name, rhs)])
     	 )]
 
+	/**
+	 * Generate the code for the desugarings
+	 *
+	 * It produces a definition for guarded and universal
+	 * desugarings each which looks like this:
+	 *
+	 * sx-guarded-desugarings =
+	 *   where(sx-desugaring-active-module; ?<module-name>);
+	 *   des1 <+ ... <+ desn
+	 *
+	 * Each desi has the form ?lhs; !rhs
+	 *
+	 * @type - -> List(ExtensionElem)
+	 */
 	sx-env-make-desugarings =
 		sx-env-get-desugarings => desugarings;
-		//debug(!"GOT DESUGARINGS ");
 		<partition(sx-is-universal-desugaring)> desugarings => (univ-desugs, guard-desugs);
 		<sx-env-make-univ-desugarings> univ-desugs => trans-univ;
 		<sx-env-make-guard-desugarings> guard-desugs => trans-guard;
 		<conc> (trans-univ, trans-guard)
 
+	/**
+	 * Generate Stratego code for list of universal desugarings
+	 *
+	 * @type List(SXDesugaring) -> List(ExtensionElem)
+	 */
 	sx-env-make-univ-desugarings =
 		?desugs;
 		<map(sx-env-make-univ-desugaring)> desugs => strats;
-		//debug(!"MADE STRATS ");
 		<sx-env-make-desugaring-alternatives> strats => alternatives;
-		//debug(!"MADE ALTS ");
 		sx-env-make-desugaring-activator => activator;
 		!Seq(activator, alternatives) => activator-alternatives;
-		//debug(!"ACTIVATOR STUFF ");
     	![transformation-elem(
     		Strategies([SDefNoArgs("sx-universal-desugarings", activator-alternatives)])
     	 )]
 
+	/**
+	 * Translates universal desugaring into Stratego match and build
+	 *
+	 * @type SXDesugaring -> StrategoStrategy
+	 */ 
 	sx-env-make-univ-desugaring =
 		?SXUnivDesug(lhs, rhs);
 		<trm-explode> lhs => stratego-lhs;
 		<trm-explode> rhs => stratego-rhs;
 		!Seq(Match(stratego-lhs), Build(stratego-rhs))
 
+	/**
+	 * Generates Stratego code for list of guarded desugarings
+	 *
+	 * @type List(SXDesugaring) -> List(ExtensionElem)
+	 */
 	sx-env-make-guard-desugarings =
 		?desugs;
 		<map(sx-env-make-guard-desugaring)> desugs => strats;
 		<sx-env-make-desugaring-alternatives> strats => alternatives;
-		//debug(!"MADE ALTS ");
 		sx-env-make-desugaring-activator => activator;
 		!Seq(activator, alternatives) => activator-alternatives;
-		//debug(!"ACTIVATOR STUFF ");
     	![transformation-elem(
     		Strategies([SDefNoArgs("sx-guarded-desugarings", activator-alternatives)])
     	 )]
 
+	/**
+	 * Translates guarded desugaring into Stratego match and build
+	 *
+	 * A guarded desugaring
+	 *   premise1 ... premisen
+	 *   --------------------------
+	 *   expr1 ... [expr] ... exprm
+	 *   ~~~~~~~~~~~~~~~~~~~~~~~~~~>
+	 *   expr'
+	 * is translated into
+	 *   ?SXInfRule([premise1,...,premisen], name, expr1 ... expr ... exprn);
+	 *   !SXInfRule([premise1,...,premisen], name, expr1 ... expr' ... exprn)
+	 * such that it is directly applicable to an inference rule.
+	 *
+	 * @type SXDesugaring -> StrategoStrategy
+	 */
 	sx-env-make-guard-desugaring =
 		?SXGuardDesug(premises, before-exprs, subject-expr, after-exprs, judg-name, rhs);
 		<trm-explode> premises => stratego-premises;
@@ -95,7 +151,13 @@ strategies
 		!Op("SXInfRule", [stratego-premises, Var("sx-rule-name"), stratego-rhs-concl]) => stratego-rhs;
 		// Rule
 		!Seq(Match(stratego-lhs), Build(stratego-rhs))		
-		
+
+	/**
+	 * Generates the activation check for desugarings with the name
+	 * of the current module
+	 *
+	 * @type _ -> StrategoStrategy
+	 */	
 	sx-env-make-desugaring-activator =
 		sx-env-get-namespace => namespace;
 		!Where(
@@ -104,10 +166,23 @@ strategies
 				Match(Str(namespace))
 			))
 
+	/**
+	 * Folds a list of strategies using <+
+	 *
+	 * @type List(StrategoStrategy) -> StrategoStrategy
+	 */ 
 	sx-env-make-desugaring-alternatives =
 		?strats;
 		<foldl(\(strat, output) -> LChoice(strat, output)\)> (strats, Fail())
 
+	/**
+	 * Generates a definition for the module interface
+	 * 
+	 * It contains the interface expression and the names
+	 * of the re-exported modules
+	 *
+	 * @type _ -> List(ExtensionElem)
+	 */
 	sx-env-make-interface =
 		if sx-env-is-interface-defined then
 			sx-env-get-interface => interface;

@@ -41,7 +41,6 @@ strategies
 		?ast;
 		(<get-analysis-data(|"all-errors")> ast <+ ![])
 
-
 	/**
 	 * Starts the SoundX analysis
 	 *
@@ -71,7 +70,7 @@ strategies
 	 * declaration it is. If the current declaration is the last toplevel
 	 * declaration the context analysis is started.
 	 *
-	 * @type SXToplevelDecl -> SXToplevelDecl
+	 * @type ToplevelDeclaration -> ToplevelDeclaration
 	 */
 	sx-analysis =
 		// analysis never changes its input (apart from error annotations)
@@ -137,13 +136,15 @@ strategies
 		<sx-unify(|vars-tlds)> (tlds-pattern, toplevel-decls) => result;
 		if !result; ?SXUnificationFailure(msg) then
 			// if the tlds pattern cannot be matched with the input program
-			// this is an error of the base language
+			// this is a defect of the base language definition
 			<conc-strings> ("could not instantiate interface judgement (", msg, ").",
 				"This is a defect in the base language definition") => message;
 			<sx-analysis-fail(|message)> head
 		else
 			<sx-sub-apply> (result, judg) => goal;
 			<sx-debug(|"interface goal ")> goal;
+			// derive the interface judgement and store the module's interface
+			// and the derivation for later desugaring in the environment
 			if <sx-dfsbc-build-derivations(|[])> ([], inf-rules, [goal]) => (sub, result-deriv) then
 				<sx-sub-apply> (sub, intf-pattern) => interface;				
 				<sx-debug(|"interface of module ")> interface;
@@ -154,10 +155,24 @@ strategies
 				<sx-analysis-fail(|message)> head
 			end
 		end
-		
+
+	/**
+	 * Returns a list of inference rules from the imported extensions
+	 *
+	 * @type _ -> List(SXInfRule)
+	 */
 	sx-inference-rules-from-extensions =
 		sx-env-get-re-exports; mapconcat(sx-extension-inference-rules)
+
+/**
+ * Processing of toplevel declarations
+ */
 strategies
+	/**
+	 * Processes all supported toplevel declarations
+	 *
+	 * @type ToplevelDeclaration-> SXEnv
+	 */
 	sx-process-toplevel-declaration =
 		sx-process-extension-begin +
 		sx-process-extension-end +
@@ -168,16 +183,32 @@ strategies
 		sx-process-import-decl +
 		sx-process-body-decl
 
+	/**
+	 * Processes a body declaration
+	 *
+	 * The strategy aborts with an error if the body declaration is inside
+	 * an extension definition, otherwise it is stored in the environment.
+	 *
+	 * @type ToplevelDeclaration -> SXEnv
+	 */
 	sx-process-body-decl =
 		?decl;
 		sx-is-body-decl;
 		if sx-env-is-extension-processing then
-			<sx-analysis-fail(|"body declaration cannot be inside extension")> decl
+			<sx-analysis-fail(|"body declaration cannot be inside an extension definition")> decl
 		else
 			<sx-env-add-toplevel-declaration> decl;
 			<sx-debug(|"processsed body decl")> ""
 		end
-		
+
+	/**
+	 * Processes the begin marker of an extension definition
+	 *
+	 * This strategy aborts with an error if extension processing is
+	 * currently on. Otherwise, extension processing is switched to on
+	 *
+	 * @type ToplevelDeclaration -> SXEnv
+	 */
 	sx-process-extension-begin =
 		?decl@SXExtensionBegin(_);
 		if sx-env-is-extension-processing then
@@ -186,7 +217,15 @@ strategies
 			sx-env-set-extension-processing;
 			<sx-debug(|"switched extension processing on")> ""
 		end
-		
+
+	/**
+	 * Processes the end marker of an extension definition
+	 *
+	 * This strategy fails if extension processing is off. Otherwise,
+	 * extension processing is switched to off.
+	 *
+	 * @type ToplevelDeclaration -> SXEnv
+	 */
 	sx-process-extension-end =
 		?decl@SXExtensionEnd(_);
 		if sx-env-is-extension-processing then
@@ -195,5 +234,3 @@ strategies
 		else
 			<sx-analysis-fail(|"extension end without extension begin")> decl
 		end
-
-

@@ -1,3 +1,8 @@
+/**
+ * Processing of a desugarings section
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
 module org/sugarj/soundx/processing/Desugarings
 
 imports org/sugarj/soundx/AbstractSyntax
@@ -9,6 +14,13 @@ imports org/sugarj/soundx/Debug
 
 
 strategies
+	/**
+	 * Processes a desugarings section
+	 *
+	 * Aborts with an error, if extension processing is off
+	 *
+	 * @type ToplevelDeclaration -> ToplevelDeclaration
+	 */
 	sx-process-desugarings =
 		?SXDesugarings(_);
 		where(
@@ -18,43 +30,72 @@ strategies
 				sx-analysis-fail(|"desugarings must be inside an extension")
 			end)
 
+	/**
+	 * Processes one desugaring
+	 *
+	 * The desugaring is converted to abstract syntax and stored
+	 * in the environment.
+	 *
+	 * @type SXDesugaring -> SXEnv
+	 */
 	sx-process-desugaring =
 		sx-process-guarded-desugaring +
 		sx-process-universal-desugaring
 
+	/**
+	 * Processes a universal desugaring
+	 *
+	 * The desugaring is converted to abstract syntax and stored
+	 * in the environment.
+	 *
+	 * @type SXDesugaring -> SXEnv
+	 */
 	sx-process-universal-desugaring =
 		?SXUniversalDesugaring(lhs, _, rhs);
 		!SXUnivDesug(lhs, rhs) => desugaring;
 		<sx-env-add-desugaring> desugaring;
 		<sx-debug(|"added universal desugaring ")> desugaring
 
+	/**
+	 * Processes a guarded desugaring
+	 *
+	 * The conclusion of the left-hand side is split into
+	 * before, subject, and after expressions and converted
+	 * to abstract syntax.
+	 *
+	 * The desugaring is stored in the environment.
+	 *
+	 * @type SXDesugaring -> SXEnv
+	 */
 	sx-process-guarded-desugaring =
 		?con#(args);
-		//<debug(!"ARGS ")> args;
-		//<debug(!"CON ")> con;
 		<sx-process-split-guarded-des-cons> con => (index, judg-name);
-		//debug(!"RECOGNICED GUARDED DES ");
 		<length> args => len;
-		//<debug(!"LENGTH ")> len;
 		<index> (1, args) => premises;
 		<collect-all(sx-is-judgement, conc)> premises => premises-list;
-		//<debug(!"PREMISES ")> premises;
 		<index> (len, args) => rhs;
 		<drop(|2); take(|<subt> (len, 4))> args => concl-args;
 		<split-at(|<subt> (index, 1))> concl-args => (exprs-before, [expr-subject|exprs-after]);
-		//<debug(!"EXPRS BEFORE")> exprs-before;
 		!SXGuardDesug(premises-list, exprs-before, expr-subject, exprs-after, judg-name, rhs) => desugaring;
 		<sx-env-add-desugaring> desugaring;
 		<sx-debug(|"added guarded desugaring ")> desugaring
 
+	/**
+	 * Splits the constructor name of a guarded desugaring
+	 *
+	 * It returns the judgement name of the left-hand side's
+	 * conclusion and the index of the subject expression.
+	 *
+	 * It fails if the input is not the cinstructor name of a
+	 * guarded desugaring.
+	 *
+	 * @type String -> (Int, String)
+	 */
 	sx-process-split-guarded-des-cons =
 		?con;
 		<string-starts-with(|"SXGuardedDesugaring")> con;
-		//debug(!"STRING STARTS WITH");
 		<explode-string> con => chars;
-		//debug(!"CHARS ");
 		<drop(|19)> chars => chars-no-prefix;
 		<take-while(is-num); implode-string; string-to-int> chars-no-prefix => index;
-		//<debug(!"INDEX ")> index;
 		<drop-while(is-num); implode-string> chars-no-prefix => judg-name;
 		!(index, judg-name)

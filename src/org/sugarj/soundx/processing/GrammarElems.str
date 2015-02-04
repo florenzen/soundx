@@ -23,7 +23,7 @@ strategies
 	 *
 	 * Adds SDF2 sections as grammar elems to the environment
 	 *
-	 * @type SXBldGrammarElems -> SXBldGrammarElems
+	 * @type ToplevelDeclaration -> ToplevelDeclaration
 	 */
 	sx-process-grammar-elems =
 		?SXGrammarElems(grammars);
