@@ -59,6 +59,10 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 		this.importDecCons = importDecCons2;
 	}
 
+	public Map<String, Integer> getImportDecCons() {
+		return importDecCons;
+	}
+
 	protected void setBodyDecCons(Set<String> bodyDecCons) {
 		this.bodyDecCons = bodyDecCons;
 	}

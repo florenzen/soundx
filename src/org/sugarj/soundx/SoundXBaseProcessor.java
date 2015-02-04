@@ -7,9 +7,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.StrategoAppl;
 import org.sugarj.AbstractBaseProcessor;
 import org.sugarj.common.ATermCommands;
 import org.sugarj.common.Environment;
@@ -139,7 +141,10 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 
 	@Override
 	public String getModulePathOfImport(IStrategoTerm toplevelDecl) {
-		return null;
+		Map<String, Integer> importDecCons = getLanguage().getImportDecCons();
+		String consName = ((StrategoAppl) toplevelDecl).getConstructor().getName();
+		Integer index = importDecCons.get(consName);
+		return prettyPrint(getApplicationSubterm(toplevelDecl, consName, index));
 	}
 
 	@Override
