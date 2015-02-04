@@ -62,7 +62,7 @@ strategies
 		sx-base-language-name => prefix;
 		(sx-env-get-namespace => namespace <+
 		 <sx-analysis-fail(|"no namespace defined")> name);
-		<conc> (prefix, namespace, name)
+		<conc-strings> (prefix, namespace, name)
 		// TODO: the namespace may have to be mangled
 
 				
