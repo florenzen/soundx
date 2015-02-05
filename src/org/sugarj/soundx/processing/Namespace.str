@@ -1,3 +1,8 @@
+/**
+ * Processing of a namespace declaration
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
 module org/sugarj/soundx/processing/Namespace
 
 imports org/sugarj/soundx/Declarations
@@ -6,7 +11,34 @@ imports org/sugarj/soundx/Declarations
 
 imports org/sugarj/soundx/Debug
 
+
 strategies
+	/**
+	 * Adds a namespace declaration to the list of toplevel declarations and
+	 * stores the namespace identifier in the environment
+	 *
+	 * It aborts if there was already a previous namespace declaration.
+	 *
+	 * @type ToplevelDeclaration -> SXEnv
+	 */
+	sx-process-namespace-decl =
+		?decl;
+		sx-is-namespace-decl;
+		if sx-env-is-namespace-defined then
+			<sx-analysis-fail(|"only one namespace declaration is allowed")> decl
+		else
+			<sx-env-add-toplevel-declaration> decl;
+			<sx-process-register-namespace> decl;
+			<sx-debug(|"processsed namespace decl")> ""
+		end
+
+	/**
+	 * Stores the namespace identifier in the environment
+	 *
+	 * It aborts if the import declaration is inside an extension definition.
+	 *
+	 * @type ToplevelDeclaration -> SXEnv
+	 */
 	sx-process-register-namespace =
 		?decl@con#(args);
 		where(
@@ -22,10 +54,3 @@ strategies
 					id
 				end
 			end)
-
-	sx-process-namespace-decl =
-		?decl;
-		sx-is-namespace-decl;
-		<sx-env-add-toplevel-declaration> decl;
-		<sx-process-register-namespace> decl;
-		<sx-debug(|"processsed namespace decl")> ""

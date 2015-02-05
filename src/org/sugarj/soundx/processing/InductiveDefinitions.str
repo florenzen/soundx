@@ -1,3 +1,8 @@
+/**
+ * Processing of inductive definitions section
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
 module org/sugarj/soundx/processing/InductiveDefinitions
 
 imports org/sugarj/soundx/AbstractSyntax
@@ -7,9 +12,7 @@ imports org/sugarj/soundx/AbstractSyntax
 
 imports	org/sugarj/soundx/processing/Prefixing
 
-/**
- * Analysis
- */
+
 strategies
 	/**
 	 * Adds all inference rules to the environment
@@ -52,7 +55,7 @@ strategies
 	/**
 	 * Adds an inference rule to the environment
 	 *
-	 * Fails if a rule of that name is already defined.
+	 * Aborts with an error if a rule of that name is already defined.
 	 * In the environment, the rules are stored by their original name
 	 * without the prefix.
 	 *

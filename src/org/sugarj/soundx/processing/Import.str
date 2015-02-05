@@ -15,7 +15,7 @@ imports org/sugarj/soundx/Debug
 strategies
 	/**
 	 * Adds an import declaration to the list of toplevel declarations and
-	 * stored the name of the imported module in the environment
+	 * stores the name of the imported module in the environment
 	 *
 	 * @type ToplevelDeclaration -> SXEnv
 	 */
@@ -29,7 +29,7 @@ strategies
 	/**
 	 * Stores the imported module name in the environment
 	 *
-	 * It arborts if the import declaration is in an extension definition.
+	 * It aborts if the import declaration is in an extension definition.
 	 *
 	 * @type ToplevelDeclaration -> SXEnv
 	 */

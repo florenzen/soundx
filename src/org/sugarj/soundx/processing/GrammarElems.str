@@ -14,9 +14,6 @@ imports org/sugarj/soundx/AbstractSyntax
 imports org/sugarj/soundx/processing/Prefixing
 
 
-/**
- * Analyses
- */
 strategies
 	/**
 	 * Analyzes list of SDF2 sections
@@ -112,8 +109,6 @@ strategies
      */
     sx-process-sorts =
         'sorts(sx-prefix-all-sorts-base-lang)
-    	// <map(sxbld-analyze-symbol); sxbld-prefix-all-sorts-base-lang> symbols => analyzed-symbols;
-   	 //    !'sorts(analyzed-symbols)
 
     /**
      * Analyzes a context-free syntax section
