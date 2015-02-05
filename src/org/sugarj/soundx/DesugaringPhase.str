@@ -13,10 +13,11 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Declarations
 		org/sugarj/soundx/InductiveDefinitions
 		org/sugarj/soundx/Utils
-		org/sugarj/soundx/Debug
+		org/sugarj/soundx/DerivationDesugaring
 
 imports org/sugarj/soundx/processing/EnvDesugaring
 
+imports org/sugarj/soundx/Debug
 
 
 /**
@@ -25,7 +26,6 @@ imports org/sugarj/soundx/processing/EnvDesugaring
 strategies
 	internal-main = sx-desugar
 
-strategies
 	/**
 	 * Main SoundX desugaring procedure
 	 */
@@ -40,7 +40,10 @@ strategies
 					![decl|env-decls]
 				else
 					!env-decls
-				end
+				end => decls;
+				sx-derivation-desugaring => desugared-decls;
+				debug(!"DESUGARED DECLS");
+				!decls
 				// env desugaring and derivation desugaring
 			else
 				// If there are errors, attach them all to the last

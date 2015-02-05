@@ -1,0 +1,246 @@
+/**
+ * The SoundX derivation desugaring procedure
+ *
+ * @author Florian Lorenzen <florian.lorenzen>
+ */
+module org/sugarj/soundx/DerivationDesugaring
+
+imports org/sugarj/soundx/AbstractSyntax
+		org/sugarj/soundx/Unification
+		org/sugarj/soundx/Substitution
+		org/sugarj/soundx/Declarations
+		org/sugarj/soundx/DepthFirstBC
+
+imports org/sugarj/soundx/Debug
+
+
+strategies
+	/**
+	 * Desugars a derivation
+	 *
+	 * It either returns the desugared list of toplevel declarations
+	 * or it aborts if it is stuck in the forward step
+	 *
+	 * @type _ -> List(ToplevelDeclaration)
+	 */
+	sx-derivation-desugaring =
+		
+		![]
+
+	/**
+	 * Desugars one extension given the name of the current extension
+	 * and the names of the imported extensions
+	 *
+	 * @param current-ext String
+	 * @param impored-exts List(String)
+	 *
+	 * @type SXDeriv -> SXDeriv
+	 */
+	sx-deriv-desugar-from-imports(|current-ext, imported-exts) =
+		?deriv
+
+	/**
+	 * Desugars one extension given the name of the current extension
+	 * the inference rules of the extension and the inference rules of
+	 * the base system
+	 *
+	 * @param current-ext String
+	 * @param ext-inf-rules Hashtable(String, SXInfRule)
+	 * @param base-inf-rules Hashtable(String, SXInfRule))
+	 *
+	 * @type SXDeriv -> SXDeriv
+	 */
+	sx-deriv-desugar-ext-base(|current-ext, ext-inf-rules, base-inf-rules) =
+		downup(
+			sx-deriv-desugar-top-down(|current-ext, ext-inf-rules, base-inf-rules),
+			sx-deriv-desugar-bottom-up(|current-ext, ext-inf-rules, base-inf-rules))
+
+	/**
+	 * The one-step top-down rewriting of derivations
+	 *
+	 * @param current-ext String
+	 * @param ext-inf-rules Hashtable(String, SXInfRule)
+	 * @param base-inf-rules Hashtable(String, SXInfRule))
+	 *
+	 * @type SXDeriv -> SXDeriv
+	 */
+	sx-deriv-desugar-top-down(|current-ext, ext-inf-rules, base-inf-rules) =
+		id
+
+	/**
+	 * The one-step bottom-up rewriting of derivations
+	 *
+	 * @param current-ext String
+	 * @param ext-inf-rules Hashtable(String, SXInfRule)
+	 * @param base-inf-rules Hashtable(String, SXInfRule))
+	 *
+	 * @type SXDeriv -> SXDeriv
+	 */
+	sx-deriv-desugar-bottom-up(|current-ext, ext-inf-rules, base-inf-rules) =
+		?deriv@SXDerivInst(_, rule-name, _);
+		(// base language rule
+		 (<sx-deriv-desugar-is-rule-defined-in(|base-inf-rules)> rule-name => current-inf-rule;
+		  <sx-deriv-desugar-bottom-up-base(|current-ext, current-inf-rule)> deriv
+		 ) <+
+		 // extension rule
+		 (<sx-deriv-desugar-is-rule-defined-in(|ext-inf-rules)> rule-name => current-inf-rule;
+		  <hashtable-values> base-inf-rules => list-base-rules;
+		  <sx-deriv-desugar-bottom-up-ext(|current-ext, current-inf-rule, list-base-rules)> deriv
+		 ) <+
+		 // Serious error: rule cannot be found
+		 (<sx-debug(|"*** ERROR *** A rule used in a derivation cannot be found: ")> rule-name;
+		  fail)
+		)
+
+	/**
+	 * One-step bottom-up rewriting for base language rule
+	 *
+	 * @param current-inf-rule SXInfRule
+	 * @param current-ext String
+	 *
+	 * @type SXDeriv -> SXDeriv
+	 */
+	sx-deriv-desugar-bottom-up-base(|current-ext, current-inf-rule) =
+		?SXDerivInst(subderivs, rule-name, concl);
+		<sx-fresh-inf-rule> current-inf-rule => SXInfRule(premises-rule, _, concl-rule);
+		<sx-vars> concl-rule => concl-rule-vars;
+		<map(sx-concl)> subderivs => concls-subderivs;
+		<zip; sx-unify(|concl-rule-vars)> (premises-rule, concls-subderivs) => result1;
+		if !result1; ?SXUnificationFailure(_) then
+		  	<sx-debug(|"*** STUCK *** forward step stuck on rule ")> rule-name;
+		  	fail
+		else
+		  	<sx-unify(|concl-rule-vars)> (concl-rule, concl) => result2;
+		  	if !result2; ?SXUnificationFailure(_) then
+		  		<sx-debug(|"*** ERROR *** cannot match rule's conclusion and derivation conclusion")> rule-name;
+		  		fail
+		  	else
+		  		<sx-sub-dom> result2 => dom-sub2;
+		  		<sx-sub-restrict> (result2, <diff> (dom-sub2, concl-rule-vars)) => sub21;
+		  		<sx-deriv-desugar-sub(|current-ext)> sub21 => sub21-desugared;
+		  		<sx-sub-compose> (sub21-desugared, result1) => sub;
+		  		!SXDerivInst(subderivs, rule-name, <sx-sub-apply> (sub, concl-rule))
+		  	end
+		end
+
+	/**
+	 * One-step bottom-up rewriting for an extension rule
+	 * 
+	 * @param current-inf-rule SXInfRule
+	 * @param current-ext String
+	 * @param base-rules List(SXInfRule)
+	 *
+	 * @type SXDeriv -> SXDeriv
+	 */
+	sx-deriv-desugar-bottom-up-ext(|current-ext, current-inf-rule, base-rules) =
+		?SXDerivInst(subderivs, rule-name, concl);
+		<sx-fresh-inf-rule> current-inf-rule => inf-rule-fresh;
+		<sx-deriv-desugar-inf-rule(|current-ext)> inf-rule-fresh => SXInfRule(premises-des, _, concl-des);
+		<sx-vars> concl-des => concl-des-vars;
+		<map(sx-concl)> subderivs => concls-subderivs;
+		<zip; sx-unify(|concl-des-vars)> (premises-des, concls-subderivs) => result1;
+		if !result1; ?SXUnificationFailure(_) then
+		  	<sx-debug(|"*** STUCK *** forward step stuck on desugared form of rule ")> rule-name;
+		  	fail
+		else
+		  	<sx-unify(|concl-des-vars)> (concl-des, concl) => result2;
+		  	if !result2; ?SXUnificationFailure(_) then
+		  		<sx-debug(|"*** ERROR *** cannot match rule's conclusion and derivation conclusion")> rule-name;
+		  		fail
+		  	else
+		  		<sx-sub-dom> result2 => dom-sub2;
+		  		<sx-sub-restrict> (result2, <diff> (dom-sub2, concl-des-vars)) => sub21;
+		  		<sx-deriv-desugar-sub(|current-ext)> sub21 => sub21-desugared;
+		  		<sx-sub-compose> (sub21-desugared, result1) => sub;
+		  		<sx-sub-apply> (sub, concl-des) => desugared-goal;
+				if <sx-dfsbc-build-derivation> (subderivs, base-rules, desugared-goal) => deriv-des then
+					!deriv-des
+				else
+					<sx-debug(|"*** ERROR *** cannot fill the gap left by rule ")> rule-name;
+					fail
+				end		  		
+		  	end
+		end
+
+	/**
+	 * Succeeds if rule-name is defined in the given hashtable of rules
+	 *
+	 * @param rules Hashtable(String, SXInfRule)
+	 *
+	 * @type String -> SXInfRule
+	 */
+	sx-deriv-desugar-is-rule-defined-in(|inf-rules) =
+		?rule-name;
+		<hashtable-get(|rule-name)> inf-rules
+
+	/**
+	 * Desugars an inference using the guarded and universal desugarings
+	 * of the current extension
+	 *
+	 * @param current-ext String
+	 *
+	 * @type SXInfRule -> SXInfRule
+	 */
+	sx-deriv-desugar-inf-rule(|current-ext) =
+		sx-deriv-desugar-apply-universal-guarded(|current-ext)
+
+	/**
+	 * Desugars a substitution using the universal desugarings of
+	 * the current extension
+	 *
+	 * @param current-ext String
+	 *
+	 * @type SXSub -> SXSub
+	 */
+	sx-deriv-desugar-sub(|current-ext) =
+		sx-sub-map(sx-deriv-desugar-apply-universals(|current-ext))
+
+	/**
+	 * Applies the universal desugarings of the current extension
+	 * using a repeated bottom-up strategy
+	 *
+	 * @param String current-ext
+	 *
+	 * @type a - > a
+	 */
+	sx-deriv-desugar-apply-universals(|current-ext) =
+		sx-deriv-desugar-apply-desugarings(sx-universal-desugarings|current-ext)
+
+	/**
+	 * Applies the guarded desugarings of the current extension
+	 * using a repeated bottom-up strategy
+	 *
+	 * @param String current-ext
+	 *
+	 * @type a - > a
+	 */
+	sx-deriv-desugar-apply-guarded(|current-ext) =
+		sx-deriv-desugar-apply-desugarings(sx-guarded-desugarings|current-ext)
+		
+	/**
+	 * Applies the guarded and universal desugarings of the current extension
+	 * using a repeated bottom-up strategy
+	 *
+	 * @param String current-ext
+	 *
+	 * @type a - > a
+	 */
+	sx-deriv-desugar-apply-universal-guarded(|current-ext) =
+		sx-deriv-desugar-apply-desugarings(sx-guarded-desugarings + sx-universal-desugarings|current-ext)
+	
+	/**
+	 * Applies the given desugarings of the current extension
+	 * using a repeated bottom-up strategy
+	 *
+	 * @param a -> a desugarings
+	 * @param String current-ext
+	 *
+	 * @type a -> a
+	 */
+	sx-deriv-desugar-apply-desugarings(desugarings|current-ext) =
+		?term;
+		{
+			sx-desugaring-active-module:
+				rules(sx-desugaring-active-module: _ -> current-ext);
+				<repeat(oncebu(desugarings))> term => term-desugared
+		}
