@@ -1,0 +1,83 @@
+/**
+ * Basic desugaring strategies
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de
+ */
+module org/sugarj/soundx/BasicDesugaring
+
+imports org/sugarj/soundx/Declarations
+		org/sugarj/soundx/Substitution
+
+
+strategies
+	/**
+	 * Desugars an inference rule sing the guarded and universal desugarings
+	 * of the current extension
+	 *
+	 * @param current-ext String
+	 *
+	 * @type SXInfRule -> SXInfRule
+	 */
+	sx-basic-desugar-inf-rule(|current-ext) =
+		sx-basic-desugar-apply-universal-guarded(|current-ext)
+
+	/**
+	 * Desugars a substitution using the universal desugarings of
+	 * the current extension
+	 *
+	 * @param current-ext String
+	 *
+	 * @type SXSub -> SXSub
+	 */
+	sx-basic-desugar-sub(|current-ext) =
+		sx-sub-map(sx-basic-desugar-apply-universals(|current-ext))
+
+	/**
+	 * Applies the universal desugarings of the current extension
+	 * using a repeated bottom-up strategy
+	 *
+	 * @param String current-ext
+	 *
+	 * @type a - > a
+	 */
+	sx-basic-desugar-apply-universals(|current-ext) =
+		sx-basic-desugar-apply-desugarings(sx-universal-desugarings|current-ext)
+
+	/**
+	 * Applies the guarded desugarings of the current extension
+	 * using a repeated bottom-up strategy
+	 *
+	 * @param String current-ext
+	 *
+	 * @type a - > a
+	 */
+	sx-basic-desugar-apply-guarded(|current-ext) =
+		sx-basic-desugar-apply-desugarings(sx-guarded-desugarings|current-ext)
+		
+	/**
+	 * Applies the guarded and universal desugarings of the current extension
+	 * using a repeated bottom-up strategy
+	 *
+	 * @param String current-ext
+	 *
+	 * @type a - > a
+	 */
+	sx-basic-desugar-apply-universal-guarded(|current-ext) =
+		sx-basic-desugar-apply-desugarings(sx-guarded-desugarings + sx-universal-desugarings|current-ext)
+	
+	/**
+	 * Applies the given desugarings of the current extension
+	 * using a repeated bottom-up strategy
+	 *
+	 * @param a -> a desugarings
+	 * @param String current-ext
+	 *
+	 * @type a -> a
+	 */
+	sx-basic-desugar-apply-desugarings(desugarings|current-ext) =
+		?term;
+		{
+			sx-desugaring-active-module:
+				rules(sx-desugaring-active-module: _ -> current-ext);
+				<repeat(oncebu(desugarings))> term => term-desugared
+		}

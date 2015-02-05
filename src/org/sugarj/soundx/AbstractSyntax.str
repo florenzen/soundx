@@ -74,6 +74,9 @@ strategies
  */
 signature constructors
 	SXInfRule: List(SXJudgement) * String * SXJudgement -> SXAbsInfRule
+	
+	SXRuleX: SXClassification
+	SXRuleB: SXClassification
 
 strategies
 	/**
