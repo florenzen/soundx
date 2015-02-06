@@ -22,7 +22,7 @@ strategies
 	 *
 	 * @type List(SXInfRule) -> _
 	 */
-	sx-classify-all-rules(|current-ext, base-inf-rules) =
+	sx-classify-all-inf-rules(|current-ext, base-inf-rules) =
 		?ext-inf-rules;
 		map(sx-classify-inf-rule(|current-ext, ext-inf-rules, base-inf-rules))
 		
@@ -88,7 +88,7 @@ strategies
 	 */
 	sx-classify-inf-rule-b(|current-ext, ext-inf-rules, base-inf-rules) =
 		?rule@SXInfRule(premises, name, concl);
-		<sx-debug(|"trying to verify as X: ")> rule;
+		<sx-debug(|"trying to verify as B: ")> rule;
 		<sx-basic-desugar-inf-rule(|current-ext)> rule => des-rule@SXInfRule(des-premises, _, des-concl);
 		<sx-debug(|"desugared rule ")> des-rule;
 		<sx-extension-cons-names> current-ext => ext-cons-names;
@@ -97,7 +97,7 @@ strategies
 		if <isect> (ext-cons-names, des-premises-cons-names); ?[] then
 			<map(!SXDerivAsm(<id>))> des-premises => asms;
 			if <sx-dfsbc-build-derivation> (asms, base-inf-rules, des-concl) => deriv then
-				<sx-debug(|"successfully classified as X: ")> name;
+				<sx-debug(|"successfully classified as B: ")> name;
 				!SXRuleB()
 			else
 				<sx-debug(|"failed to classify as B rule (no derivation): ")> name;

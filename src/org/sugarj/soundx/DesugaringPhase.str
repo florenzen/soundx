@@ -63,10 +63,14 @@ strategies
 			if sx-env-is-extension-processing then
 				sx-env-extract-extension-decls
 			else
+				// the Stratego code is always written to be available at
+				// verification time which takes place before the desugaring
+				// of the last toplevel declaration
+				sx-env-extract-extension-decls-stratego => trans-decls;
 				if !decl; (sx-is-namespace-decl + sx-is-import-decl) then
-					![decl, SXExtensionDecl([])]
+					![decl, SXExtensionDecl(trans-decls)]
 				else
-					![SXExtensionDecl([])]
+					![SXExtensionDecl(trans-decls)]
 				end
 			end
 		end

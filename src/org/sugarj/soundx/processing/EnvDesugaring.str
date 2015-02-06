@@ -19,9 +19,19 @@ strategies
 	/**
 	 * Generates Stratego and SDF code from the environment
 	 *
-	 * @type _ -> List(ExtensionElem)
+	 * @type _ -> SXExtensionDecl
 	 */
 	sx-env-extract-extension-decls =
+		sx-env-extract-extension-decls-stratego => decls;
+		sx-env-get-grammar-elems => grammar-elems;
+		!SXExtensionDecl(<conc> (grammar-elems, decls))
+	  
+	/**
+	 * Generates Stratego code from the environment
+	 *
+	 * @type _ -> List(ExtensionElem)
+	 */
+	sx-env-extract-extension-decls-stratego =
 		// generate Stratego definitions from the desugarings
 		sx-env-make-desugarings => trans-desugarings;
 		// generate a Stratego definition from the inference rules
@@ -39,9 +49,8 @@ strategies
 		sx-env-module-decls-to-stratego(|cons-names, "extension-cons-names") => trans-cons-names;
 	    // concatenate everything into one list
 	    <conc> (trans-signatures, trans-infrules,
-	    	trans-desugarings, trans-interface, trans-cons-names) => transformation-elems;
-	    !SXExtensionDecl(<conc> (grammar-elems, transformation-elems))
-	  
+	    	trans-desugarings, trans-interface, trans-cons-names)
+		
 	/**
 	 * Generates a Stratego definition sx-<key> = ?<namespace>; !<term>
 	 *

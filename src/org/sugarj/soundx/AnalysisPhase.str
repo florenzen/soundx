@@ -18,6 +18,7 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/InductiveDefinitions
 		org/sugarj/soundx/AnalysisFunctions
 		org/sugarj/soundx/Utils
+		org/sugarj/soundx/Classification
 
 imports org/sugarj/soundx/processing/GrammarElems
 		org/sugarj/soundx/processing/Namespace
@@ -80,11 +81,12 @@ strategies
 		 	if sx-is-last-toplevel-decl then
 		 		<sx-debug(|"last toplevel declaration")> "";
 		 	 	sx-analysis-store-re-exports;
+		 	 	(sx-extension-verification <+
+		 	 	 <sx-analysis-fail(|"Verification failed")> ());
 		 	 	sx-env-get-toplevel-declarations => toplevel-decs-list;
 		 	 	sx-debug(|"list of toplevel declarations");
 		 	 	<sx-list-to-toplevel-decls> toplevel-decs-list => toplevel-decs;
 		 	 	<sx-context-analysis> toplevel-decs
-		 	 	
 		 	 else
 		 	 	id
 		 	 end)
@@ -109,6 +111,19 @@ strategies
 		end
 
 	/**
+	 * Performs the SoundX verification procedure.
+	 *
+	 * @type _ -> _
+	 */
+	sx-extension-verification =
+		sx-inference-rules => inf-rules-base;
+		sx-inference-rules-from-extensions => inf-rules-imp-exts;
+		sx-env-get-inference-rules => inf-rules-ext;
+		<conc> (inf-rules-base, inf-rules-imp-exts) => all-inf-rules-base;
+		sx-env-get-namespace => namespace;
+		<sx-classify-all-inf-rules(|namespace, all-inf-rules-base)> inf-rules-ext
+		
+	/**
 	 * Performs the context analysis
 	 *
 	 * It sets up the interface judgement and tries to derive it
@@ -129,7 +144,7 @@ strategies
 		// fetch all inference rules
 		sx-inference-rules => inf-rules-base;
 		sx-inference-rules-from-extensions => inf-rules-extensions;
-		<map(sx-inf-rule-name); sx-debug(|"inference rules from extesions ")> inf-rules-extensions;
+		<map(sx-inf-rule-name); sx-debug(|"inference rules from extensions ")> inf-rules-extensions;
 		<conc> (inf-rules-base, inf-rules-extensions) => inf-rules;
 		// set up the interface judgement
 		sx-interface-judgement => (tlds-pattern, intf-pattern, judg);
