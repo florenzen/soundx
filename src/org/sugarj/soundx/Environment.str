@@ -463,3 +463,11 @@ strategies
 		?name;
 		<sx-env-get> "cons-names" => names;
 		<elem> (name, names)
+
+	/**
+	 * Gets cons-names
+	 *
+	 * @type _ -> List(String)
+	 */
+	sx-env-get-cons-names =
+		<sx-env-get> "cons-names"

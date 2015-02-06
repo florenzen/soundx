@@ -34,9 +34,12 @@ strategies
 	    (<gen-signature> grammar-elems <+ ![]) => trans-signatures;
 	    // generate a Stratego definition for the interface
 	    sx-env-make-interface => trans-interface;
+		// generate a Stratego definition for the constructor names
+		sx-env-get-cons-names => cons-names;
+		sx-env-module-decls-to-stratego(|cons-names, "extension-cons-names") => trans-cons-names;
 	    // concatenate everything into one list
 	    <conc> (trans-signatures, trans-infrules,
-	    	trans-desugarings, trans-interface) => transformation-elems;
+	    	trans-desugarings, trans-interface, trans-cons-names) => transformation-elems;
 	    !SXExtensionDecl(<conc> (grammar-elems, transformation-elems))
 	  
 	/**
