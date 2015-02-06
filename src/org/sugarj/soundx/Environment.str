@@ -288,6 +288,15 @@ strategies
   	    <sx-env-get> "inference-rules";
   	    hashtable-put(|name, rule)
 
+	/**
+	 * Returns all inference rules.
+	 *
+	 * @type _ -> List(SXInfRule)
+	 */
+	sx-env-get-inference-rules =
+		<sx-env-get> "inference-rules";
+		hashtable-values
+
 /**
  * Handling of errors
  */
