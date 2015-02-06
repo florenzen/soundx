@@ -283,3 +283,24 @@ signature constructors
 	SXRight: b -> SXEither(a, b)
 
 	SXErrors: List((a, String)) -> SXErrors
+
+strategies
+	/**
+	 * Collects all constructor names of some term
+	 *
+	 * @type a -> List(String)
+	 */
+ 	sx-collect-all-cons-names =
+ 		let collect-s =
+ 			{ term, con, args:
+ 				?term@con#(args);
+ 				if sx-is-judgement + sx-is-metavar + is-int + is-string +
+ 					is-list + is-tuple + is-real then
+ 					fail
+ 				else
+ 					!con
+ 				end
+ 			}
+ 		in
+ 			collect-all(collect-s)
+		end

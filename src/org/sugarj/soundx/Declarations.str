@@ -51,6 +51,7 @@ strategies
 	sx-guarded-desugarings = fail
 	sx-universal-desugarings = fail
 	sx-extension-inference-rules = fail
+	sx-extension-cons-names = fail
 
 	sx-interface-expr =
 		?mod;
