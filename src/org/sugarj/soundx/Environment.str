@@ -55,7 +55,8 @@ strategies
   	    hashtable-put(|"grammar-elems", []);
   	    hashtable-put(|"name-counter", 0);
   	    hashtable-put(|"interface", SXFalse());
-  	    hashtable-put(|"re-exports", SXFalse())
+  	    hashtable-put(|"re-exports", SXFalse());
+  	    hashtable-put(|"derivation", SXFalse())
 
     /**
      * Looks up a key in the environment

@@ -1,6 +1,8 @@
 /**
  * The SoundX derivation desugaring procedure
  *
+ * TODO error handling should not use sx-debug and fail
+ *
  * @author Florian Lorenzen <florian.lorenzen>
  */
 module org/sugarj/soundx/DerivationDesugaring
@@ -11,6 +13,8 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Declarations
 		org/sugarj/soundx/DepthFirstBC
 		org/sugarj/soundx/BasicDesugaring
+		org/sugarj/soundx/Classification
+		org/sugarj/soundx/Environment
 
 imports org/sugarj/soundx/Debug
 
@@ -25,12 +29,49 @@ strategies
 	 * @type _ -> List(ToplevelDeclaration)
 	 */
 	sx-derivation-desugaring =
-		
-		![]
+		sx-env-get-derivation => deriv;
+		<debug(!"FOUND DERIVATION TO DESUGAR")> "";
+		sx-env-get-re-exports => imported-exts;
+		debug(!"FOUND RE EXPORTS ");
+		<sx-deriv-desugar-from-imports(|imported-exts)> deriv => deriv-des;
+		debug(!"FINISHED DESUGARING ");
+		// extract desugared program from desugared cocnlusion
+		<sx-concl> deriv-des => concl-des;
+		debug(!"DESUGARED CONCLUSION ");
+		sx-interface-judgement => (tlds-pattern, intf-pattern, judg);
+		<sx-vars> judg => judg-vars;
+		<sx-unify(|judg-vars)> (judg, concl-des) => result;
+		if !result; ?SXUnificationFailure(_) then
+			<sx-debug(|"could not unify interface judgement and desugared conclusion (defect of base language definition)")> "";
+			fail
+		else
+			<sx-sub-apply> (result, tlds-pattern) => des-program;
+			debug(!"DESUGARED PROGRAM ");
+			<sx-toplevel-decls-to-list> des-program
+		end
 
 	/**
+	 * Desugars one extension after the other from beginning to end of the list.
+	 *
+	 * @param imported-exts List(String)
+	 *
+	 * @type SXDeriv -> SXDeriv
+	 */
+	sx-deriv-desugar-from-imports(|imported-exts) =
+		?deriv;
+		!imported-exts;
+		((?[];
+		  !deriv
+		 ) <+
+		 (?[imp-ext|imp-exts];
+		  <sx-deriv-desugar-from-imports(|imp-ext, imp-exts)> deriv => deriv-des;
+		  <sx-deriv-desugar-from-imports(|imp-exts)> deriv-des
+		 )
+		)
+		
+	/**
 	 * Desugars one extension given the name of the current extension
-	 * and the names of the imported extensions
+	 * and the names of the imported extensions.
 	 *
 	 * @param current-ext String
 	 * @param impored-exts List(String)
@@ -38,7 +79,12 @@ strategies
 	 * @type SXDeriv -> SXDeriv
 	 */
 	sx-deriv-desugar-from-imports(|current-ext, imported-exts) =
-		?deriv
+		?deriv;
+		<sx-extension-inference-rules> current-ext => ext-inf-rules;
+		<mapconcat(sx-extension-inference-rules)> imported-exts => inf-rules-imported;
+		sx-inference-rules => base-inf-rules;
+		<conc> (base-inf-rules, inf-rules-imported) => base-imp-rules;
+		sx-deriv-desugar-ext-base(|current-ext, ext-inf-rules, base-imp-rules)
 
 	/**
 	 * Desugars one extension given the name of the current extension
@@ -46,8 +92,8 @@ strategies
 	 * the base system
 	 *
 	 * @param current-ext String
-	 * @param ext-inf-rules Hashtable(String, SXInfRule)
-	 * @param base-inf-rules Hashtable(String, SXInfRule))
+	 * @param ext-inf-rules List(SXInfRule)
+	 * @param base-inf-rules List(SXInfRule))
 	 *
 	 * @type SXDeriv -> SXDeriv
 	 */
@@ -60,20 +106,55 @@ strategies
 	 * The one-step top-down rewriting of derivations
 	 *
 	 * @param current-ext String
-	 * @param ext-inf-rules Hashtable(String, SXInfRule)
-	 * @param base-inf-rules Hashtable(String, SXInfRule))
+	 * @param ext-inf-rules List(SXInfRule)
+	 * @param base-inf-rules List(SXInfRule))
 	 *
 	 * @type SXDeriv -> SXDeriv
 	 */
 	sx-deriv-desugar-top-down(|current-ext, ext-inf-rules, base-inf-rules) =
-		id
+		?deriv@SXDerivInst(subderivs, rule-name, concl);
+		(// base language rule (this implements TD-Base)
+		 (<sx-deriv-desugar-is-rule-defined-in(|base-inf-rules)> rule-name;
+		  !deriv
+		 ) <+
+		 // extension rule
+		 (<sx-deriv-desugar-is-rule-defined-in(|ext-inf-rules)> rule-name => current-inf-rule;
+		  <sx-fresh-inf-rule> current-inf-rule => fresh-inf-rule@SXInfRule(premises-fresh, _, concl-fresh);
+		  if <sx-classify-inf-rule-x(|current-ext, ext-inf-rules, base-inf-rules)> fresh-inf-rule then
+		  	// X rule (this implementes TD-ExtExt)
+		  	<sx-basic-desugar-inf-rule(|current-ext)> fresh-inf-rule => SXInfRule(premises-des, _, concl-des);
+		  	<sx-vars> concl-des => vars-concl-des;
+		  	<map(sx-concl)> subderivs => concl-subderivs;
+		  	<sx-unify(|vars-concl-des)> ([concl-fresh|premises-fresh], [concl|concl-subderivs]) => result;
+		  	if !result; ?SXUnificationFailure(_) then
+		  		<sx-debug(|"BUG! Unification in TD-ExtExt failed for rule: ")> rule-name;
+		  		fail
+		  	else
+		  		<sx-sub-apply> (result, concl-des) => concl-des-instantiated;
+		  		<conc> (base-inf-rules, ext-inf-rules) => all-inf-rules;
+		  		if <sx-dfsbc-build-derivation> (subderivs, all-inf-rules, concl-des-instantiated) => deriv-des then
+		  			!deriv-des
+		  		else
+		  			<sx-debug(|"Bug: Bridging the gap in TD-ExtExt failed for rule: ")> rule-name;
+		  			fail
+		  		end
+		  	end
+		  else
+		  	// B rule (this implements TD-ExtBase)
+		  	!deriv
+		  end
+		 ) <+
+		 // serious error: rule cannot be found
+		 (<sx-debug(|"*** ERROR *** A rule used in a derivation cannot be found: ")> rule-name;
+		  fail)
+	    )
 
 	/**
 	 * The one-step bottom-up rewriting of derivations
 	 *
 	 * @param current-ext String
-	 * @param ext-inf-rules Hashtable(String, SXInfRule)
-	 * @param base-inf-rules Hashtable(String, SXInfRule))
+	 * @param ext-inf-rules List(SXInfRule)
+	 * @param base-inf-rules List(SXInfRule))
 	 *
 	 * @type SXDeriv -> SXDeriv
 	 */
@@ -85,16 +166,17 @@ strategies
 		 ) <+
 		 // extension rule
 		 (<sx-deriv-desugar-is-rule-defined-in(|ext-inf-rules)> rule-name => current-inf-rule;
-		  <hashtable-values> base-inf-rules => list-base-rules;
-		  <sx-deriv-desugar-bottom-up-ext(|current-ext, current-inf-rule, list-base-rules)> deriv
+		  <sx-deriv-desugar-bottom-up-ext(|current-ext, current-inf-rule, base-inf-rules)> deriv
 		 ) <+
-		 // Serious error: rule cannot be found
+		 // serious error: rule cannot be found
 		 (<sx-debug(|"*** ERROR *** A rule used in a derivation cannot be found: ")> rule-name;
 		  fail)
 		)
 
 	/**
 	 * One-step bottom-up rewriting for base language rule
+	 *
+	 * TODO error handling in forward step failure
 	 *
 	 * @param current-inf-rule SXInfRule
 	 * @param current-ext String
@@ -164,13 +246,13 @@ strategies
 		end
 
 	/**
-	 * Succeeds if rule-name is defined in the given hashtable of rules
+	 * Succeeds if rule-name is defined in the given list of rules
+	 * and returns that rule.
 	 *
-	 * @param rules Hashtable(String, SXInfRule)
+	 * @param rules List(SXInfRule)
 	 *
 	 * @type String -> SXInfRule
 	 */
 	sx-deriv-desugar-is-rule-defined-in(|inf-rules) =
 		?rule-name;
-		<hashtable-get(|rule-name)> inf-rules
-
+		<collect-one(?SXInfRule(_, rule-name, _))> inf-rules

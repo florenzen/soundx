@@ -39,11 +39,12 @@ strategies
 				if !decl; (sx-is-namespace-decl + sx-is-import-decl) then
 					![decl|env-decls]
 				else
-					!env-decls
+					![env-decls]
 				end => decls;
+				debug(!"ENV DECLS ");
 				sx-derivation-desugaring => desugared-decls;
 				debug(!"DESUGARED DECLS");
-				!decls
+				<conc> (decls, desugared-decls)
 				// env desugaring and derivation desugaring
 			else
 				// If there are errors, attach them all to the last

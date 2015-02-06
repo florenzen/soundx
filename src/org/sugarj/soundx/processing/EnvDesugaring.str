@@ -200,6 +200,7 @@ strategies
 			sx-env-get-interface => interface;
 			sx-env-get-re-exports => re-exports;
 			sx-env-module-decls-to-stratego(|(interface, re-exports), "interface")
+			;debug(!"MADE THIS INTERFACE ")
 		else
 			![]
 		end
