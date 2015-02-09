@@ -48,6 +48,7 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 		if (hasExtension && body.isEmpty())
 			return "";
 
+		System.out.println("DEBUG: imports : " + imports);
 		return moduleHeader + "\n"
 				+ StringCommands.printListSeparated(imports, "\n") + "\n"
 				+ StringCommands.printListSeparated(body, "\n");
@@ -151,6 +152,7 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 	public void processModuleImport(IStrategoTerm toplevelDecl)
 			throws IOException {
 		System.out.println("DEBUG: process module import: " + toplevelDecl);
+		System.out.println("DEBUG: pretty print " + prettyPrint(toplevelDecl));
 		imports.add(prettyPrint(toplevelDecl));
 	}
 

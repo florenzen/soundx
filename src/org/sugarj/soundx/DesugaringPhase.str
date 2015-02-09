@@ -44,8 +44,14 @@ strategies
 				debug(!"ENV DECLS ");
 				sx-derivation-desugaring => desugared-decls;
 				debug(!"DESUGARED DECLS");
-				<conc> (decls, desugared-decls)
-				// env desugaring and derivation desugaring
+				<sx-remove-imports> desugared-decls => desugared-decls-no-imports;
+				// Imports must be removed since they have been stored in the
+				// base processor when they have been seen the first time. Without
+				// filtering all imports would appear twice.
+				// Imports cannot be skipped when first reading them since imported
+				// modules have to be processed before the following declarations
+				// of the current module. 
+				<conc> (decls, desugared-decls-no-imports)
 			else
 				// If there are errors, attach them all to the last
 				// declaration. Desugar the declaration into the empty
@@ -76,6 +82,9 @@ strategies
 			end
 		end
 		
+	sx-remove-imports =
+		filter(not(sx-is-import-decl))
+
 	sx-is-toplevel-declaration =
 		sx-is-extension-end +
 		sx-is-extension-begin +
