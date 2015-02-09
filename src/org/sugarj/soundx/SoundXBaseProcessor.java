@@ -150,6 +150,7 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 	@Override
 	public void processModuleImport(IStrategoTerm toplevelDecl)
 			throws IOException {
+		System.out.println("DEBUG: process module import: " + toplevelDecl);
 		imports.add(prettyPrint(toplevelDecl));
 	}
 

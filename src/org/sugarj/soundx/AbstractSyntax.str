@@ -128,6 +128,24 @@ strategies
 	sx-inf-rule-premises =
 		?SXInfRule(premises, _, _); !premises
 
+	/**
+	 * Axiom schema for SXNeq judgement. It is only used in
+	 * desugaring.
+	 *
+	 * @type _ -> SXInfRule
+	 */
+	sx-prim-axiom-neq =
+		!SXInfRule([], "=/=", SXNeq(SXMetaVar("x"), SXMetaVar("y")))
+	
+	/**
+	 * Axiom schema for SXGetInterface judgement. It is only used in
+	 * desugaring.
+	 *
+	 * @type _ -> SXInfRule
+	 */
+	sx-prim-axiom-interface =
+		!SXInfRule([], "=interface()", SXGetInterface(SXMetaVar("x"), SXMetaVar("y")))
+
 /**
  * Judgements
  */

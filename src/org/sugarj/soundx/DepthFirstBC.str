@@ -52,6 +52,9 @@ strategies
 		  !(sub1, [asm|derivs])) <+
 		 <sx-dfsbc-build-derivations-by-asm(|vars-asms)> (all-asms, asms, inf-rules, goals))
 
+	// Note: the rule names in the SXDerivInst nodes for a primitive judgement
+	// must contain characters that are not allowed in rule names of inductive
+	// definitions since the rule names of the base system are not prefixed.
 	sx-dfsbc-build-derivations-by-prim(|vars-asms) =
 		// inequality judgement
 		?(asms, inf-rules, [judg@SXNeq(expr1, expr2) | judgs]);
@@ -75,7 +78,7 @@ strategies
 		<sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs1) => (sub, derivs);
 		<sx-sub-compose> (sub, sub-intf) => sub1;
 		<sx-sub-apply> (sub1, judg) => judg1;
-		!(sub1, [SXDerivInst([], "interface", judg1) | derivs])
+		!(sub1, [SXDerivInst([], "=interface()", judg1) | derivs])
 
 	sx-dfsbc-build-derivations-by-rule(|vars-asms) =
 		?(asms, all-inf-rules, [], goals);
