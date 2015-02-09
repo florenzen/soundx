@@ -28,7 +28,7 @@ strategies
 		?[(var1, var2) | pairs];
 		<sx-is-metavar> var1;
 		<sx-is-metavar> var2;
-		<debug(!"V V ")> (var1, var2);
+		// <debug(!"V V ")> (var1, var2);
 		if <eq> (var1, var2) then
 			<sx-unify(|vars)> pairs
 		else
@@ -60,7 +60,7 @@ strategies
 		?[(var1, expr2) | pairs];
 		<sx-is-metavar> var1;
 		<not(sx-is-metavar)> expr2;
-		<debug(!" V E ")> [(var1, expr2)|pairs];
+		// <debug(!" V E ")> [(var1, expr2)|pairs];
 		if <elem> (var1, vars) then
 			//debug(!" V E IF ");
 			<sx-vars> expr2 => vars-expr2;

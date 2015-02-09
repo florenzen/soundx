@@ -17,13 +17,11 @@ imports org/sugarj/soundx/AbstractSyntax
 
 imports org/sugarj/soundx/processing/EnvDesugaring
 
-imports org/sugarj/soundx/Debug
 
-
-/**
- * Hook desugaring into SugarJ
- */
 strategies
+	/**
+ 	 * Hook desugaring into SugarJ
+ 	 */
 	internal-main = sx-desugar
 
 	/**
@@ -41,9 +39,7 @@ strategies
 				else
 					![env-decls]
 				end => decls;
-				debug(!"ENV DECLS ");
 				sx-derivation-desugaring => desugared-decls;
-				debug(!"DESUGARED DECLS");
 				<sx-remove-imports> desugared-decls => desugared-decls-no-imports;
 				// Imports must be removed since they have been stored in the
 				// base processor when they have been seen the first time. Without
@@ -109,7 +105,3 @@ strategies
 
 	sx-is-desugarings =
 		?SXDesugarings(_)
-
-
-	// Parts for the derivation desugaring procedure
-	// TODO should go in another module	

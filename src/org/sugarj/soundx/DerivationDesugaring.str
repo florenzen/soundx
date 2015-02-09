@@ -30,14 +30,10 @@ strategies
 	 */
 	sx-derivation-desugaring =
 		sx-env-get-derivation => deriv;
-		<debug(!"FOUND DERIVATION TO DESUGAR")> "";
 		sx-env-get-re-exports => imported-exts;
-		debug(!"FOUND RE EXPORTS ");
 		<sx-deriv-desugar-from-imports(|imported-exts)> deriv => deriv-des;
-		debug(!"FINISHED DESUGARING ");
-		// extract desugared program from desugared cocnlusion
+		// extract desugared program from desugared conclusion
 		<sx-concl> deriv-des => concl-des;
-		debug(!"DESUGARED CONCLUSION ");
 		sx-interface-judgement => (tlds-pattern, intf-pattern, judg);
 		<sx-vars> judg => judg-vars;
 		<sx-unify(|judg-vars)> (judg, concl-des) => result;
@@ -46,7 +42,6 @@ strategies
 			fail
 		else
 			<sx-sub-apply> (result, tlds-pattern) => des-program;
-			debug(!"DESUGARED PROGRAM ");
 			<sx-toplevel-decls-to-list> des-program
 		end
 
@@ -81,13 +76,9 @@ strategies
 	sx-deriv-desugar-from-imports(|current-ext, imported-exts) =
 		?deriv;
 		<sx-extension-inference-rules> current-ext => ext-inf-rules;
-		debug(!"CURRENT EXT INF RULES ");
 		<mapconcat(sx-extension-inference-rules)> imported-exts => inf-rules-imported;
-		debug(!"IMPORTED INF RULES ");
 		sx-inference-rules => base-inf-rules;
-		debug(!"BASE INF RULES ");
 		<conc> (base-inf-rules, inf-rules-imported) => base-imp-rules;
-		debug(!"ALL INF RULES ");
 		<sx-deriv-desugar-ext-base(|current-ext, ext-inf-rules, base-imp-rules)> deriv
 
 	/**
@@ -102,7 +93,6 @@ strategies
 	 * @type SXDeriv -> SXDeriv
 	 */
 	sx-deriv-desugar-ext-base(|current-ext, ext-inf-rules, base-inf-rules) =
-		debug(!"BEFORE DU");
 		sx-deriv-downup(
 			sx-deriv-desugar-top-down(|current-ext, ext-inf-rules, base-inf-rules),
 			sx-deriv-desugar-bottom-up(|current-ext, ext-inf-rules, base-inf-rules))
@@ -136,15 +126,12 @@ strategies
 	 */
 	sx-deriv-desugar-top-down(|current-ext, ext-inf-rules, base-inf-rules) =
 		?deriv@SXDerivInst(subderivs, rule-name, concl);
-		debug(!"TOP DOWN ");
 		(// base language rule (this implements TD-Base)
 		 (<sx-deriv-desugar-is-rule-defined-in(|base-inf-rules)> rule-name;
-		  debug(!"TD BASE RULE ");
 		  !deriv
 		 ) <+
 		 // extension rule
 		 (<sx-deriv-desugar-is-rule-defined-in(|ext-inf-rules)> rule-name => current-inf-rule;
-		  debug(!"TD EXT RULE");
 		  <sx-fresh-inf-rule> current-inf-rule => fresh-inf-rule@SXInfRule(premises-fresh, _, concl-fresh);
 		  if <sx-classify-inf-rule-x(|current-ext, ext-inf-rules, base-inf-rules)> fresh-inf-rule then
 		  	// X rule (this implementes TD-ExtExt)
@@ -186,7 +173,6 @@ strategies
 	 */
 	sx-deriv-desugar-bottom-up(|current-ext, ext-inf-rules, base-inf-rules) =
 		?deriv@SXDerivInst(_, rule-name, _);
-		debug(!"BOTTOM UP ");
 		(// base language rule
 		 (<sx-deriv-desugar-is-rule-defined-in(|base-inf-rules)> rule-name => current-inf-rule;
 		  <sx-deriv-desugar-bottom-up-base(|current-ext, current-inf-rule)> deriv
@@ -216,13 +202,6 @@ strategies
 		<sx-vars> premises-rule => premises-rule-vars;
 		<map(sx-concl)> subderivs => concls-subderivs;
 		<zip; sx-unify(|premises-rule-vars)> (premises-rule, concls-subderivs) => result1;
-		if !result1; ?SXUnificationFailure(_) then
-			<debug(!"RESULT 1 ")> result1
-		else
-			<hashtable-getlist; debug(!"RESULT 1")> result1
-		end;
-		<debug(!"PREMISES RULE ")> premises-rule;
-		<debug(!"CONCLS SUBDERIVS ")> concls-subderivs;
 		if !result1; ?SXUnificationFailure(msg) then
 		  	<sx-debug(|"*** STUCK *** forward step stuck on rule ")> rule-name;
 		  	<sx-debug(|"*** Unifications returned: ")> msg;
@@ -238,11 +217,8 @@ strategies
 		  	else
 		  		<sx-sub-dom> result2 => dom-sub2;
 		  		<sx-sub-restrict> (result2, <diff> (dom-sub2, premises-rule-vars)) => sub21;
-		  		hashtable-getlist; debug(!"SUB 21 ");
 		  		<sx-basic-desugar-sub(|current-ext)> sub21 => sub21-desugared;
-		  		hashtable-getlist; debug(!"SUB 21 DES ");
 		  		<sx-sub-compose> (sub21-desugared, result1) => sub;
-		  		hashtable-getlist; debug(!"SUB COMP ");
 		  		!SXDerivInst(subderivs, rule-name, <sx-sub-apply> (sub, concl-rule))
 		  	end
 		end
@@ -263,8 +239,9 @@ strategies
 		<sx-vars> premises-des => premises-des-vars;
 		<map(sx-concl)> subderivs => concls-subderivs;
 		<zip; sx-unify(|premises-des-vars)> (premises-des, concls-subderivs) => result1;
-		if !result1; ?SXUnificationFailure(_) then
+		if !result1; ?SXUnificationFailure(msg) then
 		  	<sx-debug(|"*** STUCK *** forward step stuck on desugared form of rule ")> rule-name;
+		  	<sx-debug(|"*** Unifications returned: ")> msg;
 		  	<sx-debug(|"*** Premises:       ")> premises-des;
 		  	<sx-debug(|"*** Subderivations: ")> concls-subderivs;
 		  	fail
@@ -302,6 +279,4 @@ strategies
 		?rule-name;
 		((!rule-name; ?"=interface()"; sx-prim-axiom-interface) <+
 		 (!rule-name; ?"=/="; sx-prim-axiom-neq) <+ 
-		 (debug(!"IS DEFINED IN ");
-		  <collect-one(?SXInfRule(_, rule-name, _))> inf-rules
-		  ;debug(!"FOUND ")))
+		 (<collect-one(?SXInfRule(_, rule-name, _))> inf-rules))
