@@ -15,6 +15,7 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/BasicDesugaring
 		org/sugarj/soundx/Classification
 		org/sugarj/soundx/Environment
+		org/sugarj/soundx/AnalysisFunctions
 
 imports org/sugarj/soundx/Debug
 
@@ -145,22 +146,19 @@ strategies
 		  	else
 		  		<sx-sub-apply> (result, concl-des) => concl-des-instantiated;
 		  		<conc> (base-inf-rules, ext-inf-rules) => all-inf-rules;
-		  		if <sx-dfsbc-build-derivation> (subderivs, all-inf-rules, concl-des-instantiated) => deriv-des then
+		  		// if <sx-dfsbc-build-derivation> (subderivs, all-inf-rules, concl-des-instantiated) => deriv-des then
+		  		<sx-dfsbc-build-derivation> (subderivs, all-inf-rules, concl-des-instantiated) => deriv-des;
+		  		if fail then
 		  			!deriv-des
 		  		else
-		  			<sx-debug(|"Bug: Bridging the gap in TD-ExtExt failed for rule: ")> rule-name;
-		  			fail
+		  			<sx-signal-bug(|"Bug: Bridging the gap in TD-ExtExt failed. ")> rule-name
 		  		end
 		  	end
 		  else
 		  	// B rule (this implements TD-ExtBase)
 		  	!deriv
 		  end
-		 ) <+
-		 // serious error: rule cannot be found
-		 (<sx-debug(|"*** ERROR *** A rule used in a derivation cannot be found: ")> rule-name;
-		  fail)
-	    )
+		))
 
 	/**
 	 * The one-step bottom-up rewriting of derivations
@@ -180,11 +178,7 @@ strategies
 		 // extension rule
 		 (<sx-deriv-desugar-is-rule-defined-in(|ext-inf-rules)> rule-name => current-inf-rule;
 		  <sx-deriv-desugar-bottom-up-ext(|current-ext, current-inf-rule, base-inf-rules)> deriv
-		 ) <+
-		 // serious error: rule cannot be found
-		 (<sx-debug(|"*** ERROR *** A rule used in a derivation cannot be found: ")> rule-name;
-		  fail)
-		)
+		 ))
 
 	/**
 	 * One-step bottom-up rewriting for base language rule

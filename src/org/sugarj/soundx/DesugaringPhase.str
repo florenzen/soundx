@@ -31,23 +31,31 @@ strategies
 		?decl;
 		sx-is-toplevel-declaration;
 		if sx-is-last-toplevel-decl then
-			sx-env-get-errors  => errors;
-			if !errors; ?[] then
+			sx-env-get-errors => errors;
+			if !errors; ?[] then // Only desugar if there are no errors
 				sx-env-extract-extension-decls => env-decls;
 				if !decl; (sx-is-namespace-decl + sx-is-import-decl) then
 					![decl|env-decls]
 				else
 					![env-decls]
 				end => decls;
-				sx-derivation-desugaring => desugared-decls;
+				(sx-derivation-desugaring <+ ![]) => desugared-decls;
 				<sx-remove-imports> desugared-decls => desugared-decls-no-imports;
 				// Imports must be removed since they have been stored in the
 				// base processor when they have been seen the first time. Without
 				// filtering all imports would appear twice.
 				// Imports cannot be skipped when first reading them since imported
 				// modules have to be processed before the following declarations
-				// of the current module. 
-				<conc> (decls, desugared-decls-no-imports)
+				// of the current module.
+				sx-env-get-errors => errors-desugar;
+				<conc> (decls, desugared-decls-no-imports) => all-decls;
+				<put-analysis-data(|"all-errors", errors-desugar)> decl;
+				if !all-decls; ?[] then
+					!""
+				else
+					!all-decls
+				end
+				// look for errors again after desugaring since it may also cause errors
 			else
 				// If there are errors, attach them all to the last
 				// declaration. Desugar the declaration into the empty

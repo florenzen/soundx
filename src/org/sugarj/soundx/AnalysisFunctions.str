@@ -26,11 +26,11 @@ strategies
     sx-analysis-fail(|msg) =
     	?term;
     	where(<sx-env-failed> ());
-    	<debug(!"*** The following error occured ***")> "";
-    	<debug(<conc-strings> ("  ", msg))> "";
-    	<debug(!"  The input to blame is")> "";
-    	<debug(!"  ")> term;
-    	<debug(!"  (if a parse error follows this error it may not be reported at the end)")> "";
+    	<sx-debug(|"*** The following error occured ***")> "";
+    	<sx-debug(|<conc-strings> ("  ", <indent-text(|2)> msg))> "";
+    	<sx-debug(|"  The input to blame is")> "";
+    	<sx-debug(|"  ")> term;
+    	<sx-debug(|"  (if a parse error follows this error it may not be reported at the end)")> "";
     	<sx-analysis-store-error(|msg)> term;
     	fail
 
@@ -57,5 +57,16 @@ strategies
      */
     sx-analysis-store-error(|msg) =
     	?ast;
-    	<sx-debug(|"store error: ")> (ast, msg);
     	<sx-env-add-error> (ast, msg)
+
+	/**
+	 * Adds an error message indicating a bug in SoundX.
+	 *
+	 * @param msg String
+	 *
+	 * @type a -> a
+	 */
+	sx-signal-bug(|msg) =
+		?ast;
+		<conc-strings> ("*** BUG ***\nThe following error occured which is a SoundX bug.\n", msg) => bug-msg;
+		<sx-analysis-fail(|bug-msg)> ast
