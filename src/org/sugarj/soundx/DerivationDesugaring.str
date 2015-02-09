@@ -258,7 +258,7 @@ strategies
 	 */
 	sx-deriv-desugar-bottom-up-ext(|current-ext, current-inf-rule, base-rules) =
 		?SXDerivInst(subderivs, rule-name, concl);
-		<sx-fresh-inf-rule> current-inf-rule => inf-rule-fresh;
+		<sx-fresh-inf-rule> current-inf-rule => inf-rule-fresh@SXInfRule(_, _, concl-fresh);
 		<sx-basic-desugar-inf-rule(|current-ext)> inf-rule-fresh => SXInfRule(premises-des, _, concl-des);
 		<sx-vars> premises-des => premises-des-vars;
 		<map(sx-concl)> subderivs => concls-subderivs;
@@ -269,8 +269,8 @@ strategies
 		  	<sx-debug(|"*** Subderivations: ")> concls-subderivs;
 		  	fail
 		else
-			<sx-vars> concl-des => concl-des-vars;
-		  	<sx-unify(|concl-des-vars)> (concl-des, concl) => result2;
+			<sx-vars> concl-fresh => concl-fresh-vars;
+		  	<sx-unify(|concl-fresh-vars)> (concl-fresh, concl) => result2;
 		  	if !result2; ?SXUnificationFailure(_) then
 		  		<sx-debug(|"*** ERROR *** cannot match rule's conclusion and derivation conclusion")> rule-name;
 		  		fail
