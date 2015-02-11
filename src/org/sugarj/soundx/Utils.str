@@ -7,14 +7,8 @@ strategies
 	sx-is-last-toplevel-decl =
 		prim("SUGARJ_is_last_toplevel_declaration")
 
-	sx-head:
-		[head|_] -> head
-
-	sx-tail:
-		[_|tail] -> tail
-
 	/**
-	 * Removes duplicates from the list
+	 * Removes duplicates from the list.
 	 *
 	 * It keeps the last occurence of a specific element.
 	 *

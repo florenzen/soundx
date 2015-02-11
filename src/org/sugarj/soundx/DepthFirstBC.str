@@ -17,8 +17,6 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Substitution
 		org/sugarj/soundx/Declarations
 
-imports org/sugarj/soundx/Debug
-
 
 strategies
 	sx-dfsbc-build-derivation =
@@ -34,10 +32,8 @@ strategies
 		?(asms, inf-rules, goals@[judg|_]);
 		(<sx-dfsbc-build-derivations-by-asm(|vars-asms)> (asms, asms, inf-rules, goals) <+
 		 (<sx-is-prim-judgement> judg;
-		  //debug(!"IS PRIM ");
 		  <sx-dfsbc-build-derivations-by-prim(|vars-asms)> (asms, inf-rules, goals)) +
 		  <sx-is-ind-def-judgement> judg;
-		  //debug(!"IS IND DEF JUDG");
 		  <sx-dfsbc-build-derivations-by-rule(|vars-asms)> (asms, inf-rules, inf-rules, goals))
 
 	sx-dfsbc-build-derivations-by-asm(|vars-asms) =
@@ -58,7 +54,6 @@ strategies
 	sx-dfsbc-build-derivations-by-prim(|vars-asms) =
 		// inequality judgement
 		?(asms, inf-rules, [judg@SXNeq(expr1, expr2) | judgs]);
-		//debug(!"BY PRIM ");
 		// both arguments must be bound to a ground expression
 		<sx-vars> expr1 => [];
 		<sx-vars> expr2 => [];
@@ -72,7 +67,6 @@ strategies
 		<sx-is-metavar> var;
 		<is-string> mid;
 		<sx-interface-expr> mid => interface; // Get interface
-		<sx-debug(|"Retrieved interface ")> (mid, interface);
 		<sx-sub-singleton> (var, interface) => sub-intf;
 		<sx-sub-apply> (sub-intf, judgs) => judgs1;
 		<sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs1) => (sub, derivs);
@@ -86,16 +80,9 @@ strategies
 	sx-dfsbc-build-derivations-by-rule(|vars-asms) =
 		?(asms, all-inf-rules, [inf-rule|inf-rules], goals@[judg|judgs]);
 		((<sx-fresh-inf-rule> inf-rule => SXInfRule(premises, name, concl);
-		  //debug(!"FRESH RULE ****** ");
-		  //debug(!"FRESH INF RULE");
 		  <sx-dfsbc-unify(|vars-asms)> (judg, concl) => mgu;
 		  <sx-sub-apply> (mgu, <conc> (premises, judgs)) => judgs1;
-		  //debug(!"JUDGS1 ");
 		  <sx-dfsbc-build-derivations(|vars-asms)> (asms, all-inf-rules, judgs1) => (sub, derivs);
-		  //debug(!"SUB DERIVS ");
-		  //where(<debug(!"RULE ")> name);
-		  //where(<hashtable-getlist; debug(!"SUB *** ")> sub);
-		  //where(<hashtable-getlist;debug(!"MGU *** ")> mgu);
 		  <split-at(|<length> premises)> derivs => (derivs-prem, derivs-other);
 		  <sx-sub-compose> (sub, mgu) => sub1;
 		  <sx-sub-apply> (sub1, judg) => judg1;
@@ -106,7 +93,6 @@ strategies
 		?(expr1, expr2);
 		<sx-vars> (expr1, expr2) => vars-exprs;
 		<diff> (vars-exprs, vars-asms) => vars-unify;
-		//debug(!"VARS UNIFY");
 		<sx-unify(|vars-unify)> (expr1, expr2) => result;
 		if !result; ?SXUnificationFailure(_) then
 			fail

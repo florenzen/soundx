@@ -10,7 +10,7 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/DepthFirstBC
 		org/sugarj/soundx/Declarations
 
-imports org/sugarj/soundx/Debug
+// imports org/sugarj/soundx/Debug
 
 
 strategies
@@ -52,27 +52,27 @@ strategies
 	 */
 	sx-classify-inf-rule-x(|current-ext, ext-inf-rules, base-inf-rules) =
 		?rule@SXInfRule(premises, name, concl);
-		<sx-debug(|"trying to verify as X: ")> rule;
+		// <sx-debug(|"trying to verify as X: ")> rule;
 		<sx-basic-desugar-inf-rule(|current-ext)> rule => des-rule@SXInfRule(des-premises, _, des-concl);
-		<sx-debug(|"desugared rule ")> des-rule;
+		// <sx-debug(|"desugared rule ")> des-rule;
 		<map(!SXDerivAsm(<id>))> premises => asms;
 		<conc> (ext-inf-rules, base-inf-rules) => all-inf-rules;
 		if <sx-dfsbc-build-derivation> (asms, all-inf-rules, des-concl) => deriv then
 			if !deriv; ?SXDerivInst(_, rule-name, _) then
 				<map(sx-inf-rule-name)> base-inf-rules => base-rule-names;
 				if <elem> (rule-name, base-rule-names) then
-					<sx-debug(|"successfully classified as X: ")> name;
+					// <sx-debug(|"successfully classified as X: ")> name;
 					!SXRuleX()
 				else
-					<sx-debug(|"failed to classify as X rule (last rule not from base): ")> name;
+					// <sx-debug(|"failed to classify as X rule (last rule not from base): ")> name;
 					fail
 				end
 			else
-				<sx-debug(|"failed to classify as X rule (conclusion in assumptions): ")> name;
+				// <sx-debug(|"failed to classify as X rule (conclusion in assumptions): ")> name;
 				fail
 			end
 		else
-			<sx-debug(|"failed to classify as X rule (no derivation): ")> name;
+			// <sx-debug(|"failed to classify as X rule (no derivation): ")> name;
 			fail
 		end
 
@@ -88,22 +88,22 @@ strategies
 	 */
 	sx-classify-inf-rule-b(|current-ext, ext-inf-rules, base-inf-rules) =
 		?rule@SXInfRule(premises, name, concl);
-		<sx-debug(|"trying to verify as B: ")> rule;
+		// <sx-debug(|"trying to verify as B: ")> rule;
 		<sx-basic-desugar-inf-rule(|current-ext)> rule => des-rule@SXInfRule(des-premises, _, des-concl);
-		<sx-debug(|"desugared rule ")> des-rule;
+		// <sx-debug(|"desugared rule ")> des-rule;
 		<sx-extension-cons-names> current-ext => ext-cons-names;
 		<sx-collect-all-cons-names> des-premises => des-premises-cons-names;
-		<sx-debug(|"all cons names of the premises ")> des-premises-cons-names;
+		// <sx-debug(|"all cons names of the premises ")> des-premises-cons-names;
 		if <isect> (ext-cons-names, des-premises-cons-names); ?[] then
 			<map(!SXDerivAsm(<id>))> des-premises => asms;
 			if <sx-dfsbc-build-derivation> (asms, base-inf-rules, des-concl) => deriv then
-				<sx-debug(|"successfully classified as B: ")> name;
+				// <sx-debug(|"successfully classified as B: ")> name;
 				!SXRuleB()
 			else
-				<sx-debug(|"failed to classify as B rule (no derivation): ")> name;
+				// <sx-debug(|"failed to classify as B rule (no derivation): ")> name;
 				fail
 			end
 		else
-			<sx-debug(|"failed to classify as B rule (extended expressions in premises): ")> name;
+			// <sx-debug(|"failed to classify as B rule (extended expressions in premises): ")> name;
 			fail
 		end

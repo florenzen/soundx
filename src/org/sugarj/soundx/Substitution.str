@@ -59,24 +59,18 @@ strategies
 	 * @type (SXSub, a) -> a
 	 */
 	sx-sub-apply =
-		//debug(!"START OF APPLY ");
 		?(sub, expr);
 		let apply =
 			{ var, expr1:
 				?var;
-				//debug(!"APPLY VAR ");
 				if <hashtable-get(|var)> sub => expr1 then
 					!expr1
-					//;debug(!"THEN ")
 				else
 					!var
-					//;debug(!"ELSE ")
 				end
 			}
 		in
-			//debug(!"INPUT OF APPLY ");
 			<leaves(apply, sx-is-metavar)> expr
-			//;debug(!"RESULT OF APPLY ")
 		end
 
 	/**
@@ -89,16 +83,11 @@ strategies
 	sx-sub-map(s) =
 		where(new-hashtable => sub);
 		hashtable-getlist;
-		//where(debug(!"INPUT TO MAP "));
 		let fold-s(|sub1) =
 				{ var, expr, expr1:
-					//debug(!"INPUT TO FOLD_S ");
 					?(var, expr);
-					//debug(!"INPUT TO FOLD_S ");
 					<s> expr => expr1;
-					//debug(!"EXPR 1 ");
 					<hashtable-put(|var, expr1)> sub1
-					//;where(<hashtable-getlist;debug(!"SUB CURRENT HT ")> sub1)
 				}
 		in
 			list-fold(fold-s|sub)
@@ -191,9 +180,7 @@ strategies
     sx-sub-compose =
      	?(sub1, sub2);
     	<sx-sub-map(\expr -> <sx-sub-apply> (sub1, expr)\)> sub2 => sub2a;
-    	//where(hashtable-getlist; debug(!"SUB 2 a "));
     	<sx-sub-filter-vars({var: ?var; not(<sx-sub-defines> (sub2, var))})> sub1 => sub1a;
-    	//where(hashtable-getlist; debug(!"SUB 1 a "));
     	<sx-sub-union> (sub1a, sub2a)
 
 	/**

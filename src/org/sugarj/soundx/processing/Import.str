@@ -9,7 +9,7 @@ imports org/sugarj/soundx/Declarations
 		org/sugarj/soundx/Environment
 		org/sugarj/soundx/AnalysisFunctions
 
-imports org/sugarj/soundx/Debug
+// imports org/sugarj/soundx/Debug
 
 
 strategies
@@ -23,8 +23,8 @@ strategies
 		?decl;
 		sx-is-import-decl;
 		<sx-env-add-toplevel-declaration> decl;
-		<sx-process-register-import> decl;
-		<sx-debug(|"processsed import decl")> ""
+		<sx-process-register-import> decl
+		// ;<sx-debug(|"processsed import decl")> ""
 
 	/**
 	 * Stores the imported module name in the environment
@@ -51,7 +51,7 @@ strategies
 						<fetch-elem(fetch-s)> decs => index;
 						// extract the name of the imported module
 						<index> (<add> (index, 1), args) => import;
-						<sx-debug(|"registered import ")> import;
+						// <sx-debug(|"registered import ")> import;
 						<sx-env-add-import> import
 					end
 				end

@@ -9,7 +9,7 @@ imports org/sugarj/soundx/Declarations
 		org/sugarj/soundx/Environment
 		org/sugarj/soundx/AnalysisFunctions
 
-imports org/sugarj/soundx/Debug
+// imports org/sugarj/soundx/Debug
 
 
 strategies
@@ -28,8 +28,8 @@ strategies
 			<sx-analysis-fail(|"only one namespace declaration is allowed")> decl
 		else
 			<sx-env-add-toplevel-declaration> decl;
-			<sx-process-register-namespace> decl;
-			<sx-debug(|"processsed namespace decl")> ""
+			<sx-process-register-namespace> decl
+			// ;<sx-debug(|"processsed namespace decl")> ""
 		end
 
 	/**
@@ -48,7 +48,7 @@ strategies
 			else
 				if <eq> (con, cons-name) then
 					<index> (<add> (index, 1), args) => namespace;
-					<sx-debug(|"registered namespace ")> namespace;
+					// <sx-debug(|"registered namespace ")> namespace;
 					<sx-env-set-namespace> namespace
 				else
 					id

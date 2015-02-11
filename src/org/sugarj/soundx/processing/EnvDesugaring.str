@@ -13,7 +13,9 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Environment
 		org/sugarj/soundx/MetaExplode
 		org/sugarj/soundx/ExtensionDefinition
-		
+
+imports org/sugarj/soundx/Debug
+
 
 strategies
 	/**
@@ -200,7 +202,7 @@ strategies
 			sx-env-get-interface => interface;
 			sx-env-get-re-exports => re-exports;
 			sx-env-module-decls-to-stratego(|(interface, re-exports), "interface")
-			;debug(!"MADE THIS INTERFACE ")
+			// ;sx-debug(|"interface declaration in Stratego ")
 		else
 			![]
 		end

@@ -26,7 +26,7 @@ exports
                        layout("1.first.col == 2.first.col && 2.first.col == 3.first.col")}
 
     SXInfRulePremiseParen+ -> SXInfRulePremisesEnum {cons("SXInfRulePremiseEnum")}
-    SXInfRulePremise            -> SXInfRulePremisesEnum {cons("SXInfRulePremise")}
+    SXInfRulePremise       -> SXInfRulePremisesEnum {cons("SXInfRulePremise")}
     
     SXJudgement         -> SXInfRulePremise {layout("1.first.col < 1.left.col")}
     "(" SXJudgement ")" -> SXInfRulePremiseParen {bracket}

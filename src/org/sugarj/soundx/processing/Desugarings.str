@@ -10,7 +10,7 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/ExtensionDefinition
 		org/sugarj/soundx/AnalysisFunctions
 
-imports org/sugarj/soundx/Debug
+// imports org/sugarj/soundx/Debug
 
 
 strategies
@@ -53,8 +53,8 @@ strategies
 	sx-process-universal-desugaring =
 		?SXUniversalDesugaring(lhs, _, rhs);
 		!SXUnivDesug(lhs, rhs) => desugaring;
-		<sx-env-add-desugaring> desugaring;
-		<sx-debug(|"added universal desugaring ")> desugaring
+		<sx-env-add-desugaring> desugaring
+		// ;<sx-debug(|"added universal desugaring ")> desugaring
 
 	/**
 	 * Processes a guarded desugaring
@@ -77,8 +77,8 @@ strategies
 		<drop(|2); take(|<subt> (len, 4))> args => concl-args;
 		<split-at(|<subt> (index, 1))> concl-args => (exprs-before, [expr-subject|exprs-after]);
 		!SXGuardDesug(premises-list, exprs-before, expr-subject, exprs-after, judg-name, rhs) => desugaring;
-		<sx-env-add-desugaring> desugaring;
-		<sx-debug(|"added guarded desugaring ")> desugaring
+		<sx-env-add-desugaring> desugaring
+		// ; <sx-debug(|"added guarded desugaring ")> desugaring
 
 	/**
 	 * Splits the constructor name of a guarded desugaring

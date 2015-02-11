@@ -10,7 +10,6 @@ imports org/sugarj/stdlib/StdTrans
 imports org/sugarj/soundx/AbstractSyntax
         org/sugarj/soundx/Environment
         org/sugarj/soundx/Substitution
-        org/sugarj/soundx/Resolution
 		org/sugarj/soundx/Declarations
 		org/sugarj/soundx/Unification
 		org/sugarj/soundx/DepthFirstBC
@@ -26,7 +25,7 @@ imports org/sugarj/soundx/processing/GrammarElems
 		org/sugarj/soundx/processing/InductiveDefinitions
 		org/sugarj/soundx/processing/Desugarings
 
-imports org/sugarj/soundx/Debug
+// imports org/sugarj/soundx/Debug
 
 
 /**
@@ -76,16 +75,15 @@ strategies
 	sx-analysis =
 		// analysis never changes its input (apart from error annotations)
 		where(
-			sx-debug(|"current toplevel declaration: ");
+			// sx-debug(|"current toplevel declaration: ");
 		 	sx-process-toplevel-declaration;
 		 	if sx-is-last-toplevel-decl then
-		 		<sx-debug(|"last toplevel declaration")> "";
+		 		// <sx-debug(|"last toplevel declaration")> "";
 		 	 	sx-analysis-store-re-exports;
-		 	 	debug(!"STORED RE EXPORTS ");
 		 	 	(sx-extension-verification <+
 		 	 	 <sx-analysis-fail(|"Verification failed")> ());
 		 	 	sx-env-get-toplevel-declarations; map(sx-annotate-is-source) => toplevel-decs-list;
-		 	 	sx-debug(|"list of toplevel declarations");
+		 	 	// sx-debug(|"list of toplevel declarations");
 		 	 	<sx-list-to-toplevel-decls> toplevel-decs-list => toplevel-decs;
 		 	 	<sx-context-analysis> toplevel-decs
 		 	 else
@@ -99,7 +97,6 @@ strategies
 	 */
 	sx-analysis-store-re-exports =
 		sx-env-get-imports => imports;
-		debug(!"FOUND imports ");
 		let map-s = {
 			mod, re-exp:
 				?mod;
@@ -108,7 +105,6 @@ strategies
 			}
 		in
 			<map(map-s); concat> imports => re-exports;
-			debug(!"RE EXPORTS ");
 			<sx-nub> re-exports => re-exp-nub;
 			<sx-env-set-re-exports> re-exp-nub
 		end
@@ -124,7 +120,6 @@ strategies
 		sx-inference-rules => inf-rules-base;
 		sx-inference-rules-from-extensions => inf-rules-imp-exts;
 		sx-env-get-inference-rules => inf-rules-ext;
-		debug(!"GOING TO VERIFY THESE RULES ");
 		<conc> (inf-rules-base, inf-rules-imp-exts) => all-inf-rules-base;
 		sx-env-get-namespace => namespace;
 		<sx-classify-all-inf-rules(|namespace, all-inf-rules-base)> inf-rules-ext
@@ -150,7 +145,7 @@ strategies
 		// fetch all inference rules
 		sx-inference-rules => inf-rules-base;
 		sx-inference-rules-from-extensions => inf-rules-extensions;
-		<map(sx-inf-rule-name); sx-debug(|"inference rules from extensions ")> inf-rules-extensions;
+		// <map(sx-inf-rule-name); sx-debug(|"inference rules from extensions ")> inf-rules-extensions;
 		<conc> (inf-rules-base, inf-rules-extensions) => inf-rules;
 		// set up the interface judgement
 		sx-interface-judgement => (tlds-pattern, intf-pattern, judg);
@@ -164,12 +159,12 @@ strategies
 			<sx-analysis-fail(|message)> head
 		else
 			<sx-sub-apply> (result, judg) => goal;
-			<sx-debug(|"interface goal ")> goal;
+			// <sx-debug(|"interface goal ")> goal;
 			// derive the interface judgement and store the module's interface
 			// and the derivation for later desugaring in the environment
 			if <sx-dfsbc-build-derivations(|[])> ([], inf-rules, [goal]) => (sub, [result-deriv]) then
 				<sx-sub-apply> (sub, intf-pattern) => interface;				
-				<sx-debug(|"interface of module ")> interface;
+				// <sx-debug(|"interface of module ")> interface;
 				<sx-env-set-interface> interface;
 				<sx-env-set-derivation> result-deriv
 			else
@@ -219,8 +214,8 @@ strategies
 		if sx-env-is-extension-processing then
 			<sx-analysis-fail(|"body declaration cannot be inside an extension definition")> decl
 		else
-			<sx-env-add-toplevel-declaration> decl;
-			<sx-debug(|"processsed body decl")> ""
+			<sx-env-add-toplevel-declaration> decl
+			// ;<sx-debug(|"processsed body decl")> ""
 		end
 
 	/**
@@ -236,8 +231,8 @@ strategies
 		if sx-env-is-extension-processing then
 			<sx-analysis-fail(|"extensions cannot be nested")> decl
 		else
-			sx-env-set-extension-processing;
-			<sx-debug(|"switched extension processing on")> ""
+			sx-env-set-extension-processing
+			// ;<sx-debug(|"switched extension processing on")> ""
 		end
 
 	/**
@@ -251,8 +246,8 @@ strategies
 	sx-process-extension-end =
 		?decl@SXExtensionEnd(_);
 		if sx-env-is-extension-processing then
-			sx-env-unset-extension-processing;
-			<sx-debug(|"switched extension processing off")> ""
+			sx-env-unset-extension-processing
+			// ;<sx-debug(|"switched extension processing off")> ""
 		else
 			<sx-analysis-fail(|"extension end without extension begin")> decl
 		end

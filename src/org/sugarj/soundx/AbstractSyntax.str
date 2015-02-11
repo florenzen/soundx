@@ -150,7 +150,6 @@ strategies
  * Judgements
  */
 signature constructors
-	SXEq:           SXExpr * SXExpr -> SXJudgement
     SXNeq:          SXExpr * SXExpr -> SXJudgement
     SXGetInterface: SXExpr * SXExpr -> SXJudgement
 
@@ -203,14 +202,6 @@ strategies
 	sx-is-neq-judgement =
 		?SXNeq(_, _)
 
-	/**
-	 * Checks if aterm is an SXEq judgement
-	 *
-	 * @type a -> a
-	 */
-	sx-is-eq-judgement =
-		?SXEq(_, _)
-
 /**
  * Desugarings
  */
@@ -228,8 +219,6 @@ strategies
 signature constructors
 	SXToplevelDeclarationsCons: SXToplevelDeclaration * SXToplevelDeclarations -> SXToplevelDeclarations
 	SXToplevelDeclarationsNil:                                                    SXToplevelDeclarations
-
-	SXFinished: List(SXToplevelDeclarations) -> SXFinished
 
 strategies
 	/**
@@ -262,7 +251,6 @@ strategies
 signature constructors
 	SXDerivInst: List(SXDeriv) * String * SXJudgement -> SXDeriv
 	SXDerivAsm:  SXJudgement                          -> SXDeriv
-	SXDerivFail: SXJudgement                          -> SXDeriv
 
 strategies
 	/**
@@ -274,19 +262,6 @@ strategies
 		SXDerivInst(_, _, concl) -> concl
 	sx-concl:
 		SXDerivAsm(concl) -> concl
-	sx-concl:
-		SXDerivFail(concl) -> concl
-
-	/**
-	 * Checks if a derivation is a failure derivation
-	 *
-	 * A derivation is a failure derivation if it contains at
-	 * least one SXDerivFail node.
-	 *
-	 * @type SXDeriv -> SXDeriv
-	 */
-	sx-is-failure-deriv =
-		where(collect-one(?SXDerivFail(_)))
 
 /**
  * Various
@@ -296,11 +271,6 @@ signature constructors
 
 	SXFalse: SXBool
 	SXTrue:  SXBool
-	
-	SXLeft:  a -> SXEither(a, b)
-	SXRight: b -> SXEither(a, b)
-
-	SXErrors: List((a, String)) -> SXErrors
 
 strategies
 	/**

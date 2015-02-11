@@ -63,5 +63,5 @@ strategies
 		(sx-env-get-namespace => namespace <+
 		 <sx-analysis-fail(|"no namespace defined")> name);
 		<conc-strings> (prefix, namespace, name)
-		// TODO: the namespace may have to be mangled
+		// TODO the namespace may have to be mangled
 				

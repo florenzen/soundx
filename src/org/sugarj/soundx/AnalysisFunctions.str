@@ -72,7 +72,7 @@ strategies
 		<sx-analysis-fail(|bug-msg)> ast
 
 	/**
-	 * Annotates the is-source attribute to all nodes of the input
+	 * Annotates the is-source attribute to all nodes of the input.
 	 *
 	 * @type a -> a
 	 */

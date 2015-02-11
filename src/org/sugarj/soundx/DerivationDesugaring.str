@@ -1,8 +1,6 @@
 /**
  * The SoundX derivation desugaring procedure
  *
- * TODO error handling should not use sx-debug and fail
- *
  * @author Florian Lorenzen <florian.lorenzen>
  */
 module org/sugarj/soundx/DerivationDesugaring
@@ -17,8 +15,6 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Environment
 		org/sugarj/soundx/AnalysisFunctions
 		org/sugarj/soundx/PrettyPrint
-
-imports org/sugarj/soundx/Debug
 
 
 strategies
