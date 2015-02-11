@@ -47,7 +47,7 @@ strategies
 	 *
 	 * @type a -> a
 	 */
-	start-analysis = sx-analysis-unless-failed(changed-tree-or-analysis-data(sx-analysis))
+	start-analysis = sx-analysis-unless-failed(changed-tree(sx-analysis))
 
 	/**
 	 * Analyzes a term with s unless the failed flag is set
