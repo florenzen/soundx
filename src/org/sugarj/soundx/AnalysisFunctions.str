@@ -95,10 +95,10 @@ strategies
 			}
 		in
 			if <collect-one(has-is-source)> term => input then
-				!Some(input)
+				!input
 				;debug(!"SOME INPUT ")
 			else
-				!None()
+				!term
 				;debug(!"NO INPUT ")
 			end
 		end
