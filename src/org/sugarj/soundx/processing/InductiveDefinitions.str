@@ -36,8 +36,9 @@ strategies
      * @type SXNamedInferenceRule -> SXEnv
      */
 	sx-process-inference-rule =
-		?SXNamedInferenceRule(name, rule);
+		?named-rule@SXNamedInferenceRule(name, rule);
 		<sx-prefix-name> name => prefixed-name;
+		<sx-env-add-named-inf-rule> (prefixed-name, named-rule);
 		<sx-process-named-infrule-to-abs(|prefixed-name);
 		 sx-meta-var-to-sx-metavar> rule => analyzed-rule;
 		<sx-process-add-inference-rule> (name, analyzed-rule)

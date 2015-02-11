@@ -9,6 +9,8 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/BasicDesugaring
 		org/sugarj/soundx/DepthFirstBC
 		org/sugarj/soundx/Declarations
+		org/sugarj/soundx/AnalysisFunctions
+		org/sugarj/soundx/Environment
 
 // imports org/sugarj/soundx/Debug
 
@@ -37,8 +39,12 @@ strategies
 	 * @type SXInfRule -> SXClassification
 	 */
 	sx-classify-inf-rule(|current-ext, ext-inf-rules, base-inf-rules) =
-		sx-classify-inf-rule-x(|current-ext, ext-inf-rules, base-inf-rules) +
-		sx-classify-inf-rule-b(|current-ext, ext-inf-rules, base-inf-rules)
+		?inf-rule@(_, name, _);
+		((sx-classify-inf-rule-x(|current-ext, ext-inf-rules, base-inf-rules) +
+		  sx-classify-inf-rule-b(|current-ext, ext-inf-rules, base-inf-rules)) <+
+		 <sx-env-get-named-inf-rule> name => Some(input);
+		 <sx-analysis-fail(|"Could not verify this rule")> input)
+		 // TODO give more helpful error message including assumptions and desugared conclusion
 
 	/**
 	 * Classifies an inference rule as X rule. It fails if the inference rule cannot

@@ -53,6 +53,7 @@ strategies
   	    hashtable-put(|"errors", []);
   	    hashtable-put(|"desugarings", []);
   	    hashtable-put(|"inference-rules", <new-hashtable> ());
+  	    hashtable-put(|"named-inf-rules", <new-hashtable> ());
   	    hashtable-put(|"grammar-elems", []);
   	    hashtable-put(|"name-counter", 0);
   	    hashtable-put(|"interface", SXFalse());
@@ -267,6 +268,30 @@ strategies
 		<sx-env-get> "desugarings"
 
 /**
+ * Handling of named-inf-rules
+ */
+strategies
+    /**
+	 * Gets a named inference rule
+	 *
+	 * @type String -> Option(SXNamedInferenceRule)
+	 */
+    sx-env-get-named-inf-rule =
+    	?name;
+  	    <sx-env-get> "named-inf-rules";
+  	    maybe(hashtable-get(|name))
+
+    /**
+     * Adds a named inference rule
+     *
+     * @type (String, SXInfRule) -> SXEnv
+     */  
+    sx-env-add-named-inf-rule =
+  	    ?(name, rule);
+  	    <sx-env-get> "named-inf-rules";
+  	    hashtable-put(|name, rule)
+
+/**
  * Handling of inference rules
  */
 strategies
@@ -281,7 +306,7 @@ strategies
   	    maybe(hashtable-get(|name))
 
     /**
-     * Adds an inference rules
+     * Adds an inference rule
      *
      * @type (String, SXInfRule) -> SXEnv
      */  

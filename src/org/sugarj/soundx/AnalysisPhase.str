@@ -80,8 +80,7 @@ strategies
 		 	if sx-is-last-toplevel-decl then
 		 		// <sx-debug(|"last toplevel declaration")> "";
 		 	 	sx-analysis-store-re-exports;
-		 	 	(sx-extension-verification <+
-		 	 	 <sx-analysis-fail(|"Verification failed")> ());
+		 	 	sx-extension-verification;
 		 	 	sx-env-get-toplevel-declarations; map(sx-annotate-is-source) => toplevel-decs-list;
 		 	 	// sx-debug(|"list of toplevel declarations");
 		 	 	<sx-list-to-toplevel-decls> toplevel-decs-list => toplevel-decs;
