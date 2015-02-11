@@ -1,0 +1,82 @@
+/**
+ * Pretty printing of base language and extension fragments.
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/soundx/PrettyPrint
+
+// TODO integrate the box pretty printer here
+
+strategies
+	/**
+	 * Pretty prints a term or a list of terms. For a list, each element is
+	 * printed on a separate line.
+	 *
+	 * @type a -> String
+	 * @type List(a) -> String
+	 */
+	sx-pretty-print-nl =
+		sx-pretty-print-list-nl <+
+		sx-pretty-print-term
+
+	/**
+	 * Pretty prints a term or a list of terms. For a list, the elements are
+	 * separated by sep.
+	 *
+	 * @param sep String
+	 *
+	 * @type a -> String
+	 * @type List(a) -> String
+	 */
+	sx-pretty-print-sep(|sep) =
+		sx-pretty-print-list-sep(|sep) <+
+		sx-pretty-print-term
+
+	/**
+	 * Pretty prints a term or a list of terms. For a list, the elements are
+	 * separated by a comma.
+	 *
+	 * @type a -> String
+	 * @type List(a) -> String
+	 */	
+	sx-pretty-print-comma =
+		sx-pretty-print-list-comma <+
+		sx-pretty-print-term
+
+	/**
+	 * Pretty prints a list of terms. The elements are
+	 * separated by a commad.
+	 *
+	 * @type List(a) -> String
+	 */	
+	sx-pretty-print-list-comma =
+		sx-pretty-print-list-sep(|", ")
+
+	/**
+	 * Pretty prints a list of terms. Each element is
+	 * printed on a separate line.
+	 *
+	 * @type List(a) -> String
+	 */
+	sx-pretty-print-list-nl =
+		map(sx-pretty-print-term); lines
+
+	/**
+	 * Pretty prints a list of terms. The elements are
+	 * separated by sep.
+	 *
+	 * @param sep String
+	 *
+	 * @type a -> String
+	 * @type List(a) -> String
+	 */
+	sx-pretty-print-list-sep(|sep) =
+		separate-by(!sep); concat-strings
+
+	/**
+	 * Pretty prints a term.
+	 *
+	 * @type a -> String
+	 */
+	sx-pretty-print-term =
+		write-to-string

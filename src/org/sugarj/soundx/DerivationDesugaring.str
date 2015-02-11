@@ -16,6 +16,7 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Classification
 		org/sugarj/soundx/Environment
 		org/sugarj/soundx/AnalysisFunctions
+		org/sugarj/soundx/PrettyPrint
 
 imports org/sugarj/soundx/Debug
 
@@ -38,9 +39,11 @@ strategies
 		sx-interface-judgement => (tlds-pattern, intf-pattern, judg);
 		<sx-vars> judg => judg-vars;
 		<sx-unify(|judg-vars)> (judg, concl-des) => result;
-		if !result; ?SXUnificationFailure(_) then
-			<sx-debug(|"could not unify interface judgement and desugared conclusion (defect of base language definition)")> "";
-			fail
+		if !result; ?SXUnificationFailure(unif-msg) then
+			<conc-strings> ("Could not unify interface judgement and desugared conclusion",
+				"\n(defect of base language definition)",
+				"\nUnification returned: ", unif-msg) => msg;
+			<sx-locate-source; sx-analysis-fail(|msg)> deriv
 		else
 			<sx-sub-apply> (result, tlds-pattern) => des-program;
 			<sx-toplevel-decls-to-list> des-program
@@ -140,17 +143,15 @@ strategies
 		  	<sx-vars> concl-des => vars-concl-des;
 		  	<map(sx-concl)> subderivs => concl-subderivs;
 		  	<sx-unify(|vars-concl-des)> ([concl-fresh|premises-fresh], [concl|concl-subderivs]) => result;
-		  	if !result; ?SXUnificationFailure(_) then
-		  		<sx-debug(|"BUG! Unification in TD-ExtExt failed for rule: ")> rule-name;
-		  		fail
+		  	if !result; ?SXUnificationFailure(unif-msg) then
+		  		<sx-desugar-unification-failed-bug> (concl, rule-name, unif-msg)
 		  	else
 		  		<sx-sub-apply> (result, concl-des) => concl-des-instantiated;
 		  		<conc> (base-inf-rules, ext-inf-rules) => all-inf-rules;
 		  		if <sx-dfsbc-build-derivation> (subderivs, all-inf-rules, concl-des-instantiated) => deriv-des then
 		  			!deriv-des
 		  		else
-		  			<sx-locate-source> concl => input;
-		  			<sx-signal-bug(|"Bridging the gap in TD-ExtExt failed. ")> input 
+		  			<sx-desugar-filling-gap-failed-bug> ("TD-ExtExt", concl)
 		  		end
 		  	end
 		  else
@@ -195,18 +196,13 @@ strategies
 		<sx-vars> premises-rule => premises-rule-vars;
 		<map(sx-concl)> subderivs => concls-subderivs;
 		<zip; sx-unify(|premises-rule-vars)> (premises-rule, concls-subderivs) => result1;
-		if !result1; ?SXUnificationFailure(msg) then
-		  	<sx-debug(|"*** STUCK *** forward step stuck on rule ")> rule-name;
-		  	<sx-debug(|"*** Unifications returned: ")> msg;
-		  	<sx-debug(|"*** Premises:       ")> premises-rule;
-		  	<sx-debug(|"*** Subderivations: ")> concls-subderivs;
-		  	fail
+		if !result1; ?SXUnificationFailure(unif-msg) then
+ 			<sx-forward-step-failure> (concl, rule-name, unif-msg, premises-rule, concls-subderivs)
 		else
 			<sx-vars> concl-rule => concl-rule-vars;
 		  	<sx-unify(|concl-rule-vars)> (concl-rule, concl) => result2;
-		  	if !result2; ?SXUnificationFailure(_) then
-		  		<sx-debug(|"*** ERROR *** cannot match rule's conclusion and derivation conclusion")> rule-name;
-		  		fail
+		  	if !result2; ?SXUnificationFailure(unif-msg) then
+		  		<sx-desugar-unification-failed-bug> (concl, rule-name, unif-msg)
 		  	else
 		  		<sx-sub-dom> result2 => dom-sub2;
 		  		<sx-sub-restrict> (result2, <diff> (dom-sub2, premises-rule-vars)) => sub21;
@@ -232,18 +228,13 @@ strategies
 		<sx-vars> premises-des => premises-des-vars;
 		<map(sx-concl)> subderivs => concls-subderivs;
 		<zip; sx-unify(|premises-des-vars)> (premises-des, concls-subderivs) => result1;
-		if !result1; ?SXUnificationFailure(msg) then
-		  	<sx-debug(|"*** STUCK *** forward step stuck on desugared form of rule ")> rule-name;
-		  	<sx-debug(|"*** Unifications returned: ")> msg;
-		  	<sx-debug(|"*** Premises:       ")> premises-des;
-		  	<sx-debug(|"*** Subderivations: ")> concls-subderivs;
-		  	fail
+		if !result1; ?SXUnificationFailure(unif-msg) then
+			<sx-forward-step-failure> (concl, rule-name, unif-msg, premises-des, concls-subderivs)
 		else
 			<sx-vars> concl-fresh => concl-fresh-vars;
 		  	<sx-unify(|concl-fresh-vars)> (concl-fresh, concl) => result2;
-		  	if !result2; ?SXUnificationFailure(_) then
-		  		<sx-debug(|"*** ERROR *** cannot match rule's conclusion and derivation conclusion")> rule-name;
-		  		fail
+		  	if !result2; ?SXUnificationFailure(unif-msg) then
+		  		<sx-desugar-unification-failed-bug> (concl, rule-name, unif-msg)
 		  	else
 		  		<sx-sub-dom> result2 => dom-sub2;
 		  		<sx-sub-restrict> (result2, <diff> (dom-sub2, premises-des-vars)) => sub21;
@@ -253,8 +244,7 @@ strategies
 				if <sx-dfsbc-build-derivation> (subderivs, base-rules, desugared-goal) => deriv-des then
 					!deriv-des
 				else
-					<sx-debug(|"*** ERROR *** cannot fill the gap left by rule ")> rule-name;
-					fail
+					<sx-desugar-filling-gap-failed-bug> ("BU-Ext", concl) 
 				end		  		
 		  	end
 		end
@@ -273,3 +263,38 @@ strategies
 		((!rule-name; ?"=interface()"; sx-prim-axiom-interface) <+
 		 (!rule-name; ?"=/="; sx-prim-axiom-neq) <+ 
 		 (<collect-one(?SXInfRule(_, rule-name, _))> inf-rules))
+
+	/**
+	 * Signals a forward step failure.
+	 *
+	 * @type (SXJudgement, String, String, List(SXJudgement), List(SXJudgement)) -> _
+	 */
+	sx-forward-step-failure =
+		?(concl, rule-name, unif-msg, premises-rule, concls-subderivs);
+		<sx-pretty-print-comma> premises-rule => premises-msg;
+    	<sx-pretty-print-comma> concls-subderivs => concls-msg;
+      	<conc-strings> ("*** STUCK *** forward step stuck on rule ", rule-name,
+		  	"\nUnification returned: ", unif-msg,
+		  	"\nPremises:             ", premises-msg,
+		  	"\nConclusions:          ", concls-msg) => stuck-msg;
+		<sx-locate-source; sx-analysis-fail(|stuck-msg)> concl
+
+	/**
+	 * Signals that a unification of a conclusion failed (a bug).
+	 *
+	 * @type (SXJudgement, String, String) -> _
+	 */
+	sx-desugar-unification-failed-bug =
+		?(concl, rule-name, unif-msg);
+		<conc-strings> ("Unification in failed for rule ", rule-name,
+			"\nThe error message is: ", unif-msg) => bug-msg;
+		<sx-locate-source; sx-signal-bug(|bug-msg)> concl
+
+	/** Signals that a derivation cannot be filled in (a bug).
+	 *
+	 * @type (String, SXJudgement) -> _
+	 */
+	sx-desugar-filling-gap-failed-bug =
+		?(case, concl);
+		<conc-strings> ("Filling the gap in ", case, "failed") => msg;
+		<sx-locate-source; sx-signal-bug(|msg)> concl 
