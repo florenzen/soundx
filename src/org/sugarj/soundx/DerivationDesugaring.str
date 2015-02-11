@@ -146,9 +146,7 @@ strategies
 		  	else
 		  		<sx-sub-apply> (result, concl-des) => concl-des-instantiated;
 		  		<conc> (base-inf-rules, ext-inf-rules) => all-inf-rules;
-		  		// if <sx-dfsbc-build-derivation> (subderivs, all-inf-rules, concl-des-instantiated) => deriv-des then
-		  		<sx-dfsbc-build-derivation> (subderivs, all-inf-rules, concl-des-instantiated) => deriv-des;
-		  		if fail then
+		  		if <sx-dfsbc-build-derivation> (subderivs, all-inf-rules, concl-des-instantiated) => deriv-des then
 		  			!deriv-des
 		  		else
 		  			<sx-locate-source> concl => input;
