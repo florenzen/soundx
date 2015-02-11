@@ -89,17 +89,14 @@ strategies
 		let has-is-source =
 			{ term:
 				?term;
-				debug(!"TRYING ... ");
 				<get-analysis-data(|"is-source")> term;
 				!term
 			}
 		in
 			if <collect-one(has-is-source)> term => input then
 				!input
-				;debug(!"SOME INPUT ")
 			else
 				!term
-				;debug(!"NO INPUT ")
 			end
 		end
 	
