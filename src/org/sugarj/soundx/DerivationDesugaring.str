@@ -151,7 +151,8 @@ strategies
 		  		if fail then
 		  			!deriv-des
 		  		else
-		  			<sx-signal-bug(|"Bug: Bridging the gap in TD-ExtExt failed. ")> rule-name
+		  			<sx-locate-source> concl => input;
+		  			<sx-signal-bug(|"Bridging the gap in TD-ExtExt failed. ")> input 
 		  		end
 		  	end
 		  else

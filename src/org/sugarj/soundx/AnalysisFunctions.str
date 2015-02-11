@@ -70,3 +70,36 @@ strategies
 		?ast;
 		<conc-strings> ("*** BUG ***\nThe following error occured which is a SoundX bug.\n", msg) => bug-msg;
 		<sx-analysis-fail(|bug-msg)> ast
+
+	/**
+	 * Annotates the is-source attribute to all nodes of the input
+	 *
+	 * @type a -> a
+	 */
+	sx-annotate-is-source =
+		topdown(put-analysis-data(|"is-source", ()))
+
+	/**
+	 * Find the outermost term that has the is-source attribute.
+	 *
+	 * @type a -> Maybe(a)
+	 */
+	sx-locate-source =
+		?term;
+		let has-is-source =
+			{ term:
+				?term;
+				debug(!"TRYING ... ");
+				<get-analysis-data(|"is-source")> term;
+				!term
+			}
+		in
+			if <collect-one(has-is-source)> term => input then
+				!Some(input)
+				;debug(!"SOME INPUT ")
+			else
+				!None()
+				;debug(!"NO INPUT ")
+			end
+		end
+	

@@ -84,7 +84,7 @@ strategies
 		 	 	debug(!"STORED RE EXPORTS ");
 		 	 	(sx-extension-verification <+
 		 	 	 <sx-analysis-fail(|"Verification failed")> ());
-		 	 	sx-env-get-toplevel-declarations => toplevel-decs-list;
+		 	 	sx-env-get-toplevel-declarations; map(sx-annotate-is-source) => toplevel-decs-list;
 		 	 	sx-debug(|"list of toplevel declarations");
 		 	 	<sx-list-to-toplevel-decls> toplevel-decs-list => toplevel-decs;
 		 	 	<sx-context-analysis> toplevel-decs
