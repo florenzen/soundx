@@ -3,18 +3,18 @@ Bundle-ManifestVersion: 2
 Bundle-Name: org.sugarj.language.sxbld
 Bundle-SymbolicName: org.sugarj.language.sxbld;singleton:=true
 Bundle-Version: 1.2.0.qualifier
+Export-Package: org.sugarj,
+ org.sugarj.languages,
+ org.sugarj.soundx
+Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.sugarj.sxbld.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.sugarj.common,
  org.spoofax.terms,
  org.strategoxt.strj,
+ org.sugarj.common,
  org.sugarj.baselang,
  org.sugarj.compiler
-Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.sugarj,
- org.sugarj.soundx
 Eclipse-RegisterBuddy: org.sugarj.baselang
 Eclipse-BundleShape: dir
 Import-Package: org.spoofax.jsglr.client,
