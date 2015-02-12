@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: org.sugarj.language.sxbld
-Bundle-SymbolicName: org.sugarj.language.sxbld;singleton:=true
+Bundle-Name: org.sugarj.language.soundx
+Bundle-SymbolicName: org.sugarj.language.soundx;singleton:=true
 Bundle-Version: 1.2.0.qualifier
 Export-Package: org.sugarj,
  org.sugarj.languages,
