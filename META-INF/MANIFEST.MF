@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.ui,
  org.sugarj.compiler
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.sugarj
+Export-Package: org.sugarj,
+ org.sugarj.soundx
 Eclipse-RegisterBuddy: org.sugarj.baselang
 Eclipse-BundleShape: dir
 Import-Package: org.spoofax.jsglr.client,
