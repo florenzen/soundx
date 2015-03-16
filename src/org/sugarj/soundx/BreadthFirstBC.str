@@ -1,0 +1,228 @@
+/*
+ * Copyright (c) 2015, TU Berlin
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * - Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ * - Redistributions in binary form must reproduce the above
+ *   copyright notice, this list of conditions and the following
+ *   disclaimer in the documentation and/or other materials provided
+ *   with the distribution.
+ * - Neither the name of the TU Berlin nor the names of its
+ *   contributors may be used to endorse or promote products derived
+ *   from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/**
+ * Breadth-first search backward chaining to find errors.
+ *
+ * Breadth-first search is only invoked if depth-first search encountered an
+ * error. It does not take assumptions (it is not used in the classification
+ * procedure).
+ *
+ * Primitive judgements like inequality or concatenation of lexical
+ * elements require their input arguments to be bound. That is, it works
+ * similar to Prolog arithmetics.
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/soundx/BreadthFirstBC
+
+imports org/sugarj/soundx/AbstractSyntax
+		org/sugarj/soundx/Unification
+		org/sugarj/soundx/Substitution
+		org/sugarj/soundx/AnalysisFunctions
+		org/sugarj/soundx/PrettyPrint
+		org/sugarj/soundx/Declarations
+
+
+strategies
+	/**
+	 * Returns a list of error locations and error messages.
+	 *
+	 * @type (List(SXInfRules), SXJudgement) -> List((SXExpr, String))
+	 */
+	sx-bfsbc-find-errors =
+		?(inf-rules, judg);
+		<sx-bfsbc> (inf-rules, [[judg]])
+
+	/**
+	 * Returns a list of error locations and error messages.
+	 *
+	 * @type (List(SXInfRule), Queue(List(SXJudgement))) -> List((SXexpr, String))
+	 */
+	sx-bfsbc =
+		// Empty queue, unsuccessful derivation
+		// Can only happen if no other path was successful before
+		?(inf-rules, []);
+		![()] // Bogus error for sx-bfsbc-join-errors
+	sx-bfsbc =
+		// Empty goals at head of queue, successful derivation
+		?(inf-rules, [[]|judgs-queue]);
+		![]
+	sx-bfsbc =
+		// Non empty goals at head of queue
+		?(inf-rules, queue@[[judg|judgs] | judgs-queue]);
+		if <sx-is-prim-judgement> judg then
+			<sx-bfsbc-by-prim> (inf-rules, queue)
+		else
+			<sx-bfsbc-by-rule> (inf-rules, queue)
+		end
+
+	/**
+	 * Try to solve first goal which must be a primitive judgement.
+	 *
+	 * @type (List(SXInfRule), Queue(List(SXJudgement))) -> List((SXexpr, String))
+	 */
+	sx-bfsbc-by-prim =
+		?(inf-rules, [[judg|judgs] | judgs-queue]);
+		if <sx-bfsbc-solve-prim> judg => sub then
+			// Goal could be solved, add premises to queue
+			<sx-sub-apply> (sub, judgs) => judgs1;
+			<sx-bfsbc> (inf-rules, <conc> (judgs-queue, [judgs1])))
+		else
+			// An error
+			<sx-bfsbc-make-error> judg => error;
+			<sx-bfsbc> (inf-rules, judgs-queue) => errors;
+			<sx-bfsbc-join-errors> (error, errors)
+		end
+
+	/**
+	 * Try to solve first goal which must be an inductively defined judgement.
+	 *
+	 * @type (List(SXInfRule), Queue(List(SXJudgement))) -> List((SXExpr, String))
+	 */
+	sx-bfsbc-by-rule =
+		?(inf-rules, [[judg|judgs] | judgs-queue]);
+		<sx-bfsbc-find-inf-rules> (inf-rules, judg) => candidates;
+		if !candidates; ?[] then
+			// An error
+			<sx-bfsbc-make-error> judg => error;
+			<sx-bfsbc> (inf-rules, judgs-queue) => errors;
+			<sx-bfsbc-join-errors> (error, errors)
+		else
+			// Goal could be solved, add premises to queue
+			let map-s = {
+				premises, sub:
+					?(premises, sub);
+					<sx-sub-apply> (sub, judgs) => judgs1;
+					<conc> (judgs1, judgs) 
+				}
+			in
+				<map(map-s)> candidates => new-judgs;
+				<sx-bfsbc> (inf-rules, <conc> (judgs-queue, new-judgs))
+			end
+		end
+
+	/**
+	 * Tries to solve primitive judgement.
+	 *
+	 * Fails if judgement cannot be solved.
+	 *
+	 * @type SXJudgement -> SXSub
+	 */
+	sx-bfsbc-solve-prim =
+		// Inequality judgement
+		?(SXNeq(expr1, expr2));
+		<sx-vars> expr1 => [];
+		<sx-vars> expr2 => [];
+		not(<eq> (expr1, expr2));
+		<sx-sub-empty> ()
+	sx-bfsbc-solve-prim =
+		// Get interface judgement
+		?(SXGetInterface(var, mid));
+		<sx-is-metavar> var;
+		<is-string> mid;
+		<sx-interface-expr> mid => interface; // Get interface
+		<sx-sub-singleton> (var, interface)
+
+	/**
+	 * Finds matching inference rules by unification.
+	 *
+	 * It returns the instantiated premises for each candidate rule and the
+	 * instantiation substitution.
+	 *
+	 * @type (List(SXInfRule), SXJudgement) -> List((List(SXJudgement), SXSub))
+	 */
+	sx-bfsbc-find-inf-rules =
+		// No more possible rules
+		?([], judg);
+		![]
+	sx-bfsbc-find-inf-rules =
+		// Try first rule
+		?([inf-rule|inf-rules], judg);
+		<sx-fresh-inf-rule> inf-rule => SXInfRule(premises, name, concl);
+		(// Unification successful
+		 (<sx-bfsbc-unify> (concl, judg) => sub;
+		  <sx-sub-apply> (sub, premises) => instantiated-premises;
+		  <sx-bfsbc-find-inf-rules> (inf-rules, judg) => more-candidates;
+		  ![(instantiated-premises, sub) | more-candidates]) <+
+		 // Try next rule
+		 <sx-bfsbc-find-inf-rules> (inf-rules, judg))
+
+    /**
+     * Unifies the two judgements.
+     *
+     * Fails if unification is not possible and returns the
+     * mgu otherwise.
+     *
+     * @type (SXJudgement, SXJudgement) -> SXSub
+     */
+	sx-bfsbc-unify =
+		?(judg1, judg2);
+		<sx-vars> (judg1, judg2) => vars-unify;
+		<sx-unify(|vars-unify)> (judg1, judg2) => result;
+		if !result; ?SXUnificationFailure(_) then
+			fail
+		else
+			!result
+		end
+
+	/**
+	 * Adds an error to a list of error messages.
+	 *
+	 * If the list of errors is empty this indicates
+	 * a successful derivation and the error is discarded.
+	 * If it contains only (), this is also discarded and
+	 * replaced by the error. In all other cases, the error
+	 * is simply prepended to the list.
+	 *
+	 * @type ((SXExpr, String), List((SXExpr, String)))) -> List((SXExpr, String))
+	 */
+	sx-bfsbc-join-errors =
+		?(error, []);
+		![]
+	sx-bfsbc-join-errors =
+		?(error, [()]);
+		[error]
+	sx-bfsbc-join-errors =
+		?(error, errors);
+		![error|errors]
+
+	/**
+	 * Makes an error from a judgement.
+	 *
+	 * @type SXJudgement -> (SXExpr, String)
+	 */
+	sx-bfsbc-make-error =
+		?judg;
+		<sx-locate-source> judg => expr;
+		<sx-pretty-print-term> judg => judg-string;
+		<conc> ("Could not derive ", judg-string) => message;
+		!(expr, message)
