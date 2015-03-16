@@ -69,7 +69,7 @@ strategies
 	/**
 	 * Collects all metavariables of an expression
 	 *
-	 * @type a -> List(SXMetavar)
+	 * @type a -> List(SXMetaVar)
 	 */
     sx-vars =
     	collect-all(sx-is-metavar)
