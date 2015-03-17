@@ -63,55 +63,63 @@ strategies
 	sx-bfsbc-find-errors =
 		?(inf-rules, judg);
 		<sx-bfsbc> (inf-rules, [[judg]]) => errors;
-		<sx-bfsbc-prune-errors> errors
+		<sx-bfsbc-remove-spurious-errors> errors
 
 	/**
 	  * Removes spurious errors using the goal markers in the list.
 	  *
-	  * @type List(SXJudgement) -> List((SXExpr, String))
+	  * @type List(SXBfsbcError) -> List((SXExpr, String))
 	  */
-	sx-bfsbc-prune-errors =
+	sx-bfsbc-remove-spurious-errors =
 		?errors;
-		<sx-debug(|"errors before pruning ")> errors;
-		//<reverse> errors => errors-rev;
+		//<sx-debug(|"errors before pruning ")> errors;
 		<sx-bfsbc-filter-errors> errors => filtered-errors;
-		<sx-debug(|"errors after filtering ")> filtered-errors;
-		<map(\SXBfsbcError(_, err) -> err\)> filtered-errors
+		//<sx-debug(|"errors after filtering ")> filtered-errors;
+		<map(?SXBfsbcError(_, <id>))> filtered-errors
 
+	/**
+	 * Deletes the errors caused by goals which could later be derived.
+	 *
+	 * @type List(SXBfsbcError) -> List(SXBfsbcError)
+	 */
 	sx-bfsbc-filter-errors =
+		// Finished
 		?[];
 		![]
 	sx-bfsbc-filter-errors =
+		// Remove errors that have this goal markers judgement in their goal list
 		?[SXBfsbcGoalMarker(judg) | errors];
 		let filter-s = {
 			judgs, err:	
 				where(
 					(?SXBfsbcGoalMarker(_)) <+
 					(?SXBfsbcError(judgs, err);
-				 	 <sx-debug(|"filtering ")> (judg, judgs);
-				 	 <not(elem)> (judg, judgs));
-				 	 <sx-debug(|"KEEP IN LIST ")> "")
+				 	 //<sx-debug(|"filtering ")> (judg, judgs);
+				 	 <not(elem)> (judg, judgs))
+				 	 //;<sx-debug(|"KEEP IN LIST ")> ""
+				 	 )
 			}
 		in
 			<filter(filter-s)> errors => errors1;
-			<sx-debug(|"ERRORS 1 ")> errors1;
+			//<sx-debug(|"ERRORS 1 ")> errors1;
 			<sx-bfsbc-filter-errors> errors1
 		end
 	sx-bfsbc-filter-errors =
+		// Keep this error and filter the remaining errors
 		?[error@SXBfsbcError(_, _) | errors];
 		<sx-bfsbc-filter-errors> errors => errors1;
 		![error|errors1]
 		
 	/**
-	 * Returns a list of error locations and error messages.
+	 * Returns a list goal markers and errors.
 	 *
-	 * @type (List(SXInfRule), Queue(List(SXJudgement))) -> List((SXexpr, String))
+	 * @type (List(SXInfRule), Queue(List(SXJudgement))) -> List(SXBfsbcError)
 	 */
 	sx-bfsbc =
 		// Empty queue, unsuccessful derivation
 		// Can only happen if no other path was successful before
 		?(inf-rules, []);
-		![()] // Bogus error for sx-bfsbc-join-errors
+		![SXBfsbcBogus()] // Bogus error for sx-bfsbc-join-errors
 	sx-bfsbc =
 		// Empty goals at head of queue, successful derivation
 		?(inf-rules, [[]|judgs-queue]);
@@ -125,10 +133,10 @@ strategies
 		// Non empty goals at head of queue
 		?(inf-rules, queue@[[judg|judgs] | judgs-queue]);
 		if <sx-is-prim-judgement> judg then
-			<sx-debug(|"By prim ")> judg;
+			// <sx-debug(|"By prim ")> judg;
 			<sx-bfsbc-by-prim> (inf-rules, queue)
 		else
-			<sx-debug(|"By rule ")> judg;
+			// <sx-debug(|"By rule ")> judg;
 			<sx-bfsbc-by-rule> (inf-rules, queue)
 		end
 
@@ -251,17 +259,17 @@ strategies
 	 *
 	 * If the list of errors is empty this indicates
 	 * a successful derivation and the error is discarded.
-	 * If it contains only (), this is also discarded and
+	 * If it contains only SXBfsbcBogus(), this is also discarded and
 	 * replaced by the error. In all other cases, the error
 	 * is simply prepended to the list.
 	 *
-	 * @type ((SXExpr, String), List((SXExpr, String)))) -> List((SXExpr, String))
+	 * @type (SXBfsbcResult, List(SXBfsbcResult)) -> List(SXBfsbcResult)
 	 */
 	sx-bfsbc-join-errors =
 		?(error, []);
 		![]
 	sx-bfsbc-join-errors =
-		?(error, [()]);
+		?(error, [SXBfsbcBogus()]);
 		[error]
 	sx-bfsbc-join-errors =
 		?(error, errors);
@@ -282,13 +290,17 @@ strategies
 		!(expr, message)
 
 	/**
-	 * Collects all goal markers from list of goal
+	 * Collects all judgements of goal markers from list of goals.
 	 *
-	 * @type List(SXJudgement) -> List(SXJudgement)
+	 * @type List(SXBfsbcResult) -> List(SXBfsbcResult)
 	 */
 	sx-bfsbc-collect-goal-markers =
-		filter(?SXBfsbcGoalMarker(_)); map(?SXBfsbcGoalMarker(<id>))
+		filter(?SXBfsbcGoalMarker(<id>))//; map(?SXBfsbcGoalMarker(<id>))
 
+/**
+ * Results of error detection.
+ */
 signature constructors
-	SXBfsbcGoalMarker: SXJudgement                          -> SXJudgement
-	SXBfsbcError:      List(SXJudgement) * (SXExpr, String) -> SXJudgement
+	SXBfsbcGoalMarker: SXJudgement                          -> SXBfsbcResult
+	SXBfsbcError:      List(SXJudgement) * (SXExpr, String) -> SXBfsbcResult
+	SXBfsbcBogus:                                              SXbfsbcResult
