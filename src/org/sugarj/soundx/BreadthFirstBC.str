@@ -51,6 +51,8 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/PrettyPrint
 		org/sugarj/soundx/Declarations
 
+imports org/sugarj/soundx/Debug
+
 
 strategies
 	/**
@@ -60,8 +62,46 @@ strategies
 	 */
 	sx-bfsbc-find-errors =
 		?(inf-rules, judg);
-		<sx-bfsbc> (inf-rules, [[judg]])
+		<sx-bfsbc> (inf-rules, [[judg]]) => errors;
+		<sx-bfsbc-prune-errors> errors
 
+	/**
+	  * Removes spurious errors using the goal markers in the list.
+	  *
+	  * @type List(SXJudgement) -> List((SXExpr, String))
+	  */
+	sx-bfsbc-prune-errors =
+		?errors;
+		<sx-debug(|"errors before pruning ")> errors;
+		//<reverse> errors => errors-rev;
+		<sx-bfsbc-filter-errors> errors => filtered-errors;
+		<sx-debug(|"errors after filtering ")> filtered-errors;
+		<map(\SXBfsbcError(_, err) -> err\)> filtered-errors
+
+	sx-bfsbc-filter-errors =
+		?[];
+		![]
+	sx-bfsbc-filter-errors =
+		?[SXBfsbcGoalMarker(judg) | errors];
+		let filter-s = {
+			judgs, err:	
+				where(
+					(?SXBfsbcGoalMarker(_)) <+
+					(?SXBfsbcError(judgs, err);
+				 	 <sx-debug(|"filtering ")> (judg, judgs);
+				 	 <not(elem)> (judg, judgs));
+				 	 <sx-debug(|"KEEP IN LIST ")> "")
+			}
+		in
+			<filter(filter-s)> errors => errors1;
+			<sx-debug(|"ERRORS 1 ")> errors1;
+			<sx-bfsbc-filter-errors> errors1
+		end
+	sx-bfsbc-filter-errors =
+		?[error@SXBfsbcError(_, _) | errors];
+		<sx-bfsbc-filter-errors> errors => errors1;
+		![error|errors1]
+		
 	/**
 	 * Returns a list of error locations and error messages.
 	 *
@@ -77,11 +117,18 @@ strategies
 		?(inf-rules, [[]|judgs-queue]);
 		![]
 	sx-bfsbc =
+		// Drop goal marker
+		?(inf-rules, [[SXBfsbcGoalMarker(judg) | judgs] |  judgs-queue]);
+		<sx-bfsbc> (inf-rules, [judgs | judgs-queue]) => errors;
+		![SXBfsbcGoalMarker(judg) | errors]
+	sx-bfsbc =
 		// Non empty goals at head of queue
 		?(inf-rules, queue@[[judg|judgs] | judgs-queue]);
 		if <sx-is-prim-judgement> judg then
+			<sx-debug(|"By prim ")> judg;
 			<sx-bfsbc-by-prim> (inf-rules, queue)
 		else
+			<sx-debug(|"By rule ")> judg;
 			<sx-bfsbc-by-rule> (inf-rules, queue)
 		end
 
@@ -95,12 +142,13 @@ strategies
 		if <sx-bfsbc-solve-prim> judg => sub then
 			// Goal could be solved, add premises to queue
 			<sx-sub-apply> (sub, judgs) => judgs1;
-			<sx-bfsbc> (inf-rules, <conc> (judgs-queue, [judgs1])))
+			<sx-bfsbc> (inf-rules, <conc> (judgs-queue, [judgs1]))
 		else
 			// An error
 			<sx-bfsbc-make-error> judg => error;
+			<sx-bfsbc-collect-goal-markers> judgs => goal-markers;
 			<sx-bfsbc> (inf-rules, judgs-queue) => errors;
-			<sx-bfsbc-join-errors> (error, errors)
+			<sx-bfsbc-join-errors> (SXBfsbcError(goal-markers, error), errors)
 		end
 
 	/**
@@ -111,21 +159,25 @@ strategies
 	sx-bfsbc-by-rule =
 		?(inf-rules, [[judg|judgs] | judgs-queue]);
 		<sx-bfsbc-find-inf-rules> (inf-rules, judg) => candidates;
+		<sx-debug(|"found candidates ")> candidates;
 		if !candidates; ?[] then
 			// An error
+			<sx-debug(|"should make error ")> "";
 			<sx-bfsbc-make-error> judg => error;
+			<sx-bfsbc-collect-goal-markers> judgs => goal-markers;
 			<sx-bfsbc> (inf-rules, judgs-queue) => errors;
-			<sx-bfsbc-join-errors> (error, errors)
+			<sx-bfsbc-join-errors> (SXBfsbcError(goal-markers, error), errors)
 		else
 			// Goal could be solved, add premises to queue
 			let map-s = {
-				premises, sub:
+				premises, sub, judgs1:
 					?(premises, sub);
 					<sx-sub-apply> (sub, judgs) => judgs1;
-					<conc> (judgs1, judgs) 
+					<conc> (premises, [SXBfsbcGoalMarker(judg)], judgs1)
 				}
 			in
 				<map(map-s)> candidates => new-judgs;
+				<sx-debug(|"new judgements ")> new-judgs;
 				<sx-bfsbc> (inf-rules, <conc> (judgs-queue, new-judgs))
 			end
 		end
@@ -223,6 +275,20 @@ strategies
 	sx-bfsbc-make-error =
 		?judg;
 		<sx-locate-source> judg => expr;
+		<sx-debug(|"error expr ")> expr;
 		<sx-pretty-print-term> judg => judg-string;
-		<conc> ("Could not derive ", judg-string) => message;
+		<conc-strings> ("Could not derive ", judg-string) => message;
+		<sx-debug(|"made error ")> message;
 		!(expr, message)
+
+	/**
+	 * Collects all goal markers from list of goal
+	 *
+	 * @type List(SXJudgement) -> List(SXJudgement)
+	 */
+	sx-bfsbc-collect-goal-markers =
+		filter(?SXBfsbcGoalMarker(_)); map(?SXBfsbcGoalMarker(<id>))
+
+signature constructors
+	SXBfsbcGoalMarker: SXJudgement                          -> SXJudgement
+	SXBfsbcError:      List(SXJudgement) * (SXExpr, String) -> SXJudgement

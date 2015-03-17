@@ -91,6 +91,22 @@ strategies
     	<sx-env-add-error> (ast, msg)
 
 	/**
+	 * Adds list of error messages to the environment.
+	 *
+	 * @type List((SXExpr, String)) -> _
+	 */
+	sx-analysis-store-errors =
+		?errors;
+		let map-s = {
+			expr, msg:
+				?(expr, msg);
+				<sx-analysis-store-error(|msg)> expr
+			}
+		in
+			<map(map-s)> errors
+		end
+
+	/**
 	 * Adds an error message indicating a bug in SoundX.
 	 *
 	 * @param msg String
