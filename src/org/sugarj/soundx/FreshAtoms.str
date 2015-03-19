@@ -30,63 +30,40 @@
  */
 
 /**
- * Prefixing of SDF2 sort names
+ * Generation of fresh atoms
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */
-module org/sugarj/sxbld/processing/SortPrefixing
-
-imports org/sugarj/languages/Sdf2
-
-imports org/sugarj/sxbld/Environment
-
+module org/sugarj/soundx/FreshAtoms
 
 strategies
 	/**
-	 * Prefixes all sort names with the base language name
+	 * Generates atom fresh from list of atom starting with prefix.
 	 *
-	 * @type a -> a
-	 */
-	sxbld-prefix-all-sorts-base-lang = topdown(try(sxbld-prefix-sort-base-lang))
-
-    /**
-     * Prefixes all sort names with the given prefix
-     *
-     * @param prefix String
-     *
-     * @type a -> a
-     */
-	sxbld-prefix-all-sorts(|prefix) = topdown(try(sxbld-prefix-sort(|prefix)))
-	
-	/**
-	 * Prefixes the sort name with the base language name
+	 * TODO: make prefix definable in base language definition
 	 *
-	 * @type Sdf2Symbol -> Sdf2Symbol
+	 * @param prefix String
+	 *
+	 * @type List(String) -> String
 	 */
-	sxbld-prefix-sort-base-lang =
-		where(<sxbld-env-get-base-language-name> () => prefix);
-		sxbld-prefix-sort(|prefix)
+	sx-fresh-atom =
+		sx-fresh-atom(|"gen", 0)
 
 	/**
-	 * Prefixes string with the base language name.
+	 * Generates atom fresh from list of atoms starting with prefix and
+	 * ending with suffix >= n.
 	 *
-	 * @type String -> String
+	 * @param prefix String
+	 * @param suffix Int
+	 *
+	 * @type List(String) -> String
 	 */
-	sxbld-prefix-string-base-lang =
-		?string;
-		where(<sxbld-env-get-base-language-name> () => prefix);
-		<conc-strings> (prefix, string)
-
-    /**
-     * Prefixes the sort name with the given prefix
-     *
-     * @param prefix String
-     *
-     * @type Sdf2Symbol -> Sdf2Symbol
-     */
-	sxbld-prefix-sort(|prefix) =
-		let conc-prefix = ?orig-name; <conc-strings> (prefix, orig-name)
-		in
-			sort(conc-prefix) +
-			parameterized-sort(conc-prefix, id)
+	sx-fresh-atom(|prefix, n) =
+		?atoms;
+		<int-to-string> n => suffix;
+		<conc-strings> (prefix, suffix) => candidate;
+		if <elem> (candidate, atoms) then
+			<sx-fresh-atom(|prefix, <add> (n, 1))> atoms
+		else
+			!candidate
 		end

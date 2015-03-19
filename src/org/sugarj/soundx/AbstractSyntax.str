@@ -177,12 +177,22 @@ strategies
 	sx-prim-axiom-interface =
 		!SXInfRule([], "=interface()", SXGetInterface(SXMetaVar("x"), SXMetaVar("y")))
 
+	/**
+	 * Axiom schema for SXFreshIn judgement. It is only used in
+	 * desugaring.
+	 *
+	 * @type _ -> SXInfRule
+	 */
+	sx-prim-axiom-notin =
+		!SXInfRule([], "_notin_", SXFreshIn(SXMetaVar("x"), SXMetaVar("y")))
+
 /**
  * Judgements
  */
 signature constructors
     SXNeq:          SXExpr * SXExpr -> SXJudgement
     SXGetInterface: SXExpr * SXExpr -> SXJudgement
+    SXFreshIn:      SXExpr * SXExpr -> SXJudgement
 
 strategies
 	/**
@@ -215,7 +225,9 @@ strategies
 	 * @type a -> a
 	 */
     sx-is-prim-judgement =
-    	sx-is-neq-judgement + sx-is-get-interface-judgement
+    	sx-is-neq-judgement +
+    	sx-is-get-interface-judgement +
+    	sx-is-fresh-in-judgement
 
 	/**
 	 * Checks if aterm is a "Get Interface" judgement
@@ -226,12 +238,20 @@ strategies
 		?SXGetInterface(_, _)
 
 	/**
-	 * Checks if aterm is an SXEq judgement
+	 * Checks if aterm is an SXNeq judgement
 	 *
 	 * @type a -> a
 	 */
 	sx-is-neq-judgement =
 		?SXNeq(_, _)
+
+	/**
+	 * Checks if aterm is an SXFreshIn judgement
+	 *
+	 * @type a -> a
+	 */
+	sx-is-fresh-in-judgement =
+		?SXFreshIn(_, _)
 
 /**
  * Desugarings
@@ -293,6 +313,25 @@ strategies
 		SXDerivInst(_, _, concl) -> concl
 	sx-concl:
 		SXDerivAsm(concl) -> concl
+
+/**
+ * Fresh names
+ */
+signature constructors
+	SXFreshAtom:  SXExpr          -> SXExpr
+	SXAtomsEmpty:                    SXExpr
+	SXAtomsAdd:   SXExpr * SXExpr -> SXExpr
+
+strategies
+	/**
+	 * Make a (Stratego) list of atoms from the atom set term constructors.
+	 *
+	 * @type SXExpr -> List(SXExpr)
+	 */
+	sx-atoms:
+		SXAtomsEmpty() -> []
+	sx-atoms:
+		SXAtomsAdd(atoms, atom) -> <union> ([atom], <sx-atoms> atoms)
 
 /**
  * Various

@@ -46,6 +46,8 @@ imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/sxbld/processing/SortPrefixing
 
+imports org/sugarj/soundx/Debug
+
 
 /**
  * Register analyses
@@ -351,7 +353,7 @@ strategies
     	<sxbld-prefix-all-sorts-base-lang> [symbol|symbols] => [prefixed-symbol|prefixed-symbols];
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => ground-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => ground-symbol;
-    	<sxbld-analyze-neq-judg> (attributes, prefixed-symbol) => cf-prods;
+    	<sxbld-analyze-atoms> (attributes, prefixed-symbol) => cf-prods;
     	<sxbld-analyze-namespace-kind> (attributes, prefixed-symbol);
     	!([prod(prefixed-symbols, prefixed-symbol, attributes),
     	   prod(ground-symbols, ground-symbol, attributes)],
@@ -359,14 +361,32 @@ strategies
 
     /**
      * Generates inequality judgement for symbol if sx-requires-inequality is given
+     * Generates "fresh from" and inequality judgement and syntax for atom sets.
      *
      * @type (Sdf2Attributes, Sdf2Symbol) -> List(Sdf2Production)
      */
-    sxbld-analyze-neq-judg =
+    sxbld-analyze-atoms =
     	?(attributes, symbol);
-    	if <sx-sdf2-is-aterm-attribute-defined(|"sx-requires-inequality")> attributes then
-    		![prod([symbol, lit("=/="), symbol], sort("SXJudgement"),
-    	           attrs([<sx-sdf2-cons-attribute> "SXNeq"]))]
+    	if <sx-sdf2-extract-aterm-attribute(|"sx-atoms")> attributes => atoms-attrib then
+    		<sx-sdf2-get-arg-from-aterm-attribute(|1)> atoms-attrib => atom-set-sort;
+    		//<sx-debug(|"Found the following atom set symbol ")> atom-set-symbol;
+    		if !atom-set-sort; ?fun(unquoted(sort-name)); <is-string> sort-name then
+    			<sxbld-prefix-string-base-lang> sort-name => prefixed-sort-name;
+    			![prod([symbol, lit("=/="), symbol], sort("SXJudgement"),
+    	        	attrs([<sx-sdf2-cons-attribute> "SXNeq"]))] => grms-neq;
+    	        ![prod([symbol, lit("notin"), sort(prefixed-sort-name)], sort("SXJudgement"),
+    	        	attrs([<sx-sdf2-cons-attribute> "SXFreshIn"]))] => grms-fresh-in;
+    	        ![prod([lit("fresh"), lit("("), sort(prefixed-sort-name), lit(")")], symbol,
+    	        	attrs([prefer(), <sx-sdf2-cons-attribute> "SXFreshAtom"]))] => grms-fresh-atom;
+    	        ![prod([lit("{}")], sort(prefixed-sort-name),
+    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsEmpty"])),
+    	          prod([sort(prefixed-sort-name), lit("U"), lit("{"), symbol, lit("}")],
+    	          	sort(prefixed-sort-name),
+    	          	attrs([<sx-sdf2-cons-attribute> "SXAtomsAdd"]))] => grms-atoms;
+				<conc> (grms-neq, grms-fresh-in, grms-fresh-atom, grms-atoms)
+    		else
+    			<sxbld-analyze-fail(|"invalid argument to `sx-atoms'")> atom-set-sort
+    		end
     	else
     		![]
     	end

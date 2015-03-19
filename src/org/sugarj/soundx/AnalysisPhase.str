@@ -57,7 +57,7 @@ imports org/sugarj/soundx/processing/GrammarElems
 		org/sugarj/soundx/processing/InductiveDefinitions
 		org/sugarj/soundx/processing/Desugarings
 
-// imports org/sugarj/soundx/Debug
+imports org/sugarj/soundx/Debug
 
 
 /**
@@ -190,7 +190,7 @@ strategies
 			<sx-analysis-fail(|message)> head
 		else
 			<sx-sub-apply> (result, judg) => goal;
-			// <sx-debug(|"interface goal ")> goal;
+			<sx-debug(|"interface goal ")> goal;
 			// derive the interface judgement and store the module's interface
 			// and the derivation for later desugaring in the environment
 			if <sx-dfsbc-build-derivations(|[])> ([], inf-rules, [goal]) => (sub, [result-deriv]) then

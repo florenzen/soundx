@@ -47,6 +47,9 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Unification
 		org/sugarj/soundx/Substitution
 		org/sugarj/soundx/Declarations
+		org/sugarj/soundx/FreshAtoms
+
+imports org/sugarj/soundx/Debug
 
 
 strategies
@@ -61,10 +64,12 @@ strategies
 		!(<sx-sub-empty> (), [])
 	sx-dfsbc-build-derivations(|vars-asms) =
 		?(asms, inf-rules, goals@[judg|_]);
+		// <sx-debug(|"trying ")> judg;
 		(<sx-dfsbc-build-derivations-by-asm(|vars-asms)> (asms, asms, inf-rules, goals) <+
 		 (<sx-is-prim-judgement> judg;
 		  <sx-dfsbc-build-derivations-by-prim(|vars-asms)> (asms, inf-rules, goals)) +
 		  <sx-is-ind-def-judgement> judg;
+		  // <sx-debug(|"ind def judg ")> "";
 		  <sx-dfsbc-build-derivations-by-rule(|vars-asms)> (asms, inf-rules, inf-rules, goals))
 
 	sx-dfsbc-build-derivations-by-asm(|vars-asms) =
@@ -104,6 +109,44 @@ strategies
 		<sx-sub-compose> (sub, sub-intf) => sub1;
 		<sx-sub-apply> (sub1, judg) => judg1;
 		!(sub1, [SXDerivInst([], "=interface()", judg1) | derivs])
+	sx-dfsbc-build-derivations-by-prim(|vars-asms) =
+		// fresh in judgement
+		?(asms, inf-rules, [judg@SXFreshIn(expr1, expr2) | judgs]);
+		// <sx-debug(|"fresh in judgement ")> judg;
+		// second argument must be bound to a ground expression
+		// <sx-debug(|"vars ")> (<sx-vars> expr2);
+		<sx-vars> expr2 => [];
+		// <sx-debug(|"befor atoms ")> "";
+		<sx-atoms> expr2 => atom-list;
+		// <sx-debug(|"Atoms list ")> atom-list;
+		!expr1;
+		(// metavariable
+		 (sx-is-metavar;
+		  // <sx-debug(|"is metavar")> "";
+		  <sx-fresh-atom> atom-list => fresh-atom;
+		  <sx-sub-singleton> (expr1, fresh-atom) => sub-fresh;
+		  !SXDerivInst([], "_notin_", SXFreshIn(fresh-atom, expr2)) => deriv
+		 ) <+
+		 // generate fresh atom (argument must be ground)
+		 (?SXFreshAtom(arg);
+		  // <sx-debug(|"fresh atom ")> "";
+		  <sx-vars> arg => [];
+		  <sx-atoms> arg => arg-atom-list;
+		  <subseteq> (atom-list, arg-atom-list);
+		  <sx-sub-empty> () => sub-fresh;
+		  !SXDerivInst([], "_notin_", judg) => deriv
+		 ) <+
+		 // concrete atom
+		 (// <sx-debug(|"other (fixed atom)")> "";
+		  <sx-vars> expr1 => [];
+		  not(<elem> (expr1, atom-list));
+		  <sx-sub-empty> () => sub-fresh;
+		  !SXDerivInst([], "_notin_", judg) => deriv
+		 ));
+		 <sx-sub-apply> (sub-fresh, judgs) => judgs1;
+		 <sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs1) => (sub, derivs);
+		 <sx-sub-compose> (sub, sub-fresh) => sub1;
+		 !(sub1, [deriv | derivs])
 
 	sx-dfsbc-build-derivations-by-rule(|vars-asms) =
 		?(asms, all-inf-rules, [], goals);
@@ -112,6 +155,7 @@ strategies
 		?(asms, all-inf-rules, [inf-rule|inf-rules], goals@[judg|judgs]);
 		((<sx-fresh-inf-rule> inf-rule => SXInfRule(premises, name, concl);
 		  <sx-dfsbc-unify(|vars-asms)> (judg, concl) => mgu;
+		  // <sx-debug(|"found matching rule w/ premises ")> premises;
 		  <sx-sub-apply> (mgu, <conc> (premises, judgs)) => judgs1;
 		  <sx-dfsbc-build-derivations(|vars-asms)> (asms, all-inf-rules, judgs1) => (sub, derivs);
 		  <split-at(|<length> premises)> derivs => (derivs-prem, derivs-other);
