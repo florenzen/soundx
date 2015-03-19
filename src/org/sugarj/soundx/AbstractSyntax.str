@@ -318,10 +318,14 @@ strategies
  * Fresh names
  */
 signature constructors
-	SXFreshAtom:  SXExpr          -> SXExpr
-	SXAtomsEmpty:                    SXExpr
-	SXAtomsAdd:   SXExpr * SXExpr -> SXExpr
-
+	SXAtomsUnion:    SXExpr * SXExpr      -> SXExpr
+	SXAtomsEnum:     SXAtomsEnum          -> SXExpr
+	SXAtomsDiff:     SXExpr * SXExpr      -> SXExpr
+	SXAtomsEnumNone:                         SXAtomsEnum
+	SXAtomsEnumOne:  SXExpr * SXAtomsList -> SXAtomsEnum
+	SXAtomsListNil:                          SXAtomsList
+	SXAtomsListCons: SXExpr * SXAtomsList -> SXAtomsList
+	
 strategies
 	/**
 	 * Make a (Stratego) list of atoms from the atom set term constructors.
@@ -329,9 +333,19 @@ strategies
 	 * @type SXExpr -> List(SXExpr)
 	 */
 	sx-atoms:
-		SXAtomsEmpty() -> []
+		SXAtomsUnion(expr1, expr2) -> <union> (<sx-atoms> expr1, <sx-atoms> expr2)
 	sx-atoms:
-		SXAtomsAdd(atoms, atom) -> <union> ([atom], <sx-atoms> atoms)
+		SXAtomsEnum(enum) -> <sx-atoms> enum
+	sx-atoms:
+		SXAtomsDiff(expr1, expr2) -> <diff> (<sx-atoms> expr1, <sx-atoms> expr2)
+	sx-atoms:
+		SXAtomsEnumNone() -> []
+	sx-atoms:
+		SXAtomsEnumOne(expr, list) -> <union> ([expr], <sx-atoms> list)
+	sx-atoms:
+		SXAtomsListNil() -> []
+	sx-atoms:
+		SXAtomsListCons(expr, list) -> <union> ([expr], <sx-atoms> list)
 
 /**
  * Various

@@ -376,14 +376,33 @@ strategies
     	        	attrs([<sx-sdf2-cons-attribute> "SXNeq"]))] => grms-neq;
     	        ![prod([symbol, lit("notin"), sort(prefixed-sort-name)], sort("SXJudgement"),
     	        	attrs([<sx-sdf2-cons-attribute> "SXFreshIn"]))] => grms-fresh-in;
-    	        ![prod([lit("fresh"), lit("("), sort(prefixed-sort-name), lit(")")], symbol,
-    	        	attrs([prefer(), <sx-sdf2-cons-attribute> "SXFreshAtom"]))] => grms-fresh-atom;
-    	        ![prod([lit("{}")], sort(prefixed-sort-name),
-    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsEmpty"])),
-    	          prod([sort(prefixed-sort-name), lit("U"), lit("{"), symbol, lit("}")],
-    	          	sort(prefixed-sort-name),
-    	          	attrs([<sx-sdf2-cons-attribute> "SXAtomsAdd"]))] => grms-atoms;
-				<conc> (grms-neq, grms-fresh-in, grms-fresh-atom, grms-atoms)
+    	        // AtomSet "U" AtomSet  -> AtomSet {cons("SXAtomsUnion")}
+    	        // "{" SXAtomsEnum "}"  -> AtomSet {cons("SXAtomsEnum")}
+    	        // AtomSet "\\" AtomSet -> AtomSet {cons("SXAtomsDiff")}
+    	        //
+    	        //                      -> SXAtomsEnum {cons("SXAtomsEnumNone")}
+    	        // Atom SXAtomsList     -> SXAtomsEnum {cons("SXAtomsEnumOne")}
+    	        //                      -> SXAtomsList {cons("SXAtomsListNil")}
+    	        // "," Atom SXAtomsList -> SXAtomsList {cons("SXAtomsListCons")}
+    	        // TODO: precedences, associativity, parentheses
+    	        !sort(prefixed-sort-name) => atom-set;
+    	        !symbol => atom;
+    	        ![prod([atom-set, lit("U"), atom-set], atom-set,
+    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsUnion"])),
+    	          prod([lit("{"), sort("SXAtomsEnum"), lit("}")], atom-set,
+    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsEnum"])),
+    	          prod([atom-set, lit("\\\\"), atom-set], atom-set,
+    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsDiff"])),
+    	          prod([], sort("SXAtomsEnum"),
+    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsEnumNone"])),
+    	          prod([atom, sort("SXAtomsList")], sort("SXAtomsEnum"),
+    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsOne"])),
+    	          prod([], sort("SXAtomsList"),
+    	            attrs([<sx-sdf2-cons-attribute> "SXAtomsNil"])),
+    	          prod([lit(","), atom, sort("SXAtomsList")], sort("SXAtomsList"),
+    	            attrs([<sx-sdf2-cons-attribute> "SXAtomsCons"]))
+    	         ] => grms-atoms;
+				<conc> (grms-neq, grms-fresh-in, grms-atoms)
     		else
     			<sxbld-analyze-fail(|"invalid argument to `sx-atoms'")> atom-set-sort
     		end
