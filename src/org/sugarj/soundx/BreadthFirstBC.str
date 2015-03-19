@@ -53,6 +53,8 @@ imports org/sugarj/soundx/AbstractSyntax
 
 imports org/sugarj/soundx/Debug
 
+// TODO why BFS?
+// TODO: could we drop a non-derivable judgement and continue and find more error w/o diverging?
 
 strategies
 	/**
