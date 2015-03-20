@@ -378,9 +378,10 @@ strategies
     	        	attrs([<sx-sdf2-cons-attribute> "SXFreshIn"])),
     	          prod([symbol, lit("in"), sort(prefixed-sort-name)], sort("SXJudgement"),
     	          	attrs([<sx-sdf2-cons-attribute> "SXContainedIn"]))] => grms-fresh-in;
-    	        // AtomSet "U" AtomSet  -> AtomSet {cons("SXAtomsUnion")}
+    	        // AtomSet "U" AtomSet  -> AtomSet {cons("SXAtomsUnion"), left}
     	        // "{" SXAtomsEnum "}"  -> AtomSet {cons("SXAtomsEnum")}
-    	        // AtomSet "\\" AtomSet -> AtomSet {cons("SXAtomsDiff")}
+    	        // AtomSet "\\" AtomSet -> AtomSet {cons("SXAtomsDiff"), left}
+    	        // "(" AtomSet ")"      -> AtomSet {bracket}
     	        //
     	        //                      -> SXAtomsEnum {cons("SXAtomsEnumNone")}
     	        // Atom SXAtomsList     -> SXAtomsEnum {cons("SXAtomsEnumOne")}
@@ -390,11 +391,13 @@ strategies
     	        !sort(prefixed-sort-name) => atom-set;
     	        !symbol => atom;
     	        ![prod([atom-set, lit("U"), atom-set], atom-set,
-    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsUnion"])),
+    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsUnion", assoc(left())])),
     	          prod([lit("{"), sort("SXAtomsEnum"), lit("}")], atom-set,
     	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsEnum"])),
     	          prod([atom-set, lit("\\\\"), atom-set], atom-set,
-    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsDiff"])),
+    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsDiff", assoc(left())])),
+    	          prod([lit("("), atom-set, lit(")")], atom-set,
+    	          	attrs([bracket()])),
     	          prod([], sort("SXAtomsEnum"),
     	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsEnumNone"])),
     	          prod([atom, sort("SXAtomsList")], sort("SXAtomsEnum"),
