@@ -149,7 +149,7 @@ strategies
 		 <sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs1) => (sub, derivs);
 		 <sx-sub-compose> (sub, sub-fresh) => sub1;
 		 !(sub1, [deriv | derivs])
-		 ;<sx-debug(|"at final end")> ""
+		 ;where(<sx-debug(|"at final end")> "")
 
 	sx-dfsbc-build-derivations-by-rule(|vars-asms) =
 		?(asms, all-inf-rules, [], goals);
@@ -158,7 +158,7 @@ strategies
 		?(asms, all-inf-rules, [inf-rule|inf-rules], goals@[judg|judgs]);
 		((<sx-fresh-inf-rule> inf-rule => SXInfRule(premises, name, concl);
 		  <sx-dfsbc-unify(|vars-asms)> (judg, concl) => mgu;
-		  // <sx-debug(|"found matching rule w/ premises ")> premises;
+		  <sx-debug(|"found matching rule w/ premises ")> premises;
 		  <sx-sub-apply> (mgu, <conc> (premises, judgs)) => judgs1;
 		  <sx-dfsbc-build-derivations(|vars-asms)> (asms, all-inf-rules, judgs1) => (sub, derivs);
 		  <split-at(|<length> premises)> derivs => (derivs-prem, derivs-other);
