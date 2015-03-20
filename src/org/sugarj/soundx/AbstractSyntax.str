@@ -186,6 +186,15 @@ strategies
 	sx-prim-axiom-notin =
 		!SXInfRule([], "_notin_", SXFreshIn(SXMetaVar("x"), SXMetaVar("y")))
 
+	/**
+	 * Axiom schema for SXContainedIn judgement. It is only used in
+	 * desugaring.
+	 *
+	 * @type _ -> SXInfRule
+	 */
+	sx-prim-axiom-notin =
+		!SXInfRule([], "_in_", SXContainedIn(SXMetaVar("x"), SXMetaVar("y")))
+
 /**
  * Judgements
  */
@@ -193,6 +202,7 @@ signature constructors
     SXNeq:          SXExpr * SXExpr -> SXJudgement
     SXGetInterface: SXExpr * SXExpr -> SXJudgement
     SXFreshIn:      SXExpr * SXExpr -> SXJudgement
+    SXContainedIn:  SXExpr * SXExpr -> SXJudgement
 
 strategies
 	/**
@@ -227,7 +237,8 @@ strategies
     sx-is-prim-judgement =
     	sx-is-neq-judgement +
     	sx-is-get-interface-judgement +
-    	sx-is-fresh-in-judgement
+    	sx-is-fresh-in-judgement +
+    	sx-is-contained-in-judgement
 
 	/**
 	 * Checks if aterm is a "Get Interface" judgement
@@ -252,6 +263,14 @@ strategies
 	 */
 	sx-is-fresh-in-judgement =
 		?SXFreshIn(_, _)
+
+	/**
+	 * Checks if aterm is an SXContainedIn judgement
+	 *
+	 * @type a -> a
+	 */
+	sx-is-contained-in-judgement =
+		?SXContainedIn(_, _)
 
 /**
  * Desugarings

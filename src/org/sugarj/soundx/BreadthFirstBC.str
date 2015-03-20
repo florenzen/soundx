@@ -193,6 +193,8 @@ strategies
 			end
 		end
 
+	// TODO Clean up the primitives in the two inference engines. There is
+	// too much code duplication. 
 	/**
 	 * Tries to solve primitive judgement.
 	 *
@@ -243,6 +245,14 @@ strategies
 		  // <sx-debug(|"not elem ")> "";
 		  <sx-sub-empty> ()
 		 ))
+	sx-bfsbc-solve-prim =
+		// Contained in judgement
+		?(SXFreshIn(expr1, expr2));
+		<sx-vars> expr1 => [];
+		<sx-vars> expr2 => [];
+		<sx-atoms> expr2 => atom-list;
+		<elem> (expr1, atom-list);
+		<sx-sub-empty> ()
 
 	/**
 	 * Finds matching inference rules by unification.

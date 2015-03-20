@@ -375,7 +375,9 @@ strategies
     			![prod([symbol, lit("=/="), symbol], sort("SXJudgement"),
     	        	attrs([<sx-sdf2-cons-attribute> "SXNeq"]))] => grms-neq;
     	        ![prod([symbol, lit("notin"), sort(prefixed-sort-name)], sort("SXJudgement"),
-    	        	attrs([<sx-sdf2-cons-attribute> "SXFreshIn"]))] => grms-fresh-in;
+    	        	attrs([<sx-sdf2-cons-attribute> "SXFreshIn"])),
+    	          prod([symbol, lit("in"), sort(prefixed-sort-name)], sort("SXJudgement"),
+    	          	attrs([<sx-sdf2-cons-attribute> "SXContainedIn"]))] => grms-fresh-in;
     	        // AtomSet "U" AtomSet  -> AtomSet {cons("SXAtomsUnion")}
     	        // "{" SXAtomsEnum "}"  -> AtomSet {cons("SXAtomsEnum")}
     	        // AtomSet "\\" AtomSet -> AtomSet {cons("SXAtomsDiff")}

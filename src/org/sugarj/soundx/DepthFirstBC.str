@@ -140,6 +140,17 @@ strategies
 		 <sx-sub-compose> (sub, sub-fresh) => sub1;
 		 !(sub1, [deriv | derivs])
 		 // ;where(<sx-debug(|"at final end")> "")
+	sx-dfsbc-build-derivations-by-prim(|vars-asms) =
+		// contained in judgement
+		?(asms, inf-rules, [judg@SXContainedIn(expr1, expr2) | judgs]);
+		// requires both arguments to be ground
+		<sx-vars> expr1 => [];
+		<sx-vars> expr2 => [];
+		<sx-atoms> expr2 => atom-list;
+		<elem> (expr1, atom-list);
+		!SXDerivInst([], "_in_", judg) => deriv;
+		<sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs) => (sub, derivs);
+		!(sub, [deriv | derivs])
 
 	sx-dfsbc-build-derivations-by-rule(|vars-asms) =
 		?(asms, all-inf-rules, [], goals);
