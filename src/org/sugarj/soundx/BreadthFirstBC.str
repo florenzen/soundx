@@ -170,7 +170,7 @@ strategies
 	sx-bfsbc-by-rule =
 		?(inf-rules, [[judg|judgs] | judgs-queue]);
 		<sx-bfsbc-find-inf-rules> (inf-rules, judg) => candidates;
-		<sx-debug(|"found candidates ")> candidates;
+		// <sx-debug(|"found candidates ")> candidates;
 		if !candidates; ?[] then
 			// An error
 			<sx-debug(|"should make error ")> "";
@@ -236,11 +236,11 @@ strategies
 		 //  !SXDerivInst([], "_notin_", judg) => deriv
 		 // ) <+
 		 // concrete atom
-		 (<sx-debug(|"other (fixed atom)")> "";
+		 (// <sx-debug(|"other (fixed atom)")> "";
 		  <sx-vars> expr1 => [];
-		  <sx-debug(|"no meta vars")> "";
+		  // <sx-debug(|"no meta vars")> "";
 		  not(<elem> (expr1, atom-list));
-		  <sx-debug(|"not elem ")> "";
+		  // <sx-debug(|"not elem ")> "";
 		  <sx-sub-empty> ()
 		 ))
 
