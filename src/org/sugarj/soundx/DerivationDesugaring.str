@@ -287,8 +287,7 @@ strategies
 	 */
 	sx-deriv-desugar-is-rule-defined-in(|inf-rules) =
 		?rule-name;
-		((!rule-name; "_notin_"; sx-prim-axiom-notin) <+
-		 (!rule-name; ?"=interface()"; sx-prim-axiom-interface) <+
+		((!rule-name; ?"=interface()"; sx-prim-axiom-interface) <+
 		 (!rule-name; ?"=/="; sx-prim-axiom-neq) <+ 
 		 (<collect-one(?SXInfRule(_, rule-name, _))> inf-rules))
 
