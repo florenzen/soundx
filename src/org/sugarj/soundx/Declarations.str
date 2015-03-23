@@ -84,8 +84,7 @@ strategies
 
 	sx-guarded-desugarings = fail
 
-	sx-universal-desugarings =
-		sx-fresh-atom-generator
+	sx-universal-desugarings = fail
 
 	sx-extension-inference-rules = fail
 

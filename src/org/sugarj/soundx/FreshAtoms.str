@@ -42,15 +42,24 @@ imports org/sugarj/soundx/Declarations
 		org/sugarj/soundx/DepthFirstBC
 		org/sugarj/soundx/AnalysisPhase
 
+imports org/sugarj/soundx/Debug
+
 
 strategies
+	sx-fresh-atom-replace-all =
+		bottomup(try(sx-fresh-atom-generator))
+
 	sx-fresh-atom-generator =
 		?cons#(args);
 		<string-starts-with(|"SXFreshFun")> cons;
+		<sx-debug(|"fresh atom generator found ")> cons#(args);
 		<sx-fresh-extract-sort-name> cons => sort-name;
+		sx-debug(|"fresh atom for sort ");
 		sx-freshness-conditions => freshness-conds;
 		<lookup> (sort-name, freshness-conds) => freshness-cond;
+		sx-debug(|"extracted freshness conds ");
 		<sx-fresh-atom> (freshness-cond, args)
+		;sx-debug(|"generated ")
 
 	sx-fresh-atom =
 		sx-fresh-atom(|0)
@@ -59,6 +68,7 @@ strategies
 		?(freshness-cond, args);
 		<int-to-string> count => num;
 		<conc-strings> (<sx-fresh-atom-prefix> (), num) => cand;
+		<sx-debug(|"atom generator tries ")> cand;
 		if <sx-fresh-atom-ok(|freshness-cond, args)> cand then
 			!cand
 		else
@@ -85,10 +95,15 @@ strategies
 		
 	sx-fresh-extract-sort-name =
 		?cons;
+		sx-debug(|"extract 1");
 		<explode-string> cons => chars;
-		<drop(10)> chars => tail; // drop SXFreshFun
+		sx-debug(|"extract 2");
+		<drop(|10)> chars => tail; // drop SXFreshFun
+		sx-debug(|"extract 3");
 		<take-until(?'_')> tail => sort-chars;
+		sx-debug(|"extract 4");
 		<implode-string> sort-chars => sort-name
+		;sx-debug(|"extract 5")
 
 	sx-fresh-atom-prefix = !"gen"
 

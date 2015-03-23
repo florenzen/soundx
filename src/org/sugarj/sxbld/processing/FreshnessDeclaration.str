@@ -45,6 +45,8 @@ imports org/sugarj/soundx/SDF2
 		org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Substitution
 
+imports org/sugarj/soundx/processing/Prefixing
+
 imports org/sugarj/soundx/Debug
 
 
@@ -96,7 +98,14 @@ strategies
  			<sx-debug(|"Freshness condition ok so far 3")> "";
  			<conc> (grm-fresh-fun, grm-fresh-judg) => grm-fresh;
  			<sx-debug(|"Freshness condition ok so far 4")> "";
- 			<sxbld-env-add-grammar-elems> [grammar-elem(context-free-syntax(grm-fresh))];
+ 			// add reject production for "fresh"
+ 			!lexical-syntax([prod([lit("fresh")], sort(sort-atom),
+ 				attrs([reject()]))]) => grm-reject;
+ 			
+ 			<sx-prefix-all-sorts-base-lang> [grammar-elem(context-free-syntax(grm-fresh)),
+ 				grammar-elem(grm-reject)] => grm-prefixed;
+
+ 			<sxbld-env-add-grammar-elems> grm-prefixed;
  			<sx-debug(|"Freshness condition ok so far 5")> "";
  			<sx-debug(|"grammar elems for fresh ")> grm-fresh;
  			
@@ -258,7 +267,7 @@ strategies
 		<gt> (n, 0);
 		<sxbld-analyze-fresh-numbered-name(|name)> n => num-name;
 		<sxbld-analyze-freshness-numbered-args> (name, <subt> (n, 1)) => num-names;
-		![(n, num-name) | num-names]
+		![(n, SXMetaVar(num-name)) | num-names]
 
 	/**
 	 * Generates an argument list of length n for sort symbol.
