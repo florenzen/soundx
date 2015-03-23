@@ -170,3 +170,13 @@ strategies
 		(?[symbol|symbols];
 		 <sx-sdf2-count-subtrees> symbols => num;
 		 !(<add> (1, num)))
+
+	/**
+	 * Returns the string of an Sdf2Label.
+	 *
+	 * @type Sdf2Label -> String
+	 */
+	sx-sdf2-label-to-string:
+		unquoted(str) -> str
+	sx-sdf2-label-to-string:
+		quoted(str) -> <un-double-quote> str
