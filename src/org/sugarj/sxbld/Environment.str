@@ -113,7 +113,7 @@ strategies
   	    hashtable-put(|"extensible-file-ext", "");
   	    hashtable-put(|"base-file-ext", "");
   	    hashtable-put(|"atom-sorts", []);
-  	    hashtable-put(|"freshness-condition", ())
+  	    hashtable-put(|"freshness-conditions", <new-hashtable> ())
 
     /**
      * Looks up a key in the environment
@@ -601,29 +601,25 @@ strategies
  */
 strategies
 	/**
-	 * Adds a constructor, the namespace identifier position, and SDF2 symbol
+	 * Adds a freshness condition for a sort.
 	 *
-	 * @type (String, String, SXJudgement) -> SXEnv
+	 * @type (String, String, String, SXJudgement) -> SXEnv
 	 */
 	sxbld-env-set-freshness-condition =
-		?(name-atom, name-expr, judg);
-		<sxbld-env-set> ("freshness-condition", (name-atom, name-expr, judg))
+		?(sort, name-atom, name-expr, judg);
+		<sxbld-env-get> "freshness-conditions" => ht;
+		<hashtable-put(|sort, (name-atom, name-expr, judg))> ht
 
     /**
-     * Gets freshness-condition
+     * Gets freshness-condition for a specific sort. Fails if there
+     * is no freshness condition defined for that sort.
      *
-     * @type _ -> (String, String, SXJudgement)
+     * @type String -> (String, String, SXJudgement)
      */
 	sxbld-env-get-freshness-condition =
-		<sxbld-env-get> "freshness-condition"
-
-	/**
-	 * Succeeds if freshness-condition is defined
-	 *
-	 * @type _ -> _
-	 */
-	sxbld-env-is-freshness-condition-defined =
-		<sxbld-env-get> "freshness-condition"; not(?())
+		?sort-name;
+		<sxbld-env-get> "freshness-conditions" => ht;
+		<hashtable-get(|sort-name)> ht
 
 /**
  * Handling of import-decs

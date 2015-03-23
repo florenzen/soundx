@@ -78,9 +78,14 @@ strategies
 			<sx-vars> judg1 => judg-vars;
 			(<set-eq> (declared-vars, judg-vars) <+
 			 <sxbld-analyze-fail(|"Declared variables and variables in judgement do not match")> decl);
+
+			// check that there is not already a freshness condition for that sort
+			(<not(sxbld-env-get-freshness-condition)> sort-expr <+
+			 <sxbld-analyze-fail(|"Only one freshness condition per sort allowed")> decl);
+ 			<sx-debug(|"Freshness condition ok so far 0")> "";
  			
  			// store freshness condition and name-atom/name-expr in environment
- 			<sxbld-env-set-freshness-condition> (name-atom, name-expr, judg1);
+ 			<sxbld-env-set-freshness-condition> (sort-expr, name-atom, name-expr, judg1);
  			<sx-debug(|"Freshness condition ok so far 1")> "";
  			
  			sxbld-analyze-fresh-max-args => num-args;
@@ -96,8 +101,8 @@ strategies
  			<sx-debug(|"grammar elems for fresh ")> grm-fresh;
  			
  			// store axioms about fresh function and freshness judgement in environment
- 			<sxbld-analyze-freshness-inf-rules-fun> (name-atom, name-expr, judg1, num-args) => inf-rules-fun;
- 			<sxbld-analyze-freshness-inf-rules-judg> (name-atom, name-expr, judg1, num-args) => inf-rules-judg;
+ 			<sxbld-analyze-freshness-inf-rules-fun> (sort-expr, name-atom, name-expr, judg1, num-args) => inf-rules-fun;
+ 			<sxbld-analyze-freshness-inf-rules-judg> (sort-expr, name-atom, name-expr, judg1, num-args) => inf-rules-judg;
  			//![] => inf-rules-judg;
  			<conc> (inf-rules-fun, inf-rules-judg) => inf-rules;
  			
@@ -117,7 +122,8 @@ strategies
 	sxbld-analyze-fresh-function =
 		?(sort-atom, sort-expr, n);
 		<gt> (n, 0);
-		<sxbld-analyze-fresh-numbered-name(|"SXFreshFun")> n => cons-name;
+		<conc-strings> ("SXFreshFun", sort-expr) => cons-name-prefix;
+		<sxbld-analyze-fresh-numbered-name(|cons-name-prefix)> n => cons-name;
 		<sxbld-analyze-fresh-arg-list> (n, sort(sort-expr)) => expr-list;
 		<conc> ([lit("fresh"), lit("(")], expr-list, [lit(")")]) => lhs;
 		!prod(lhs, sort(sort-atom),
@@ -136,7 +142,8 @@ strategies
 	sxbld-analyze-fresh-judg =
 		?(sort-atom, sort-expr, n);
 		<gt> (n, 0);
-		<sxbld-analyze-fresh-numbered-name(|"SXFreshness")> n => cons-name;
+		<conc-strings> ("SXFreshness", sort-expr) => cons-name-prefix;
+		<sxbld-analyze-fresh-numbered-name(|cons-name-prefix)> n => cons-name;
 		<sxbld-analyze-fresh-arg-list> (n, sort(sort-expr)) => expr-list;
 		<conc> ([sort(sort-atom) , lit("="), lit("fresh"), lit("(")], expr-list, [lit(")")]) => lhs;
 		!prod(lhs, sort("SXJudgement"),
@@ -148,26 +155,27 @@ strategies
 	 * Generates the inference rules for the fresh function with
 	 * up to n arguments.
 	 *
-	 * @type (String, String, SXJudgement, Int) -> List(SXInfRule)
+	 * @type (String, String, String, SXJudgement, Int) -> List(SXInfRule)
 	 */
 	sxbld-analyze-freshness-inf-rules-fun =
-		?(name-atom, name-expr, judg, 0);
+		?(sort-expr, name-atom, name-expr, judg, 0);
 		![]
 	sxbld-analyze-freshness-inf-rules-fun =
-		?(name-atom, name-expr, judg, n);
+		?(sort-expr, name-atom, name-expr, judg, n);
 		<gt> (n, 0);
 		<sxbld-analyze-freshness-numbered-args> (name-expr, n) => numbered-args;
 		// <sx-debug(|"numbered args ")> numbered-args;
 		<unzip> numbered-args => (_, args);
 		// <sx-debug(|"args ")> (<length> numbered-args);
-		<map(sxbld-analyze-freshness-inf-rule-fun(|args, n, name-atom, name-expr, judg))> numbered-args => inf-rules;
-		<sxbld-analyze-freshness-inf-rules-fun> (name-atom, name-expr, judg, <subt> (n, 1)) => more-inf-rules;
+		<map(sxbld-analyze-freshness-inf-rule-fun(|sort-expr, args, n, name-atom, name-expr, judg))> numbered-args => inf-rules;
+		<sxbld-analyze-freshness-inf-rules-fun> (sort-expr, name-atom, name-expr, judg, <subt> (n, 1)) => more-inf-rules;
 		<conc> (inf-rules, more-inf-rules)
 
 	/**
 	 * Generates the inference fules for the fresh function
 	 * of exactly n arguments for the m-th argument.
 	 *
+	 * @ param sort-expr String
 	 * @param args List((Int, String))
 	 * @param n Int
 	 * @param name-atom String
@@ -176,16 +184,18 @@ strategies
 	 *
 	 * @type (Int, String) -> (String, SXInfRule)
 	 */
-	sxbld-analyze-freshness-inf-rule-fun(|args, n, name-atom, name-expr, judg) =
+	sxbld-analyze-freshness-inf-rule-fun(|sort-expr, args, n, name-atom, name-expr, judg) =
 		?(m, arg);
-		<sxbld-analyze-fresh-numbered-name(|"SXFreshFun")> n => cons-name;
+		<conc-strings> ("SXFreshFun", sort-expr) => cons-name-prefix;
+		<sxbld-analyze-fresh-numbered-name(|cons-name-prefix)> n => cons-name;
 		<sx-sub-singleton> (SXMetaVar(name-atom), cons-name#(args)) => sub1;
 		<sx-sub-singleton> (SXMetaVar(name-expr), SXMetaVar(arg)) => sub2;
 		<sx-sub-apply> (sub1, judg) => judg1;
 		<sx-debug(|"judg1 ")> judg1;
 		<sx-sub-apply> (sub2, judg1) => judg2;
 		<sx-debug(|"judg2 ")> judg2;
-		<sxbld-analyze-fresh-numbered-name(|"_fresh")> n => rule-name1;
+		<conc-strings> ("_fresh", sort-expr) => rule-name-prefix;
+		<sxbld-analyze-fresh-numbered-name(|rule-name-prefix)> n => rule-name1;
 		<sxbld-analyze-fresh-numbered-name(|rule-name1)> m => rule-name2;
 		!(rule-name2, SXInfRule([], rule-name2, judg2))
 
@@ -196,23 +206,24 @@ strategies
 	 * @type (String, String, SXJudgement, Int) -> List(SXInfRule)
 	 */
 	sxbld-analyze-freshness-inf-rules-judg =
-		?(name-atom, name-expr, judg, 0);
+		?(sort-expr, name-atom, name-expr, judg, 0);
 		![]
 	sxbld-analyze-freshness-inf-rules-judg =
-		?(name-atom, name-expr, judg, n);
+		?(sort-expr, name-atom, name-expr, judg, n);
 		<gt> (n, 0);
 		<sxbld-analyze-freshness-numbered-args> (name-expr, n) => numbered-args;
 		// <sx-debug(|"numbered args ")> numbered-args;
 		<unzip> numbered-args => (_, args);
 		// <sx-debug(|"args ")> (<length> numbered-args);
-		<map(sxbld-analyze-freshness-inf-rule-judg(|args, n, name-atom, name-expr, judg))> numbered-args => inf-rules;
-		<sxbld-analyze-freshness-inf-rules-judg> (name-atom, name-expr, judg, <subt> (n, 1)) => more-inf-rules;
+		<map(sxbld-analyze-freshness-inf-rule-judg(|sort-expr, args, n, name-atom, name-expr, judg))> numbered-args => inf-rules;
+		<sxbld-analyze-freshness-inf-rules-judg> (sort-expr, name-atom, name-expr, judg, <subt> (n, 1)) => more-inf-rules;
 		<conc> (inf-rules, more-inf-rules)
 
 	/**
 	 * Generates the inference fules for the freshness judgement
 	 * of exactly n arguments for the m-th argument.
 	 *
+	 * @param sort-expr String
 	 * @param args List((Int, String))
 	 * @param n Int
 	 * @param name-atom String
@@ -221,13 +232,15 @@ strategies
 	 *
 	 * @type (Int, String) -> (String, SXInfRule)
 	 */
-	sxbld-analyze-freshness-inf-rule-judg(|args, n, name-atom, name-expr, judg) =
+	sxbld-analyze-freshness-inf-rule-judg(|sort-expr, args, n, name-atom, name-expr, judg) =
 		?(m, arg);
-		<sxbld-analyze-fresh-numbered-name(|"SXFreshness")> n => cons-name;
+		<conc-strings> ("SXFreshness", sort-expr) => cons-name-prefix;
+		<sxbld-analyze-fresh-numbered-name(|cons-name-prefix)> n => cons-name;
 		!cons-name#([SXMetaVar(name-atom) | args]) => premise;
 		<sx-sub-singleton> (SXMetaVar(name-expr), SXMetaVar(arg)) => sub;
 		<sx-sub-apply> (sub, judg) => concl;
-		<sxbld-analyze-fresh-numbered-name(|"_freshness")> n => rule-name1;
+		<conc-strings> ("_freshness", sort-expr) => rule-name-prefix;
+		<sxbld-analyze-fresh-numbered-name(|rule-name-prefix)> n => rule-name1;
 		<sxbld-analyze-fresh-numbered-name(|rule-name1)> m => rule-name2;
 		!(rule-name2, SXInfRule([premise], rule-name2, concl))
 
