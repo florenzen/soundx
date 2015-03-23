@@ -43,7 +43,7 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/AnalysisFunctions
 		org/sugarj/soundx/Environment
 
-imports org/sugarj/soundx/Debug
+// imports org/sugarj/soundx/Debug
 
 
 strategies
@@ -91,7 +91,7 @@ strategies
 		?rule@SXInfRule(premises, name, concl);
 		// <sx-debug(|"trying to verify as X: ")> rule;
 		<sx-basic-desugar-inf-rule(|current-ext)> rule => des-rule@SXInfRule(des-premises, _, des-concl);
-		<sx-debug(|"desugared rule ")> des-rule;
+		// <sx-debug(|"desugared rule ")> des-rule;
 		<map(!SXDerivAsm(<id>))> premises => asms;
 		<conc> (ext-inf-rules, base-inf-rules) => all-inf-rules;
 		if <sx-dfsbc-build-derivation> (asms, all-inf-rules, des-concl) => deriv then
