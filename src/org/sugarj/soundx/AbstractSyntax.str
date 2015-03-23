@@ -177,23 +177,6 @@ strategies
 	sx-prim-axiom-interface =
 		!SXInfRule([], "=interface()", SXGetInterface(SXMetaVar("x"), SXMetaVar("y")))
 
-	/**
-	 * Axiom schema for SXFreshIn judgement. It is only used in
-	 * desugaring.
-	 *
-	 * @type _ -> SXInfRule
-	 */
-	sx-prim-axiom-notin =
-		!SXInfRule([], "_notin_", SXFreshIn(SXMetaVar("x"), SXMetaVar("y")))
-
-	/**
-	 * Axiom schema for SXContainedIn judgement. It is only used in
-	 * desugaring.
-	 *
-	 * @type _ -> SXInfRule
-	 */
-	sx-prim-axiom-notin =
-		!SXInfRule([], "_in_", SXContainedIn(SXMetaVar("x"), SXMetaVar("y")))
 
 /**
  * Judgements
@@ -201,8 +184,6 @@ strategies
 signature constructors
     SXNeq:          SXExpr * SXExpr -> SXJudgement
     SXGetInterface: SXExpr * SXExpr -> SXJudgement
-    SXFreshIn:      SXExpr * SXExpr -> SXJudgement
-    SXContainedIn:  SXExpr * SXExpr -> SXJudgement
 
 strategies
 	/**
@@ -236,9 +217,7 @@ strategies
 	 */
     sx-is-prim-judgement =
     	sx-is-neq-judgement +
-    	sx-is-get-interface-judgement +
-    	sx-is-fresh-in-judgement +
-    	sx-is-contained-in-judgement
+    	sx-is-get-interface-judgement
 
 	/**
 	 * Checks if aterm is a "Get Interface" judgement
@@ -255,22 +234,6 @@ strategies
 	 */
 	sx-is-neq-judgement =
 		?SXNeq(_, _)
-
-	/**
-	 * Checks if aterm is an SXFreshIn judgement
-	 *
-	 * @type a -> a
-	 */
-	sx-is-fresh-in-judgement =
-		?SXFreshIn(_, _)
-
-	/**
-	 * Checks if aterm is an SXContainedIn judgement
-	 *
-	 * @type a -> a
-	 */
-	sx-is-contained-in-judgement =
-		?SXContainedIn(_, _)
 
 /**
  * Desugarings
@@ -332,39 +295,6 @@ strategies
 		SXDerivInst(_, _, concl) -> concl
 	sx-concl:
 		SXDerivAsm(concl) -> concl
-
-/**
- * Fresh names
- */
-signature constructors
-	SXAtomsUnion:    SXExpr * SXExpr      -> SXExpr
-	SXAtomsEnum:     SXAtomsEnum          -> SXExpr
-	SXAtomsDiff:     SXExpr * SXExpr      -> SXExpr
-	SXAtomsEnumNone:                         SXAtomsEnum
-	SXAtomsEnumOne:  SXExpr * SXAtomsList -> SXAtomsEnum
-	SXAtomsListNil:                          SXAtomsList
-	SXAtomsListCons: SXExpr * SXAtomsList -> SXAtomsList
-	
-strategies
-	/**
-	 * Make a (Stratego) list of atoms from the atom set term constructors.
-	 *
-	 * @type SXExpr -> List(SXExpr)
-	 */
-	sx-atoms:
-		SXAtomsUnion(expr1, expr2) -> <union> (<sx-atoms> expr1, <sx-atoms> expr2)
-	sx-atoms:
-		SXAtomsEnum(enum) -> <sx-atoms> enum
-	sx-atoms:
-		SXAtomsDiff(expr1, expr2) -> <diff> (<sx-atoms> expr1, <sx-atoms> expr2)
-	sx-atoms:
-		SXAtomsEnumNone() -> []
-	sx-atoms:
-		SXAtomsEnumOne(expr, list) -> <union> ([expr], <sx-atoms> list)
-	sx-atoms:
-		SXAtomsListNil() -> []
-	sx-atoms:
-		SXAtomsListCons(expr, list) -> <union> ([expr], <sx-atoms> list)
 
 /**
  * Various

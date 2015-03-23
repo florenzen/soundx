@@ -216,43 +216,6 @@ strategies
 		<is-string> mid;
 		<sx-interface-expr> mid => interface; // Get interface
 		<sx-sub-singleton> (var, interface)
-	sx-bfsbc-solve-prim =
-		// Fresh in judgement
-		?(SXFreshIn(expr1, expr2));
-		<sx-vars> expr2 => [];
-		// <sx-debug(|"befor atoms ")> "";
-		<sx-atoms> expr2 => atom-list;
-		(// metavariable
-		 (!expr1; sx-is-metavar;
-		  // <sx-debug(|"is metavar")> "";
-		  <sx-fresh-atom> atom-list => fresh-atom;
-		  <sx-sub-singleton> (expr1, fresh-atom)
-		 ) <+
-		 // generate fresh atom (argument must be ground)
-		 // (?SXFreshAtom(arg);
-		 //  // <sx-debug(|"fresh atom ")> "";
-		 //  <sx-vars> arg => [];
-		 //  <sx-atoms> arg => arg-atom-list;
-		 //  <subseteq> (atom-list, arg-atom-list);
-		 //  <sx-sub-empty> () => sub-fresh;
-		 //  !SXDerivInst([], "_notin_", judg) => deriv
-		 // ) <+
-		 // concrete atom
-		 (// <sx-debug(|"other (fixed atom)")> "";
-		  <sx-vars> expr1 => [];
-		  // <sx-debug(|"no meta vars")> "";
-		  not(<elem> (expr1, atom-list));
-		  // <sx-debug(|"not elem ")> "";
-		  <sx-sub-empty> ()
-		 ))
-	sx-bfsbc-solve-prim =
-		// Contained in judgement
-		?(SXFreshIn(expr1, expr2));
-		<sx-vars> expr1 => [];
-		<sx-vars> expr2 => [];
-		<sx-atoms> expr2 => atom-list;
-		<elem> (expr1, atom-list);
-		<sx-sub-empty> ()
 
 	/**
 	 * Finds matching inference rules by unification.

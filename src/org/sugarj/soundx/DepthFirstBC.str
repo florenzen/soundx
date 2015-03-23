@@ -109,48 +109,6 @@ strategies
 		<sx-sub-compose> (sub, sub-intf) => sub1;
 		<sx-sub-apply> (sub1, judg) => judg1;
 		!(sub1, [SXDerivInst([], "=interface()", judg1) | derivs])
-	sx-dfsbc-build-derivations-by-prim(|vars-asms) =
-		// fresh in judgement
-		?(asms, inf-rules, [judg@SXFreshIn(expr1, expr2) | judgs]);
-		// <sx-debug(|"fresh in judgement ")> judg;
-		// second argument must be bound to a ground expression
-		// <sx-debug(|"vars ")> (<sx-vars> expr2);
-		<sx-vars> expr2 => [];
-		// <sx-debug(|"befor atoms ")> "";
-		<sx-atoms> expr2 => atom-list;
-		// <sx-debug(|"Atoms list ")> atom-list;
-		(// metavariable
-		 (!expr1; sx-is-metavar;
-		  // <sx-debug(|"is metavar")> "";
-		  <sx-fresh-atom> atom-list => fresh-atom;
-		  <sx-sub-singleton> (expr1, fresh-atom) => sub-fresh;
-		  !SXDerivInst([], "_notin_", SXFreshIn(fresh-atom, expr2)) => deriv
-		 ) <+
-		 (// <sx-debug(|"other (fixed atom)")> "";
-		  <sx-vars> expr1 => [];
-		  // <sx-debug(|"no meta vars")> "";
-		  not(<elem> (expr1, atom-list));
-		  // <sx-debug(|"not elem ")> "";
-		  <sx-sub-empty> () => sub-fresh;
-		  !SXDerivInst([], "_notin_", judg) => deriv
-		  // ;<sx-debug(|"at end ")> ""
-		 ));
-		 <sx-sub-apply> (sub-fresh, judgs) => judgs1;
-		 <sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs1) => (sub, derivs);
-		 <sx-sub-compose> (sub, sub-fresh) => sub1;
-		 !(sub1, [deriv | derivs])
-		 // ;where(<sx-debug(|"at final end")> "")
-	sx-dfsbc-build-derivations-by-prim(|vars-asms) =
-		// contained in judgement
-		?(asms, inf-rules, [judg@SXContainedIn(expr1, expr2) | judgs]);
-		// requires both arguments to be ground
-		<sx-vars> expr1 => [];
-		<sx-vars> expr2 => [];
-		<sx-atoms> expr2 => atom-list;
-		<elem> (expr1, atom-list);
-		!SXDerivInst([], "_in_", judg) => deriv;
-		<sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs) => (sub, derivs);
-		!(sub, [deriv | derivs])
 
 	sx-dfsbc-build-derivations-by-rule(|vars-asms) =
 		?(asms, all-inf-rules, [], goals);
