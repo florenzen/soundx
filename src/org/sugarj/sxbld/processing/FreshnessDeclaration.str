@@ -1,0 +1,239 @@
+/*
+ * Copyright (c) 2015, TU Berlin
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * - Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ * - Redistributions in binary form must reproduce the above
+ *   copyright notice, this list of conditions and the following
+ *   disclaimer in the documentation and/or other materials provided
+ *   with the distribution.
+ * - Neither the name of the TU Berlin nor the names of its
+ *   contributors may be used to endorse or promote products derived
+ *   from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/**
+ * Processing of freshness declarations.
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/sxbld/processing/FreshnessDeclaration
+
+imports org/sugarj/languages/SXBld
+
+imports org/sugarj/sxbld/processing/AnalysisFunctions
+		org/sugarj/sxbld/Environment
+
+imports org/sugarj/soundx/SDF2
+		org/sugarj/soundx/AbstractSyntax
+		org/sugarj/soundx/Substitution
+
+imports org/sugarj/soundx/Debug
+
+
+/**
+ * Register analyses.
+ */
+strategies
+	sxbld-start-analysis = sxbld-analyze-freshness-declaration
+
+/**
+ * Analyses
+ */
+strategies
+	/**
+	 * Stores sort of toplevel declaration in environment
+	 *
+	 * @type String -> String
+	 */
+	sxbld-analyze-freshness-declaration =
+		?decl@SXBldFreshnessDeclaration(lab-atom, sort-atom, lab-expr, sort-expr, judg);
+		where(
+			<sx-debug(|"found this freshness declaration ")> decl;
+			// check that sort-atom is an atom-sort
+			
+			// check that judg has two vars and that lab-atom and lab-expr are
+			// the names of these vars
+			<sx-sdf2-label-to-string> lab-atom => name-atom;
+			<sx-sdf2-label-to-string> lab-expr => name-expr;
+			<map(!SXMetaVar(<id>))> [name-atom, name-expr] => declared-vars;
+			<sx-meta-var-to-sx-metavar> judg => judg1;
+			<sx-vars> judg1 => judg-vars;
+			(<set-eq> (declared-vars, judg-vars) <+
+			 <sxbld-analyze-fail(|"Declared variables and variables in judgement do not match")> decl);
+ 			
+ 			// store freshness condition and name-atom/name-expr in environment
+ 			<sxbld-env-set-freshness-condition> (name-atom, name-expr, judg1);
+ 			<sx-debug(|"Freshness condition ok so far 1")> "";
+ 			
+ 			sxbld-analyze-fresh-max-args => num-args;
+ 			// store grammar elements in environment
+ 			<sxbld-analyze-fresh-function> (sort-atom, sort-expr, num-args) => grm-fresh-fun;
+ 			<sx-debug(|"Freshness condition ok so far 2")> "";
+ 			<sxbld-analyze-fresh-judg> (sort-atom, sort-expr, num-args) => grm-fresh-judg;
+ 			<sx-debug(|"Freshness condition ok so far 3")> "";
+ 			<conc> (grm-fresh-fun, grm-fresh-judg) => grm-fresh;
+ 			<sx-debug(|"Freshness condition ok so far 4")> "";
+ 			<sxbld-env-add-grammar-elems> [grammar-elem(context-free-syntax(grm-fresh))];
+ 			<sx-debug(|"Freshness condition ok so far 5")> "";
+ 			<sx-debug(|"grammar elems for fresh ")> grm-fresh;
+ 			
+ 			// store axioms about fresh function and freshness judgement in environment
+ 			<sxbld-analyze-freshness-inf-rules-fun> (name-atom, name-expr, judg1, num-args) => inf-rules-fun;
+ 			// <sxbld-analyze-freshness-inf-rules-judg> (name-atom, name-expr, judg1, num-args) => inf-rules-judg;
+ 			![] => inf-rules-judg;
+ 			<conc> (inf-rules-fun, inf-rules-judg) => inf-rules;
+ 			
+ 			<map(sxbld-env-add-inference-rule)> inf-rules;
+
+			<sx-debug(|"Freshness condition ok so far")> ""
+		)
+
+	/**
+	 * Generates grammars for the fresh function with up to n arguments.
+	 *
+	 * @type (String, String, Int) -> List(Sdf2Production)
+	 */
+	sxbld-analyze-fresh-function =
+		?(sort-atom, sort-expr, 0);
+		![]
+	sxbld-analyze-fresh-function =
+		?(sort-atom, sort-expr, n);
+		<gt> (n, 0);
+		<sxbld-analyze-fresh-numbered-name(|"SXFreshFun")> n => cons-name;
+		<sxbld-analyze-fresh-arg-list> (n, sort(sort-expr)) => expr-list;
+		<conc> ([lit("fresh"), lit("(")], expr-list, [lit(")")]) => lhs;
+		!prod(lhs, sort(sort-atom),
+			attrs([<sx-sdf2-cons-attribute> cons-name])) => grm;
+		<sxbld-analyze-fresh-function> (sort-atom, sort-expr, <subt> (n, 1)) => grms;
+		![grm|grms]
+
+	/**
+	 * Generates grammars for the freshness judgement with up to n arguments.
+	 *
+	 * @type (String, String, Int) -> List(Sdf2Production)
+	 */
+	sxbld-analyze-fresh-judg =
+		?(sort-atom, sort-expr, 0);
+		![]
+	sxbld-analyze-fresh-judg =
+		?(sort-atom, sort-expr, n);
+		<gt> (n, 0);
+		<sxbld-analyze-fresh-numbered-name(|"SXFreshness")> n => cons-name;
+		<sxbld-analyze-fresh-arg-list> (n, sort(sort-expr)) => expr-list;
+		<conc> ([sort(sort-atom) , lit("="), lit("fresh"), lit("(")], expr-list, [lit(")")]) => lhs;
+		!prod(lhs, sort("SXJudgement"),
+			attrs([<sx-sdf2-cons-attribute> cons-name])) => grm;
+		<sxbld-analyze-fresh-judg> (sort-atom, sort-expr, <subt> (n, 1)) => grms;
+		![grm|grms]
+
+	/**
+	 * Generates the inference rules for the freshness function with
+	 * up to n arguments.
+	 *
+	 * @type (String, String, SXJudgement, Int) -> List(SXInfRule)
+	 */
+	sxbld-analyze-freshness-inf-rules-fun =
+		?(name-atom, name-expr, judg, 0);
+		![]
+	sxbld-analyze-freshness-inf-rules-fun =
+		?(name-atom, name-expr, judg, n);
+		<gt> (n, 0);
+		<sxbld-analyze-freshness-numbered-args> (name-expr, n) => numbered-args;
+		// <sx-debug(|"numbered args ")> numbered-args;
+		<unzip> numbered-args => (_, args);
+		// <sx-debug(|"args ")> (<length> numbered-args);
+		<map(sxbld-analyze-freshness-inf-rule-fun(|args, n, name-atom, name-expr, judg))> numbered-args => inf-rules;
+		<sxbld-analyze-freshness-inf-rules-fun> (name-atom, name-expr, judg, <subt> (n, 1)) => more-inf-rules;
+		<conc> (inf-rules, more-inf-rules)
+
+	/**
+	 * Generates the inference fules for the freshness function
+	 * of exactly n arguments for the m-th argument.
+	 *
+	 * @param args List((Int, String))
+	 * @param n Int
+	 * @param name-atom String
+	 * @param name-expr String
+	 * @param judg SXJudgement
+	 *
+	 * @type (Int, String) -> (String, SXInfRule)
+	 */
+	sxbld-analyze-freshness-inf-rule-fun(|args, n, name-atom, name-expr, judg) =
+		?(m, arg);
+		<sxbld-analyze-fresh-numbered-name(|"SXFreshFun")> n => cons-name;
+		<sx-sub-singleton> (SXMetaVar(name-atom), cons-name#(args)) => sub1;
+		<sx-sub-singleton> (SXMetaVar(name-expr), SXMetaVar(arg)) => sub2;
+		<sx-sub-apply> (sub1, judg) => judg1;
+		<sx-debug(|"judg1 ")> judg1;
+		<sx-sub-apply> (sub2, judg1) => judg2;
+		<sx-debug(|"judg2 ")> judg2;
+		<sxbld-analyze-fresh-numbered-name(|"_fresh")> n => rule-name1;
+		<sxbld-analyze-fresh-numbered-name(|rule-name1)> m => rule-name2;
+		!(rule-name2, SXInfRule([], rule-name2, judg2))
+
+	/**
+	 * Generates an argument list of length n for the given variable name.
+	 * The list contains pairs of argument position and name.
+	 *
+	 * @type (String, Int) -> List((Int, String))
+	 */	
+	sxbld-analyze-freshness-numbered-args =
+		?(name, 0);
+		![]
+	sxbld-analyze-freshness-numbered-args =
+		?(name, n);
+		<gt> (n, 0);
+		<sxbld-analyze-fresh-numbered-name(|name)> n => num-name;
+		<sxbld-analyze-freshness-numbered-args> (name, <subt> (n, 1)) => num-names;
+		![(n, num-name) | num-names]
+
+	/**
+	 * Generates an argument list of length n for sort symbol.
+	 *
+	 * @type (Int, Sdf2Symbol) -> List(Sdf2Symbol)
+	 */
+	sxbld-analyze-fresh-arg-list =
+		?(n, symbol);
+		((!n; ?0; ![]) <+
+		 (!n; ?1; ![symbol]) <+
+		 (!n; <gt> (n, 1);
+		  <sxbld-analyze-fresh-arg-list> (<subt> (n, 1), symbol) => args;
+		  ![symbol, lit(",") | args]))
+
+	/**
+	 * Returns the string <prefix><n>.
+	 *
+	 * @param prefix String
+	 *
+	 * @type Int -> String
+	 */
+	sxbld-analyze-fresh-numbered-name(|prefix) =
+		?n;
+		<int-to-string> n => num;
+		<conc-strings> (prefix, num)
+
+	/**
+	 * Maximum number of arguments for fresh function
+	 * and freshness judgement.
+	 *
+	 * @type _ -> Int
+	 */
+	sxbld-analyze-fresh-max-args = !5
