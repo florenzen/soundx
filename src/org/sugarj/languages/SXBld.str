@@ -54,9 +54,11 @@ signature constructors
 	SXBldToplevelDeclaration:  Sdf2Symbol                    -> ToplevelDeclaration
 	SXBldToplevelDeclarations: Sdf2Symbol                    -> ToplevelDeclaration
 	SXBldInterface:            Sdf2Symbol                    -> ToplevelDeclaration
-	SXBldInterfaceJudgement:   SXBldIntfJudgToplevel * SXBldIntfJudgInterface * SXJudgement -> ToplevelDeclaration
 	SXBldExtensionBegin:       Sdf2Symbol                    -> ToplevelDeclaration
 	SXBldExtensionEnd:         Sdf2Symbol                    -> ToplevelDeclaration
+
+	SXBldInterfaceJudgement:   SXBldIntfJudgToplevel * SXBldIntfJudgInterface * SXJudgement -> ToplevelDeclaration
+	SXBldFreshnessDeclaration: Sdf2Label * Sdf2Sort * Sdf2Label * Sdf2Sort * SXJudgeent     -> ToplevelDeclaration
 
 /**
  * Constructors for the SugarJ compiler

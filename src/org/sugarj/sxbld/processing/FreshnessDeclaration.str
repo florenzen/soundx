@@ -97,8 +97,8 @@ strategies
  			
  			// store axioms about fresh function and freshness judgement in environment
  			<sxbld-analyze-freshness-inf-rules-fun> (name-atom, name-expr, judg1, num-args) => inf-rules-fun;
- 			// <sxbld-analyze-freshness-inf-rules-judg> (name-atom, name-expr, judg1, num-args) => inf-rules-judg;
- 			![] => inf-rules-judg;
+ 			<sxbld-analyze-freshness-inf-rules-judg> (name-atom, name-expr, judg1, num-args) => inf-rules-judg;
+ 			//![] => inf-rules-judg;
  			<conc> (inf-rules-fun, inf-rules-judg) => inf-rules;
  			
  			<map(sxbld-env-add-inference-rule)> inf-rules;
@@ -145,7 +145,7 @@ strategies
 		![grm|grms]
 
 	/**
-	 * Generates the inference rules for the freshness function with
+	 * Generates the inference rules for the fresh function with
 	 * up to n arguments.
 	 *
 	 * @type (String, String, SXJudgement, Int) -> List(SXInfRule)
@@ -165,7 +165,7 @@ strategies
 		<conc> (inf-rules, more-inf-rules)
 
 	/**
-	 * Generates the inference fules for the freshness function
+	 * Generates the inference fules for the fresh function
 	 * of exactly n arguments for the m-th argument.
 	 *
 	 * @param args List((Int, String))
@@ -188,6 +188,48 @@ strategies
 		<sxbld-analyze-fresh-numbered-name(|"_fresh")> n => rule-name1;
 		<sxbld-analyze-fresh-numbered-name(|rule-name1)> m => rule-name2;
 		!(rule-name2, SXInfRule([], rule-name2, judg2))
+
+	/**
+	 * Generates the inference rules for the freshness judgement with
+	 * up to n arguments.
+	 *
+	 * @type (String, String, SXJudgement, Int) -> List(SXInfRule)
+	 */
+	sxbld-analyze-freshness-inf-rules-judg =
+		?(name-atom, name-expr, judg, 0);
+		![]
+	sxbld-analyze-freshness-inf-rules-judg =
+		?(name-atom, name-expr, judg, n);
+		<gt> (n, 0);
+		<sxbld-analyze-freshness-numbered-args> (name-expr, n) => numbered-args;
+		// <sx-debug(|"numbered args ")> numbered-args;
+		<unzip> numbered-args => (_, args);
+		// <sx-debug(|"args ")> (<length> numbered-args);
+		<map(sxbld-analyze-freshness-inf-rule-judg(|args, n, name-atom, name-expr, judg))> numbered-args => inf-rules;
+		<sxbld-analyze-freshness-inf-rules-judg> (name-atom, name-expr, judg, <subt> (n, 1)) => more-inf-rules;
+		<conc> (inf-rules, more-inf-rules)
+
+	/**
+	 * Generates the inference fules for the freshness judgement
+	 * of exactly n arguments for the m-th argument.
+	 *
+	 * @param args List((Int, String))
+	 * @param n Int
+	 * @param name-atom String
+	 * @param name-expr String
+	 * @param judg SXJudgement
+	 *
+	 * @type (Int, String) -> (String, SXInfRule)
+	 */
+	sxbld-analyze-freshness-inf-rule-judg(|args, n, name-atom, name-expr, judg) =
+		?(m, arg);
+		<sxbld-analyze-fresh-numbered-name(|"SXFreshness")> n => cons-name;
+		!cons-name#([SXMetaVar(name-atom) | args]) => premise;
+		<sx-sub-singleton> (SXMetaVar(name-expr), SXMetaVar(arg)) => sub;
+		<sx-sub-apply> (sub, judg) => concl;
+		<sxbld-analyze-fresh-numbered-name(|"_freshness")> n => rule-name1;
+		<sxbld-analyze-fresh-numbered-name(|rule-name1)> m => rule-name2;
+		!(rule-name2, SXInfRule([premise], rule-name2, concl))
 
 	/**
 	 * Generates an argument list of length n for the given variable name.

@@ -111,7 +111,9 @@ strategies
   	    hashtable-put(|"extension-begin", "");
   	    hashtable-put(|"extension-end", "");
   	    hashtable-put(|"extensible-file-ext", "");
-  	    hashtable-put(|"base-file-ext", "")
+  	    hashtable-put(|"base-file-ext", "");
+  	    hashtable-put(|"atom-sorts", []);
+  	    hashtable-put(|"freshness-condition", ())
 
     /**
      * Looks up a key in the environment
@@ -313,6 +315,30 @@ strategies
 	sxbld-env-cons-name-defined =
 		?name;
 		<sxbld-env-get> "cons-names" => names;
+		<elem> (name, names)
+
+/**
+ * Handling of atom sorts.
+ */
+strategies
+	/**
+	 * Adds an atom sort name.
+	 *
+	 * @type String -> SXEnv
+	 */
+	sxbld-env-add-atom-sort =
+		?name;
+		<sxbld-env-get> "atom-sorts" => names;
+		<sxbld-env-set> ("atom-sorts", [name|names])
+
+    /**
+     * Succeeds if an atom sort name is defined.
+     *
+     * @type String -> List(String)
+     */
+	sxbld-env-atom-sort-defined =
+		?name;
+		<sxbld-env-get> "atom-sorts" => names;
 		<elem> (name, names)
 
 /**
@@ -569,6 +595,35 @@ strategies
 	 */
 	sxbld-env-is-namespace-dec-defined =
 		<sxbld-env-get> "namespace-dec"; not(?())
+
+/**
+ * Handling of freshness-condition
+ */
+strategies
+	/**
+	 * Adds a constructor, the namespace identifier position, and SDF2 symbol
+	 *
+	 * @type (String, String, SXJudgement) -> SXEnv
+	 */
+	sxbld-env-set-freshness-condition =
+		?(name-atom, name-expr, judg);
+		<sxbld-env-set> ("freshness-condition", (name-atom, name-expr, judg))
+
+    /**
+     * Gets freshness-condition
+     *
+     * @type _ -> (String, String, SXJudgement)
+     */
+	sxbld-env-get-freshness-condition =
+		<sxbld-env-get> "freshness-condition"
+
+	/**
+	 * Succeeds if freshness-condition is defined
+	 *
+	 * @type _ -> _
+	 */
+	sxbld-env-is-freshness-condition-defined =
+		<sxbld-env-get> "freshness-condition"; not(?())
 
 /**
  * Handling of import-decs

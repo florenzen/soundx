@@ -368,52 +368,64 @@ strategies
     sxbld-analyze-atoms =
     	?(attributes, symbol);
     	if <sx-sdf2-extract-aterm-attribute(|"sx-atoms")> attributes => atoms-attrib then
-    		<sx-sdf2-get-arg-from-aterm-attribute(|1)> atoms-attrib => atom-set-sort;
-    		//<sx-debug(|"Found the following atom set symbol ")> atom-set-symbol;
-    		if !atom-set-sort; ?fun(unquoted(sort-name)); <is-string> sort-name then
-    			<sxbld-prefix-string-base-lang> sort-name => prefixed-sort-name;
-    			![prod([symbol, lit("=/="), symbol], sort("SXJudgement"),
-    	        	attrs([<sx-sdf2-cons-attribute> "SXNeq"]))] => grms-neq;
-    	        ![prod([symbol, lit("notin"), sort(prefixed-sort-name)], sort("SXJudgement"),
-    	        	attrs([<sx-sdf2-cons-attribute> "SXFreshIn"])),
-    	          prod([symbol, lit("in"), sort(prefixed-sort-name)], sort("SXJudgement"),
-    	          	attrs([<sx-sdf2-cons-attribute> "SXContainedIn"]))] => grms-fresh-in;
-    	        // AtomSet "U" AtomSet  -> AtomSet {cons("SXAtomsUnion"), left}
-    	        // "{" SXAtomsEnum "}"  -> AtomSet {cons("SXAtomsEnum")}
-    	        // AtomSet "\\" AtomSet -> AtomSet {cons("SXAtomsDiff"), left}
-    	        // "(" AtomSet ")"      -> AtomSet {bracket}
-    	        //
-    	        //                      -> SXAtomsEnum {cons("SXAtomsEnumNone")}
-    	        // Atom SXAtomsList     -> SXAtomsEnum {cons("SXAtomsEnumOne")}
-    	        //                      -> SXAtomsList {cons("SXAtomsListNil")}
-    	        // "," Atom SXAtomsList -> SXAtomsList {cons("SXAtomsListCons")}
-    	        // TODO: precedences, associativity, parentheses
-    	        !sort(prefixed-sort-name) => atom-set;
-    	        !symbol => atom;
-    	        ![prod([atom-set, lit("U"), atom-set], atom-set,
-    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsUnion", assoc(left())])),
-    	          prod([lit("{"), sort("SXAtomsEnum"), lit("}")], atom-set,
-    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsEnum"])),
-    	          prod([atom-set, lit("\\\\"), atom-set], atom-set,
-    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsDiff", assoc(left())])),
-    	          prod([lit("("), atom-set, lit(")")], atom-set,
-    	          	attrs([bracket()])),
-    	          prod([], sort("SXAtomsEnum"),
-    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsEnumNone"])),
-    	          prod([atom, sort("SXAtomsList")], sort("SXAtomsEnum"),
-    	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsEnumOne"])),
-    	          prod([], sort("SXAtomsList"),
-    	            attrs([<sx-sdf2-cons-attribute> "SXAtomsListNil"])),
-    	          prod([lit(","), atom, sort("SXAtomsList")], sort("SXAtomsList"),
-    	            attrs([<sx-sdf2-cons-attribute> "SXAtomsListCons"]))
-    	         ] => grms-atoms;
-				<conc> (grms-neq, grms-fresh-in, grms-atoms)
+    		if !symbol; ?sort(rhs-name) then
+    			<sx-sdf2-get-arg-from-aterm-attribute(|1)> atoms-attrib => atom-set-sort;
+    			if !atom-set-sort; ?fun(unquoted(sort-name)); <is-string> sort-name then
+    				<sxbld-env-add-atom-sort> rhs-name;
+    				<sxbld-prefix-string-base-lang> sort-name => prefixed-sort-name;
+    				![prod([symbol, lit("=/="), symbol], sort("SXJudgement"),
+    	        		attrs([<sx-sdf2-cons-attribute> "SXNeq"]))]
+    	        else
+    				<sxbld-analyze-fail(|"invalid argument to `sx-atoms'")> atom-set-sort
+    			end
     		else
-    			<sxbld-analyze-fail(|"invalid argument to `sx-atoms'")> atom-set-sort
+    			<sxbld-analyze-fail(|"`sx-atoms' requires a sort as right-hand side")> symbol
     		end
     	else
     		![]
     	end
+    		//<sx-debug(|"Found the following atom set symbol ")> atom-set-symbol;
+    		
+    // 		if !atom-set-sort; ?fun(unquoted(sort-name)); <is-string> sort-name then
+    // 			<sxbld-env-add-atom-sort> rhs-name;
+    // 			<sxbld-prefix-string-base-lang> sort-name => prefixed-sort-name;
+    // 			![prod([symbol, lit("=/="), symbol], sort("SXJudgement"),
+    // 	        	attrs([<sx-sdf2-cons-attribute> "SXNeq"]))] => grms-neq;
+    // 	        ![prod([symbol, lit("notin"), sort(prefixed-sort-name)], sort("SXJudgement"),
+    // 	        	attrs([<sx-sdf2-cons-attribute> "SXFreshIn"])),
+    // 	          prod([symbol, lit("in"), sort(prefixed-sort-name)], sort("SXJudgement"),
+    // 	          	attrs([<sx-sdf2-cons-attribute> "SXContainedIn"]))] => grms-fresh-in;
+    // 	        // AtomSet "U" AtomSet  -> AtomSet {cons("SXAtomsUnion"), left}
+    // 	        // "{" SXAtomsEnum "}"  -> AtomSet {cons("SXAtomsEnum")}
+    // 	        // AtomSet "\\" AtomSet -> AtomSet {cons("SXAtomsDiff"), left}
+    // 	        // "(" AtomSet ")"      -> AtomSet {bracket}
+    // 	        //
+    // 	        //                      -> SXAtomsEnum {cons("SXAtomsEnumNone")}
+    // 	        // Atom SXAtomsList     -> SXAtomsEnum {cons("SXAtomsEnumOne")}
+    // 	        //                      -> SXAtomsList {cons("SXAtomsListNil")}
+    // 	        // "," Atom SXAtomsList -> SXAtomsList {cons("SXAtomsListCons")}
+    // 	        // TODO: precedences, associativity, parentheses
+    // 	        !sort(prefixed-sort-name) => atom-set;
+    // 	        !symbol => atom;
+    // 	        ![prod([atom-set, lit("U"), atom-set], atom-set,
+    // 	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsUnion", assoc(left())])),
+    // 	          prod([lit("{"), sort("SXAtomsEnum"), lit("}")], atom-set,
+    // 	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsEnum"])),
+    // 	          prod([atom-set, lit("\\\\"), atom-set], atom-set,
+    // 	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsDiff", assoc(left())])),
+    // 	          prod([lit("("), atom-set, lit(")")], atom-set,
+    // 	          	attrs([bracket()])),
+    // 	          prod([], sort("SXAtomsEnum"),
+    // 	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsEnumNone"])),
+    // 	          prod([atom, sort("SXAtomsList")], sort("SXAtomsEnum"),
+    // 	        	attrs([<sx-sdf2-cons-attribute> "SXAtomsEnumOne"])),
+    // 	          prod([], sort("SXAtomsList"),
+    // 	            attrs([<sx-sdf2-cons-attribute> "SXAtomsListNil"])),
+    // 	          prod([lit(","), atom, sort("SXAtomsList")], sort("SXAtomsList"),
+    // 	            attrs([<sx-sdf2-cons-attribute> "SXAtomsListCons"]))
+    // 	         ] => grms-atoms;
+				// <conc> (grms-neq, grms-fresh-in, grms-atoms)
+
     	    
     /**
      * Records the module identifier sort and namespace kind if sx-namespace-flat is given

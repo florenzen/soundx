@@ -90,6 +90,8 @@ exports
     "by"          -> SXBldKeyword
     "begin"       -> SXBldKeyword
     "end"         -> SXBldKeyword
+    "fresh"       -> SXBldKeyword
+    "in"          -> SXBldKeyword
 
     [a-zA-Z0-9]+ -> SXBldNONEMPTYSTRING
 
@@ -114,6 +116,11 @@ exports
 
     "extension" "begin" Sdf2Sort -> ToplevelDeclaration {cons("SXBldExtensionBegin")}
     "extension" "end" Sdf2Sort   -> ToplevelDeclaration {cons("SXBldExtensionEnd")}
+
+	%% TODO instead of Sdf2Label we should have metavariables ranging over the sort
+	%% declared after the `:'
+     "fresh" Sdf2Label ":" Sdf2Sort "in" Sdf2Label ":" Sdf2Sort "by" SXJudgement
+       -> ToplevelDeclaration {cons("SXBldFreshnessDeclaration")}
 
   sorts
   	SXBldJudgementForm SXBldJudgementForms

@@ -54,6 +54,7 @@ imports org/sugarj/sxbld/processing/AnalysisFunctions
 		org/sugarj/sxbld/processing/InductiveDefinitions
 		org/sugarj/sxbld/processing/ModuleStructure
 		org/sugarj/sxbld/processing/BaseCompilation
+		org/sugarj/sxbld/processing/FreshnessDeclaration
 
 
 /**
@@ -141,7 +142,8 @@ strategies
 		?SXBldExtensionBegin(_) +
 		?SXBldExtensionEnd(_) +
 		?SXBldExtensibleFileExt(_) +
-		?SXBldBaseFileExt(_)
+		?SXBldBaseFileExt(_) +
+		?SXBldFreshnessDeclaration(_, _ , _, _, _)
 	
 	/**
 	 * Register BLD processing as SugarJ desugarings
