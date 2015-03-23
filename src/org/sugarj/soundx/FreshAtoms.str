@@ -36,34 +36,90 @@
  */
 module org/sugarj/soundx/FreshAtoms
 
-strategies
-	/**
-	 * Generates atom fresh from list of atom starting with prefix.
-	 *
-	 * TODO: make prefix definable in base language definition
-	 *
-	 * @param prefix String
-	 *
-	 * @type List(String) -> String
-	 */
-	sx-fresh-atom =
-		sx-fresh-atom(|"gen", 0)
+imports org/sugarj/soundx/Declarations
+		org/sugarj/soundx/AbstractSyntax
+		org/sugarj/soundx/Substitution
+		org/sugarj/soundx/DepthFirstBC
+		org/sugarj/soundx/AnalysisPhase
 
-	/**
-	 * Generates atom fresh from list of atoms starting with prefix and
-	 * ending with suffix >= n.
-	 *
-	 * @param prefix String
-	 * @param suffix Int
-	 *
-	 * @type List(String) -> String
-	 */
-	sx-fresh-atom(|prefix, n) =
-		?atoms;
-		<int-to-string> n => suffix;
-		<conc-strings> (prefix, suffix) => candidate;
-		if <elem> (candidate, atoms) then
-			<sx-fresh-atom(|prefix, <add> (n, 1))> atoms
+
+strategies
+	sx-fresh-atom-generator =
+		?cons#(args);
+		<string-starts-with(|"SXFreshFun")> cons;
+		<sx-fresh-extract-sort-name> cons => sort-name;
+		sx-freshness-conditions => freshness-conds;
+		<lookup> (sort-name, freshness-conds) => freshness-cond;
+		<sx-fresh-atom> (freshness-cond, args)
+
+	sx-fresh-atom =
+		sx-fresh-atom(|0)
+		
+	sx-fresh-atom(|count) =
+		?(freshness-cond, args);
+		<int-to-string> count => num;
+		<conc-strings> (<sx-fresh-atom-prefix> (), num) => cand;
+		if <sx-fresh-atom-ok(|freshness-cond, args)> cand then
+			!cand
 		else
-			!candidate
+			<sx-fresh-atom(|<add> (count, 1))> (freshness-cond, args)
 		end
+
+	sx-fresh-atom-ok(|freshness-cond, args) =
+		?cand;
+		<map(sx-fresh-atom-ok(|freshness-cond, cand))> args
+			
+	sx-fresh-atom-ok(|freshness-cond, cand) =
+		?arg;
+		!freshness-cond => (atom-name, sort-name, judg);
+		<sx-sub-singleton> (SXMetaVar(atom-name), cand) => sub1;
+		<sx-sub-singleton> (SXMetaVar(sort-name), arg) => sub2;
+		<sx-sub-apply> (sub1, judg) => judg1;
+		<sx-sub-apply> (sub2, judg1) => judg2;
+		<sx-dfsbc-build-derivation> ([], <sx-inference-rules> (), judg2)
+		
+	sx-fresh-inference-rules =
+		sx-inference-rules => inf-rules-base;
+		sx-inference-rules-from-extensions => inf-rules-ext;
+		<conc> (inf-rules-base, inf-rules-ext)
+		
+	sx-fresh-extract-sort-name =
+		?cons;
+		<explode-string> cons => chars;
+		<drop(10)> chars => tail; // drop SXFreshFun
+		<take-until(?'_')> tail => sort-chars;
+		<implode-string> sort-chars => sort-name
+
+	sx-fresh-atom-prefix = !"gen"
+
+
+// 	/**
+// 	 * Generates atom fresh from list of atom starting with prefix.
+// 	 *
+// 	 * TODO: make prefix definable in base language definition
+// 	 *
+// 	 * @param prefix String
+// 	 *
+// 	 * @type List(String) -> String
+// 	 */
+// 	sx-fresh-atom =
+// 		sx-fresh-atom(|"gen", 0)
+// 
+// 	/**
+// 	 * Generates atom fresh from list of atoms starting with prefix and
+// 	 * ending with suffix >= n.
+// 	 *
+// 	 * @param prefix String
+// 	 * @param suffix Int
+// 	 *
+// 	 * @type List(String) -> String
+// 	 */
+// 	sx-fresh-atom(|prefix, n) =
+// 		?atoms;
+// 		<int-to-string> n => suffix;
+// 		<conc-strings> (prefix, suffix) => candidate;
+// 		if <elem> (candidate, atoms) then
+// 			<sx-fresh-atom(|prefix, <add> (n, 1))> atoms
+// 		else
+// 			!candidate
+// 		end

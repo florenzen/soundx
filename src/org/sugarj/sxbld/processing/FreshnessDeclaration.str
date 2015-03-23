@@ -283,7 +283,7 @@ strategies
 	sxbld-analyze-fresh-numbered-name(|prefix) =
 		?n;
 		<int-to-string> n => num;
-		<conc-strings> (prefix, num)
+		<conc-strings> (prefix, "_", num)
 
 	/**
 	 * Maximum number of arguments for fresh function

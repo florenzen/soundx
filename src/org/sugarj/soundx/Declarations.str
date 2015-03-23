@@ -37,6 +37,9 @@
  */
 module org/sugarj/soundx/Declarations
 
+imports org/sugarj/soundx/FreshAtoms
+
+
 /**
  * Declarations defined in the base language
  */
@@ -81,11 +84,14 @@ strategies
 
 	sx-guarded-desugarings = fail
 
-	sx-universal-desugarings = fail
+	sx-universal-desugarings =
+		sx-fresh-atom-generator
 
 	sx-extension-inference-rules = fail
 
 	sx-extension-cons-names = fail
+
+	sx-freshness-conditions = fail
 
 	sx-interface-expr =
 		?mod;
