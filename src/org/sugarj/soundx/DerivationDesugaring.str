@@ -287,7 +287,7 @@ strategies
 	/**
 	 * Succeeds if rule-name is defined in the given list of rules
 	 * and returns that rule. Always returns an axiom scheme for a primitive
-	 * judgement name like =/= or =interface().
+	 * judgement name like `=/=' or `=interface()' or `_SXFreshness<Sort>_<N>'.
 	 *
 	 * @param rules List(SXInfRule)
 	 *
@@ -296,7 +296,8 @@ strategies
 	sx-deriv-desugar-is-rule-defined-in(|inf-rules) =
 		?rule-name;
 		((!rule-name; ?"=interface()"; sx-prim-axiom-interface) <+
-		 (!rule-name; ?"=/="; sx-prim-axiom-neq) <+ 
+		 (!rule-name; ?"=/="; sx-prim-axiom-neq) <+
+		 (!rule-name; string-starts-with(|"_SXFreshness"); <sx-prim-axiom-freshness> rule-name) <+ 
 		 (<collect-one(?SXInfRule(_, rule-name, _))> inf-rules))
 
 	/**

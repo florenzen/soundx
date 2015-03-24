@@ -177,7 +177,35 @@ strategies
 	sx-prim-axiom-interface =
 		!SXInfRule([], "=interface()", SXGetInterface(SXMetaVar("x"), SXMetaVar("y")))
 
-
+	/**
+	 * Axiom schema for freshness judgement. It is only used in
+	 * desugaring. It takes the name of the rule which encodes
+	 * the sort and number of arguments as input.
+	 *
+	 * @type String -> SXInfRule
+	 */
+	sx-prim-axiom-freshness =
+		?name;
+		<string-starts-with(|"_SXFreshness")> name;
+		<explode-string> name => chars;
+		<drop(|12)> chars => tail; // drop "_SXFreshness"
+		<take-until(?'_'); drop(|1)> tail => num-chars; // drop sort name and '_'
+		<implode-string> num-chars => num;
+		<string-to-int> num => count;
+		<range> (1,count) => arg-nums;
+		let map-s = {
+				n, num:
+					?n;
+					<int-to-string> n => num;
+					<conc-strings> ("x", num) => var-name;
+					!SXMetaVar(var-name)
+			}
+		in
+			<map(map-s)> arg-nums => args
+		end;
+		<drop(|1)> name => cons-name;
+		!SXInfRule([], name, cons-name#([SXMetaVar("x") | args]))
+		
 /**
  * Judgements
  */
@@ -235,6 +263,22 @@ strategies
 	sx-is-neq-judgement =
 		?SXNeq(_, _)
 
+	/**
+	 * Checks if ATerm is application of freshness judgement.
+	 * If so, it returns the sort-name and the arguments for
+	 * the freshness condition.
+	 *
+	 * @type a -> (String, List(SXExpr))
+	 */
+	sx-is-freshness-judgement =
+		?cons#(args);
+		<string-starts-with(|"SXFreshness")> cons;
+		<explode-string> cons => chars;
+		<drop(|11)> chars => tail; // drop SXFreshness
+		<take-until(?'_')> tail => sort-chars;
+		<implode-string> sort-chars => sort-name;
+		!(sort-name, args)
+
 /**
  * Desugarings
  */
@@ -246,6 +290,22 @@ strategies
 	sx-is-universal-desugaring =
 		?SXUnivDesug(_, _)
 
+	/**
+	 * Checks if ATerm is application of fresh function.
+	 * If so, it returns the sort-name and the arguments for
+	 * the freshness condition.
+	 *
+	 * @type a -> (String, List(SXExpr))
+	 */
+	sx-is-fresh-fun =
+		?cons#(args);
+		<string-starts-with(|"SXFreshFun")> cons;
+		<explode-string> cons => chars;
+		<drop(|10)> chars => tail; // drop SXFreshFun
+		<take-until(?'_')> tail => sort-chars;
+		<implode-string> sort-chars => sort-name;
+		!(sort-name, args)
+		
 /**
  * Toplevel declaration list
  */

@@ -109,6 +109,28 @@ strategies
 		<sx-sub-compose> (sub, sub-intf) => sub1;
 		<sx-sub-apply> (sub1, judg) => judg1;
 		!(sub1, [SXDerivInst([], "=interface()", judg1) | derivs])
+	sx-dfsbc-build-derivation-by-prim(|vars-asms) = 
+		// freshness judgement
+		?(asms, inf-rules, [judg|judgs]);
+		<sx-is-freshness-judgement> judg => (sort-name, [var|args]);
+		sx-freshness-conditions => freshness-conds;
+		<lookup> (sort-name, freshness-conds) => freshness-cond;
+		if <sx-is-metavar> var then
+			// generate fresh atom
+			<sx-fresh-atom> (freshness-cond, args) => fresh-atom;
+			<sx-sub-singleton> (var, fresh-atom) => sub-fresh
+		else
+			// only check freshness condition
+			<sx-fresh-atom-ok(|freshness-cond, args)> var;
+			<sx-sub-empty> () => sub-fresh
+		end;
+		<sx-sub-apply> (sub-fresh, judgs) => judgs1;
+		<sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs1) => (sub, derivs);
+		<sx-sub-compose> (sub, sub-fresh) => sub1;
+		<sx-sub-apply> (sub1, judg) => judg1;
+		<get-constructor> judg => judg-name;
+		<conc-strings> ("_", judg-name) => rule-name;
+		!(sub1, [SXDerivInst([], rule-name, judg1) | derivs])
 
 	sx-dfsbc-build-derivations-by-rule(|vars-asms) =
 		?(asms, all-inf-rules, [], goals);

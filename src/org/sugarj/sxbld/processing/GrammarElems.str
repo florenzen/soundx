@@ -369,15 +369,15 @@ strategies
     	?(attributes, symbol);
     	if <sx-sdf2-extract-aterm-attribute(|"sx-atoms")> attributes => atoms-attrib then
     		if !symbol; ?sort(rhs-name) then
-    			<sx-sdf2-get-arg-from-aterm-attribute(|1)> atoms-attrib => atom-set-sort;
-    			if !atom-set-sort; ?fun(unquoted(sort-name)); <is-string> sort-name then
+    			// <sx-sdf2-get-arg-from-aterm-attribute(|1)> atoms-attrib => atom-set-sort;
+    			// if !atom-set-sort; ?fun(unquoted(sort-name)); <is-string> sort-name then
     				<sxbld-env-add-atom-sort> rhs-name;
-    				<sxbld-prefix-string-base-lang> sort-name => prefixed-sort-name;
+    				// <sxbld-prefix-string-base-lang> sort-name => prefixed-sort-name;
     				![prod([symbol, lit("=/="), symbol], sort("SXJudgement"),
     	        		attrs([<sx-sdf2-cons-attribute> "SXNeq"]))]
-    	        else
-    				<sxbld-analyze-fail(|"invalid argument to `sx-atoms'")> atom-set-sort
-    			end
+    	        // else
+    			//	<sxbld-analyze-fail(|"invalid argument to `sx-atoms'")> atom-set-sort
+    			// end
     		else
     			<sxbld-analyze-fail(|"`sx-atoms' requires a sort as right-hand side")> symbol
     		end

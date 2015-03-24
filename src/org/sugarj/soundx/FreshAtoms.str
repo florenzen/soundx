@@ -58,9 +58,8 @@ strategies
 	 * @type SXExpr -> SXExpr
 	 */
 	sx-fresh-atom-generator =
-		?cons#(args);
-		<string-starts-with(|"SXFreshFun")> cons;
-		<sx-fresh-extract-sort-name> cons => sort-name;
+		?term;
+		<sx-is-fresh-fun> term => (sort-name, args);
 		sx-freshness-conditions => freshness-conds;
 		<lookup> (sort-name, freshness-conds) => freshness-cond;
 		<sx-fresh-atom> (freshness-cond, args)
@@ -101,7 +100,7 @@ strategies
 	 */
 	sx-fresh-atom-ok(|freshness-cond, args) =
 		?cand;
-		<map(sx-fresh-atom-ok(|freshness-cond, cand))> args
+		<map(sx-fresh-atom-ok1(|freshness-cond, cand))> args
 
 	/**
 	 * Instantiated freshness condition for given argument and tries
@@ -113,7 +112,7 @@ strategies
 	 *
 	 * @type SXExpr -> _
 	 */ 
-	sx-fresh-atom-ok(|freshness-cond, cand) =
+	sx-fresh-atom-ok1(|freshness-cond, cand) =
 		?arg;
 		!freshness-cond => (atom-name, sort-name, judg);
 		<sx-sub-singleton> (SXMetaVar(atom-name), cand) => sub1;
@@ -131,19 +130,6 @@ strategies
 		sx-inference-rules => inf-rules-base;
 		sx-inference-rules-from-extensions => inf-rules-ext;
 		<conc> (inf-rules-base, inf-rules-ext)
-
-	/**
-	 * Extracts the sort name from the SXFreshFun<Sort>_NN
-	 * constructor name.
-	 *
-	 * @type String -> String
-	 */
-	sx-fresh-extract-sort-name =
-		?cons;
-		<explode-string> cons => chars;
-		<drop(|10)> chars => tail; // drop SXFreshFun
-		<take-until(?'_')> tail => sort-chars;
-		<implode-string> sort-chars => sort-name
 
 	/**
 	 * Returns the prefix for the generated atoms.
