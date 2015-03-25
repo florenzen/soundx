@@ -40,8 +40,8 @@ strategies
  	 */
 	sx-is-last-toplevel-decl =
 		// sx-debug(|"calling is last toplevel declaration");
-		prim("SUGARJ_is_last_toplevel_declaration");
-		// sx-debug(|"is last last toplevel decl")
+		prim("SUGARJ_is_last_toplevel_declaration")
+		// ;sx-debug(|"is last last toplevel decl")
 
 	/**
 	 * Removes duplicates from the list.
