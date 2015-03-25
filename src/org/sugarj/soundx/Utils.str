@@ -39,9 +39,9 @@ strategies
  	 * Checks if the current toplevel declaration is the last one
  	 */
 	sx-is-last-toplevel-decl =
-		sx-debug(|"calling is last toplevel declaration");
+		// sx-debug(|"calling is last toplevel declaration");
 		prim("SUGARJ_is_last_toplevel_declaration");
-		sx-debug(|"is last last toplevel decl")
+		// sx-debug(|"is last last toplevel decl")
 
 	/**
 	 * Removes duplicates from the list.

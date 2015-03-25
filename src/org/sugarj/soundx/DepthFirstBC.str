@@ -64,10 +64,10 @@ strategies
 		!(<sx-sub-empty> (), [])
 	sx-dfsbc-build-derivations(|vars-asms) =
 		?(asms, inf-rules, goals@[judg|_]);
-		<sx-debug(|"trying ")> judg;
+		// <sx-debug(|"trying ")> judg;
 		(<sx-dfsbc-build-derivations-by-asm(|vars-asms)> (asms, asms, inf-rules, goals) <+
 		 (<sx-is-prim-judgement> judg;
-		  <sx-debug(|"is prim judgement ")> "";
+		  // <sx-debug(|"is prim judgement ")> "";
 		  <sx-dfsbc-build-derivations-by-prim(|vars-asms)> (asms, inf-rules, goals)) +
 		  <sx-is-ind-def-judgement> judg;
 		  // <sx-debug(|"ind def judg ")> "";
@@ -114,16 +114,16 @@ strategies
 		// freshness judgement
 		?(asms, inf-rules, [judg|judgs]);
 		<sx-is-freshness-judgement> judg => (sort-name, [var|args]);
-		<sx-vars> args => [];
-		<sx-debug(|"is solvable freshness judgement ")> judg;
+		<sx-vars> args => []; // rhs must be ground
+		// <sx-debug(|"is solvable freshness judgement ")> judg;
 		sx-freshness-conditions => freshness-conds;
 		<lookup> (sort-name, freshness-conds) => freshness-cond;
-		<sx-debug(|"freshness cond, sort-name, var, args")> (freshness-cond, sort-name, var, args);
+		// <sx-debug(|"freshness cond, sort-name, var, args")> (freshness-cond, sort-name, var, args);
 		if <sx-is-metavar> var then
 			// generate fresh atom
 			<sx-fresh-atom> (freshness-cond, args) => fresh-atom;
 			
-			<sx-debug(|"generated freshness atom for condition ")> (fresh-atom, freshness-cond, args);
+			// <sx-debug(|"generated freshness atom for condition ")> (fresh-atom, freshness-cond, args);
 			<sx-sub-singleton> (var, fresh-atom) => sub-fresh
 		else
 			// only check freshness condition

@@ -199,12 +199,10 @@ strategies
 				<sx-env-set-interface> interface;
 				<sx-env-set-derivation> result-deriv
 			else
-				!(SXJudgement4(SXCons2(),STLCApp(STLCNat("1"),STLCNat("2")),SXMetaVar("U"))) => testgoal;
-				//<sx-bfsbc-find-errors> (inf-rules, goal) => errors;
-				![] => errors;
-				// <debug(!"ERRORS FROM BFSBC ")> errors;
+				<sx-bfsbc-find-errors> (inf-rules, goal) => errors;
+				// ![] => errors;
+				<debug(!"ERRORS FROM BFSBC ")> errors;
 				<sx-analysis-store-errors> errors;
-				// <sx-analysis-store-error(|"Foo")> head;
 				!"The module contains context errors (error investigation is not yet implemented)" => message;
 				<sx-analysis-fail(|message)> head
 			end
