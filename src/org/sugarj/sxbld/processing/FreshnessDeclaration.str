@@ -102,10 +102,9 @@ strategies
  			!lexical-syntax([prod([lit("fresh")], sort(sort-atom),
  				attrs([reject()]))]) => grm-reject;
  			
- 			<sx-prefix-all-sorts-base-lang> [grammar-elem(context-free-syntax(grm-fresh)),
- 				grammar-elem(grm-reject)] => grm-prefixed;
+ 			![grammar-elem(context-free-syntax(grm-fresh)), grammar-elem(grm-reject)] => grms;
 
- 			<sxbld-env-add-grammar-elems> grm-prefixed;
+ 			<sxbld-env-add-grammar-elems> grms;
  			<sx-debug(|"Freshness condition ok so far 5")> "";
  			<sx-debug(|"grammar elems for fresh ")> grm-fresh;
  			
@@ -137,8 +136,9 @@ strategies
 		<conc> ([lit("fresh"), lit("(")], expr-list, [lit(")")]) => lhs;
 		!prod(lhs, sort(sort-atom),
 			attrs([<sx-sdf2-cons-attribute> cons-name])) => grm;
+		<sx-prefix-all-sorts-base-lang> grm => grm-prefixed;
 		<sxbld-analyze-fresh-function> (sort-atom, sort-expr, <subt> (n, 1)) => grms;
-		![grm|grms]
+		![grm-prefixed|grms]
 
 	/**
 	 * Generates grammars for the freshness judgement with up to n arguments.
@@ -155,7 +155,8 @@ strategies
 		<sxbld-analyze-fresh-numbered-name(|cons-name-prefix)> n => cons-name;
 		<sxbld-analyze-fresh-arg-list> (n, sort(sort-expr)) => expr-list;
 		<conc> ([sort(sort-atom) , lit("="), lit("fresh"), lit("(")], expr-list, [lit(")")]) => lhs;
-		!prod(lhs, sort("SXJudgement"),
+		<sx-prefix-all-sorts-base-lang> lhs => lhs-prefixed;
+		!prod(lhs-prefixed, sort("SXJudgement"),
 			attrs([<sx-sdf2-cons-attribute> cons-name])) => grm;
 		<sxbld-analyze-fresh-judg> (sort-atom, sort-expr, <subt> (n, 1)) => grms;
 		![grm|grms]

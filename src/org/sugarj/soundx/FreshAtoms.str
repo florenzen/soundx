@@ -42,6 +42,7 @@ imports org/sugarj/soundx/Declarations
 		org/sugarj/soundx/DepthFirstBC
 		org/sugarj/soundx/AnalysisPhase
 
+imports org/sugarj/soundx/Debug
 
 strategies
 	/**
@@ -83,7 +84,9 @@ strategies
 		?(freshness-cond, args);
 		<int-to-string> count => num;
 		<conc-strings> (<sx-fresh-atom-prefix> (), num) => cand;
+		<sx-debug(|"candidate ")> cand;
 		if <sx-fresh-atom-ok(|freshness-cond, args)> cand then
+			<sx-debug(|"cand was ok ")> cand;
 			!cand
 		else
 			<sx-fresh-atom(|<add> (count, 1))> (freshness-cond, args)
@@ -119,7 +122,8 @@ strategies
 		<sx-sub-singleton> (SXMetaVar(sort-name), arg) => sub2;
 		<sx-sub-apply> (sub1, judg) => judg1;
 		<sx-sub-apply> (sub2, judg1) => judg2;
-		<sx-dfsbc-build-derivation> ([], <sx-inference-rules> (), judg2)
+		<sx-debug(|"checking frshness condition ")> judg2;
+		<sx-dfsbc-build-derivation> ([], <sx-fresh-inference-rules> (), judg2)
 
 	/**
 	 * Returns all active inference rules.

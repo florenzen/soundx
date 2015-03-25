@@ -40,6 +40,8 @@ imports org/sugarj/soundx/MetaExplode
 
 imports org/sugarj/soundx/Substitution
 
+imports org/sugarj/soundx/Debug
+
 
 /**
  * Metavariables
@@ -244,8 +246,10 @@ strategies
 	 * @type a -> a
 	 */
     sx-is-prim-judgement =
-    	sx-is-neq-judgement +
-    	sx-is-get-interface-judgement
+    	where(
+    		sx-is-neq-judgement +
+    		sx-is-get-interface-judgement +
+    		sx-is-freshness-judgement)
 
 	/**
 	 * Checks if aterm is a "Get Interface" judgement
@@ -273,10 +277,12 @@ strategies
 	sx-is-freshness-judgement =
 		?cons#(args);
 		<string-starts-with(|"SXFreshness")> cons;
+		//<sx-debug(|"is freshness judg ")> "";
 		<explode-string> cons => chars;
 		<drop(|11)> chars => tail; // drop SXFreshness
 		<take-until(?'_')> tail => sort-chars;
 		<implode-string> sort-chars => sort-name;
+		//<sx-debug(|"Sort name " )> sort-name;
 		!(sort-name, args)
 
 /**
