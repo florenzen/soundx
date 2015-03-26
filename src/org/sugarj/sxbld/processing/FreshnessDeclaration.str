@@ -101,8 +101,10 @@ strategies
  			// add reject production for "fresh"
  			!lexical-syntax([prod([lit("fresh")], sort(sort-atom),
  				attrs([reject()]))]) => grm-reject;
+ 			<sx-prefix-all-sorts-base-lang> grm-reject => grm-reject-prefixed;
  			
- 			![grammar-elem(context-free-syntax(grm-fresh)), grammar-elem(grm-reject)] => grms;
+ 			![grammar-elem(context-free-syntax(grm-fresh)),
+ 				grammar-elem(grm-reject-prefixed)] => grms;
 
  			<sxbld-env-add-grammar-elems> grms;
  			<sx-debug(|"Freshness condition ok so far 5")> "";
