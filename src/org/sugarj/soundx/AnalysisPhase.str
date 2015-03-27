@@ -179,7 +179,7 @@ strategies
 		sx-inference-rules => inf-rules-base;
 		sx-inference-rules-from-extensions => inf-rules-extensions;
 		// <map(sx-inf-rule-name); sx-debug(|"inference rules from extensions ")> inf-rules-extensions;
-		<conc> (inf-rules-base, inf-rules-extensions) => inf-rules;
+		<conc> (inf-rules-extensions, inf-rules-base) => inf-rules;
 		// set up the interface judgement
 		sx-interface-judgement => (tlds-pattern, intf-pattern, judg);
 		<sx-vars> tlds-pattern => vars-tlds;
