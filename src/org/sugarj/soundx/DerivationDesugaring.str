@@ -48,7 +48,7 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/PrettyPrint
 		org/sugarj/soundx/FreshAtoms
 
-// imports org/sugarj/soundx/Debug
+imports org/sugarj/soundx/Debug
 
 
 strategies
@@ -93,6 +93,7 @@ strategies
 		  !deriv
 		 ) <+
 		 (?[imp-ext|imp-exts];
+		  <sx-debug(|"Desugar extension ")> imp-ext;
 		  <sx-deriv-desugar-from-imports(|imp-ext, imp-exts)> deriv => deriv-des;
 		  <sx-deriv-desugar-from-imports(|imp-exts)> deriv-des
 		 )
@@ -170,16 +171,17 @@ strategies
 		  if <sx-classify-inf-rule-x(|current-ext, ext-inf-rules, base-inf-rules)> fresh-inf-rule then
 		  	// X rule (this implementes TD-ExtExt)
 		  	<sx-basic-desugar-inf-rule(|current-ext)> fresh-inf-rule => SXInfRule(premises-des, _, concl-des);
-		  	<sx-vars> concl-des => vars-concl-des;
+		  	<sx-vars> fresh-inf-rule => vars-fresh-rule;
 		  	<map(sx-concl)> subderivs => concl-subderivs;
-		  	<sx-unify(|vars-concl-des)> ([concl-fresh|premises-fresh], [concl|concl-subderivs]) => result;
+		  	<sx-unify(|vars-fresh-rule)> ([concl-fresh|premises-fresh], [concl|concl-subderivs]) => result;
 		  	if !result; ?SXUnificationFailure(unif-msg) then
-		  		<sx-desugar-unification-failed-bug> (concl, rule-name, unif-msg)
+		  		<sx-desugar-unification-failed-bug> ("TD", concl, rule-name, unif-msg,
+		  			[concl-fresh|premises-fresh], [concl|concl-subderivs], vars-fresh-rule)
 		  	else
 		  		<sx-sub-apply> (result, concl-des) => concl-des-instantiated;
 		  		// <sx-debug(|"instantiated conclusion before freshening ")> concl-des-instantiated;
 		  		<sx-fresh-atom-replace-all> concl-des-instantiated => concl-des-fresh-atoms;
-		  		<conc> (base-inf-rules, ext-inf-rules) => all-inf-rules;
+		  		<conc> (ext-inf-rules, base-inf-rules) => all-inf-rules;
 		  		if <sx-dfsbc-build-derivation> (subderivs, all-inf-rules, concl-des-fresh-atoms) => deriv-des then
 		  			!deriv-des
 		  		else
@@ -234,7 +236,8 @@ strategies
 			<sx-vars> concl-rule => concl-rule-vars;
 		  	<sx-unify(|concl-rule-vars)> (concl-rule, concl) => result2;
 		  	if !result2; ?SXUnificationFailure(unif-msg) then
-		  		<sx-desugar-unification-failed-bug> (concl, rule-name, unif-msg)
+		  		<sx-desugar-unification-failed-bug> ("BU base", concl, rule-name, unif-msg,
+		  			concl-rule, concl, concl-rule-vars)
 		  	else
 		  		<sx-sub-dom> result2 => dom-sub2;
 		  		<sx-sub-restrict> (result2, <diff> (dom-sub2, premises-rule-vars)) => sub21;
@@ -266,7 +269,8 @@ strategies
 			<sx-vars> concl-fresh => concl-fresh-vars;
 		  	<sx-unify(|concl-fresh-vars)> (concl-fresh, concl) => result2;
 		  	if !result2; ?SXUnificationFailure(unif-msg) then
-		  		<sx-desugar-unification-failed-bug> (concl, rule-name, unif-msg)
+		  		<sx-desugar-unification-failed-bug> ("BU ext", concl, rule-name, unif-msg,
+		  			concl-fresh, concl, concl-fresh-vars)
 		  	else
 		  		<sx-sub-dom> result2 => dom-sub2;
 		  		<sx-sub-restrict> (result2, <diff> (dom-sub2, premises-des-vars)) => sub21;
@@ -321,9 +325,20 @@ strategies
 	 * @type (SXJudgement, String, String) -> _
 	 */
 	sx-desugar-unification-failed-bug =
-		?(concl, rule-name, unif-msg);
-		<conc-strings> ("Unification in failed for rule ", rule-name,
-			"\nThe error message is: ", unif-msg) => bug-msg;
+		?(pass, concl, rule-name, unif-msg, expr1, expr2, vars);
+		<write-to-string> expr1 => expr1-string;
+		<write-to-string> expr2 => expr2-string;
+		<write-to-string> vars => vars-string;
+		<conc-strings> ("Unification failed for rule ", rule-name,
+			" in pass ", pass,
+			"\nTried to unify",
+			"\n  ", expr1-string,
+			"\nand",
+			"\n  ", expr2-string,
+			"\nwith unification variables",
+			"\n  ", vars-string,
+			"\nThe error message is: ",
+			"\n  ", unif-msg) => bug-msg;
 		<sx-locate-source; sx-signal-bug(|bug-msg)> concl
 
 	/** Signals that a derivation cannot be filled in (a bug).
