@@ -163,8 +163,23 @@ strategies
     	<sx-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
     	<sx-prefix-all-sorts(|"Gnd"); sx-prefix-all-sorts-base-lang> symbols => prefixed-ground-symbols;
     	<sx-prefix-all-sorts(|"Gnd"); sx-prefix-all-sorts-base-lang> symbol => prefixed-ground-symbol;
-    	![prod(prefixed-symbols, prefixed-symbol, analyzed-attributes),
+    	<sx-process-desugaring-prod> prefixed-symbol => univ-prod;
+    	![univ-prod,
+    	  prod(prefixed-symbols, prefixed-symbol, analyzed-attributes),
     	  prod(prefixed-ground-symbols, prefixed-ground-symbol, analyzed-attributes)]
+
+	/**
+	 * Generates a production for a universal desugaring
+	 *
+	 * @type Sdf2Symbol -> Sdf2Production
+	 */
+	sx-process-desugaring-prod =
+		// This simple approach generates the production many times for
+		// a single sort blowing up the SDF2 code.
+		?symbol;
+		!prod([lit("{"), symbol, sort("SXDESUGARINGSEP"), symbol, lit("}")],
+			sort("SXDesugaring"),
+			attrs([<sx-sdf2-cons-attribute> "SXUniversalDesugaring"]))
 
     /**
      * Checks attributes of context-free production
