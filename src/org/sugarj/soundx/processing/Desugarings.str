@@ -40,6 +40,8 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Environment
 		org/sugarj/soundx/ExtensionDefinition
 		org/sugarj/soundx/AnalysisFunctions
+		org/sugarj/soundx/Substitution
+		org/sugarj/soundx/Unification
 
 imports org/sugarj/soundx/Debug
 
@@ -82,8 +84,10 @@ strategies
 	 * @type SXDesugaring -> SXEnv
 	 */
 	sx-process-universal-desugaring =
-		?SXUniversalDesugaring(lhs, _, rhs, where-eq);
-		!SXUnivDesug(lhs, rhs) => desugaring;
+		?SXUniversalDesugaring(lhs, _, rhs, where-eqs);
+		<sx-process-where-clauses> where-eqs => sub;
+		<sx-sub-apply> (sub, rhs) => rhs1;
+		!SXUnivDesug(lhs, rhs1) => desugaring;
 		<sx-env-add-desugaring> desugaring
 		// ;<sx-debug(|"added universal desugaring ")> desugaring
 
@@ -107,11 +111,14 @@ strategies
 		<collect-all(sx-is-judgement, conc)> premises => premises-list;
 		<index> (<subt> (len, 1), args) => rhs;
 		<sx-debug(|"rhs is ")> rhs;
-		<index> (len, args) => where-eq;
-		<sx-debug(|"where eq is ")> where-eq;
+		<index> (len, args) => where-eqs;
+		<sx-debug(|"where eq is ")> where-eqs;
+		<sx-process-where-clauses> where-eqs => sub; 
 		<drop(|2); take(|<subt> (len, 5))> args => concl-args;
 		<split-at(|<subt> (index, 1))> concl-args => (exprs-before, [expr-subject|exprs-after]);
-		!SXGuardDesug(premises-list, exprs-before, expr-subject, exprs-after, judg-name, rhs) => desugaring;
+		<sx-sub-apply> (sub, rhs) => rhs1;
+		<sx-debug(|"rhs after applying sub ")> rhs1;
+		!SXGuardDesug(premises-list, exprs-before, expr-subject, exprs-after, judg-name, rhs1) => desugaring;
 		<sx-env-add-desugaring> desugaring
 		// ; <sx-debug(|"added guarded desugaring ")> desugaring
 
@@ -134,3 +141,57 @@ strategies
 		<take-while(is-num); implode-string; string-to-int> chars-no-prefix => index;
 		<drop-while(is-num); implode-string> chars-no-prefix => judg-name;
 		!(index, judg-name)
+
+	/**
+	 * Analyzes where clauses and returns a substitution for the rhs
+	 * of a desugaring or fails if the where clauses are invalid.
+	 *
+	 * @type SXWhereClauses -> SXSub
+	 */
+	sx-process-where-clauses =
+		?SXWhereClauses(where-eqs);
+		<sx-debug(|"clauses ")> where-eqs;
+		<sx-process-where-equations> where-eqs
+
+	/**
+	 * Analyzes a list of where equations and returns a substitution for the rhs
+	 * of a desugaring or fails if the where clauses are invalid.
+	 *
+	 * @type List(SXWhereEquation) -> SXSub
+	 */
+	sx-process-where-equations =
+		?[];
+		<sx-sub-empty> ()
+	sx-process-where-equations =
+		?[eq|eqs];
+		sx-debug(|"11111");
+		// The later where equations are substituted into the earlier
+		// where equations
+		<sx-process-where-equations> eqs => sub;
+		sx-debug(|"22222");
+		<sx-sub-apply> (sub, eq) => eq1;
+		sx-debug(|"33333");
+		<sx-process-where-equation> eq1 => sub1;
+		sx-debug(|"44444");
+		<sx-sub-compose> (sub1, sub)
+		;sx-debug(|"55555")
+
+	/**
+	 * Analyzes a where equation. It returns a substitution
+	 * resulting from matching lhs and rhs or fails if
+	 * mathcing is not possible.
+	 *
+	 * @type SXWhereEquation -> SXSub
+	 */
+	sx-process-where-equation =
+		?eq@SXWhereClause(SXWhereEquation(lhs, rhs));
+		<sx-meta-var-to-sx-metavar> (lhs, rhs) => (lhs1, rhs1);
+		<sx-debug(|"process ")> (lhs1, rhs1);
+		<sx-vars> lhs1 => lhs1-vars;
+		<sx-debug(|"vars ")> lhs1-vars;
+		<sx-unify(|lhs1-vars)> (lhs1, rhs1) => result;
+		if !result; ?SXUnificationFailure(_) then
+			<sx-analysis-fail(|"lhs and rhs do not match structurally")> eq
+		else
+			!result
+		end
