@@ -50,3 +50,7 @@ exports
 		SXDesugarings -> ToplevelDeclaration
 		
 		"desugarings" SXDesugaring+ -> SXDesugarings {cons("SXDesugarings")}
+
+		SXWhereClause* -> SXWhereClauses {cons("SXWhereClauses")}
+
+		"where" SXWhereEquation -> SXWhereClause {cons("SXWhereClause")}

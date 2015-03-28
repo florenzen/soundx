@@ -44,6 +44,10 @@ signature constructors
 	SXInductiveDefinitionsDesugarings: List(SXInductiveDefinitionDesugaring)
 	                                -> ToplevelDeclaration
 
-	SXUniversalDesugaring: SXExpr * SXDESUGARINGSEP * SXExpr -> SXDesugaring
+	SXUniversalDesugaring: SXExpr * SXDESUGARINGSEP * SXExpr * SXWhereClauses -> SXDesugaring
+
+	SXWhereClauses:  List(SXWhereClause) -> SXWhereClauses
+	SXWhereClause:   SXWhereEquation     -> SXWhereClause
+	SXWhereEquation: SXExpr * SXExpr     -> SXWhereEquation
 
 	SXExtensionDecl: List(ExtensionElem) -> SXExtensionDecl

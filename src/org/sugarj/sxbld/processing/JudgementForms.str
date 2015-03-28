@@ -143,7 +143,7 @@ strategies
 		<conc> ( // The entire left-hand side with {, ~~~>, }
 			[lit("{"), sort("SXInfRulePremises"), sort("SXRULESEP")],
 			symbols-concl,
-			[sort("SXDESUGARINGSEP"), subject-symbol, lit("}")]) => lhs-desugaring;
+			[sort("SXDESUGARINGSEP"), subject-symbol, sort("SXWhereClauses"), lit("}")]) => lhs-desugaring;
 		<add> (1, <sx-sdf2-count-subtrees> before-symbols); int-to-string => index;
 		<conc-strings> ("SXGuardedDesugaring", index, judgement-name) => cons-name;
 		![

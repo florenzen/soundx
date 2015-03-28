@@ -164,12 +164,14 @@ strategies
     	<sx-prefix-all-sorts(|"Gnd"); sx-prefix-all-sorts-base-lang> symbols => prefixed-ground-symbols;
     	<sx-prefix-all-sorts(|"Gnd"); sx-prefix-all-sorts-base-lang> symbol => prefixed-ground-symbol;
     	<sx-process-desugaring-prod> prefixed-symbol => univ-prod;
+    	<sx-process-where-equation-prod> prefixed-symbol => where-eq-prod;
     	![univ-prod,
+    	  where-eq-prod,
     	  prod(prefixed-symbols, prefixed-symbol, analyzed-attributes),
     	  prod(prefixed-ground-symbols, prefixed-ground-symbol, analyzed-attributes)]
 
 	/**
-	 * Generates a production for a universal desugaring
+	 * Generates a production for a universal desugaring.
 	 *
 	 * @type Sdf2Symbol -> Sdf2Production
 	 */
@@ -177,9 +179,20 @@ strategies
 		// This simple approach generates the production many times for
 		// a single sort blowing up the SDF2 code.
 		?symbol;
-		!prod([lit("{"), symbol, sort("SXDESUGARINGSEP"), symbol, lit("}")],
+		!prod([lit("{"), symbol, sort("SXDESUGARINGSEP"), symbol, sort("SXWhereClauses"), lit("}")],
 			sort("SXDesugaring"),
 			attrs([<sx-sdf2-cons-attribute> "SXUniversalDesugaring"]))
+
+	/**
+	 * Generates a production for a where clause.
+	 *
+	 * @type Sdf2Symbol -> Sdf2Production
+	 */
+	sx-process-where-equation-prod =
+		?symbol;
+		!prod([symbol, lit("="), symbol],
+			sort("SXWhereEquation"),
+			attrs([<sx-sdf2-cons-attribute> "SXWhereEquation"]))
 
     /**
      * Checks attributes of context-free production

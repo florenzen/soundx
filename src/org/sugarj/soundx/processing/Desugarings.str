@@ -41,7 +41,7 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/ExtensionDefinition
 		org/sugarj/soundx/AnalysisFunctions
 
-// imports org/sugarj/soundx/Debug
+imports org/sugarj/soundx/Debug
 
 
 strategies
@@ -82,7 +82,7 @@ strategies
 	 * @type SXDesugaring -> SXEnv
 	 */
 	sx-process-universal-desugaring =
-		?SXUniversalDesugaring(lhs, _, rhs);
+		?SXUniversalDesugaring(lhs, _, rhs, where-eq);
 		!SXUnivDesug(lhs, rhs) => desugaring;
 		<sx-env-add-desugaring> desugaring
 		// ;<sx-debug(|"added universal desugaring ")> desugaring
@@ -99,13 +99,17 @@ strategies
 	 * @type SXDesugaring -> SXEnv
 	 */
 	sx-process-guarded-desugaring =
-		?con#(args);
+		?gd@con#(args);
+		<sx-debug(|"processing the following g. d. ")> gd;
 		<sx-process-split-guarded-des-cons> con => (index, judg-name);
 		<length> args => len;
 		<index> (1, args) => premises;
 		<collect-all(sx-is-judgement, conc)> premises => premises-list;
-		<index> (len, args) => rhs;
-		<drop(|2); take(|<subt> (len, 4))> args => concl-args;
+		<index> (<subt> (len, 1), args) => rhs;
+		<sx-debug(|"rhs is ")> rhs;
+		<index> (len, args) => where-eq;
+		<sx-debug(|"where eq is ")> where-eq;
+		<drop(|2); take(|<subt> (len, 5))> args => concl-args;
 		<split-at(|<subt> (index, 1))> concl-args => (exprs-before, [expr-subject|exprs-after]);
 		!SXGuardDesug(premises-list, exprs-before, expr-subject, exprs-after, judg-name, rhs) => desugaring;
 		<sx-env-add-desugaring> desugaring
