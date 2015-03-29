@@ -60,6 +60,14 @@ strategies
     	topdown(try(\meta-var(name) -> SXMetaVar(name)\))
 
 	/**
+	 * Translates SXMetaVar to meta-var.
+	 *
+	 * @type a -> a
+	 */
+    sx-metavar-to-meta-var =
+    	topdown(try(\SXMetaVar(name) -> meta-var(name)\))
+
+	/**
 	 * Checks if term is a metavariable
 	 *
 	 * @type a -> a
