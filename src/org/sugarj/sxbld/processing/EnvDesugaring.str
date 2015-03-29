@@ -37,11 +37,12 @@
 module org/sugarj/sxbld/processing/EnvDesugaring
 
 imports org/sugarj/soundx/SDF2
+		org/sugarj/soundx/MetaExplode
+		org/sugarj/soundx/PrettyPrint
 
 imports org/sugarj/sxbld/Environment
 
-imports org/sugarj/soundx/MetaExplode
-        org/sugarj/sxbld/processing/SortPrefixing
+imports org/sugarj/sxbld/processing/SortPrefixing
 
 imports org/sugarj/languages/SXBld
 
@@ -56,7 +57,6 @@ strategies
   	    sxbld-env-make-extensible-file-ext => trans-ext-file-ext;
   	    sxbld-env-make-base-file-ext => trans-base-file-ext;
   	    sxbld-env-make-toplevel-decs => grm-elems-toplevel-decs;
-  	    sxbld-env-make-toplevel-declaration => grm-elems-toplevel-declaration;
   	    sxbld-env-make-intf-judg => grm-elems-intf-judg;
   	    sxbld-env-make-get-intf-judg => grm-elems-get-intf-judg;
   	    sxbld-env-make-toplevel-dec-body => extension-elems-body-dec;
@@ -68,17 +68,25 @@ strategies
 	      sxbld-env-get-interface-judgement => intf-judg;
 	      sxbld-env-decls-to-stratego(|intf-judg, "interface-judgement")
 	     ) <+ ![]) => trans-intf-judg;
+	    sxbld-env-make-toplevel-declaration => trans-toplevel-declaration;
 	    <sxbld-env-get> "cons-names" => cons-names;
 	    sxbld-env-decls-to-stratego(|cons-names, "cons-names") => trans-cons-names;
 	    <sxbld-env-get; hashtable-values> "inference-rules" => inf-rules;
 	    sxbld-env-decls-to-stratego(|inf-rules, "inference-rules") => trans-infrules;
 	    <sxbld-env-get; hashtable-getlist> "freshness-conditions" => freshness-conditions;
 	    sxbld-env-decls-to-stratego(|freshness-conditions, "freshness-conditions") => trans-freshness;
-	    <conc> (trans-intf-judg, trans-cons-names, trans-infrules, trans-freshness,
-	            trans-base-file-ext, trans-ext-file-ext) => transformation-elems;
 	    <conc> (grm-elems-plain, grm-elems-toplevel-decs, grm-elems-intf-judg,
-	    	grm-elems-get-intf-judg, grm-elems-toplevel-declaration,
-	    	grm-elems-delims) => grammar-elems;
+	    	grm-elems-get-intf-judg, grm-elems-delims) => grammar-elems;
+	    // safe the entire SDF2 stuff in the Stratego file to generate a pretty printer
+	    // for the analysis
+	    <map(?grammar-elem(<id>))> grammar-elems => sdf2-defs;
+	    <sx-grammars-to-pp-table> sdf2-defs => pp-table;
+	    sxbld-env-decls-to-stratego(|pp-table, "pp-table") => trans-pp-table;
+	    <conc> (trans-pp-table, 
+	    		trans-toplevel-declaration,
+	    		trans-intf-judg, trans-cons-names,
+	    		trans-infrules, trans-freshness,
+	            trans-base-file-ext, trans-ext-file-ext) => transformation-elems;
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems,
   	    	extension-elems-body-dec, extension-elems-namespace-dec,
   	    	extension-elems-import-dec, extension-elems-base-lang-name))
@@ -117,7 +125,7 @@ strategies
 		<conc> (grm-begin, grm-end)
 
     /**
-     * Saves toplevel-declaration in Stratego file
+     * Saves toplevel-declaration in Stratego file.
      *
      * We cannot write it directly to SDF since this would allow
      * base language toplevel input in the base language definition itself.

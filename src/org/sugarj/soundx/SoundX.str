@@ -47,3 +47,5 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/ExtensionDefinition
 		org/sugarj/soundx/AnalysisPhase
 		org/sugarj/soundx/DesugaringPhase
+		org/sugarj/soundx/PPTable
+

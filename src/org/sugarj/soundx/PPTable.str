@@ -29,56 +29,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-module org/sugarj/soundx/Utils
+/**
+ * Signature of pretty printer tables.
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/soundx/PPTable
 
-imports org/sugarj/soundx/Debug
-
-
-strategies
-	/**
- 	 * Checks if the current toplevel declaration is the last one.
- 	 *
- 	 * @type _ -> _
- 	 */
-	sx-is-last-toplevel-decl =
-		// sx-debug(|"calling is last toplevel declaration");
-		prim("SUGARJ_is_last_toplevel_declaration")
-		// ;sx-debug(|"is last last toplevel decl")
-
-	/**
-	 * Calls the pretty printer.
-	 *
-	 * @param tbl PPTable
-	 *
-	 * @type a -> String
-	 */
-	sx-pretty-print(|tbl) =
-		prim("SUGARJ_pretty_print", | tbl)
-
-	/**
-	 * Generates a pretty printer table from an SDF2 module.
-	 *
-	 * @type Sdf2Module -> PPTable
-	 */
-	sx-generate-pp-table =
-		prim("SUGARJ_generate_pp_table")
-
-	/**
-	 * Removes duplicates from the list.
-	 *
-	 * It keeps the last occurence of a specific element.
-	 *
-	 * @type List(a) -> List(a)
-	 */
-	sx-nub:
-		[] -> []
-	sx-nub:
-		[x|xs] -> [x|xs1]
-		where
-			<not(elem)> (x, xs);
-			<sx-nub> xs => xs1
-	sx-nub:
-		[x|xs] -> xs1
-		where
-			<elem> (x, xs);
-			<sx-nub> xs => xs1
+signature constructors
+	PP-Table: List(PP-Entry)            -> PP-Table
+	PP-Entry: Path * List(BOX)          -> PP-Entry
+	Path1:    ConsName                  -> Path
+	Path:     ConsName * List(Selector) -> Path
+	selector: NatCon * UQLiteral        -> Selector
+	Arg:      NatCon                    -> BOX
+	Arg2:     NatCon * NatCon           -> BOX
+	FBOX:     FONT-OPERATOR * BOX       -> BOX
+	KW:                                    FONT-OPERATOR
+	S:        BoxLiteral                -> BOX

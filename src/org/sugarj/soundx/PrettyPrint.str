@@ -36,6 +36,9 @@
  */
 module org/sugarj/soundx/PrettyPrint
 
+imports org/sugarj/soundx/Utils
+
+imports org/sugarj/soundx/Debug
 // TODO integrate the box pretty printer here
 
 strategies
@@ -111,3 +114,15 @@ strategies
 	 */
 	sx-pretty-print-term =
 		write-to-string
+
+	/**
+	 * Converts a list of Grammars to a pretty printer table.
+	 *
+	 * @type List(Sdf2Grammar) -> PPTable
+	 */
+	sx-grammars-to-pp-table =
+		?grms;
+		((<sx-generate-pp-table> grms => pptable;
+		  <sx-debug(|"PP Table ")> pptable)
+		 <+ <sx-debug(|"Gen PP Table failed")> ())
+		

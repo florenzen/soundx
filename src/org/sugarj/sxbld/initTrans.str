@@ -41,3 +41,5 @@ imports org/sugarj/stdlib/StdTrans
 imports org/sugarj/languages/SXBld
 
 imports org/sugarj/sxbld/Processing
+
+imports org/sugarj/soundx/PPTable
