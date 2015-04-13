@@ -75,10 +75,26 @@ strategies
 	  */
 	sx-bfsbc-remove-spurious-errors =
 		?errors;
-		//<sx-debug(|"errors before pruning ")> errors;
-		<sx-bfsbc-filter-errors> errors => filtered-errors;
-		//<sx-debug(|"errors after filtering ")> filtered-errors;
-		<map(?SXBfsbcError(_, <id>))> filtered-errors
+		<partition(?SXBfsbcGoalMarker(<id>))> errors => (goals, errs);
+		//<sx-debug(|"marked goals ")> goals;
+		
+		<filter(where({judgs:
+			?SXBfsbcError(judgs, _);
+			<isect> (judgs, goals) => []}))> errs => filtered-errs;
+		
+		<map(write-to-string)> errors => err-str;
+		<map(\err -> <conc-strings> (err, "\n")\)> err-str => error-lines;
+		<concat-strings> error-lines => all-errors;
+		//<sx-debug(|"errors before pruning\n")> all-errors;
+		
+		// <sx-bfsbc-filter-errors> errors => filtered-errors;
+		
+		<map(write-to-string)> filtered-errs => ferr-str;
+		<map(\err -> <conc-strings> (err, "\n")\)> ferr-str => ferror-lines;
+		<concat-strings> ferror-lines => fall-errors;
+		//<sx-debug(|"errors after filtering \n")> fall-errors;
+		
+		<map(?SXBfsbcError(_, <id>))> filtered-errs
 
 	/**
 	 * Deletes the errors caused by goals which could later be derived.
