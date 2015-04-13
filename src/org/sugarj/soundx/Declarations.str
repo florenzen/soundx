@@ -94,6 +94,8 @@ strategies
 
 	sx-error-annotations = fail
 
+	sx-extension-pp-table = fail
+
 	sx-interface-expr =
 		?mod;
 		<sx-interface> mod => (expr, _);

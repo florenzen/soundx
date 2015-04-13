@@ -44,6 +44,7 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Environment
 		org/sugarj/soundx/MetaExplode
 		org/sugarj/soundx/ExtensionDefinition
+		org/sugarj/soundx/PrettyPrint
 
 imports org/sugarj/soundx/Debug
 
@@ -72,6 +73,10 @@ strategies
 	    sx-env-module-decls-to-stratego(|inf-rules, "extension-inference-rules") => trans-infrules;
 	    // extract all the SDF2 sections
 	    sx-env-get-grammar-elems => grammar-elems;
+	    // generate a PP table for the extension
+	    <map(?grammar-elem(<id>))> grammar-elems => sdf2-defs;
+	    <sx-grammars-to-pp-table> sdf2-defs => pp-table;
+	    <sx-env-module-decls-to-stratego(|pp-table, "extension-pp-table")> pp-table => trans-pp-table;
 	    // Since the SoundX desugaring is hooked into the strategy internal-main
 	    // instead of desugaring gen-signature has to be called manually here
 	    (<gen-signature> grammar-elems <+ ![]) => trans-signatures;
@@ -81,7 +86,7 @@ strategies
 		sx-env-get-cons-names => cons-names;
 		sx-env-module-decls-to-stratego(|cons-names, "extension-cons-names") => trans-cons-names;
 	    // concatenate everything into one list
-	    <conc> (trans-signatures, trans-infrules,
+	    <conc> (trans-signatures, trans-infrules, trans-pp-table,
 	    	trans-desugarings, trans-interface, trans-cons-names)
 		
 	/**
