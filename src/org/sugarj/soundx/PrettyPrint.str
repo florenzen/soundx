@@ -43,7 +43,7 @@ imports org/sugarj/soundx/Utils
 		org/sugarj/soundx/PPTable
 
 imports org/sugarj/soundx/Debug
-// TODO integrate the box pretty printer here
+
 
 strategies
 	/**
@@ -119,7 +119,7 @@ strategies
 	 */
 	sx-pretty-print-term =
 		?expr;
-		<sx-debug(|"expr ")> expr;
+		// <sx-debug(|"expr ")> expr;
 		sx-get-pp-table => tbl;
 		// <sx-debug(|"pp table ")> tbl;
 		<bottomup(try(\SXMetaVarGen(name, _) -> SXMetaVar(name)\))> expr => expr1;
