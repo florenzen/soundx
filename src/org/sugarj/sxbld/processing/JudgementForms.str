@@ -73,7 +73,7 @@ strategies
 	 * @type SXBldJudgementForm -> List(Sdf2Productions)
 	 */
 	sxbld-analyze-judgement-form =
-		?SXBldJudgementForm(symbols);
+		?SXBldJudgementForm(symbols, error-ann);
 		<sxbld-env-fresh-judgement-name> () => judgement-name;
 		<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
 		<sxbld-analyze-judgement-prod(|judgement-name)> prefixed-symbols => judg-prod;

@@ -67,7 +67,7 @@ exports
     LAYOUT? -/- [\/] . [\*]
 
   sorts
-  	SXBldNAME SXBldKeyword SXBldNONEMPTYSTRING
+  	SXBldNAME SXBldKeyword SXBldNONEMPTYSTRING SXBldQUOTEDSTRING
 
   lexical syntax
   	[a-zA-Z][a-zA-Z0-9]* -> SXBldNAME
@@ -92,8 +92,15 @@ exports
     "end"         -> SXBldKeyword
     "fresh"       -> SXBldKeyword
     "in"          -> SXBldKeyword
+    "error"       -> SXBldKeyword
+    "message"     -> SXBldKeyword
+    "location"    -> SXBldKeyword
 
     [a-zA-Z0-9]+ -> SXBldNONEMPTYSTRING
+    
+    ~[\"\n\r]                  -> SXBldSTRINGCHAR
+    [\\][\"]                   -> SXBldSTRINGCHAR
+    "\"" SXBldSTRINGCHAR* "\"" -> SXBldQUOTEDSTRING
 
   sorts
   	SXJudgement SXBldIntfJudgToplevel SXBldIntfJudgInterface
@@ -132,8 +139,11 @@ exports
   context-free syntax
   	"judgement" "forms" SXBldJudgementForm+ -> ToplevelDeclaration {cons("SXBldJudgementForms")}
   	
-  	"{" Sdf2Symbols "}" -> SXBldJudgementForm {cons("SXBldJudgementForm")}
-  	
+  	"{" Sdf2Symbols SXBldErrorAnnotation? "}" -> SXBldJudgementForm {cons("SXBldJudgementForm")}
+
+  	"error" "message" SXBldQUOTEDSTRING "location" Sdf2Label
+  	  -> SXBldErrorAnnotation {cons("SXBldErrorAnnotation")}
+
   context-free syntax
   	SXInductiveDefinitions -> ToplevelDeclaration
     

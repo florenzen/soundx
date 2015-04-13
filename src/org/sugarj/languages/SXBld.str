@@ -45,17 +45,18 @@ imports org/sugarj/soundx/InductiveDefinitions
  * Constructors of the concrete input
  */
 signature constructors
-	SXBldHeader:               SXBldNAME                     -> SXBldHeader	
-	SXBldExtensibleFileExt:    SXBldNONEMPTYSTRING           -> SXBldExtensibleFileExt
-	SXBldBaseFileExt:          SXBldNONEMPTYSTRING           -> SXBldBaseFileExt
-    SXBldJudgementForms:       List(SXBldJudgementForms)     -> SXBldJudgemenForms
-    SXBldJudgementForm:        Symbols                       -> SXBldJudgementForm
-    SXBldGrammarElems:         List(Grammar)                 -> ToplevelDeclaration
-	SXBldToplevelDeclaration:  Sdf2Symbol                    -> ToplevelDeclaration
-	SXBldToplevelDeclarations: Sdf2Symbol                    -> ToplevelDeclaration
-	SXBldInterface:            Sdf2Symbol                    -> ToplevelDeclaration
-	SXBldExtensionBegin:       Sdf2Symbol                    -> ToplevelDeclaration
-	SXBldExtensionEnd:         Sdf2Symbol                    -> ToplevelDeclaration
+	SXBldHeader:               SXBldNAME                              -> SXBldHeader	
+	SXBldExtensibleFileExt:    SXBldNONEMPTYSTRING                    -> SXBldExtensibleFileExt
+	SXBldBaseFileExt:          SXBldNONEMPTYSTRING                    -> SXBldBaseFileExt
+    SXBldJudgementForms:       List(SXBldJudgementForms)              -> SXBldJudgemenForms
+    SXBldJudgementForm:        Symbols * Option(SXBldErrorAnnotation) -> SXBldJudgementForm
+    SXBldErrorAnnotation:      SXBldQUOTEDSTRING * Sdf2Label          -> SXBldErrorAnnotation
+    SXBldGrammarElems:         List(Grammar)                          -> ToplevelDeclaration
+	SXBldToplevelDeclaration:  Sdf2Symbol                             -> ToplevelDeclaration
+	SXBldToplevelDeclarations: Sdf2Symbol                             -> ToplevelDeclaration
+	SXBldInterface:            Sdf2Symbol                             -> ToplevelDeclaration
+	SXBldExtensionBegin:       Sdf2Symbol                             -> ToplevelDeclaration
+	SXBldExtensionEnd:         Sdf2Symbol                             -> ToplevelDeclaration
 
 	SXBldInterfaceJudgement:   SXBldIntfJudgToplevel * SXBldIntfJudgInterface * SXJudgement -> ToplevelDeclaration
 	SXBldFreshnessDeclaration: Sdf2Label * Sdf2Sort * Sdf2Label * Sdf2Sort * SXJudgeent     -> ToplevelDeclaration
