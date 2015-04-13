@@ -38,6 +38,9 @@ module org/sugarj/soundx/PrettyPrint
 
 imports org/sugarj/soundx/Utils
 		org/sugarj/soundx/AbstractSyntax
+		org/sugarj/soundx/Environment
+		org/sugarj/soundx/Declarations
+		org/sugarj/soundx/PPTable
 
 imports org/sugarj/soundx/Debug
 // TODO integrate the box pretty printer here
@@ -116,17 +119,70 @@ strategies
 	 */
 	sx-pretty-print-term =
 		?expr;
+		<sx-debug(|"expr ")> expr;
+		sx-get-pp-table => tbl;
+		// <sx-debug(|"pp table ")> tbl;
 		<bottomup(try(\SXMetaVarGen(name, _) -> SXMetaVar(name)\))> expr => expr1;
-		<write-to-string> expr1
+		(<sx-pretty-print(|tbl)> expr1 <+ 
+		 <write-to-string> expr1)
 
 	/**
 	 * Converts a list of Grammars to a pretty printer table.
 	 *
-	 * @type List(Sdf2Grammar) -> PPTable
+	 * @type List(Sdf2Grammar) -> PP-Table
 	 */
 	sx-grammars-to-pp-table =
 		?grms;
-		((<sx-generate-pp-table> grms => pptable;
-		  <sx-debug(|"PP Table ")> pptable)
+		((<sx-generate-pp-table> grms => pptable
+		  // ;<sx-debug(|"PP Table ")> pptable
+		  )
 		 <+ <sx-debug(|"Gen PP Table failed")> ())
-		
+	
+	/**
+	 * Returns the current PP table from the environment. It is
+	 * loaded from the Stratego files if necessary.
+	 *
+	 * @type _ -> PP-Table
+	 */	
+	sx-get-pp-table =
+		if sx-env-is-pp-table-defined then
+			sx-env-get-pp-table
+		else
+			sx-load-pp-table;
+			sx-env-get-pp-table
+		end
+
+	/**
+	 * Loads the PP table from the base language and all imported extensions
+	 * into the environment.
+	 * 
+	 * @type _ -> SXEnv
+	 */
+	sx-load-pp-table =
+		sx-pp-table => PP-Table(entries);
+		let map-s = {
+				module-name, mod-entries:
+					?module-name;
+					if <sx-extension-pp-table> module-name => PP-Table(mod-entries) then
+						!mod-entries
+					else
+						![]
+					end
+			}
+		in
+			sx-env-get-imports => imports;
+			<map(map-s); concat> imports => entries-exts;
+			sx-pp-entries-metavars => entries-mv;
+			<conc> (entries, entries-mv, entries-exts) => all-entries;
+			!PP-Table(all-entries) => pp-table;
+			<sx-env-set-pp-table> pp-table
+		end
+
+	/**
+	 * Returns the PP entries for meta-variables.
+	 *
+	 * @type _ -> List(PP-Entry)
+	 */
+	sx-pp-entries-metavars =
+		![PP-Entry(Path1("SXMetaVar"), [Arg("1")]),
+		 PP-Entry(Path1("SXMetaVarGen"), [Arg("1")])]

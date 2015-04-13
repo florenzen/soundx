@@ -89,7 +89,8 @@ strategies
   	    hashtable-put(|"name-counter", 0);
   	    hashtable-put(|"interface", SXFalse());
   	    hashtable-put(|"re-exports", SXFalse());
-  	    hashtable-put(|"derivation", SXFalse())
+  	    hashtable-put(|"derivation", SXFalse());
+  	    hashtable-put(|"pp-table", SXFalse())
 
     /**
      * Looks up a key in the environment
@@ -169,6 +170,35 @@ strategies
 	 */
 	sx-env-is-derivation-defined =
 		sx-env-get-derivation; not(?SXFalse())
+
+/**
+ * Handling of pp-table
+ */
+strategies
+	/**
+	 * Gets pp-table
+	 *
+	 * @type _ -> SXExpr
+	 */
+	sx-env-get-pp-table =
+		<sx-env-get> "pp-table"
+
+	/**
+	 * Sets pp-table
+	 *
+	 * @type SXExpr -> SXEnv
+	 */
+	sx-env-set-pp-table =
+		?pp-table;
+		<sx-env-set> ("pp-table", pp-table)
+
+	/**
+	 * Succeeds if pp-table has been set
+	 *
+	 * @type _ -> _
+	 */
+	sx-env-is-pp-table-defined =
+		sx-env-get-pp-table; not(?SXFalse())
 
 /**
  * Handling of interface
