@@ -54,7 +54,7 @@ imports org/sugarj/soundx/AbstractSyntax
 
 imports org/sugarj/soundx/Debug
 
-// TODO why BFS?
+// TODO why BFS? DFS would also work.
 // TODO: could we drop a non-derivable judgement and continue and find more error w/o diverging?
 
 strategies
@@ -69,7 +69,8 @@ strategies
 		<sx-bfsbc-remove-spurious-errors> errors
 
 	/**
-	  * Removes spurious errors using the goal markers in the list.
+	  * Removes spurious errors using the goal markers in the list and
+	  * removes duplicates.
 	  *
 	  * @type List(SXBfsbcError) -> List((SXExpr, String))
 	  */
@@ -81,54 +82,54 @@ strategies
 		<filter(where({judgs:
 			?SXBfsbcError(judgs, _);
 			<isect> (judgs, goals) => []}))> errs => filtered-errs;
-		
-		<map(write-to-string)> errors => err-str;
-		<map(\err -> <conc-strings> (err, "\n")\)> err-str => error-lines;
-		<concat-strings> error-lines => all-errors;
+
+		//<map(write-to-string)> errors => err-str;
+		//<map(\err -> <conc-strings> (err, "\n")\)> err-str => error-lines;
+		//<concat-strings> error-lines => all-errors;
 		//<sx-debug(|"errors before pruning\n")> all-errors;
 		
 		// <sx-bfsbc-filter-errors> errors => filtered-errors;
 		
-		<map(write-to-string)> filtered-errs => ferr-str;
-		<map(\err -> <conc-strings> (err, "\n")\)> ferr-str => ferror-lines;
-		<concat-strings> ferror-lines => fall-errors;
+		//<map(write-to-string)> filtered-errs => ferr-str;
+		//<map(\err -> <conc-strings> (err, "\n")\)> ferr-str => ferror-lines;
+		//<concat-strings> ferror-lines => fall-errors;
 		//<sx-debug(|"errors after filtering \n")> fall-errors;
 		
-		<map(?SXBfsbcError(_, <id>))> filtered-errs
+		<map(?SXBfsbcError(_, <id>)); nub> filtered-errs
 
 	/**
 	 * Deletes the errors caused by goals which could later be derived.
 	 *
 	 * @type List(SXBfsbcError) -> List(SXBfsbcError)
 	 */
-	sx-bfsbc-filter-errors =
-		// Finished
-		?[];
-		![]
-	sx-bfsbc-filter-errors =
-		// Remove errors that have this goal markers judgement in their goal list
-		?[SXBfsbcGoalMarker(judg) | errors];
-		let filter-s = {
-			judgs, err:	
-				where(
-					(?SXBfsbcGoalMarker(_)) <+
-					(?SXBfsbcError(judgs, err);
-				 	 //<sx-debug(|"filtering ")> (judg, judgs);
-				 	 <not(elem)> (judg, judgs))
-				 	 //;<sx-debug(|"KEEP IN LIST ")> ""
-				 	 )
-			}
-		in
-			<filter(filter-s)> errors => errors1;
-			//<sx-debug(|"ERRORS 1 ")> errors1;
-			<sx-bfsbc-filter-errors> errors1
-		end
-	sx-bfsbc-filter-errors =
-		// Keep this error and filter the remaining errors
-		?[error@SXBfsbcError(_, _) | errors];
-		<sx-bfsbc-filter-errors> errors => errors1;
-		![error|errors1]
-		
+	// sx-bfsbc-filter-errors =
+	// 	// Finished
+	// 	?[];
+	// 	![]
+	// sx-bfsbc-filter-errors =
+	// 	// Remove errors that have this goal markers judgement in their goal list
+	// 	?[SXBfsbcGoalMarker(judg) | errors];
+	// 	let filter-s = {
+	// 		judgs, err:	
+	// 			where(
+	// 				(?SXBfsbcGoalMarker(_)) <+
+	// 				(?SXBfsbcError(judgs, err);
+	// 			 	 //<sx-debug(|"filtering ")> (judg, judgs);
+	// 			 	 <not(elem)> (judg, judgs))
+	// 			 	 //;<sx-debug(|"KEEP IN LIST ")> ""
+	// 			 	 )
+	// 		}
+	// 	in
+	// 		<filter(filter-s)> errors => errors1;
+	// 		//<sx-debug(|"ERRORS 1 ")> errors1;
+	// 		<sx-bfsbc-filter-errors> errors1
+	// 	end
+	// sx-bfsbc-filter-errors =
+	// 	// Keep this error and filter the remaining errors
+	// 	?[error@SXBfsbcError(_, _) | errors];
+	// 	<sx-bfsbc-filter-errors> errors => errors1;
+	// 	![error|errors1]
+	// 	
 	/**
 	 * Returns a list goal markers and errors.
 	 *
@@ -189,7 +190,7 @@ strategies
 		// <sx-debug(|"found candidates ")> candidates;
 		if !candidates; ?[] then
 			// An error
-			<sx-debug(|"should make error ")> "";
+			// <sx-debug(|"should make error ")> "";
 			<sx-bfsbc-make-error> judg => error;
 			<sx-bfsbc-collect-goal-markers> judgs => goal-markers;
 			<sx-bfsbc> (inf-rules, judgs-queue) => errors;
@@ -204,7 +205,7 @@ strategies
 				}
 			in
 				<map(map-s)> candidates => new-judgs;
-				<sx-debug(|"new judgements ")> new-judgs;
+				// 	<sx-debug(|"new judgements ")> new-judgs;
 				<sx-bfsbc> (inf-rules, <conc> (judgs-queue, new-judgs))
 			end
 		end
@@ -317,18 +318,69 @@ strategies
 		![error|errors]
 
 	/**
-	 * Makes an error from a judgement.
+	 * Make an error for a judgement.
 	 *
 	 * @type SXJudgement -> (SXExpr, String)
 	 */
 	sx-bfsbc-make-error =
-		?judg;
-		<sx-locate-source> judg => expr;
-		<sx-debug(|"error expr ")> expr;
-		<sx-pretty-print-term> judg => judg-string;
-		<conc-strings> ("Could not derive ", judg-string) => message;
-		<sx-debug(|"made error ")> message;
-		!(expr, message)
+		sx-bfsbc-make-error-neq <+
+		sx-bfsbc-make-error-ind-def
+
+	/**
+	 * Make an error for an inequality judgement.
+	 *
+	 * @type SXJudgement -> (SXExpr, String)
+	 */
+	sx-bfsbc-make-error-neq =
+		?SXNeq(expr1, expr2);
+		<sx-locate-source> expr1 => err-expr;
+		<sx-pretty-print-term> expr1 => err-str;
+		<conc-strings> ("Required something else than ", err-str) => msg;
+		!(err-expr, msg)
+		
+	/**
+	 * Makes an error from an inductively defined judgement.
+	 *
+	 * @type SXJudgement -> (SXExpr, String)
+	 */
+	sx-bfsbc-make-error-ind-def =
+		?judg@judg-name#(args);
+		if <sx-bfsbc-get-error-annotation> judg-name => (msg, loc) then
+			<index> (<add> (loc, 1), args) => arg-loc;
+			<sx-locate-source> arg-loc => expr-loc;
+			<map(sx-pretty-print-term)> args => pp-args;
+			<sx-bfsbc-fill-message> (0, pp-args, msg) => filled-msg;
+			!(expr-loc, filled-msg)
+		else
+			<sx-pretty-print-term> judg => judg-string;
+			<conc-strings> ("Could not derive ", judg-string) => message;
+			!((), message)
+		end
+
+	/**
+	 * Fills the message template with the concrete arguments.
+	 *
+	 * @type (Int, List(String), String) -> String
+	 */
+	sx-bfsbc-fill-message =
+		?(_, [], msg);
+		!msg
+	sx-bfsbc-fill-message =
+		?(n, [arg|args], msg);
+		<conc-strings> ("%", <int-to-string> n, "%") => mark;
+		<string-replace(|mark, arg)> msg => msg1;
+		<sx-bfsbc-fill-message> (<add> (n, 1), args, msg1)
+
+	/**
+	 * Looks up the error annotation for the givene judgement name. Fails,
+	 * if there is no annotation for that judgement.
+	 *
+	 * @type String -> (String, Int)
+	 */
+	sx-bfsbc-get-error-annotation =
+		?judg-name;
+		sx-error-annotations => annos;
+		<lookup> (judg-name, annos)
 
 	/**
 	 * Collects all judgements of goal markers from list of goals.
@@ -336,7 +388,7 @@ strategies
 	 * @type List(SXBfsbcResult) -> List(SXBfsbcResult)
 	 */
 	sx-bfsbc-collect-goal-markers =
-		filter(?SXBfsbcGoalMarker(<id>))//; map(?SXBfsbcGoalMarker(<id>))
+		filter(?SXBfsbcGoalMarker(<id>))
 
 /**
  * Results of error detection.

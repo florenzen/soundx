@@ -92,6 +92,8 @@ strategies
 
 	sx-freshness-conditions = fail
 
+	sx-error-annotations = fail
+
 	sx-interface-expr =
 		?mod;
 		<sx-interface> mod => (expr, _);

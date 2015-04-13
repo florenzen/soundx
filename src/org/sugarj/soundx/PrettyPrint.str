@@ -37,6 +37,7 @@
 module org/sugarj/soundx/PrettyPrint
 
 imports org/sugarj/soundx/Utils
+		org/sugarj/soundx/AbstractSyntax
 
 imports org/sugarj/soundx/Debug
 // TODO integrate the box pretty printer here
@@ -108,12 +109,15 @@ strategies
 		separate-by(!sep); concat-strings
 
 	/**
-	 * Pretty prints a term.
+	 * Pretty prints a term. For generated meta-variables it prints
+	 * only the name, not the number.
 	 *
 	 * @type a -> String
 	 */
 	sx-pretty-print-term =
-		write-to-string
+		?expr;
+		<bottomup(try(\SXMetaVarGen(name, _) -> SXMetaVar(name)\))> expr => expr1;
+		<write-to-string> expr1
 
 	/**
 	 * Converts a list of Grammars to a pretty printer table.
