@@ -45,6 +45,8 @@ imports org/sugarj/sxbld/processing/SortPrefixing
 
 imports org/sugarj/languages/SXBld
 
+imports org/sugarj/soundx/Debug
+
 
 /**
  * Register analyses and desugarings
@@ -75,6 +77,7 @@ strategies
 	sxbld-analyze-judgement-form =
 		?SXBldJudgementForm(symbols, error-ann);
 		<sxbld-env-fresh-judgement-name> () => judgement-name;
+		<sxbld-analyze-error-annotation> (judgement-name, symbols, error-ann);
 		<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
 		<sxbld-analyze-judgement-prod(|judgement-name)> prefixed-symbols => judg-prod;
 		!prefixed-symbols => [head|tail];
@@ -151,3 +154,39 @@ strategies
 			<sx-sdf2-aterm-attribute> ("layout", "2.first.col == 3.first.col && 3.first.col == 4.first.col")
 		 ] => attributes;
 		!prod(lhs-desugaring, sort("SXDesugaring"), attrs(attributes))
+
+	/**
+	 * Analyzes the error annotation, prepares the error string, and
+	 * stores it in the environment.
+	 *
+	 * @type (String, List(Sdf2Symbol), Option(SXBldErrorAnnotation)) -> SXEnv
+	 */
+	sxbld-analyze-error-annotation =
+		?(_, _, None())
+	sxbld-analyze-error-annotation =
+		?(judg-name, symbols, Some(SXBldErrorAnnotation(msg, unquoted(loc))));
+		if <sx-sdf2-find-index-of-labelled-symbol(|loc)> symbols => loc-idx then
+			<sx-debug(|"loc idx ")> loc-idx;
+			<sx-sdf2-get-labels-and-positions> symbols => labs-pos;
+			<sxbld-analyze-error-annotation-message> (msg, labs-pos) => msg1;
+			<sx-debug(|"labs pos ")> labs-pos;
+			<sxbld-env-set-error-annotation> (judg-name, msg1, loc-idx)
+		else
+			id
+		end
+
+	/**
+	 * Replaces %label% by this labels index for all the
+	 * label-index pairs in the list.
+	 *
+	 * @type (String, List((String, Int))) -> String
+	 */
+	sxbld-analyze-error-annotation-message =
+		?(msg, []); !msg
+	sxbld-analyze-error-annotation-message =
+		?(msg, [(lab, pos) | labs-pos]);
+		<conc-strings> ("%", lab, "%") => marker;
+		<int-to-string> pos => pos-str;
+		<conc-strings> ("%", pos-str, "%") => idx-marker;
+		<string-replace(|marker, idx-marker)> msg => msg1;
+		<sxbld-analyze-error-annotation-message> (msg1, labs-pos)

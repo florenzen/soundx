@@ -75,6 +75,8 @@ strategies
 	    sxbld-env-decls-to-stratego(|inf-rules, "inference-rules") => trans-infrules;
 	    <sxbld-env-get; hashtable-getlist> "freshness-conditions" => freshness-conditions;
 	    sxbld-env-decls-to-stratego(|freshness-conditions, "freshness-conditions") => trans-freshness;
+	    <sxbld-env-get; hashtable-getlist> "error-annotations" => error-annotations;
+	    sxbld-env-decls-to-stratego(|error-annotations, "error-annotations") => trans-error;
 	    <conc> (grm-elems-plain, grm-elems-toplevel-decs, grm-elems-intf-judg,
 	    	grm-elems-get-intf-judg, grm-elems-delims) => grammar-elems;
 	    // safe the entire SDF2 stuff in the Stratego file to generate a pretty printer
@@ -84,9 +86,13 @@ strategies
 	    sxbld-env-decls-to-stratego(|pp-table, "pp-table") => trans-pp-table;
 	    <conc> (trans-pp-table, 
 	    		trans-toplevel-declaration,
-	    		trans-intf-judg, trans-cons-names,
-	    		trans-infrules, trans-freshness,
-	            trans-base-file-ext, trans-ext-file-ext) => transformation-elems;
+	    		trans-intf-judg,
+	    		trans-cons-names,
+	    		trans-infrules,
+	    		trans-freshness,
+	    		trans-error,
+	            trans-base-file-ext,
+	            trans-ext-file-ext) => transformation-elems;
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems,
   	    	extension-elems-body-dec, extension-elems-namespace-dec,
   	    	extension-elems-import-dec, extension-elems-base-lang-name))

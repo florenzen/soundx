@@ -145,7 +145,7 @@ strategies
 	 *
 	 * @param label String
 	 *
-	 * @type List(Sdf2Symbols) -> Int
+	 * @type List(Sdf2Symbol) -> Int
 	 */
 	sx-sdf2-find-index-of-labelled-symbol(|label) =
 		(?[]; fail) <+
@@ -180,3 +180,30 @@ strategies
 		unquoted(str) -> str
 	sx-sdf2-label-to-string:
 		quoted(str) -> <un-double-quote> str
+
+	/**
+	 * Returns a list of all labels with their argument
+	 * position in the abstract syntax.
+	 *
+	 * @type List(Sdf2Symbol) -> List((String, Int))
+	 */
+	sx-sdf2-get-labels-and-positions =
+		?symbols;
+		<sx-sdf2-get-labels-and-positions1> (symbols, 0)
+
+	/**
+	 * Returns a list of all labels with their argument position
+	 * in the abstract syntax where the first label has the given
+	 * index.
+	 *
+	 * @type (List(Sdf2Symbol), Int) -> List((String, Int))
+	 */
+	sx-sdf2-get-labels-and-positions1 =
+		(?([], _); ![]) <+
+		(?([label(unquoted(label), symbol) | symbols], n);
+		 <sx-sdf2-get-labels-and-positions1> (symbols, <add> (n, 1)) => labs-pos;
+		 ![(label,n) | labs-pos]) <+
+		(?([lit(_)|symbols], n);
+		 <sx-sdf2-get-labels-and-positions1> (symbols, n)) <+
+		(?([symbol|symbols], n);
+		 <sx-sdf2-get-labels-and-positions1> (symbols, <add> (n, 1)))

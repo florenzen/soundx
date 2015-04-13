@@ -42,6 +42,8 @@ imports org/sugarj/languages/SXBld
 
 imports org/sugarj/soundx/MetaExplode
 
+imports org/sugarj/soundx/Debug
+
 
 /**
  * Namespace kind
@@ -113,7 +115,8 @@ strategies
   	    hashtable-put(|"extensible-file-ext", "");
   	    hashtable-put(|"base-file-ext", "");
   	    hashtable-put(|"atom-sorts", []);
-  	    hashtable-put(|"freshness-conditions", <new-hashtable> ())
+  	    hashtable-put(|"freshness-conditions", <new-hashtable> ());
+  	    hashtable-put(|"error-annotations", <new-hashtable> ())
 
     /**
      * Looks up a key in the environment
@@ -620,6 +623,32 @@ strategies
 		?sort-name;
 		<sxbld-env-get> "freshness-conditions" => ht;
 		<hashtable-get(|sort-name)> ht
+
+/**
+ * Handling of error-annotations
+ */
+strategies
+	/**
+	 * Adds an error annotation for a judgement.
+	 *
+	 * @type (String, String, Integer) -> SXEnv
+	 */
+	sxbld-env-set-error-annotation =
+		?(judg-name, message, error-loc);
+		<sxbld-env-get> "error-annotations" => ht;
+		<hashtable-put(|judg-name, (message, error-loc))> ht;
+		<hashtable-getlist; sx-debug(|"HT ")> ht
+
+    /**
+     * Gets error-annotation for a specific judgement. Fails if there
+     * is no error annotation for that judgement.
+     *
+     * @type String -> (String, Integer)
+     */
+	sxbld-env-get-error-annotation =
+		?judg-name;
+		<sxbld-env-get> "error-annotations" => ht;
+		<hashtable-get(|judg-name)> ht
 
 /**
  * Handling of import-decs
