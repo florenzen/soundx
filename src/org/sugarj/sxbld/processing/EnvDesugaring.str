@@ -79,8 +79,7 @@ strategies
 	    sxbld-env-decls-to-stratego(|error-annotations, "error-annotations") => trans-error;
 	    <conc> (grm-elems-plain, grm-elems-toplevel-decs, grm-elems-intf-judg,
 	    	grm-elems-get-intf-judg, grm-elems-delims) => grammar-elems;
-	    // safe the entire SDF2 stuff in the Stratego file to generate a pretty printer
-	    // for the analysis
+	    // generate a PP table for the base language
 	    <map(?grammar-elem(<id>))> grammar-elems => sdf2-defs;
 	    <sx-grammars-to-pp-table> sdf2-defs => pp-table;
 	    sxbld-env-decls-to-stratego(|pp-table, "pp-table") => trans-pp-table;
