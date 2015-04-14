@@ -166,10 +166,10 @@ strategies
 	sxbld-analyze-error-annotation =
 		?(judg-name, symbols, Some(SXBldErrorAnnotation(msg, unquoted(loc))));
 		if <sx-sdf2-find-index-of-labelled-symbol(|loc)> symbols => loc-idx then
-			<sx-debug(|"loc idx ")> loc-idx;
+			// <sx-debug(|"loc idx ")> loc-idx;
 			<sx-sdf2-get-labels-and-positions> symbols => labs-pos;
 			<sxbld-analyze-error-annotation-message> (msg, labs-pos) => msg1;
-			<sx-debug(|"labs pos ")> labs-pos;
+			// <sx-debug(|"labs pos ")> labs-pos;
 			<sxbld-env-set-error-annotation> (judg-name, msg1, loc-idx)
 		else
 			id
