@@ -636,8 +636,8 @@ strategies
 	sxbld-env-set-error-annotation =
 		?(judg-name, message, error-loc);
 		<sxbld-env-get> "error-annotations" => ht;
-		<hashtable-put(|judg-name, (message, error-loc))> ht;
-		// <hashtable-getlist; sx-debug(|"HT ")> ht
+		<hashtable-put(|judg-name, (message, error-loc))> ht
+		// ;<hashtable-getlist; sx-debug(|"HT ")> ht
 
     /**
      * Gets error-annotation for a specific judgement. Fails if there
