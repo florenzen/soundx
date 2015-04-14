@@ -116,8 +116,12 @@ strategies
 signature constructors
 	SXInfRule: List(SXJudgement) * String * SXJudgement -> SXAbsInfRule
 	
-	SXRuleX: SXClassification
-	SXRuleB: SXClassification
+	SXRuleX:         SXClassification
+	SXRuleB:         SXClassification
+	SXClassExtPrem:  SXClassification
+	SXClassNoDeriv:  SXClassification
+	SXClassNotBase:  String -> SXClassification
+	SXClassConclAsm: SXClassification
 
 strategies
 	/**

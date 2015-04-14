@@ -42,6 +42,9 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Declarations
 		org/sugarj/soundx/AnalysisFunctions
 		org/sugarj/soundx/Environment
+		org/sugarj/soundx/PrettyPrint
+		org/sugarj/soundx/InductiveDefinitions
+		org/sugarj/soundx/processing/Prefixing
 
 imports org/sugarj/soundx/Debug
 
@@ -70,13 +73,81 @@ strategies
 	 * @type SXInfRule -> SXClassification
 	 */
 	sx-classify-inf-rule(|current-ext, ext-inf-rules, base-inf-rules) =
-		?inf-rule@(_, name, _);
-		((sx-classify-inf-rule-x(|current-ext, ext-inf-rules, base-inf-rules) +
-		  sx-classify-inf-rule-b(|current-ext, ext-inf-rules, base-inf-rules)) <+
-		 <sx-env-get-named-inf-rule> name => Some(input);
-		 <sx-analysis-fail(|"Could not verify this rule")> input)
-		 // TODO give more helpful error message including assumptions and desugared conclusion
+		?inf-rule@(premises, name, _);
+		<sx-classify-inf-rule-x(|current-ext, ext-inf-rules, base-inf-rules)> inf-rule => x-res;
+		if !x-res; ?SXRuleX() then
+			!SXRuleX()
+		else
+			<sx-classify-inf-rule-b(|current-ext, ext-inf-rules, base-inf-rules)> inf-rule => b-res;
+			if !b-res; ?SXRuleB() then
+				!SXRuleB()
+			else
+				// make error message
+				<sx-env-get-named-inf-rule> name => Some(input@SXNamedInferenceRule(orig-name, _));
+				<sx-basic-desugar-inf-rule(|current-ext)> inf-rule => des-rule@SXInfRule(des-premises, _, des-concl);
+				<sx-pretty-print-term> des-concl => des-concl-str;
+				<sx-pretty-print-list-comma> premises => premises-str;
+				<sx-pretty-print-list-comma> des-premises => des-premises-str;
+				<sx-classify-x-err-message> (premises-str, des-concl-str, x-res) => x-err-msg;
+				<sx-classify-b-err-message> (des-premises-str, des-concl-str, b-res) => b-err-msg;
+				if <eq> (x-res, b-res) then
+					<conc-strings> (
+						"Could not verify rule ", orig-name, ":\n  ",
+						x-err-msg) => msg						
+				else
+					<conc-strings> (
+						"Could not verify rule ", orig-name, "\n",
+						"It is not an X rule:\n  ", x-err-msg, "\n",
+						"It is not a B rule:\n  ", b-err-msg) => msg
+				end;
+				<sx-analysis-fail(|msg)> input
+			end
+		end
+		// ((sx-classify-inf-rule-x(|current-ext, ext-inf-rules, base-inf-rules) +
+		//   sx-classify-inf-rule-b(|current-ext, ext-inf-rules, base-inf-rules)) <+
+		//  <sx-env-get-named-inf-rule> name => Some(input);
+		//  <sx-analysis-fail(|"Could not verify this rule")> input)
+		//  // TODO give more helpful error message including assumptions and desugared conclusion
 
+	/**
+	 * Makes an error message why a rule is not an X rule.
+	 *
+	 * @type (String, String, SXClassification) -> String
+	 */
+	sx-classify-x-err-message =
+		?(premises-str, concl-str, SXClassNoDeriv());
+		<conc-strings> (
+			"Cannot derive ", concl-str, " from ", premises-str
+		)
+	sx-classify-x-err-message =
+		?(premises-str, concl-str, SXClassNotBase(name));
+		<sx-unprefix-name> name => name-orig;
+		<conc-strings> (
+			"The last rule (", name-orig, ") in the derivation of ",
+			concl-str, " is from the extension (forgotten desugaring?)"
+		)
+	sx-classify-x-err-message =
+		?(premises-str, concl-str, SXClassConclAsm());
+		<conc-strings> (
+			"The desugared conclusion ", concl-str, " must not be in the premises"
+		)
+
+	/**
+	 * Makes an error message why a rule is not a B rule.
+	 *
+	 * @type (String, String, SXClassification) -> String
+	 */
+	sx-classify-b-err-message =
+		?(premises-str, concl-str, SXClassNoDeriv());
+		<conc-strings> (
+			"Cannot derive ", concl-str, " from ", premises-str
+		)
+	sx-classify-b-err-message =
+		?(premises-str, concl-str, SXClassExtPrem());
+		<conc-strings> (
+			"The desugared premises ", premises-str, " contain extended expressions"
+		)
+		
 	/**
 	 * Classifies an inference rule as X rule. It fails if the inference rule cannot
 	 * be classified as X.
@@ -91,7 +162,7 @@ strategies
 		?rule@SXInfRule(premises, name, concl);
 		// <sx-debug(|"trying to verify as X: ")> rule;
 		<sx-basic-desugar-inf-rule(|current-ext)> rule => des-rule@SXInfRule(des-premises, _, des-concl);
-		<sx-debug(|"desugared rule ")> des-rule;
+		//<sx-debug(|"desugared rule ")> des-rule;
 		<map(!SXDerivAsm(<id>))> premises => asms;
 		<conc> (ext-inf-rules, base-inf-rules) => all-inf-rules;
 		if <sx-dfsbc-build-derivation> (asms, all-inf-rules, des-concl) => deriv then
@@ -101,21 +172,23 @@ strategies
 					// <sx-debug(|"successfully classified as X: ")> name;
 					!SXRuleX()
 				else
-					<sx-debug(|"failed to classify as X rule (last rule not from base): ")> name;
-					fail
+					!SXClassNotBase(rule-name)
+					// <sx-debug(|"failed to classify as X rule (last rule not from base): ")> name;
+					// fail
 				end
 			else
-				<sx-debug(|"failed to classify as X rule (conclusion in assumptions): ")> name;
-				fail
+				!SXClassConclAsm()
+				// <sx-debug(|"failed to classify as X rule (conclusion in assumptions): ")> name;
+				// fail
 			end
 		else
-			<sx-debug(|"failed to classify as X rule (no derivation): ")> name;
-			fail
+			!SXClassNoDeriv()
+			// <sx-debug(|"failed to classify as X rule (no derivation): ")> name;
+			// fail
 		end
 
 	/**
-	 * Classifies an inference rule as B rule. It fails if the inference rule cannot
-	 * be classified as B.
+	 * Classifies an inference rule as B rule.
 	 *
 	 * @param current-ext String
 	 * @param ext-inf-rules List(SXInfRule)
@@ -137,10 +210,12 @@ strategies
 				// <sx-debug(|"successfully classified as B: ")> name;
 				!SXRuleB()
 			else
-				<sx-debug(|"failed to classify as B rule (no derivation): ")> name;
-				fail
+				!SXClassNoDeriv()
+				//<sx-debug(|"failed to classify as B rule (no derivation): ")> name;
+				//fail
 			end
 		else
-			<sx-debug(|"failed to classify as B rule (extended expressions in premises): ")> name;
-			fail
+			!SXClassExtPrem()
+			//<sx-debug(|"failed to classify as B rule (extended expressions in premises): ")> name;
+			//fail
 		end
