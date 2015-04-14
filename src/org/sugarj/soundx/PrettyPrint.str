@@ -109,7 +109,7 @@ strategies
 	 * @type List(a) -> String
 	 */
 	sx-pretty-print-list-sep(|sep) =
-		separate-by(!sep); concat-strings
+		map(sx-pretty-print-term); separate-by(!sep); concat-strings
 
 	/**
 	 * Pretty prints a term. For generated meta-variables it prints
@@ -171,7 +171,8 @@ strategies
 			}
 		in
 			sx-env-get-imports => imports;
-			<map(map-s); concat> imports => entries-exts;
+			sx-env-get-namespace => namespace;
+			<map(map-s); concat> [namespace|imports] => entries-exts;
 			sx-pp-entries-metavars => entries-mv;
 			<conc> (entries, entries-mv, entries-exts) => all-entries;
 			!PP-Table(all-entries) => pp-table;
