@@ -149,8 +149,8 @@ strategies
 		)
 		
 	/**
-	 * Classifies an inference rule as X rule. It fails if the inference rule cannot
-	 * be classified as X.
+	 * Tries to classify a rule as an X rule or returns a reason why this
+	 * is not possible.
 	 *
 	 * @param current-ext String
 	 * @param ext-inf-rules List(SXInfRule)
@@ -160,35 +160,36 @@ strategies
 	 */
 	sx-classify-inf-rule-x(|current-ext, ext-inf-rules, base-inf-rules) =
 		?rule@SXInfRule(premises, name, concl);
-		// <sx-debug(|"trying to verify as X: ")> rule;
+		//<sx-debug(|"trying to verify as X: ")> rule;
 		<sx-basic-desugar-inf-rule(|current-ext)> rule => des-rule@SXInfRule(des-premises, _, des-concl);
-		//<sx-debug(|"desugared rule ")> des-rule;
+	    //<sx-debug(|"desugared rule ")> des-rule;
 		<map(!SXDerivAsm(<id>))> premises => asms;
 		<conc> (ext-inf-rules, base-inf-rules) => all-inf-rules;
 		if <sx-dfsbc-build-derivation> (asms, all-inf-rules, des-concl) => deriv then
 			if !deriv; ?SXDerivInst(_, rule-name, _) then
 				<map(sx-inf-rule-name)> base-inf-rules => base-rule-names;
 				if <elem> (rule-name, base-rule-names) then
-					// <sx-debug(|"successfully classified as X: ")> name;
+					//<sx-debug(|"successfully classified as X: ")> name;
 					!SXRuleX()
 				else
 					!SXClassNotBase(rule-name)
-					// <sx-debug(|"failed to classify as X rule (last rule not from base): ")> name;
+					//; <sx-debug(|"failed to classify as X rule (last rule not from base): ")> name
 					// fail
 				end
 			else
 				!SXClassConclAsm()
-				// <sx-debug(|"failed to classify as X rule (conclusion in assumptions): ")> name;
+				//; <sx-debug(|"failed to classify as X rule (conclusion in assumptions): ")> name
 				// fail
 			end
 		else
 			!SXClassNoDeriv()
-			// <sx-debug(|"failed to classify as X rule (no derivation): ")> name;
+			//; <sx-debug(|"failed to classify as X rule (no derivation): ")> name
 			// fail
 		end
 
 	/**
-	 * Classifies an inference rule as B rule.
+     * Tries to classify a rule as a B rule or returns a reason why this
+	 * is not possible.
 	 *
 	 * @param current-ext String
 	 * @param ext-inf-rules List(SXInfRule)

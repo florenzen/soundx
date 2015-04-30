@@ -167,8 +167,8 @@ strategies
 		 ) <+
 		 // extension rule
 		 (<sx-deriv-desugar-is-rule-defined-in(|ext-inf-rules)> rule-name => current-inf-rule;
-		  <sx-fresh-inf-rule> current-inf-rule => fresh-inf-rule@SXInfRule(premises-fresh, _, concl-fresh);
-		  if <sx-classify-inf-rule-x(|current-ext, ext-inf-rules, base-inf-rules)> fresh-inf-rule then
+		  <sx-fresh-inf-rule> current-inf-rule => fresh-inf-rule@SXInfRule(premises-fresh, inf-rule-name, concl-fresh);
+		  if <sx-classify-inf-rule-x(|current-ext, ext-inf-rules, base-inf-rules)> fresh-inf-rule; ?SXRuleX() then
 		  	// X rule (this implementes TD-ExtExt)
 		  	<sx-basic-desugar-inf-rule(|current-ext)> fresh-inf-rule => SXInfRule(premises-des, _, concl-des);
 		  	<sx-vars> fresh-inf-rule => vars-fresh-rule;
@@ -185,7 +185,7 @@ strategies
 		  		if <sx-dfsbc-build-derivation> (subderivs, all-inf-rules, concl-des-fresh-atoms) => deriv-des then
 		  			!deriv-des
 		  		else
-		  			<sx-desugar-filling-gap-failed-bug> ("TD-ExtExt", concl)
+		  			<sx-desugar-filling-gap-failed-bug> (<conc-strings> ("TD-ExtExt for rule ", inf-rule-name), concl)
 		  		end
 		  	end
 		  else
@@ -347,5 +347,5 @@ strategies
 	 */
 	sx-desugar-filling-gap-failed-bug =
 		?(case, concl);
-		<conc-strings> ("Filling the gap in ", case, "failed") => msg;
+		<conc-strings> ("Filling the gap in ", case, " failed") => msg;
 		<sx-locate-source; sx-signal-bug(|msg)> concl 
