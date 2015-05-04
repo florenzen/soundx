@@ -14,10 +14,13 @@ Require-Bundle: org.eclipse.ui,
  org.strategoxt.strj,
  org.sugarj.common,
  org.sugarj.baselang,
- org.sugarj.compiler
+ org.sugarj.compiler,
+ org.sugarj.cleardep
 Eclipse-RegisterBuddy: org.sugarj.baselang
 Eclipse-BundleShape: dir
-Import-Package: org.spoofax.jsglr.client,
+Import-Package: org.spoofax.interpreter.library,
+ org.spoofax.jsglr.client,
  org.spoofax.jsglr.client.imploder,
  org.spoofax.jsglr.io,
+ org.strategoxt.tools,
  org.sugarj.stdlib

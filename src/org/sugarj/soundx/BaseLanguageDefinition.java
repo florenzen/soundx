@@ -30,6 +30,7 @@
  */
 package org.sugarj.soundx;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileAttribute;
 import java.util.HashMap;
@@ -62,13 +63,14 @@ import org.sugarj.common.ATermCommands;
 import org.sugarj.common.Environment;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.StringCommands;
-import org.sugarj.common.cleardep.Stamper;
+import org.sugarj.cleardep.stamp.Stamper;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.RelativePath;
 import org.sugarj.common.path.Path;
 import org.sugarj.driver.Driver;
 import org.sugarj.driver.DriverParameters;
 import org.sugarj.driver.Result;
+import org.sugarj.driver.Result.CompilerMode;
 import org.sugarj.driver.SDFCommands;
 import org.sugarj.stdlib.StdLib;
 import org.sugarj.util.Pair;
@@ -235,15 +237,15 @@ public class BaseLanguageDefinition {
 		String servFileName = baseLanguageName + ".serv";
 		String defFileName = baseLanguageName + ".def";
 		String ppFileName = baseLanguageName + ".pp";
-		sdfPath = new AbsolutePath(binDir.getAbsolutePath() + Environment.sep
+		sdfPath = new AbsolutePath(binDir.getAbsolutePath() + File.separator
 				+ sdfFileName);
-		strPath = new AbsolutePath(binDir.getAbsolutePath() + Environment.sep
+		strPath = new AbsolutePath(binDir.getAbsolutePath() + File.separator
 				+ strFileName);
-		servPath = new AbsolutePath(binDir.getAbsolutePath() + Environment.sep
+		servPath = new AbsolutePath(binDir.getAbsolutePath() + File.separator
 				+ servFileName);
-		defPath = new AbsolutePath(binDir.getAbsolutePath() + Environment.sep
+		defPath = new AbsolutePath(binDir.getAbsolutePath() + File.separator
 				+ defFileName);
-		ppPath = new AbsolutePath(binDir.getAbsolutePath() + Environment.sep
+		ppPath = new AbsolutePath(binDir.getAbsolutePath() + File.separator
 				+ ppFileName);
 		Debug.print("sdfPath " + sdfPath);
 	}
@@ -458,7 +460,7 @@ public class BaseLanguageDefinition {
 											+ index);
 									current = null;
 								} else
-									fail("Error reading end of body-decs list");
+									fail("Error reading end of import-decs list");
 							} else if (applConsName.equals("ListTail")) {
 								StrategoList hd = (StrategoList) listCons
 										.getSubterm(0);
@@ -478,7 +480,7 @@ public class BaseLanguageDefinition {
 										+ index);
 								current = listCons.getSubterm(1);
 							} else
-								fail("Error reading body-decs");
+								fail("Error reading import-decs");
 						}
 					}
 				}
@@ -719,7 +721,7 @@ public class BaseLanguageDefinition {
 	private void runCompiler() {
 		IProgressMonitor monitor = new NullProgressMonitor();
 		AbstractBaseLanguage baseLang = SXBldLanguage.getInstance();
-		Environment environment = new Environment(true, StdLib.stdLibDir,
+		Environment environment = new Environment(StdLib.stdLibDir,
 				Stamper.DEFAULT);
 
 		// DEVEL: Create a fresh cache directory.
@@ -739,8 +741,10 @@ public class BaseLanguageDefinition {
 		environment.setCacheDir(cacheDir);
 		environment.setAtomicImportParsing(false);
 		environment.setNoChecking(false);
-		environment.setBin(binDir);
-		environment.setGenerateFiles(true);
+		
+		environment.setMode(new CompilerMode(binDir, false));
+		// environment.setBin(binDir);
+		// environment.setGenerateFiles(true);
 		Result result = null;
 		try {
 			result = Driver.run(DriverParameters.create(environment, baseLang,
@@ -766,7 +770,7 @@ public class BaseLanguageDefinition {
 	 */
 	private void setBinDirFromPluginDirectory(Path pluginDirectory) {
 		binDir = new AbsolutePath(pluginDirectory.getAbsolutePath()
-				+ Environment.sep + "bin");
+				+ File.separator + "bin");
 	}
 
 	/**
@@ -776,7 +780,7 @@ public class BaseLanguageDefinition {
 	 */
 	private void setSrcDirFromPluginDirectory(Path pluginDirectory) {
 		srcDir = new AbsolutePath(pluginDirectory.getAbsolutePath()
-				+ Environment.sep + "src");
+				+ File.separator + "src");
 	}
 
 	/**
