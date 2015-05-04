@@ -48,7 +48,7 @@ public class SoundXActivator extends AbstractUIPlugin {
 
 	public SoundXActivator(String bldFilename) {
 		Path pluginDirectory = getPluginDirectory();
-		SoundXBaseLanguage instance = SoundXBaseLanguage.getInstance();
+		SoundXBaseLanguage instance = new SoundXBaseLanguage();
 		instance.processBaseLanguageDefinition(bldFilename, pluginDirectory);
 		BaseLanguageRegistry.getInstance().registerBaseLanguage(instance);
 	}

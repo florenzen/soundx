@@ -68,7 +68,13 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 	private Path outFile;
 	private String moduleName;
 
+	private SoundXBaseLanguage language;
+	
 	private IStrategoTerm ppTable;
+
+	public SoundXBaseProcessor(SoundXBaseLanguage language) {
+		this.language = language;
+	}
 
 	@Override
 	public String getGeneratedSource() {
@@ -95,7 +101,7 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 
 	@Override
 	public SoundXBaseLanguage getLanguage() {
-		return SoundXBaseLanguage.getInstance();
+		return language;
 	}
 
 	/*

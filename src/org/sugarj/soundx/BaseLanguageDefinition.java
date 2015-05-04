@@ -86,13 +86,7 @@ import org.sugarj.util.Pair;
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */
 public class BaseLanguageDefinition {
-	private static BaseLanguageDefinition instance = new BaseLanguageDefinition();
-
-	public static BaseLanguageDefinition getInstance() {
-		return instance;
-	}
-
-	private BaseLanguageDefinition() {
+	public BaseLanguageDefinition() {
 		interp = new HybridInterpreter();
 	}
 
@@ -170,8 +164,8 @@ public class BaseLanguageDefinition {
 	 * @param pluginDirectory
 	 *            Directory of the base language plugin
 	 */
-	public void process(String bldFilename, Path pluginDirectory) {
-		blInstance = SoundXBaseLanguage.getInstance();
+	public void process(SoundXBaseLanguage language, String bldFilename, Path pluginDirectory) {
+		blInstance = language;
 		setBinDirFromPluginDirectory(pluginDirectory);
 		setSrcDirFromPluginDirectory(pluginDirectory);
 		bldPath = new RelativePath(bldFilename);

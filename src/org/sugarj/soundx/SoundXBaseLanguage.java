@@ -97,28 +97,22 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 		this.bodyDecCons = bodyDecCons;
 	}
 
-	private SoundXBaseLanguage() {
-	}
-
-	private static SoundXBaseLanguage instance = new SoundXBaseLanguage();
-
-	public static SoundXBaseLanguage getInstance() {
-		return instance;
+	public SoundXBaseLanguage() {
 	}
 
 	public void processBaseLanguageDefinition(String bldFilename,
 			Path pluginDirectory) {
 		Debug.print("Processing " + bldFilename);
 		Debug.print("Plugin directory " + pluginDirectory.toString());
-
-		BaseLanguageDefinition bld = BaseLanguageDefinition.getInstance();
-		bld.process(bldFilename, pluginDirectory);
+		
+		BaseLanguageDefinition bld = new BaseLanguageDefinition();
+		bld.process(this, bldFilename, pluginDirectory);
 	}
 
 	@Override
 	public SoundXBaseProcessor createNewProcessor() {
 		Log.log.setLoggingLevel(Log.ALWAYS);
-		return new SoundXBaseProcessor();
+		return new SoundXBaseProcessor(this);
 	}
 
 	@Override
@@ -220,6 +214,7 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	public boolean isImportDecl(IStrategoTerm decl) {
 		if (decl.getTermType() == IStrategoTerm.APPL) {
 			String consName = ((StrategoAppl) decl).getConstructor().getName();
+			Debug.print("importDecCons " + importDecCons);
 			return importDecCons.containsKey(consName);
 		} else
 			return false;
