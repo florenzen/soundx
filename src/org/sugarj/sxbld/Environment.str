@@ -529,7 +529,7 @@ strategies
 	/**
 	 * Sets namespace-kind.
 	 *
-	 * @type String -> SXEnv
+	 * @type SXBldNamespaceKind -> SXEnv
 	 */		
     sxbld-env-set-namespace-kind =
     	?kind;
