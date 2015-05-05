@@ -210,7 +210,7 @@ public class BaseLanguageDefinition {
 	}
 
 	/**
-	 * Copy the declarations extracted from the base language definition to the
+	 * Copies the declarations extracted from the base language definition to the
 	 * language library.
 	 */
 	private void initSoundXBaseLanguage() {
