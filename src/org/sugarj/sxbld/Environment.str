@@ -46,23 +46,23 @@ imports org/sugarj/soundx/Debug
 
 
 /**
- * Namespace kind
+ * Namespace kinds.
  */
 signature constructors
-	SXBldNamespaceFlat:         SXBldNamespaceKind
-	SXBldNamespaceHierarchical: SXBldNamespaceKind
+	SXBldNamespaceFlat:   SXBldNamespaceKind
+	SXBldNamespaceNested: SXBldNamespaceKind
+	SXBldNamespacePrefix: SXBldNamespaceKind
 
 /**
- * True and false
+ * True and false.
  */
 signature constructors
 	SXBldFalse: SXBldBool
 	SXBldTrue:  SXBldBool
 
 /**
- * Basic handling of the environment hash table
- *
- * The environment is a hash table from Strings to values.
+ * Basic handling of the environment hash table. The environment
+ * is a hash table from Strings to values.
  * We use SXEnv in type annotation.
  */
 strategies
