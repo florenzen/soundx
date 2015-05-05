@@ -441,24 +441,72 @@ strategies
 
     	    
     /**
-     * Records the module identifier sort and namespace kind if sx-namespace-flat is given
+     * Records the module identifier sort and namespace kind if
+     * sx-namespace-flat, sx-namespace-nested, or sx-namespace-prefixed
+     * is given.
      *
      * @type (Sdf2Attributes, Sdf2Symbol) -> (Sdf2Attributes, Sdf2Symbol)
      */
     sxbld-analyze-namespace-kind =
     	?(attributes, symbol);
     	where(
-    		if <sx-sdf2-is-aterm-attribute-defined(|"sx-namespace-flat")> attributes then
+    		if <sxbld-analyze-find-namespace-kind> attributes => (namespace-kind, attrib) then
     			if sxbld-env-is-namespace-kind-defined then
-    				<sx-sdf2-extract-aterm-attribute(|"sx-namespace-flat")> attributes => attrib;
-    				<sxbld-analyze-fail(|"Only one `sx-namespace' attribute allowed")> attrib
+    				<sxbld-analyze-fail(|"Only one namespace attribute allowed")> attrib
     			else
-    				<sxbld-env-set-namespace-kind> SXBldNamespaceFlat();
+    				<sxbld-env-set-namespace-kind> namespace-kind;
     				<sxbld-env-set-namespace-identifier> symbol
     			end
     		else
-				id
+    			id
     		end)
+
+	/**
+	 * Returns the namespace kind from the attribute list. It fails if
+	 * there is no such attribute. It returns also the attribute to attach
+	 * error messages, if necessary.
+	 * If the argument to sx-namespace-nested or -prefixed is invalid, it
+	 * fails with an error message.
+	 *
+	 * @type Sdf2Attributes -> (SXBldNamespaceKind, Sdf2Attribute)
+	 */
+	sxbld-analyze-find-namespace-kind =
+		?attributes;
+		((<sx-sdf2-is-aterm-attribute-defined(|"sx-namespace-flat")> attributes;
+		  <sx-sdf2-extract-aterm-attribute(|"sx-namespace-flat")> attributes => attrib;
+		  !(SXBldNamespaceFlat(), attrib)) <+
+		 (<sx-sdf2-is-aterm-attribute-defined(|"sx-namespace-nested")> attributes;
+		  <sx-sdf2-extract-aterm-attribute(|"sx-namespace-nested")> attributes => attrib;
+		  if <sx-sdf2-get-arg-from-aterm-attribute(|1)> attrib => sep then
+		  	if !sep; ?fun(quoted(str)) then
+		  		<un-double-quote> str => sep-str;
+		  		if <eq> (<string-length> sep-str, 1) then
+		  			!(SXBldNamespaceNested(sep-str), attrib)
+		  		else
+		  			<sxbld-analyze-fail(|"Argument to sx-namespace-nested must be a one character string")> attrib
+		  		end
+		  	else
+		  		<sxbld-analyze-fail(|"Invalid argument to sx-namespace-nested")> attrib
+		  	end
+		  else
+		 	<sxbld-analyze-fail(|"Missing argument to sx-namespace-nested")> attrib
+		  end) <+
+		 (<sx-sdf2-is-aterm-attribute-defined(|"sx-namespace-prefixed")> attributes;
+		  <sx-sdf2-extract-aterm-attribute(|"sx-namespace-prefixed")> attributes => attrib;
+		  if <sx-sdf2-get-arg-from-aterm-attribute(|1)> attrib => sep then
+		  	if !sep; ?fun(quoted(str)) then
+		  		<un-double-quote> str => sep-str;
+		  		if <eq> (<string-length> sep-str, 1) then
+		  			!(SXBldNamespacePrefixed(sep-str), attrib)
+		  		else
+		  			<sxbld-analyze-fail(|"Argument to sx-namespace-prefixed must be a one character string")> attrib
+		  		end
+		  	else
+		  		<sxbld-analyze-fail(|"Invalid argument to sx-namespace-prefixed")> attrib
+		  	end
+		  else
+		  	<sxbld-analyze-fail(|"Missing argument to sx-namespace-prefixed")> attrib
+		  end))
 
     /**
      * Adds the grammars to the environment
