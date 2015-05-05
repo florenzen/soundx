@@ -116,6 +116,11 @@ public class BaseLanguageDefinition {
 	private Pair<String, Integer> namespaceDecCons;
 
 	/**
+	 * Flat, nested, or prefixed namespace.
+	 */
+	private SXNamespaceKind namespaceKind;
+
+	/**
 	 * Names of the constructors of import declarations and the argument number
 	 * of the name referred to. They are initialized from the base language
 	 * definition.
@@ -164,7 +169,8 @@ public class BaseLanguageDefinition {
 	 * @param pluginDirectory
 	 *            Directory of the base language plugin
 	 */
-	public void process(SoundXBaseLanguage language, String bldFilename, Path pluginDirectory) {
+	public void process(SoundXBaseLanguage language, String bldFilename,
+			Path pluginDirectory) {
 		blInstance = language;
 		setBinDirFromPluginDirectory(pluginDirectory);
 		setSrcDirFromPluginDirectory(pluginDirectory);
@@ -219,6 +225,7 @@ public class BaseLanguageDefinition {
 		blInstance.setImportDecCons(importDecCons);
 		blInstance.setBodyDecCons(bodyDecCons);
 		blInstance.setNamespaceDecCons(namespaceDecCons);
+		blInstance.setNamespaceKind(namespaceKind);
 	}
 
 	/**
@@ -475,6 +482,28 @@ public class BaseLanguageDefinition {
 								current = listCons.getSubterm(1);
 							} else
 								fail("Error reading import-decs");
+						}
+					} else if (name.equals("sx-namespace-kind")) {
+						// rhs =
+						// Build(NoAnnoList(Op("SXBldNamespaceNested",[NoAnnoList(Str("\".\""))])))
+						// Strip Build and NoAnnoList
+						IStrategoTerm rhs1 = rhs.getSubterm(0).getSubterm(0);
+						String kind = unquote(rhs1.getSubterm(0).toString());
+						Debug.print("namespace kind: " + kind);
+						if (kind.equals("SXBldNamespaceFlat")) {
+							namespaceKind = new SXNamespaceFlat();
+						} else if (kind.equals("SXBldNamespaceNested")) {
+							String sepQuoted = ((IStrategoList) rhs1.getSubterm(1))
+									.head().getSubterm(0).getSubterm(0).toString();
+							String sep = sepQuoted.substring(3, 4);
+							namespaceKind = new SXNamespaceNested(sep);
+							Debug.print("namespace separator: " + sep);
+						} else if (kind.equals("SXBldNamespacePrefixed")) {
+							String sepQuoted = ((IStrategoList) rhs1.getSubterm(1))
+									.head().getSubterm(0).getSubterm(0).toString();
+							String sep = sepQuoted.substring(3, 4);
+							namespaceKind = new SXNamespacePrefixed(sep);
+							Debug.print("namespace separator: " + sep);
 						}
 					}
 				}
@@ -735,7 +764,7 @@ public class BaseLanguageDefinition {
 		environment.setCacheDir(cacheDir);
 		environment.setAtomicImportParsing(false);
 		environment.setNoChecking(false);
-		
+
 		environment.setMode(new CompilerMode(binDir, false));
 		// environment.setBin(binDir);
 		// environment.setGenerateFiles(true);

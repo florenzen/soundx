@@ -76,6 +76,7 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	private Pair<String, Integer> namespaceDecCons;
 	private Map<String, Integer> importDecCons;
 	private Set<String> bodyDecCons;
+	private SXNamespaceKind namespaceKind;
 
 	public Pair<String, Integer> getNamespaceDecCons() {
 		return namespaceDecCons;
@@ -95,6 +96,14 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 
 	protected void setBodyDecCons(Set<String> bodyDecCons) {
 		this.bodyDecCons = bodyDecCons;
+	}
+
+	public SXNamespaceKind getNamespaceKind() {
+		return namespaceKind;
+	}
+
+	protected void setNamespaceKind(SXNamespaceKind namespaceKind) {
+		this.namespaceKind = namespaceKind;
 	}
 
 	public SoundXBaseLanguage() {
