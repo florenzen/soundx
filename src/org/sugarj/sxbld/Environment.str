@@ -49,9 +49,9 @@ imports org/sugarj/soundx/Debug
  * Namespace kinds.
  */
 signature constructors
-	SXBldNamespaceFlat:   SXBldNamespaceKind
-	SXBldNamespaceNested: SXBldNamespaceKind
-	SXBldNamespacePrefix: SXBldNamespaceKind
+	SXBldNamespaceFlat:     SXBldNamespaceKind
+	SXBldNamespaceNested:   SXBldNamespaceKind
+	SXBldNamespacePrefixed: SXBldNamespaceKind
 
 /**
  * True and false.
@@ -62,23 +62,20 @@ signature constructors
 
 /**
  * Basic handling of the environment hash table. The environment
- * is a hash table from Strings to values.
- * We use SXEnv in type annotation.
+ * is a hash table from Strings to values. We use SXEnv in type annotations.
  */
 strategies
 	/**
-	 * The environment hash table
-	 *
-	 * Do not call directly, use sxbld-get-env-hashtable instead.
+	 * The environment hash table. Do not call directly,
+	 * use sxbld-get-env-hashtable instead.
 	 *
 	 * @type _ -> SXEnv
 	 */
     sxbld-env-hashtable = fail
 
     /**
-     * Returns the environment
-     *
-     * Creates an empty hash table if called for the first time.
+     * Returns the environment. Creates an empty hash table when 
+     * called for the first time.
      *
      * @type _ -> SXEnv
      */
@@ -89,7 +86,7 @@ strategies
   	    !ht)
 
     /**
-     * Creates empty environment containing all keys
+     * Creates empty environment containing all keys.
      *
      * @type _ -> SXEnv
      */
@@ -119,7 +116,7 @@ strategies
   	    hashtable-put(|"error-annotations", <new-hashtable> ())
 
     /**
-     * Looks up a key in the environment
+     * Looks up a key in the environment.
      *
      * @type String -> a
      */
@@ -130,7 +127,7 @@ strategies
   		    hashtable-get(|key) => value
 
     /**
-     * Sets a key to a value in the environment
+     * Sets a key to a value in the environment.
      *
      * @type String * a -> SXEnv
      */
@@ -140,11 +137,11 @@ strategies
   	    hashtable-put(|key, value)
 
 /**
- * Handling of grammar-elems
+ * Handling of grammar-elems.
  */
 strategies
 	/**
-	 * Gets grammar-elems
+	 * Gets grammar-elems.
 	 *
 	 * @type _ -> List(Grammar)
 	 */
@@ -152,7 +149,7 @@ strategies
         <sxbld-env-get> "grammar-elems"
 
     /**
-     * Sets grammar-elems
+     * Sets grammar-elems.
      *
      * @type List(Grammar) -> SXEnv
      */
@@ -161,7 +158,7 @@ strategies
   	    <sxbld-env-set> ("grammar-elems", grammar-elems-new)
 
     /**
-     * Adds grammar-elems
+     * Adds grammar-elems.
      *
      * @type List(Grammar) -> SXEnv
      */
@@ -171,11 +168,11 @@ strategies
   	    <sxbld-env-set-grammar-elems> (<conc> (grammar-elems-new, grammar-elems-old))
 
 /**
- * Handling of inference rules
+ * Handling of inference rules.
  */
 strategies
     /**
-	 * Gets an inference rule
+	 * Gets an inference rule.
 	 *
 	 * @type String -> Option(SXInfRule)
 	 */
@@ -185,7 +182,7 @@ strategies
   	    maybe(hashtable-get(|name))
 
     /**
-     * Adds an inference rules
+     * Adds an inference rule.
      *
      * @type (String, SXInfRule) -> SXEnv
      */  
@@ -195,11 +192,11 @@ strategies
   	    hashtable-put(|name, rule)
 
 /**
- * Handling of base-language-name
+ * Handling of base-language-name.
  */
 strategies
 	/**
-	 * Gets base-language-name
+	 * Gets base-language-name.
 	 *
 	 * @type _ -> String
 	 */
@@ -207,7 +204,7 @@ strategies
   	    <sxbld-env-get> "base-language-name"
 
     /**
-     * Sets base-language-name
+     * Sets base-language-name.
      *
      * @type String -> SXEnv
      */  
@@ -216,7 +213,7 @@ strategies
   	    <sxbld-env-set> ("base-language-name", name)
 
     /**
-     * Succeeds if a base-language-name is defined
+     * Succeeds if a base-language-name is defined.
      *
      * @type _ -> String
      */
@@ -224,11 +221,11 @@ strategies
 		sxbld-env-get-base-language-name; not(?"")
 
 /**
- * Fresh names
+ * Fresh names.
  */
 strategies
 	/**
-	 * Gets name-counter
+	 * Gets name-counter.
 	 *
 	 * @type _ -> integer
 	 */
@@ -236,16 +233,16 @@ strategies
 		<sxbld-env-get> "name-counter"
 
     /**
-     * Sets name-counter
+     * Sets name-counter.
      *
-     * @type integer -> SXEnv
+     * @type Int -> SXEnv
      */
     sxbld-env-set-name-counter =
     	?counter;
     	<sxbld-env-set> ("name-counter", counter)
 
     /**
-     * Generates a fresh name with the given prefix
+     * Generates a fresh name with the given prefix.
      *
      * @type String -> String
      */
@@ -258,7 +255,7 @@ strategies
     	    <conc-strings> (prefix, suffix) => fresh-name
 
     /**
-     * Generates a fresh name for a judgement
+     * Generates a fresh name for a judgement.
      *
      * @type _ -> String
      */
@@ -266,9 +263,8 @@ strategies
     	<sxbld-env-fresh-name> "SXJudgement"
 
     /**
-     * Generates a fresh name for a constructor
-     *
-     * The given sort name is included in the generated name
+     * Generates a fresh name for a constructor. The given
+     * sort name is included in the generated name
      *
      * @type String -> String
      */
@@ -276,7 +272,7 @@ strategies
     	<sxbld-env-fresh-name> "SXCons"
     	
     /**
-     * Prefixes given name with the base language name
+     * Prefixes given name with the base language name.
      *
      * @type String -> String
      */
@@ -286,7 +282,7 @@ strategies
     	<conc-strings> (base-language-name, name)
 
 	/**
-	 * Remove base language name prefix
+	 * Remove base language name prefix.
 	 *
 	 * @type String -> String
 	 */
@@ -297,11 +293,11 @@ strategies
 	 	implode-string
 
 /**
- * Handling of constructor names
+ * Handling of constructor names.
  */
 strategies
 	/**
-	 * Adds a constructor name
+	 * Adds a constructor name.
 	 *
 	 * @type String -> SXEnv
 	 */
@@ -311,7 +307,7 @@ strategies
 		<sxbld-env-set> ("cons-names", [name|names])
 
     /**
-     * Succeeds if a constructor name is defined
+     * Succeeds if a constructor name is defined.
      *
      * @type String -> List(String)
      */
@@ -345,11 +341,11 @@ strategies
 		<elem> (name, names)
 
 /**
- * Handling of the failed flags
+ * Handling of the failed flag.
  */
 strategies
 	/**
-	 * Gets failed flag
+	 * Gets failed flag.
 	 *
 	 * @type _ -> SXBldBool
 	 */
@@ -357,7 +353,7 @@ strategies
         <sxbld-env-get> "failed"
 
     /**
-     * Sets the failed flag
+     * Sets the failed flag.
      *
      * @type SXBldBool -> SXEnv
      */
@@ -366,7 +362,7 @@ strategies
   	    <sxbld-env-set> ("failed", failed-new)
 
     /**
-     * Set failed flag to true
+     * Set failed flag to true.
      *
      * @type _ -> SXEnv
      */
@@ -374,11 +370,11 @@ strategies
     	<sxbld-env-set-failed> SXBldTrue()
 
 /**
- * Handling of toplevel-declaration
+ * Handling of toplevel-declaration.
  */
 strategies
 	/**
-	 * Gets toplevel-declaration
+	 * Gets toplevel-declaration.
 	 *
 	 * @type _ -> String
 	 */
@@ -386,7 +382,7 @@ strategies
 		<sxbld-env-get> "toplevel-declaration"
 
 	/**
-	 * Sets toplevel-declaration
+	 * Sets toplevel-declaration.
 	 *
 	 * @type String -> SXEnv
 	 */		
@@ -395,7 +391,7 @@ strategies
     	<sxbld-env-set> ("toplevel-declaration", sort-name)
 
     /**
-     * Succeeds if toplevel-declaration is defined
+     * Succeeds if toplevel-declaration is defined.
      *
      * @type _ -> String
      */
@@ -403,11 +399,11 @@ strategies
     	sxbld-env-get-toplevel-declaration; not(?"")
 
 /**
- * Handling of toplevel-declarations
+ * Handling of toplevel-declarations.
  */
 strategies
 	/**
-	 * Gets toplevel-declarations
+	 * Gets toplevel-declarations.
 	 *
 	 * @type _ -> String
 	 */
@@ -415,7 +411,7 @@ strategies
 		<sxbld-env-get> "toplevel-declarations"
 
 	/**
-	 * Sets toplevel-declarations
+	 * Sets toplevel-declarations.
 	 *
 	 * @type String -> SXEnv
 	 */
@@ -424,7 +420,7 @@ strategies
     	<sxbld-env-set> ("toplevel-declarations", sort-name)
 
     /**
-     * Succeeds if toplevel-declarations is defined
+     * Succeeds if toplevel-declarations is defined.
      *
      * @type _ -> String
      */
@@ -432,11 +428,11 @@ strategies
     	sxbld-env-get-toplevel-declarations; not(?"")
 
 /**
- * Handling of interface
+ * Handling of interface.
  */
 strategies
 	/**
-	 * Gets interface
+	 * Gets interface.
 	 *
 	 * @type _ -> String
 	 */
@@ -444,7 +440,7 @@ strategies
 		<sxbld-env-get> "interface"
 		
     /**
-	 * Sets interface
+	 * Sets interface.
 	 *
 	 * @type String -> SXEnv
 	 */
@@ -453,7 +449,7 @@ strategies
     	<sxbld-env-set> ("interface", sort-name)
 
     /**
-     * Succeeds if interface is defined
+     * Succeeds if interface is defined.
      *
      * @type _ -> String
      */
@@ -461,11 +457,11 @@ strategies
     	sxbld-env-get-interface; not(?"")
 
 /**
- * Handling of interface-judgement
+ * Handling of interface-judgement.
  */
 strategies
 	/**
-	 * Gets interface-judgement
+	 * Gets interface-judgement.
 	 *
 	 * @type _ -> (SXBldIntfJudgToplevel, SXBldInfJudgInterface, SXJudgement)
 	 */
@@ -473,7 +469,7 @@ strategies
 		<sxbld-env-get> "interface-judgement"
 		
     /**
-	 * Sets interface-judgement
+	 * Sets interface-judgement.
 	 *
 	 * @type (SXBldIntfJudgToplevel, SXBldInfJudgInterface, SXJudgement) -> SXEnv
 	 */
@@ -482,7 +478,7 @@ strategies
     	<sxbld-env-set> ("interface-judgement", (toplevel, intf, judg))
 
     /**
-     * Succeeds if interface-judgement is defined
+     * Succeeds if interface-judgement is defined.
      *
      * @type _ -> String
      */
@@ -490,11 +486,11 @@ strategies
     	sxbld-env-get-interface-judgement; not(?())
 
 /**
- * Handling of namespace-identifier
+ * Handling of namespace-identifier.
  */
 strategies
 	/**
-	 * Gets namespace-identifier
+	 * Gets namespace-identifier.
 	 *
 	 * @type _ -> String
 	 */
@@ -502,7 +498,7 @@ strategies
 		<sxbld-env-get> "namespace-identifier"
 
 	/**
-	 * Sets namespace-identifier
+	 * Sets namespace-identifier.
 	 *
 	 * @type String -> SXEnv
 	 */		
@@ -511,7 +507,7 @@ strategies
     	<sxbld-env-set> ("namespace-identifier", sort-name)
 
     /**
-     * Succeeds if namespace-identifier is defined
+     * Succeeds if namespace-identifier is defined.
      *
      * @type _ -> String
      */
@@ -519,11 +515,11 @@ strategies
     	sxbld-env-get-namespace-identifier; not(?"")
 
 /**
- * Handling of namespace-kind
+ * Handling of namespace-kind.
  */
 strategies
 	/**
-	 * Gets namespace-kind
+	 * Gets namespace-kind.
 	 *
 	 * @type _ -> SXBldNamespaceKind
 	 */
@@ -531,7 +527,7 @@ strategies
 		<sxbld-env-get> "namespace-kind"
 
 	/**
-	 * Sets namespace-kind
+	 * Sets namespace-kind.
 	 *
 	 * @type String -> SXEnv
 	 */		
@@ -540,30 +536,30 @@ strategies
     	<sxbld-env-set> ("namespace-kind", kind)
 
     /**
-     * Succeeds if namespace-kind is defined
+     * Succeeds if namespace-kind is defined.
      *
      * @type _ -> SXBldNamespaceKind
      */
     sxbld-env-is-namespace-kind-defined =
     	sxbld-env-get-namespace-kind;
-    	(?SXBldNamespaceFlat() + ?SXBldNamespaceHierarchical())
+    	(?SXBldNamespaceFlat() + ?SXBldNamespaceNested() + ?SXBldNamespacePrefixed())
 
 /**
- * Handling of body-decs
+ * Handling of body-decs.
  */
 strategies
 	/**
-	 * Adds a constructor and SDF2 symbol
+	 * Adds a constructor and SDF2 symbol.
 	 *
 	 * @type (String, Sdf2Symbol) -> SXEnv
 	 */
 	sxbld-env-add-body-dec =
 		?(name, symbol);
 		<sxbld-env-get> "body-decs" => decs;
-		<sxbld-env-set> ("body-decs", [(name, symbol)|decs])
+		<sxbld-env-set> ("body-decs", [(name, symbol) | decs])
 
     /**
-     * Gets list of body-decs constructors and SDF2 symbols
+     * Gets list of body-decs constructors and SDF2 symbols.
      *
      * @type _ -> List((String, Sdf2Symbol))
      */
@@ -575,7 +571,7 @@ strategies
  */
 strategies
 	/**
-	 * Adds a constructor, the namespace identifier position, and SDF2 symbol
+	 * Adds a constructor, the namespace identifier position, and SDF2 symbol.
 	 *
 	 * @type (String, Int, Sdf2Symbol) -> SXEnv
 	 */
@@ -584,7 +580,7 @@ strategies
 		<sxbld-env-set> ("namespace-dec", (name, index, symbol))
 
     /**
-     * Gets namespace-dec
+     * Gets namespace-dec.
      *
      * @type _ -> (String, Int, Sdf2Symbol)
      */
@@ -592,7 +588,7 @@ strategies
 		<sxbld-env-get> "namespace-dec"
 
 	/**
-	 * Succeeds if namespace-dec is defined
+	 * Succeeds if namespace-dec is defined.
 	 *
 	 * @type _ -> _
 	 */
@@ -600,7 +596,7 @@ strategies
 		<sxbld-env-get> "namespace-dec"; not(?())
 
 /**
- * Handling of freshness-condition
+ * Handling of freshness-condition.
  */
 strategies
 	/**
@@ -625,7 +621,7 @@ strategies
 		<hashtable-get(|sort-name)> ht
 
 /**
- * Handling of error-annotations
+ * Handling of error-annotations.
  */
 strategies
 	/**
@@ -651,11 +647,11 @@ strategies
 		<hashtable-get(|judg-name)> ht
 
 /**
- * Handling of import-decs
+ * Handling of import-decs.
  */
 strategies
 	/**
-	 * Adds a constructor, the module identifier position, and an SDF2 symbol
+	 * Adds a constructor, the module identifier position, and an SDF2 symbol.
 	 *
 	 * @type (String, Int, Sdf2Symbol) -> SXEnv
 	 */
@@ -665,7 +661,7 @@ strategies
 		<sxbld-env-set> ("import-decs", [(name, index, symbol)|decs])
 
     /**
-     * Gets list of imports-decs constructors, positions, and SDF2 symbols
+     * Gets list of imports-decs constructors, positions, and SDF2 symbols.
      *
      * @type _ -> List((String, Int, Sdf2Symbol))
      */
@@ -673,11 +669,11 @@ strategies
 		<sxbld-env-get> "import-decs"
 
 /**
- * Handling of extension-begin
+ * Handling of extension-begin.
  */
 strategies
 	/**
-	 * Gets extension-begin
+	 * Gets extension-begin.
 	 *
 	 * @type _ -> String
 	 */
@@ -685,7 +681,7 @@ strategies
 		<sxbld-env-get> "extension-begin"
 
 	/**
-	 * Sets extension-begin
+	 * Sets extension-begin.
 	 *
 	 * @type String -> SXEnv
 	 */		
@@ -694,7 +690,7 @@ strategies
     	<sxbld-env-set> ("extension-begin", sort-name)
 
     /**
-     * Succeeds if extension-begin is defined
+     * Succeeds if extension-begin is defined.
      *
      * @type _ -> String
      */
@@ -702,11 +698,11 @@ strategies
     	sxbld-env-get-extension-begin; not(?"")
 
 /**
- * Handling of extension-end
+ * Handling of extension-end.
  */
 strategies
 	/**
-	 * Gets extension-end
+	 * Gets extension-end.
 	 *
 	 * @type _ -> String
 	 */
@@ -714,7 +710,7 @@ strategies
 		<sxbld-env-get> "extension-end"
 
 	/**
-	 * Sets extension-end
+	 * Sets extension-end.
 	 *
 	 * @type String -> SXEnv
 	 */		
@@ -723,7 +719,7 @@ strategies
     	<sxbld-env-set> ("extension-end", sort-name)
 
     /**
-     * Succeeds if extension-end is defined
+     * Succeeds if extension-end is defined.
      *
      * @type _ -> String
      */
@@ -731,11 +727,11 @@ strategies
     	sxbld-env-get-extension-end; not(?"")
 
 /**
- * Handling of base-file-ext
+ * Handling of base-file-ext.
  */
 strategies
 	/**
-	 * Gets base-file-ext
+	 * Gets base-file-ext.
 	 *
 	 * @type _ -> String
 	 */
@@ -743,7 +739,7 @@ strategies
 		<sxbld-env-get> "base-file-ext"
 
 	/**
-	 * Sets base-file-ext
+	 * Sets base-file-ext.
 	 *
 	 * @type String -> SXEnv
 	 */		
@@ -752,7 +748,7 @@ strategies
     	<sxbld-env-set> ("base-file-ext", string)
 
     /**
-     * Succeeds if base-file-ext is defined
+     * Succeeds if base-file-ext is defined.
      *
      * @type _ -> String
      */
@@ -760,7 +756,7 @@ strategies
     	sxbld-env-get-base-file-ext; not(?"")
 
 /**
- * Handling of extensible-file-ext
+ * Handling of extensible-file-ext.
  */
 strategies
 	/**
@@ -772,7 +768,7 @@ strategies
 		<sxbld-env-get> "extensible-file-ext"
 
 	/**
-	 * Sets extensible-file-ext
+	 * Sets extensible-file-ext.
 	 *
 	 * @type String -> SXEnv
 	 */		
@@ -781,7 +777,7 @@ strategies
     	<sxbld-env-set> ("extensible-file-ext", string)
 
     /**
-     * Succeeds if extensible-file-ext is defined
+     * Succeeds if extensible-file-ext is defined.
      *
      * @type _ -> String
      */
