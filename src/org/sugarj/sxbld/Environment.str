@@ -50,8 +50,8 @@ imports org/sugarj/soundx/Debug
  */
 signature constructors
 	SXBldNamespaceFlat:     SXBldNamespaceKind
-	SXBldNamespaceNested:   SXBldNamespaceKind
-	SXBldNamespacePrefixed: SXBldNamespaceKind
+	SXBldNamespaceNested:   String -> SXBldNamespaceKind
+	SXBldNamespacePrefixed: String -> SXBldNamespaceKind
 
 /**
  * True and false.
@@ -542,7 +542,7 @@ strategies
      */
     sxbld-env-is-namespace-kind-defined =
     	sxbld-env-get-namespace-kind;
-    	(?SXBldNamespaceFlat() + ?SXBldNamespaceNested() + ?SXBldNamespacePrefixed())
+    	(?SXBldNamespaceFlat() + ?SXBldNamespaceNested(_) + ?SXBldNamespacePrefixed(_))
 
 /**
  * Handling of body-decs.
