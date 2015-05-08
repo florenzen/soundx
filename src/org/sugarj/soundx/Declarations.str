@@ -41,7 +41,7 @@ imports org/sugarj/soundx/FreshAtoms
 
 
 /**
- * Declarations defined in the base language
+ * Declarations defined in the base language.
  */
 strategies
 	sx-inference-rules = fail
@@ -53,6 +53,8 @@ strategies
 	sx-body-decs = fail
 	sx-namespace-dec = fail
 	sx-import-decs = fail
+	sx-namespace-kind = fail
+	sx-namespace-suffices = fail
 	sx-base-language-name = fail
 
 	sx-is-body-decl =

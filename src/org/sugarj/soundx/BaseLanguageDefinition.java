@@ -119,6 +119,12 @@ public class BaseLanguageDefinition {
 	 * Flat, nested, or prefixed namespace.
 	 */
 	private SXNamespaceKind namespaceKind;
+	
+	/**
+	 * Constructor names and argument indices of the namespace suffices
+	 * for prefixed namespaces.
+	 */
+	private Map<String, Integer> namespaceSuffices = new HashMap<String, Integer>();
 
 	/**
 	 * Names of the constructors of import declarations and the argument number
@@ -226,6 +232,7 @@ public class BaseLanguageDefinition {
 		blInstance.setBodyDecCons(bodyDecCons);
 		blInstance.setNamespaceDecCons(namespaceDecCons);
 		blInstance.setNamespaceKind(namespaceKind);
+		blInstance.setNamespaceSuffices(namespaceSuffices);
 	}
 
 	/**
@@ -504,6 +511,60 @@ public class BaseLanguageDefinition {
 							char sep = sepQuoted.substring(3, 4).charAt(0);
 							namespaceKind = new SXNamespacePrefixed(sep);
 							Debug.print("namespace separator: " + sep);
+						}
+					} else if (name.equals("sx-namespace-suffices")) {
+						// rhs =
+						// Build(NoAnnoList(ListTail([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons7\"")),NoAnnoList(Int("2"))]))],NoAnnoList(List([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons6\"")),NoAnnoList(Int("2"))]))]))
+						IStrategoTerm current = rhs.getSubterm(0);
+						while (current != null) {
+							StrategoAppl listCons = (StrategoAppl) current
+									.getSubterm(0); // Unwrap NoAnnoList
+							String applConsName = listCons.getConstructor()
+									.getName();
+							if (applConsName.equals("List")) {
+								StrategoList elems = (StrategoList) listCons
+										.getSubterm(0);
+								if (elems.size() == 0) {
+									current = null;
+								} else if (elems.size() == 1) {
+									IStrategoTerm elem = elems.head();
+									StrategoList comps = (StrategoList) elem
+											.getSubterm(0).getSubterm(0);
+									IStrategoTerm fstComp = comps.head();
+									IStrategoTerm sndComp = comps.tail().head();
+									String consName = unquote(((StrategoString) fstComp
+											.getSubterm(0).getSubterm(0))
+											.getName());
+									Integer index = Integer
+											.valueOf(((StrategoString) sndComp
+													.getSubterm(0)
+													.getSubterm(0)).getName());
+									namespaceSuffices.put(consName, index);
+									Debug.print("namespace-suffix " + consName + ","
+											+ index);
+									current = null;
+								} else
+									fail("Error reading end of namespace-suffices list");
+							} else if (applConsName.equals("ListTail")) {
+								StrategoList hd = (StrategoList) listCons
+										.getSubterm(0);
+								IStrategoTerm elem = hd.head();
+								StrategoList comps = (StrategoList) elem
+										.getSubterm(0).getSubterm(0);
+								IStrategoTerm fstComp = comps.head();
+								IStrategoTerm sndComp = comps.tail().head();
+								String consName = unquote(((StrategoString) fstComp
+										.getSubterm(0).getSubterm(0)).getName());
+								Integer index = Integer
+										.valueOf(((StrategoString) sndComp
+												.getSubterm(0).getSubterm(0))
+												.getName());
+								namespaceSuffices.put(consName, index);
+								Debug.print("namespace-suffix " + consName + ","
+										+ index);
+								current = listCons.getSubterm(1);
+							} else
+								fail("Error reading namespace-suffices");
 						}
 					}
 				}

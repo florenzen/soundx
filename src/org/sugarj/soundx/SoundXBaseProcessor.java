@@ -68,6 +68,7 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 	private RelativePath sourceFile;
 	private Path outFile;
 	private String moduleName;
+	private boolean moduleNameDeclared = false;
 
 	private SoundXBaseLanguage language;
 	
@@ -122,51 +123,143 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 				.dropExtension(sourceFile.getRelativePath()) + srcExt);
 	}
 
-	private void processNamespaceDecl(IStrategoTerm toplevelDecl)
-			throws IOException {
+	private void processNamespaceDecl(IStrategoTerm toplevelDecl) {
+		moduleHeader = prettyPrint(toplevelDecl);
+
 		Pair<String, Integer> namespaceDecCons = getLanguage()
 				.getNamespaceDecCons();
-		String qualifiedModuleName = prettyPrint(getApplicationSubterm(
+		String namespaceIdentifier = prettyPrint(getApplicationSubterm(
 				toplevelDecl, namespaceDecCons.a, namespaceDecCons.b));
-		// Debug.print("qualifiedModuleName: " + qualifiedModuleName);
-		String qualifiedModulePath = "";
+		
 		SXNamespaceKind kind = getLanguage().getNamespaceKind();
-		// Debug.print("namespace kind " + kind);
-		if (kind instanceof SXNamespaceNested) {
-			char sep = ((SXNamespaceNested)kind).getSeparator();
-			qualifiedModulePath = qualifiedModuleName.replace(sep, File.separatorChar);
-		} else { // Take flat namespace as default
-			qualifiedModulePath = qualifiedModuleName;
+		if (kind instanceof SXNamespaceFlat) {
+			processFlatNamespaceDecl(namespaceIdentifier);
 		}
-		// Debug.print("qualifiedModulePath: " + qualifiedModulePath);
-		String declaredModuleName = FileCommands.fileName(qualifiedModulePath);
-		// Debug.print("declaredModuleName: " + declaredModuleName);
-		moduleName = FileCommands.dropExtension(FileCommands
+		else if (kind instanceof SXNamespaceNested) {
+			processNestedNamespaceDecl(namespaceIdentifier);
+		}
+		else if (kind instanceof SXNamespacePrefixed) {
+			processPrefixedNamespaceDecl(namespaceIdentifier);
+		}
+	}
+	
+	private void processFlatNamespaceDecl(String moduleIdentifier) {
+		String moduleIdentifierFromFile = FileCommands.dropExtension(FileCommands
 				.fileName(sourceFile.getRelativePath()));
-		String declaredRelNamespaceName = FileCommands
-				.dropFilename(qualifiedModulePath);
-		relNamespaceName = FileCommands.dropFilename(sourceFile
-				.getRelativePath());
+		relNamespaceName = "";
+		moduleName = moduleIdentifier;
 
 		RelativePath objectFile = environment
 				.createOutPath(getRelativeNamespaceSep() + moduleName + "."
 						+ getLanguage().getBinaryFileExtension());
 		generatedModules.add(objectFile);
 
-		moduleHeader = prettyPrint(toplevelDecl);
-
-		if (!declaredRelNamespaceName.equals(relNamespaceName))
-			throw new RuntimeException("The declared namespace '"
-					+ declaredRelNamespaceName + "'"
-					+ " does not match the expected namespace '"
-					+ relNamespaceName + "'.");
-
-		if (!declaredModuleName.equals(moduleName))
+		if (!moduleIdentifierFromFile.equals(moduleIdentifier))
 			throw new RuntimeException("The declared module name '"
-					+ declaredModuleName + "'"
-					+ " does not match the expected module name '" + moduleName
+					+ moduleIdentifier + "'"
+					+ " does not match the expected module name '" + moduleIdentifierFromFile
 					+ "'.");
 	}
+	
+	private void processNestedNamespaceDecl(String moduleIdentifier) {
+		char sep = ((SXNamespaceNested)getLanguage().getNamespaceKind()).getSeparator();
+		String qualifiedModulePath = moduleIdentifier.replace(sep, File.separatorChar);
+		String moduleIdentifierFromFile = FileCommands.dropExtension(FileCommands
+				.fileName(sourceFile.getRelativePath()));
+		String namespaceNameFromFile = FileCommands.dropFilename(sourceFile
+				.getRelativePath());
+		String moduleIdentifierFromDecl = FileCommands.fileName(qualifiedModulePath);
+		String namespaceNameFromDecl = FileCommands.dropFilename(qualifiedModulePath);
+		
+		relNamespaceName = namespaceNameFromFile;
+		moduleName = moduleIdentifierFromFile;
+		
+		RelativePath objectFile = environment
+				.createOutPath(getRelativeNamespaceSep() + moduleName + "."
+						+ getLanguage().getBinaryFileExtension());
+		generatedModules.add(objectFile);
+
+		if (!namespaceNameFromFile.equals(namespaceNameFromDecl))
+			throw new RuntimeException("The declared namespace '"
+					+ namespaceNameFromDecl + "'"
+					+ " does not match the expected namespace '"
+					+ namespaceNameFromFile + "'.");
+
+		if (!moduleIdentifierFromFile.equals(moduleIdentifierFromDecl))
+			throw new RuntimeException("The declared module name '"
+					+ moduleIdentifierFromDecl + "'"
+					+ " does not match the expected module name '" + moduleIdentifierFromFile
+					+ "'.");
+	}
+
+	private void processPrefixedNamespaceDecl(String namespaceName) {
+		char sep = ((SXNamespacePrefixed)getLanguage().getNamespaceKind()).getSeparator();
+		String namespaceNameFromDecl = namespaceName.replace(sep, File.separatorChar);
+		
+		String moduleIdentifierFromFile = FileCommands.dropExtension(FileCommands
+				.fileName(sourceFile.getRelativePath()));
+		String namespaceNameFromFile = FileCommands.dropFilename(sourceFile
+				.getRelativePath());
+		
+		relNamespaceName = namespaceNameFromFile;
+		moduleName = moduleIdentifierFromFile;
+		
+		if (!namespaceNameFromFile.equals(namespaceNameFromDecl))
+			throw new RuntimeException("The declared namespace '"
+					+ namespaceNameFromDecl + "'"
+					+ " does not match the expected namespace '"
+					+ namespaceNameFromFile + "'.");
+	}
+
+//	private void processNamespaceDecl(IStrategoTerm toplevelDecl)
+//			throws IOException {
+//		Pair<String, Integer> namespaceDecCons = getLanguage()
+//				.getNamespaceDecCons();
+//		String qualifiedModuleName = prettyPrint(getApplicationSubterm(
+//				toplevelDecl, namespaceDecCons.a, namespaceDecCons.b));
+//		// Debug.print("qualifiedModuleName: " + qualifiedModuleName);
+//		String qualifiedModulePath = "";
+//		SXNamespaceKind kind = getLanguage().getNamespaceKind();
+//		// Debug.print("namespace kind " + kind);
+//		if (kind instanceof SXNamespaceNested) {
+//			char sep = ((SXNamespaceNested)kind).getSeparator();
+//			qualifiedModulePath = qualifiedModuleName.replace(sep, File.separatorChar);
+//		} else { // Take flat namespace as default
+//			qualifiedModulePath = qualifiedModuleName;
+//		}
+//		// Debug.print("qualifiedModulePath: " + qualifiedModulePath);
+//		String declaredModuleName = "";
+//		if (kind instanceof SXNamespaceNested || kind instanceof SXNamespaceFlat) {
+//			declaredModuleName = FileCommands.fileName(qualifiedModulePath);
+//		}
+//		
+//		// Debug.print("declaredModuleName: " + declaredModuleName);
+//		moduleName = FileCommands.dropExtension(FileCommands
+//				.fileName(sourceFile.getRelativePath()));
+//		String declaredRelNamespaceName = FileCommands
+//				.dropFilename(qualifiedModulePath);
+//		relNamespaceName = FileCommands.dropFilename(sourceFile
+//				.getRelativePath());
+//
+//		RelativePath objectFile = environment
+//				.createOutPath(getRelativeNamespaceSep() + moduleName + "."
+//						+ getLanguage().getBinaryFileExtension());
+//		generatedModules.add(objectFile);
+//
+//		moduleHeader = prettyPrint(toplevelDecl);
+//
+//		if (!declaredRelNamespaceName.equals(relNamespaceName))
+//			throw new RuntimeException("The declared namespace '"
+//					+ declaredRelNamespaceName + "'"
+//					+ " does not match the expected namespace '"
+//					+ relNamespaceName + "'.");
+//
+//		if (!declaredModuleName.equals(moduleName))
+//			throw new RuntimeException("The declared module name '"
+//					+ declaredModuleName + "'"
+//					+ " does not match the expected module name '" + moduleName
+//					+ "'.");
+//	}
 
 	@Override
 	public List<String> processBaseDecl(IStrategoTerm toplevelDecl)
@@ -174,6 +267,32 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 		if (getLanguage().isNamespaceDec(toplevelDecl)) {
 			processNamespaceDecl(toplevelDecl);
 			return Collections.emptyList();
+		}
+
+		// Set module name for prefixed namespaces.
+		if (getLanguage().getNamespaceKind() instanceof SXNamespacePrefixed) {
+			String consName = ((StrategoAppl)toplevelDecl).getConstructor().getName();
+			Map<String, Integer> namespaceSuffices = getLanguage().getNamespaceSuffices();
+			if (namespaceSuffices.containsKey(consName)) {
+				Integer index = namespaceSuffices.get(consName);
+				String moduleIdentifierFromDecl = prettyPrint(getApplicationSubterm(toplevelDecl, consName, index));
+				Debug.print("found suffix: " + moduleIdentifierFromDecl);
+				String moduleIdentifierFromFile = FileCommands.dropExtension(FileCommands
+						.fileName(sourceFile.getRelativePath()));
+				
+				if (!moduleIdentifierFromFile.equals(moduleIdentifierFromDecl))
+					throw new RuntimeException("The declared module name '"
+							+ moduleIdentifierFromDecl + "'"
+							+ " does not match the expected module name '" + moduleIdentifierFromFile
+							+ "'.");
+				
+				if (moduleNameDeclared) {
+					throw new RuntimeException("The module name can only be declared once.");
+				}
+				else {
+					moduleNameDeclared = true;
+				}
+			}
 		}
 
 		String text = null;
@@ -196,14 +315,19 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 		SXNamespaceKind kind = getLanguage().getNamespaceKind();
 		String importedModule = prettyPrint(getApplicationSubterm(toplevelDecl, consName, index));
 		String importedModulePath = "";
-		
+		Debug.print("kind " + kind);
 		if (kind instanceof SXNamespaceNested) {
 			char sep = ((SXNamespaceNested)kind).getSeparator();
+			importedModulePath = importedModule.replace(sep, File.separatorChar);
+		}
+		else if (kind instanceof SXNamespacePrefixed) {
+			char sep = ((SXNamespacePrefixed)kind).getSeparator();
 			importedModulePath = importedModule.replace(sep, File.separatorChar);
 		}
 		else { // Take flat namespace as default
 			importedModulePath = importedModule;
 		}
+		Debug.print("importedModulePath " + importedModulePath);
 		return importedModulePath;
 	}
 

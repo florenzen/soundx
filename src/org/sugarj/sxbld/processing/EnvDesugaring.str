@@ -78,6 +78,8 @@ strategies
 	    sxbld-env-decls-to-stratego(|freshness-conditions, "freshness-conditions") => trans-freshness;
 	    <sxbld-env-get; hashtable-getlist> "error-annotations" => error-annotations;
 	    sxbld-env-decls-to-stratego(|error-annotations, "error-annotations") => trans-error;
+	    <sxbld-env-get> "namespace-suffices" => namespace-suffices;
+	    sxbld-env-decls-to-stratego(|namespace-suffices, "namespace-suffices") => trans-namespace-suffices;
 	    <conc> (grm-elems-plain, grm-elems-toplevel-decs, grm-elems-intf-judg,
 	    	grm-elems-get-intf-judg, grm-elems-delims) => grammar-elems;
 	    // generate a PP table for the base language
@@ -93,7 +95,8 @@ strategies
 	    		trans-error,
 	            trans-base-file-ext,
 	            trans-ext-file-ext,
-	            trans-namespace-kind) => transformation-elems;
+	            trans-namespace-kind,
+	            trans-namespace-suffices) => transformation-elems;
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems,
   	    	extension-elems-body-dec, extension-elems-namespace-dec,
   	    	extension-elems-import-dec, extension-elems-base-lang-name))

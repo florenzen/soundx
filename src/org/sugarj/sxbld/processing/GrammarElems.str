@@ -173,6 +173,7 @@ strategies
     	<sxbld-analyze-body-dec> (symbol, analyzed-attributes);
     	<sxbld-analyze-namespace-dec> (symbols, symbol, analyzed-attributes);
     	<sxbld-analyze-import-dec> (symbols, symbol, analyzed-attributes);
+    	<sxbld-analyze-namespace-suffix> (symbols, symbol, analyzed-attributes);
     	<sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
     	<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => prefixed-ground-symbols;
@@ -340,7 +341,37 @@ strategies
 						<sxbld-analyze-fail(|"Label of `sx-import-dec' must be attached to symbol on lhs")> label
 					end
 				else
-					<sxbld-analyze-fail(|"`sx-import-dec' takes exatcly one argument")> import-attrib
+					<sxbld-analyze-fail(|"`sx-import-dec' takes exactly one argument")> import-attrib
+				end
+			else
+				id
+			end)
+
+	/**
+	 * Registers constructor and argument index of namespace suffix if sx-namespace-suffix
+	 * is given.
+	 *
+	 * The attributes must contain a cons attribute.
+	 *
+	 * @type (Sdf2Symbols, Sdf2Symbol, Sdf2Attributes) -> (Sdf2Symbols, Sdf2Symbol, Sdf2Attributes)
+	 */
+	sxbld-analyze-namespace-suffix =
+		?(symbols, symbol, attributes);
+		where(
+			if <sx-sdf2-is-aterm-attribute-defined(|"sx-namespace-suffix")> attributes then
+				<sx-sdf2-extract-aterm-attribute(|"sx-namespace-suffix")> attributes => import-attrib;
+				<sx-sdf2-extract-aterm-attribute(|"cons")> attributes => cons-attrib;
+				<sx-sdf2-cons-attribute-name-quoted; un-double-quote> cons-attrib => cons-name;
+				<sx-sdf2-get-args-from-aterm-attribute> import-attrib => import-args;
+				if ?[fun(unquoted(label))] then
+					if <sx-sdf2-find-index-of-labelled-symbol(|label)> symbols => index then
+						//<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
+						<sxbld-env-add-namespace-suffix> (cons-name, index)
+					else
+						<sxbld-analyze-fail(|"Label of `sx-namespace-suffix' must be attached to symbol on lhs")> label
+					end
+				else
+					<sxbld-analyze-fail(|"`sx-namespace-suffix' takes exactly one argument")> import-attrib
 				end
 			else
 				id

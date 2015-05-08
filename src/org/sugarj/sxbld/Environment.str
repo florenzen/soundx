@@ -98,6 +98,7 @@ strategies
   	    hashtable-put(|"namespace-kind", ());
   	    hashtable-put(|"body-decs", []);
   	    hashtable-put(|"namespace-dec", ());
+  	    hashtable-put(|"namespace-suffices", []);
   	    hashtable-put(|"cons-names", []);
   	    hashtable-put(|"import-decs", []);
   	    hashtable-put(|"extension-begin", "");
@@ -651,7 +652,7 @@ strategies
 	sxbld-env-add-import-dec =
 		?(name, index, symbol);
 		<sxbld-env-get> "import-decs" => decs;
-		<sxbld-env-set> ("import-decs", [(name, index, symbol)|decs])
+		<sxbld-env-set> ("import-decs", [(name, index, symbol) | decs])
 
     /**
      * Gets list of imports-decs constructors, positions, and SDF2 symbols.
@@ -660,6 +661,28 @@ strategies
      */
 	sxbld-env-get-import-decs =
 		<sxbld-env-get> "import-decs"
+
+/**
+ * Handling of namespace-suffices.
+ */
+strategies
+	/**
+	 * Adds a constructor and the suffix position to the list of possible namespace suffices.
+	 *
+	 * @type (String, Int) -> SXEnv
+	 */
+	sxbld-env-add-namespace-suffix =
+		?(name, index);
+		<sxbld-env-get> "namespace-suffices" => decs;
+		<sxbld-env-set> ("namespace-suffices", [(name, index) | decs])
+
+    /**
+     * Gets list of namespace-suffices (constructor names and argument indices).
+     *
+     * @type _ -> List((String, Int))
+     */
+	sxbld-env-get-namespace-suffices =
+		<sxbld-env-get> "namespace-suffices"
 
 /**
  * Handling of extension-begin.

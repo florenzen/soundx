@@ -77,6 +77,15 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	private Map<String, Integer> importDecCons;
 	private Set<String> bodyDecCons;
 	private SXNamespaceKind namespaceKind;
+	private Map<String, Integer> namespaceSuffices;
+
+	public Map<String, Integer> getNamespaceSuffices() {
+		return namespaceSuffices;
+	}
+
+	protected void setNamespaceSuffices(Map<String, Integer> namespaceSuffices) {
+		this.namespaceSuffices = namespaceSuffices;
+	}
 
 	public Pair<String, Integer> getNamespaceDecCons() {
 		return namespaceDecCons;
