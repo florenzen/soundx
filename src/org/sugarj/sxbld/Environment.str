@@ -41,17 +41,10 @@ imports org/sugarj/languages/Stratego
 imports org/sugarj/languages/SXBld
 
 imports org/sugarj/soundx/MetaExplode
+		org/sugarj/soundx/AbstractSyntax
 
 imports org/sugarj/soundx/Debug
 
-
-/**
- * Namespace kinds.
- */
-signature constructors
-	SXBldNamespaceFlat:     SXBldNamespaceKind
-	SXBldNamespaceNested:   String -> SXBldNamespaceKind
-	SXBldNamespacePrefixed: String -> SXBldNamespaceKind
 
 /**
  * True and false.
@@ -521,7 +514,7 @@ strategies
 	/**
 	 * Gets namespace-kind.
 	 *
-	 * @type _ -> SXBldNamespaceKind
+	 * @type _ -> SXNamespaceKind
 	 */
 	sxbld-env-get-namespace-kind =
 		<sxbld-env-get> "namespace-kind"
@@ -529,7 +522,7 @@ strategies
 	/**
 	 * Sets namespace-kind.
 	 *
-	 * @type SXBldNamespaceKind -> SXEnv
+	 * @type SXNamespaceKind -> SXEnv
 	 */		
     sxbld-env-set-namespace-kind =
     	?kind;
@@ -538,11 +531,11 @@ strategies
     /**
      * Succeeds if namespace-kind is defined.
      *
-     * @type _ -> SXBldNamespaceKind
+     * @type _ -> SXNamespaceKind
      */
     sxbld-env-is-namespace-kind-defined =
     	sxbld-env-get-namespace-kind;
-    	(?SXBldNamespaceFlat() + ?SXBldNamespaceNested(_) + ?SXBldNamespacePrefixed(_))
+    	(?SXNamespaceFlat() + ?SXNamespaceNested(_) + ?SXNamespacePrefixed(_))
 
 /**
  * Handling of body-decs.

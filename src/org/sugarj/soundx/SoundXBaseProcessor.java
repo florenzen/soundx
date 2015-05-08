@@ -32,6 +32,7 @@ package org.sugarj.soundx;
 
 import static org.sugarj.common.ATermCommands.getApplicationSubterm;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
@@ -127,11 +128,23 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 				.getNamespaceDecCons();
 		String qualifiedModuleName = prettyPrint(getApplicationSubterm(
 				toplevelDecl, namespaceDecCons.a, namespaceDecCons.b));
-		String declaredModuleName = FileCommands.fileName(qualifiedModuleName);
+		// Debug.print("qualifiedModuleName: " + qualifiedModuleName);
+		String qualifiedModulePath = "";
+		SXNamespaceKind kind = getLanguage().getNamespaceKind();
+		// Debug.print("namespace kind " + kind);
+		if (kind instanceof SXNamespaceNested) {
+			char sep = ((SXNamespaceNested)kind).getSeparator();
+			qualifiedModulePath = qualifiedModuleName.replace(sep, File.separatorChar);
+		} else { // Take flat namespace as default
+			qualifiedModulePath = qualifiedModuleName;
+		}
+		// Debug.print("qualifiedModulePath: " + qualifiedModulePath);
+		String declaredModuleName = FileCommands.fileName(qualifiedModulePath);
+		// Debug.print("declaredModuleName: " + declaredModuleName);
 		moduleName = FileCommands.dropExtension(FileCommands
 				.fileName(sourceFile.getRelativePath()));
 		String declaredRelNamespaceName = FileCommands
-				.dropFilename(qualifiedModuleName);
+				.dropFilename(qualifiedModulePath);
 		relNamespaceName = FileCommands.dropFilename(sourceFile
 				.getRelativePath());
 
@@ -180,7 +193,18 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 		Map<String, Integer> importDecCons = getLanguage().getImportDecCons();
 		String consName = ((StrategoAppl) toplevelDecl).getConstructor().getName();
 		Integer index = importDecCons.get(consName);
-		return prettyPrint(getApplicationSubterm(toplevelDecl, consName, index));
+		SXNamespaceKind kind = getLanguage().getNamespaceKind();
+		String importedModule = prettyPrint(getApplicationSubterm(toplevelDecl, consName, index));
+		String importedModulePath = "";
+		
+		if (kind instanceof SXNamespaceNested) {
+			char sep = ((SXNamespaceNested)kind).getSeparator();
+			importedModulePath = importedModule.replace(sep, File.separatorChar);
+		}
+		else { // Take flat namespace as default
+			importedModulePath = importedModule;
+		}
+		return importedModulePath;
 	}
 
 	@Override

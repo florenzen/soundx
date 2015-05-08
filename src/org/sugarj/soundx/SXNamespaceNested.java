@@ -1,13 +1,13 @@
 package org.sugarj.soundx;
 
 public class SXNamespaceNested extends SXNamespaceKind {
-	private String separator;
+	private char separator;
 
-	public SXNamespaceNested(String separator) {
+	public SXNamespaceNested(char separator) {
 		this.separator = separator;
 	}
 
-	public String getSeparator() {
+	public char getSeparator() {
 		return separator;
 	}	
 }

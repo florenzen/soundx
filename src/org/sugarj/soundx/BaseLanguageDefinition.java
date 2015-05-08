@@ -485,23 +485,23 @@ public class BaseLanguageDefinition {
 						}
 					} else if (name.equals("sx-namespace-kind")) {
 						// rhs =
-						// Build(NoAnnoList(Op("SXBldNamespaceNested",[NoAnnoList(Str("\".\""))])))
+						// Build(NoAnnoList(Op("SXNamespaceNested",[NoAnnoList(Str("\".\""))])))
 						// Strip Build and NoAnnoList
 						IStrategoTerm rhs1 = rhs.getSubterm(0).getSubterm(0);
 						String kind = unquote(rhs1.getSubterm(0).toString());
 						Debug.print("namespace kind: " + kind);
-						if (kind.equals("SXBldNamespaceFlat")) {
+						if (kind.equals("SXNamespaceFlat")) {
 							namespaceKind = new SXNamespaceFlat();
-						} else if (kind.equals("SXBldNamespaceNested")) {
+						} else if (kind.equals("SXNamespaceNested")) {
 							String sepQuoted = ((IStrategoList) rhs1.getSubterm(1))
 									.head().getSubterm(0).getSubterm(0).toString();
-							String sep = sepQuoted.substring(3, 4);
+							char sep = sepQuoted.substring(3, 4).charAt(0);
 							namespaceKind = new SXNamespaceNested(sep);
 							Debug.print("namespace separator: " + sep);
-						} else if (kind.equals("SXBldNamespacePrefixed")) {
+						} else if (kind.equals("SXNamespacePrefixed")) {
 							String sepQuoted = ((IStrategoList) rhs1.getSubterm(1))
 									.head().getSubterm(0).getSubterm(0).toString();
-							String sep = sepQuoted.substring(3, 4);
+							char sep = sepQuoted.substring(3, 4).charAt(0);
 							namespaceKind = new SXNamespacePrefixed(sep);
 							Debug.print("namespace separator: " + sep);
 						}

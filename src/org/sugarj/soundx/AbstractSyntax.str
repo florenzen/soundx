@@ -403,3 +403,11 @@ strategies
  		in
  			collect-all(collect-s)
 		end
+
+/**
+ * Kinds of namespaces.
+ */
+signature constructors
+	SXNamespaceFlat:               SXNamespaceKind
+	SXNamespaceNested:   String -> SXNamespaceKind
+	SXNamespacePrefixed: String -> SXNamespaceKind
