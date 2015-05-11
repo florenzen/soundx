@@ -122,7 +122,7 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 			Path pluginDirectory) {
 		Debug.print("Processing " + bldFilename);
 		Debug.print("Plugin directory " + pluginDirectory.toString());
-		
+
 		BaseLanguageDefinition bld = new BaseLanguageDefinition();
 		bld.process(this, bldFilename, pluginDirectory);
 	}
@@ -225,7 +225,9 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 
 	@Override
 	public boolean isExtensionDecl(IStrategoTerm decl) {
-		return isApplication(decl, "SXExtensionDecl");
+		return isApplication(decl, "SXExtensionDecl")
+				|| isApplication(decl, "SXExtensionBegin")
+				|| isApplication(decl, "SXExtensionEnd");
 	}
 
 	@Override

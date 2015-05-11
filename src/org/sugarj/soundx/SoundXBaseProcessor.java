@@ -31,6 +31,7 @@
 package org.sugarj.soundx;
 
 import static org.sugarj.common.ATermCommands.getApplicationSubterm;
+import static org.sugarj.common.ATermCommands.isApplication;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +44,7 @@ import java.util.Set;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.StrategoAppl;
+import org.spoofax.terms.TermFactory;
 import org.sugarj.AbstractBaseProcessor;
 import org.sugarj.common.ATermCommands;
 import org.sugarj.common.Environment;
@@ -291,6 +293,7 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 				}
 				else {
 					moduleNameDeclared = true;
+					moduleName = moduleIdentifierFromFile;
 				}
 			}
 		}
@@ -373,7 +376,39 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 
 	@Override
 	public IStrategoTerm getExtensionBody(IStrategoTerm decl) {
-		IStrategoTerm term = getApplicationSubterm(decl, "SXExtensionDecl", 0);
-		return term;
+		Debug.print("getExtensionBody: " + decl);
+		SXNamespaceKind kind = getLanguage().getNamespaceKind();
+		if (isApplication(decl, "SXExtensionBegin") || isApplication(decl, "SXExtensionEnd")) {
+			if (kind instanceof SXNamespacePrefixed) {
+				String consName = ((StrategoAppl) decl).getConstructor().getName();
+				Map<String, Integer> namespaceSuffices = getLanguage().getNamespaceSuffices();
+				if (namespaceSuffices.containsKey(consName)) {
+					Integer index = namespaceSuffices.get(consName);
+					String moduleIdentifierFromDecl = prettyPrint(getApplicationSubterm(decl, consName, index));
+					Debug.print("found suffix: " + moduleIdentifierFromDecl);
+					String moduleIdentifierFromFile = FileCommands.dropExtension(FileCommands
+							.fileName(sourceFile.getRelativePath()));
+					
+					if (!moduleIdentifierFromFile.equals(moduleIdentifierFromDecl))
+						throw new RuntimeException("The declared module name '"
+								+ moduleIdentifierFromDecl + "'"
+								+ " does not match the expected module name '" + moduleIdentifierFromFile
+								+ "'.");
+					
+					if (moduleNameDeclared) {
+						throw new RuntimeException("The module name can only be declared once.");
+					}
+					else {
+						moduleNameDeclared = true;
+						moduleName = moduleIdentifierFromFile;
+					}
+				}
+			}
+			return TermFactory.EMPTY_LIST;
+		}
+		else {
+			IStrategoTerm term = getApplicationSubterm(decl, "SXExtensionDecl", 0);
+			return term;
+		}
 	}
 }

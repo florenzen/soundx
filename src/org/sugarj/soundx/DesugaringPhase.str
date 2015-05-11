@@ -95,7 +95,8 @@ strategies
 				// can be extracted by constraint-error.
 				// If it is a namespace of import decl return it unchanged.
 				<put-analysis-data(|"all-errors", errors)> decl;
-				if !decl; (sx-is-namespace-decl + sx-is-import-decl) then
+				if !decl; (sx-is-namespace-decl + sx-is-import-decl +
+					sx-is-extension-begin + sx-is-extension-end) then
 					!decl
 				else
 					!""
@@ -109,7 +110,8 @@ strategies
 				// verification time which takes place before the desugaring
 				// of the last toplevel declaration
 				sx-env-extract-extension-decls-stratego => trans-decls;
-				if !decl; (sx-is-namespace-decl + sx-is-import-decl) then
+				if !decl; (sx-is-namespace-decl + sx-is-import-decl +
+					sx-is-extension-begin + sx-is-extension-end) then
 					![decl, SXExtensionDecl(trans-decls)]
 				else
 					![SXExtensionDecl(trans-decls)]
