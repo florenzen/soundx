@@ -30,7 +30,7 @@
  */
 
 /**
- * Prefixing of SDF2 sort names
+ * Prefixing of SDF2 sort names.
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */
@@ -47,14 +47,14 @@ imports org/sugarj/soundx/Debug
 
 strategies
 	/**
-	 * Prefixes all sort names with the base language name
+	 * Prefixes all sort names with the base language name.
 	 *
 	 * @type a -> a
 	 */
 	sx-prefix-all-sorts-base-lang = topdown(try(sx-prefix-sort-base-lang))
 
     /**
-     * Prefixes all sort names with the given prefix
+     * Prefixes all sort names with the given prefix.
      *
      * @param prefix String
      *
@@ -63,7 +63,7 @@ strategies
 	sx-prefix-all-sorts(|prefix) = topdown(try(sx-prefix-sort(|prefix)))
 	
 	/**
-	 * Prefixes the sort name with the base language name
+	 * Prefixes the sort name with the base language name.
 	 *
 	 * @type Sdf2Symbol -> Sdf2Symbol
 	 */
@@ -72,7 +72,7 @@ strategies
 		sx-prefix-sort(|prefix)
 
     /**
-     * Prefixes the sort name with the given prefix
+     * Prefixes the sort name with the given prefix.
      *
      * @param prefix String
      *
@@ -86,7 +86,7 @@ strategies
 		end
 
 	/**
-	 * Prefixes the string with the base language name and the namespace
+	 * Prefixes the string with the base language name and the mangled namespace.
 	 *
 	 * @type String -> String
 	 */
@@ -95,9 +95,56 @@ strategies
 		sx-base-language-name => prefix;
 		(sx-env-get-namespace => namespace <+
 		 <sx-analysis-fail(|"no namespace defined")> name);
-		<conc-strings> (prefix, namespace, name)
-		// TODO the namespace may have to be mangled
+		<sx-prefix-mangle-namespace> namespace => mangled-namespace;
+		<conc-strings> (prefix, mangled-namespace, name)
 
+	/**
+	 * Mangles the namespace such that it contains only characters that
+	 * are valid as Stratego constructor names.
+	 *
+	 * @type String -> String
+	 */
+	sx-prefix-mangle-namespace =
+		?namespace;
+		![(".", "_dot_"),
+		  (":", "_colon_"),
+		  ("!", "_bang_"),
+		  ("@", "_at_"),
+		  (",", "_comma_"),
+		  (":", "_semi_"),
+		  ("=", "_equal_"),
+		  ("#", "_hash_"),
+		  ("$", "_dollar_"),
+		  ("%", "_percent_"),
+		  ("^", "_caret_"),
+		  ("&", "_amp_"),
+		  ("*", "_asterisk_"),
+		  ("(", "_open_"),
+		  (")", "_close_"),
+		  ("+", "_plus_"),
+		  ("|", "_pipe_"),
+		  ("\\", "_backslash_"),
+		  ("/", "_slash_"),
+		  ("?", "_question_"),
+		  ("~", "_tilde_"),
+		  ("<", "_lt_"),
+		  (">", "_gt_"),
+		  ("[", "_bracketopen_"),
+		  ("]", "_bracketclose_"),
+		  ("{", "_braceopen_"),
+		  ("}", "_braceclose_")] => mangle-map;
+		let fold-s = {
+			char, repl, current-namespace:
+				?((char, repl), current-namespace);
+				<string-replace(|char, repl)> current-namespace
+			}
+		in
+			<sx-debug(|"mangle in ")> namespace; 
+			<foldl(fold-s)> (mangle-map, namespace) => mangled-namespace;
+			<sx-debug(|"mangle out ")> mangled-namespace;
+			!mangled-namespace
+		end
+	
 	/**
 	 * Removes the base language and namespace prefix from the string.
 	 *
@@ -108,7 +155,8 @@ strategies
 		sx-base-language-name => prefix;
 		(sx-env-get-namespace => namespace <+
 		 <sx-analysis-fail(|"no namespace defined")> name);
-		<string-length> (<conc-strings> (prefix, namespace)) => len;
+		<sx-prefix-mangle-namespace> namespace => mangled-namespace;
+		<string-length> (<conc-strings> (prefix, mangled-namespace)) => len;
 		<explode-string> name => name-chars;
 		<drop(|len)> name-chars => dropped-chars;
 		<implode-string> dropped-chars

@@ -380,11 +380,16 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 		SXNamespaceKind kind = getLanguage().getNamespaceKind();
 		if (isApplication(decl, "SXExtensionBegin") || isApplication(decl, "SXExtensionEnd")) {
 			if (kind instanceof SXNamespacePrefixed) {
-				String consName = ((StrategoAppl) decl).getConstructor().getName();
+				IStrategoTerm term = null;
+				if (isApplication(decl, "SXExtensionBegin"))
+					term = getApplicationSubterm(decl, "SXExtensionBegin", 0);
+				if (isApplication(decl, "SXExtnsionEnd"))
+					term = getApplicationSubterm(decl, "SXExtensionEnd", 0);
+				String consName = ((StrategoAppl)term).getConstructor().getName();
 				Map<String, Integer> namespaceSuffices = getLanguage().getNamespaceSuffices();
 				if (namespaceSuffices.containsKey(consName)) {
 					Integer index = namespaceSuffices.get(consName);
-					String moduleIdentifierFromDecl = prettyPrint(getApplicationSubterm(decl, consName, index));
+					String moduleIdentifierFromDecl = prettyPrint(getApplicationSubterm(term, consName, index));
 					Debug.print("found suffix: " + moduleIdentifierFromDecl);
 					String moduleIdentifierFromFile = FileCommands.dropExtension(FileCommands
 							.fileName(sourceFile.getRelativePath()));

@@ -225,9 +225,12 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 
 	@Override
 	public boolean isExtensionDecl(IStrategoTerm decl) {
-		return isApplication(decl, "SXExtensionDecl")
+		boolean isExtDec = isApplication(decl, "SXExtensionDecl")
 				|| isApplication(decl, "SXExtensionBegin")
 				|| isApplication(decl, "SXExtensionEnd");
+		Debug.print("is ext dec: " + isExtDec + " " + decl);
+		
+		return isExtDec;
 	}
 
 	@Override

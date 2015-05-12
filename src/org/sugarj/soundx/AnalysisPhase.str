@@ -238,23 +238,51 @@ strategies
 		sx-process-body-decl
 
 	/**
-	 * Processes a body declaration
+	 * Processes a body declaration.
 	 *
 	 * The strategy aborts with an error if the body declaration is inside
 	 * an extension definition, otherwise it is stored in the environment.
 	 *
+	 * If the base language has a prefixed namespace, it checks if the body
+	 * declaration contains a namespace suffix and adds it to the namespace.
+	 *
 	 * @type ToplevelDeclaration -> SXEnv
 	 */
 	sx-process-body-decl =
-		?decl;
+		?decl@cons#(args);
 		sx-is-body-decl;
 		if sx-env-is-extension-processing then
 			<sx-analysis-fail(|"body declaration cannot be inside an extension definition")> decl
 		else
-			<sx-env-add-toplevel-declaration> decl
+			<sx-env-add-toplevel-declaration> decl;
+			<sx-process-namespace-suffix> decl
 			// ;<sx-debug(|"processsed body decl")> ""
 		end
 
+	/**
+	 * Checks if the declaration declares a namespace suffix (only
+	 * for prefixed namespaces.
+	 *
+	 * @type ToplevelDeclaration -> SXEnv
+	 */ 
+	sx-process-namespace-suffix =
+		?cons#(args);
+		if sx-namespace-kind => SXNamespacePrefixed(sep) then
+			sx-namespace-suffices => suffices;
+			<sx-debug(|"namespace suffices ")> suffices;
+			<sx-debug(|"cons ")> cons;
+			if <lookup> (cons, suffices) => index then
+				<index> (<add> (index, 1), args) => suffix;
+				sx-env-get-namespace => namespace;
+				<sx-env-set-namespace> (<conc-strings> (namespace, sep, suffix))
+				; <sx-debug(|"found and set namespace suffix")> cons#(args)
+			else
+				id
+			end
+		else
+			id
+		end
+		
 	/**
 	 * Processes the begin marker of an extension definition
 	 *
@@ -264,11 +292,12 @@ strategies
 	 * @type ToplevelDeclaration -> SXEnv
 	 */
 	sx-process-extension-begin =
-		?decl@SXExtensionBegin(_);
+		?decl@SXExtensionBegin(arg);
 		if sx-env-is-extension-processing then
 			<sx-analysis-fail(|"extensions cannot be nested")> decl
 		else
-			sx-env-set-extension-processing
+			sx-env-set-extension-processing;
+			<sx-process-namespace-suffix> arg
 			// ;<sx-debug(|"switched extension processing on")> ""
 		end
 
@@ -281,9 +310,10 @@ strategies
 	 * @type ToplevelDeclaration -> SXEnv
 	 */
 	sx-process-extension-end =
-		?decl@SXExtensionEnd(_);
+		?decl@SXExtensionEnd(arg);
 		if sx-env-is-extension-processing then
-			sx-env-unset-extension-processing
+			sx-env-unset-extension-processing;
+			<sx-process-namespace-suffix> arg
 			// ;<sx-debug(|"switched extension processing off")> ""
 		else
 			<sx-analysis-fail(|"extension end without extension begin")> decl

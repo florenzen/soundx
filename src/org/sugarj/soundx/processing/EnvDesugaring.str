@@ -87,7 +87,10 @@ strategies
 		sx-env-module-decls-to-stratego(|cons-names, "extension-cons-names") => trans-cons-names;
 	    // concatenate everything into one list
 	    <conc> (trans-signatures, trans-infrules, trans-pp-table,
-	    	trans-desugarings, trans-interface, trans-cons-names)
+	    	trans-desugarings, trans-interface, trans-cons-names) => trans;
+	    <sx-debug(|"transformations ")> trans;
+	    !trans
+
 		
 	/**
 	 * Generates a Stratego definition sx-<key> = ?<namespace>; !<term>

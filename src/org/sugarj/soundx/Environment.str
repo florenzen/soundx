@@ -37,6 +37,7 @@
 module org/sugarj/soundx/Environment
 
 imports org/sugarj/soundx/AbstractSyntax
+		org/sugarj/soundx/processing/Prefixing
 
 
 /**
@@ -273,7 +274,8 @@ strategies
      */
     sx-env-fresh-cons-name =
     	sx-env-get-namespace => namespace;
-    	<sx-env-fresh-name> (<conc-strings> ("SXCons", namespace))
+    	<sx-prefix-mangle-namespace> namespace => mangled-namespace;
+    	<sx-env-fresh-name> (<conc-strings> ("SXCons", mangled-namespace))
   
 /**
  * Handling of grammar-elems
