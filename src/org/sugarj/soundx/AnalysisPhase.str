@@ -318,9 +318,3 @@ strategies
 		else
 			<sx-analysis-fail(|"extension end without extension begin")> decl
 		end
-
-signature constructors
-	SXJudgement4: a * a * a -> a
-	SXCons2: a
-	STLCApp: a * a -> a
-	STLCNat: a -> a
