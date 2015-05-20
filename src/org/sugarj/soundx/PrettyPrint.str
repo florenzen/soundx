@@ -186,4 +186,4 @@ strategies
 	 */
 	sx-pp-entries-metavars =
 		![PP-Entry(Path1("SXMetaVar"), [Arg("1")]),
-		 PP-Entry(Path1("SXMetaVarGen"), [Arg("1")])]
+		  PP-Entry(Path1("SXMetaVarGen"), [Arg("1")])]
