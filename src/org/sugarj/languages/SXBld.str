@@ -57,6 +57,7 @@ signature constructors
 	SXBldInterface:            Sdf2Symbol                             -> ToplevelDeclaration
 	SXBldExtensionBegin:       Sdf2Symbol                             -> ToplevelDeclaration
 	SXBldExtensionEnd:         Sdf2Symbol                             -> ToplevelDeclaration
+	SXBldInductiveDefinitions: SXInductiveDefinitions                 -> ToplevelDeclaration
 
 	SXBldInterfaceJudgement:   SXBldIntfJudgToplevel * SXBldIntfJudgInterface * SXJudgement -> ToplevelDeclaration
 	SXBldFreshnessDeclaration: Sdf2Label * Sdf2Sort * Sdf2Label * Sdf2Sort * SXJudgeent     -> ToplevelDeclaration

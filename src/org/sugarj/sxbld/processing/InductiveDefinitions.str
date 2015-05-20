@@ -58,10 +58,10 @@ strategies
 	/**
 	 * Adds all inference rules to the environment
 	 *
-	 * @type SXInductiveDefinitions -> SXInductiveDefinitions
+	 * @type SXBldInductiveDefinitions -> SXBldInductiveDefinitions
 	 */
 	sxbld-analyze-inductive-definitions =
-		where(SXInductiveDefinitions(map(sxbld-analyze-inference-rule)))
+		where(SXBldInductiveDefinitions(SXInductiveDefinitions(map(sxbld-analyze-inference-rule))))
 
     /**
      * Adds one inference rule to the environment

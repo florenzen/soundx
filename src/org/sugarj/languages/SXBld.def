@@ -145,6 +145,6 @@ exports
   	  -> SXBldErrorAnnotation {cons("SXBldErrorAnnotation")}
 
   context-free syntax
-  	SXInductiveDefinitions -> ToplevelDeclaration
+  	SXInductiveDefinitions -> ToplevelDeclaration {cons("SXBldInductiveDefinitions")}
     
   	Grammar+ -> ToplevelDeclaration {cons("SXBldGrammarElems")}

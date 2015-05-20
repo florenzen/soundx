@@ -133,7 +133,7 @@ strategies
      */
 	sxbld-is-extension-decl =
 		?SXBldGrammarElems(_) +
-		?SXInductiveDefinitions(_) +
+		?SXBldInductiveDefinitions(_) +
 		?SXBldJudgementForms(_) +
 		?SXBldToplevelDeclarations(_) +
 		?SXBldToplevelDeclaration(_) +
