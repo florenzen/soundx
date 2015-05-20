@@ -41,6 +41,8 @@ module org/sugarj/sxbld/Processing
 imports org/sugarj/stdlib/StdTrans
 
 imports org/sugarj/soundx/InductiveDefinitions
+        org/sugarj/soundx/Utils
+        org/sugarj/soundx/Debug
 
 imports org/sugarj/languages/SXBld
 
@@ -118,13 +120,27 @@ strategies
  */
 strategies
     /**
-     * Process declaration and return extension-elem from environment
+     * Process declaration and return extension declaration from environment.
+     * Unless the last toplevel declaration is curently being
+     * processed, only the grammar elements are returned. This
+     * shortens Stratego compilation times considerably during the editing
+     * of a base language definition in Eclipse.
      *
-     * @type a -> List(ExtensionElem)
+     * @type a -> SXBldExtensionDecl
      */
 	sxbld-desugaring-env-to-extension-elem =
 		sxbld-is-extension-decl;
-		sxbld-env-extract-extension-decls
+		sxbld-env-extract-extension-decls => ext@SXBldExtensionDecl(ext-elems);
+		if <sx-is-last-toplevel-decl> () then
+			!ext
+		else
+			// TODO instead of filtering it would be better
+			// to only generate the grammar elements
+			// <sx-debug(|"filter out grammar elems from ")> ext-elems;
+			<filter(?grammar-elem(_))> ext-elems => grm-elems;
+			// <sx-debug(|"only grammar elems ")> grm-elems;
+			!SXBldExtensionDecl(grm-elems)
+		end
 
     /**
      * Succeeds if toplevel term contributes to extension declarations
