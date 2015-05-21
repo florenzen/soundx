@@ -36,9 +36,13 @@
  */
 module org/sugarj/sxbld/processing/EnvDesugaring
 
+imports org/sugarj/transformations/GenerateSignatures
+
 imports org/sugarj/soundx/SDF2
 		org/sugarj/soundx/MetaExplode
 		org/sugarj/soundx/PrettyPrint
+
+imports org/sugarj/soundx/PPTable
 
 imports org/sugarj/sxbld/Environment
 
@@ -47,24 +51,44 @@ imports org/sugarj/sxbld/processing/SortPrefixing
 imports org/sugarj/languages/SXBld
 
 strategies
+	/**
+	 * Generates SDF2 from the definitions in the environment.
+	 *
+	 * @type _ -> SXBldExtensionDecl
+	 */
+	sxbld-env-extract-grm-elems =
+		sxbld-env-get-grammar-elems => grm-elems-plain;
+		sxbld-env-make-toplevel-decs => grm-elems-toplevel-decs;
+		sxbld-env-make-intf-judg => grm-elems-intf-judg;
+  	    sxbld-env-make-get-intf-judg => grm-elems-get-intf-judg;
+  	    sxbld-env-make-toplevel-dec-body-grm => grm-elems-body-dec;
+  	    sxbld-env-make-toplevel-dec-import-grm => grm-elems-import-dec;
+  	    sxbld-env-make-toplevel-dec-namespace-grm => grm-elems-namespace-dec;
+  	    sxbld-env-make-extension-delimiters => grm-elems-delims;
+  	    <conc> (grm-elems-plain,
+	    	    grm-elems-toplevel-decs,
+	    	    grm-elems-intf-judg,
+	    	    grm-elems-get-intf-judg,
+	    	    grm-elems-delims,
+	    	    grm-elems-body-dec,
+	    	    grm-elems-namespace-dec,
+	    	    grm-elems-import-dec) => grammar-elems;
+	    !SXBldExtensionDecl(grammar-elems)
+		
     /**
-     * Generates SDF2 and Stratego from the definitions in the environment
+     * Generates SDF2 and Stratego from the definitions in the environment.
      *
      * @type _ -> SXBldExtensionDecl
      */
-    sxbld-env-extract-extension-decls =
-  	    sxbld-env-get-grammar-elems => grm-elems-plain;
+    sxbld-env-extract-trans-grm-elems =
+  	    sxbld-env-extract-grm-elems => SXBldExtensionDecl(grammar-elems);
   	    sxbld-env-make-extensible-file-ext => trans-ext-file-ext;
   	    sxbld-env-make-base-file-ext => trans-base-file-ext;
-  	    sxbld-env-make-toplevel-decs => grm-elems-toplevel-decs;
-  	    sxbld-env-make-intf-judg => grm-elems-intf-judg;
-  	    sxbld-env-make-get-intf-judg => grm-elems-get-intf-judg;
-  	    sxbld-env-make-toplevel-dec-body => extension-elems-body-dec;
-  	    sxbld-env-make-toplevel-dec-import => extension-elems-import-dec;
-  	    sxbld-env-make-toplevel-dec-namespace => extension-elems-namespace-dec;
+  	    sxbld-env-make-toplevel-dec-body-trans => trans-elems-body-dec;
+  	    sxbld-env-make-toplevel-dec-import-trans => trans-elems-import-dec;
+  	    sxbld-env-make-toplevel-dec-namespace-trans => trans-elems-namespace-dec;
   	    sxbld-env-make-namespace-kind => trans-namespace-kind;
-  	    sxbld-env-make-base-language-name => extension-elems-base-lang-name;
-  	    sxbld-env-make-extension-delimiters => grm-elems-delims;
+  	    sxbld-env-make-base-language-name-trans => trans-elems-base-lang-name;
 	    ((sxbld-env-is-interface-judgement-defined;
 	      sxbld-env-get-interface-judgement => intf-judg;
 	      sxbld-env-decls-to-stratego(|intf-judg, "interface-judgement")
@@ -80,12 +104,17 @@ strategies
 	    sxbld-env-decls-to-stratego(|error-annotations, "error-annotations") => trans-error;
 	    <sxbld-env-get> "namespace-suffices" => namespace-suffices;
 	    sxbld-env-decls-to-stratego(|namespace-suffices, "namespace-suffices") => trans-namespace-suffices;
-	    <conc> (grm-elems-plain, grm-elems-toplevel-decs, grm-elems-intf-judg,
-	    	grm-elems-get-intf-judg, grm-elems-delims) => grammar-elems;
 	    // generate a PP table for the base language
-	    <map(?grammar-elem(<id>))> grammar-elems => sdf2-defs;
-	    <sx-grammars-to-pp-table> sdf2-defs => pp-table;
+	    // Empty PP table since it slows down STRJ considerably
+	    // <map(?grammar-elem(<id>))> grammar-elems => sdf2-defs;
+	    // <sx-grammars-to-pp-table> sdf2-defs => pp-table;
+	    !PP-Table([]) => pp-table;
 	    sxbld-env-decls-to-stratego(|pp-table, "pp-table") => trans-pp-table;
+	    // Since the SXBld desugaring is hooked into internal-main
+	    // instead of desugaring gen-signature is called manually.
+	    // This is also to avoid signature generation for the intermediate
+	    // SDF files, which slows down STRJ quite a bit.
+	    (<gen-signature> grammar-elems <+ ![]) => trans-signatures;
 	    <conc> (trans-pp-table, 
 	    		trans-toplevel-declaration,
 	    		trans-intf-judg,
@@ -96,10 +125,13 @@ strategies
 	            trans-base-file-ext,
 	            trans-ext-file-ext,
 	            trans-namespace-kind,
-	            trans-namespace-suffices) => transformation-elems;
-  	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems,
-  	    	extension-elems-body-dec, extension-elems-namespace-dec,
-  	    	extension-elems-import-dec, extension-elems-base-lang-name))
+	            trans-namespace-suffices,
+	            trans-elems-body-dec,
+	            trans-elems-namespace-dec,
+	            trans-elems-import-dec,
+	            trans-elems-base-lang-name,
+	            trans-signatures) => transformation-elems;
+  	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems))
 
 	/**
 	 * Generates a Stratego definition key = term
@@ -184,7 +216,7 @@ strategies
      *
      * @type _ -> List(ExtensionElem)
      */
-    sxbld-env-make-base-language-name =
+    sxbld-env-make-base-language-name-trans =
     	(sxbld-env-is-base-language-name-defined;
     	 sxbld-env-get-base-language-name => dec;
     	 sxbld-env-decls-to-stratego(|dec, "base-language-name")
@@ -240,14 +272,11 @@ strategies
 		 ]))]) <+ ![]
 
 	/**
-	 * Generates code from body-decs
-	 *
-	 * Generates production that adds all body sorts to the toplevel sort
-	 * and stores the names of the body constructors in the Stratego code.
+	 * Generates productions that adds all body sorts to the toplevel sort.
 	 *
 	 * @type _ -> List(ExtensionElem) 
 	 */
-    sxbld-env-make-toplevel-dec-body =
+    sxbld-env-make-toplevel-dec-body-grm =
     	sxbld-env-get-body-decs => decs;
     	((sxbld-env-is-toplevel-declaration-defined;
     	  sxbld-env-get-toplevel-declaration => name;
@@ -266,20 +295,24 @@ strategies
     	  end => prods;
     	  ![grammar-elem(context-free-syntax(prods))]
     	 ) <+ ![]) => grm;
-    	<map(\(name, _) -> name\)> decs => cons-names;
-    	sxbld-env-decls-to-stratego(|cons-names, "body-decs") => trans;
-    	<conc> (grm, trans)
+    	!grm
 
 	/**
-	 * Generates code from import-decs
-	 *
-	 * Generates production that adds all import sorts to the toplevel sort
-	 * and stores the names of the import constructors and module identifier
-	 * positions in the Stratego code.
+	 * Stores the names of the body declaration constructors in the Stratego code.
 	 *
 	 * @type _ -> List(ExtensionElem) 
 	 */
-	sxbld-env-make-toplevel-dec-import =
+    sxbld-env-make-toplevel-dec-body-trans =
+    	sxbld-env-get-body-decs => decs;
+    	<map(\(name, _) -> name\)> decs => cons-names;
+    	sxbld-env-decls-to-stratego(|cons-names, "body-decs")
+
+	/**
+	 * Generates productions that adds all import sorts to the toplevel sort.
+	 *
+	 * @type _ -> List(ExtensionElem) 
+	 */
+	sxbld-env-make-toplevel-dec-import-grm =
 		sxbld-env-get-import-decs => decs;
     	((sxbld-env-is-toplevel-declaration-defined;
     	  sxbld-env-get-toplevel-declaration => name;
@@ -298,16 +331,27 @@ strategies
     	  end => prods;
     	  ![grammar-elem(context-free-syntax(prods))]
     	 ) <+ ![]) => grm;
-    	<map(\(name, index, _) -> (name, index)\)> decs => cons-names-indices;
-    	sxbld-env-decls-to-stratego(|cons-names-indices, "import-decs") => trans;
-    	<conc> (grm, trans)
+    	!grm
+
 
 	/**
-	 * Generates code from namespace-dec
+	 * Stores the names of the import constructors and module identifier
+	 * positions in the Stratego code.
 	 *
 	 * @type _ -> List(ExtensionElem)
 	 */
-	sxbld-env-make-toplevel-dec-namespace =
+	sxbld-env-make-toplevel-dec-import-trans =
+		sxbld-env-get-import-decs => decs;
+	    <map(\(name, index, _) -> (name, index)\)> decs => cons-names-indices;
+    	sxbld-env-decls-to-stratego(|cons-names-indices, "import-decs")
+
+	/**
+	 * Generates production that makes the namespace declaration
+	 * a ToplevelDeclaration.
+	 *
+	 * @type _ -> List(ExtensionElem)
+	 */
+	sxbld-env-make-toplevel-dec-namespace-grm =
 		if sxbld-env-is-namespace-dec-defined then
 			sxbld-env-get-namespace-dec => (cons-name, index, symbol);
 			<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => gnd-symbol;
@@ -321,8 +365,20 @@ strategies
 			  	  prod([gnd-symbol], sort(gnd-name), no-attrs())
 			    ]))]
 			 ) <+ ![]) => grm;
-			sxbld-env-decls-to-stratego(|(cons-name, index), "namespace-dec") => trans;
-			<conc> (grm, trans)
+			!grm
+		else
+			![]
+		end
+
+	/**
+	 * Stores the namespace constructor and identifier index in the Stratego code.
+	 *
+	 * @type _ -> List(ExtensionElem)
+	 */
+	sxbld-env-make-toplevel-dec-namespace-trans =
+		if sxbld-env-is-namespace-dec-defined then
+			sxbld-env-get-namespace-dec => (cons-name, index, symbol);
+			sxbld-env-decls-to-stratego(|(cons-name, index), "namespace-dec")
 		else
 			![]
 		end
