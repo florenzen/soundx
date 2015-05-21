@@ -130,17 +130,10 @@ strategies
      */
 	sxbld-desugaring-env-to-extension-elem =
 		sxbld-is-extension-decl;
-		//sxbld-env-extract-extension-decls => ext@SXBldExtensionDecl(ext-elems);
 		if <sx-is-last-toplevel-decl> () then
 			sxbld-env-extract-trans-grm-elems
 		else
 			sxbld-env-extract-grm-elems
-			// TODO instead of filtering it would be better
-			// to only generate the grammar elements
-			// <sx-debug(|"filter out grammar elems from ")> ext-elems;
-			//<filter(?grammar-elem(_))> ext-elems => grm-elems;
-			// <sx-debug(|"only grammar elems ")> grm-elems;
-			//!SXBldExtensionDecl(grm-elems)
 		end
 
     /**
@@ -175,5 +168,6 @@ strategies
      *
      * @type a -> a
      */
-	//desugar = changed-tree(sxbld-desugaring)
 	internal-main = sxbld-desugaring
+		// hooking into internal-main circumvents the automatic generation
+		// of Stratego signatures which saves quite some compile time 
