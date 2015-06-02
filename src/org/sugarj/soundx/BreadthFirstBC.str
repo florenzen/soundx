@@ -51,6 +51,7 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/PrettyPrint
 		org/sugarj/soundx/Declarations
 		org/sugarj/soundx/FreshAtoms
+		org/sugarj/soundx/Utils
 
 imports org/sugarj/soundx/Debug
 
@@ -221,18 +222,34 @@ strategies
 	 */
 	sx-bfsbc-solve-prim =
 		// Inequality judgement
-		?(SXNeq(expr1, expr2));
+		?SXNeq(expr1, expr2);
 		<sx-vars> expr1 => [];
 		<sx-vars> expr2 => [];
 		not(<eq> (expr1, expr2));
 		<sx-sub-empty> ()
 	sx-bfsbc-solve-prim =
 		// Get interface judgement
-		?(SXGetInterface(var, mid));
+		?SXGetInterface(var, mid);
 		<sx-is-metavar> var;
 		<is-string> mid;
 		<sx-interface-expr> mid => interface; // Get interface
 		<sx-sub-singleton> (var, interface)
+	sx-bfsbc-solve-prim =
+		// Concat judgement
+		?SXConcat(expr1, expr2, var);
+		<sx-is-metavar> var;
+		<is-string> expr1;
+		<is-string> expr2;
+		(sx-namespace-kind; ?SXNamespaceNested(sep) + sx-namespace-kind; ?SXNamespacePrefixed(sep));
+		<sx-sub-singleton> (var, <conc-strings> (expr1, sep, expr2))
+	sx-bfsbc-solve-prim =
+		// Suffix judgement
+		?SXSuffix(expr, var);
+		<sx-is-metavar> var;
+		<is-string> expr;
+		(sx-namespace-kind; ?SXNamespaceNested(sep) + sx-namespace-kind; ?SXNamespacePrefixed(sep));
+		<sx-split-string(|sep)> expr => strings;
+		<sx-sub-singleton> (var, <last> strings)
 	sx-bfsbc-solve-prim =
 		// Freshness judgement
 		?judg;
