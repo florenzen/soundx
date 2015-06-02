@@ -192,6 +192,24 @@ strategies
 		!SXInfRule([], "=interface()", SXGetInterface(SXMetaVar("x"), SXMetaVar("y")))
 
 	/**
+	 * Axiom schema for SXConcat judgement. It is only used in
+	 * desugaring.
+	 *
+	 * @type _ -> SXInfRule
+	 */
+	sx-prim-axiom-concat =
+		!SXInfRule([], "concat()=", SXConcat(SXMetaVar("x"), SXMetaVar("y"), SXMetaVar("z")))
+
+	/**
+	 * Axiom schema for SXSuffix judgement. It is only used in
+	 * desugaring.
+	 *
+	 * @type _ -> SXInfRule
+	 */
+	sx-prim-axiom-suffix =
+		!SXInfRule([], "suffix()=", SXSuffix(SXMetaVar("x"), SXMetaVar("y")))
+
+	/**
 	 * Axiom schema for freshness judgement. It is only used in
 	 * desugaring. It takes the name of the rule which encodes
 	 * the sort and number of arguments as input.
