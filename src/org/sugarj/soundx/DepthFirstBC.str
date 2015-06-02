@@ -48,6 +48,7 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Substitution
 		org/sugarj/soundx/Declarations
 		org/sugarj/soundx/FreshAtoms
+		org/sugarj/soundx/Utils
 
 imports org/sugarj/soundx/Debug
 
@@ -110,6 +111,32 @@ strategies
 		<sx-sub-compose> (sub, sub-intf) => sub1;
 		<sx-sub-apply> (sub1, judg) => judg1;
 		!(sub1, [SXDerivInst([], "=interface()", judg1) | derivs])
+	sx-dfsbc-build-derivations-by-prim(|vars-asms) =
+		// concat judgement
+		?(asms, inf-rules, [judg@SXConcat(expr1, expr2, var) | judgs]);
+		<sx-is-metavar> var;
+		<is-string> expr1;
+		<is-string> expr2;
+		(sx-namespace-kind; ?SXNamespaceNested(sep) + sx-namespace-kind; ?SXNamespacePrefixed(sep));
+		<sx-sub-singleton> (var, <conc-strings> (expr1, sep, expr2)) => sub-conc;
+		<sx-sub-apply> (sub-conc, judgs) => judgs1;
+		<sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs1) => (sub, derivs);
+		<sx-sub-compose> (sub, sub-conc) => sub1;
+		<sx-sub-apply> (sub1, judg) => judg1;
+		!(sub1, [SXDerivInst([], "concat()=", judg1) | derivs])
+	sx-dfsbc-build-derivations-by-prim(|vars-asms) =
+		// suffix-judgement
+		?(asms, inf-rules, [judg@SXSuffix(expr, var) | judgs]);
+		<sx-is-metavar> var;
+		<is-string> expr;
+		(sx-namespace-kind; ?SXNamespaceNested(sep) + sx-namespace-kind; ?SXNamespacePrefixed(sep));
+		<sx-split-string(|sep)> expr => strings;
+		<sx-sub-singleton> (var, <last> strings) => sub-conc;
+		<sx-sub-apply> (sub-conc, judgs) => judgs1;
+		<sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs1) => (sub, derivs);
+		<sx-sub-compose> (sub, sub-conc) => sub1;
+		<sx-sub-apply> (sub1, judg) => judg1;
+		!(sub1, [SXDerivInst([], "suffix()=", judg1) | derivs])
 	sx-dfsbc-build-derivations-by-prim(|vars-asms) = 
 		// freshness judgement
 		?(asms, inf-rules, [judg|judgs]);
