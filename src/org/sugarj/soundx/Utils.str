@@ -82,3 +82,51 @@ strategies
 		where
 			<elem> (x, xs);
 			<sx-nub> xs => xs1
+
+	/**
+	 * Splits a string into a list of string at the given separator
+	 * (must be a one character string).
+	 *
+	 * @param sep String
+	 *
+	 * @type String -> List(String)
+	 */
+	sx-split-string(|sep) =
+		?str;
+		<explode-string> sep => [s];
+		<explode-string> str => chars;
+		<sx-split-string1(|s)> chars => splitted;
+		<map(implode-string)> splitted
+
+	/**
+	 * Helper for sx-split-string.
+	 *
+	 * @param sep Char
+	 *
+	 * @type List(Char) -> List(List(Char))
+	 */
+	sx-split-string1(|sep) =
+		?[]; ![]
+	sx-split-string1(|sep) =
+		?cs@[_|_];
+		<sx-split-chars-at-first-sep(|sep)> cs => (cs1, cs2);
+		<sx-split-string1(|sep)> cs2 => strs;
+		![cs1 | strs]
+
+	/**
+	 * Splits a list of characters at the first occurrence of sep.
+	 *
+	 * @param sep Char
+	 *
+	 * @type List(Char) -> (List(Char), List(Char))
+	 */
+	sx-split-chars-at-first-sep(|sep) =
+		?[]; !([], [])
+	sx-split-chars-at-first-sep(|sep) =
+		?[c|cs];
+		if <eq> (c, sep) then
+			!([], cs)
+		else
+			<sx-split-chars-at-first-sep(|sep)> cs => (cs1, cs2);
+			!([c|cs1], cs2)
+		end
