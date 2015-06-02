@@ -301,6 +301,8 @@ strategies
 		?rule-name;
 		((!rule-name; ?"=interface()"; sx-prim-axiom-interface) <+
 		 (!rule-name; ?"=/="; sx-prim-axiom-neq) <+
+		 (!rule-name; ?"concat()="; sx-prim-axiom-concat) <+
+		 (!rule-name; ?"suffix()="; sx-prim-axiom-suffix) <+
 		 (!rule-name; string-starts-with(|"_SXFreshness"); <sx-prim-axiom-freshness> rule-name) <+ 
 		 (<collect-one(?SXInfRule(_, rule-name, _))> inf-rules))
 
