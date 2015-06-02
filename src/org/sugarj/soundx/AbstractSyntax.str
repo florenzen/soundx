@@ -224,10 +224,10 @@ strategies
  * Judgements
  */
 signature constructors
-    SXNeq:          SXExpr * SXExpr -> SXJudgement
-    SXGetInterface: SXExpr * SXExpr -> SXJudgement
-    SXSuffix:       SXExpr * SXExpr -> SXJudgement
-    SXConcat:       SXExpr * SXExpr -> SXJudgement
+    SXNeq:          SXExpr * SXExpr          -> SXJudgement
+    SXGetInterface: SXExpr * SXExpr          -> SXJudgement
+    SXSuffix:       SXExpr * SXExpr          -> SXJudgement
+    SXConcat:       SXExpr * SXExpr * SXExpr -> SXJudgement
 
 strategies
 	/**
@@ -263,7 +263,9 @@ strategies
     	where(
     		sx-is-neq-judgement +
     		sx-is-get-interface-judgement +
-    		sx-is-freshness-judgement)
+    		sx-is-freshness-judgement +
+    		sx-is-concat-judgement +
+    		sx-is-suffix-judgement)
 
 	/**
 	 * Checks if aterm is a "Get Interface" judgement
@@ -274,13 +276,29 @@ strategies
 		?SXGetInterface(_, _)
 
 	/**
-	 * Checks if aterm is an SXNeq judgement
+	 * Checks if aterm is an SXNeq judgement.
 	 *
 	 * @type a -> a
 	 */
 	sx-is-neq-judgement =
 		?SXNeq(_, _)
 
+    /**
+     * Checks if aterm is an SXConcat judgement.
+     *
+     * @type a -> a
+     */
+    sx-is-concat-judgement =
+    	?SXConcat(_, _, _)
+  
+      /**
+     * Checks if aterm is an SXSuffix judgement.
+     *
+     * @type a -> a
+     */
+    sx-is-suffix-judgement =
+    	?SXSuffix(_, _)
+  	
 	/**
 	 * Checks if ATerm is application of freshness judgement.
 	 * If so, it returns the sort-name and the arguments for
