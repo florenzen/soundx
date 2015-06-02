@@ -226,6 +226,8 @@ strategies
 signature constructors
     SXNeq:          SXExpr * SXExpr -> SXJudgement
     SXGetInterface: SXExpr * SXExpr -> SXJudgement
+    SXSuffix:       SXExpr * SXExpr -> SXJudgement
+    SXConcat:       SXExpr * SXExpr -> SXJudgement
 
 strategies
 	/**

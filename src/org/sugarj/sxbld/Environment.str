@@ -331,8 +331,16 @@ strategies
      */
 	sxbld-env-atom-sort-defined =
 		?name;
-		<sxbld-env-get> "atom-sorts" => names;
+		sxbld-env-get-atom-sorts => names;
 		<elem> (name, names)
+
+	/**
+	 * Returns all atom sorts.
+	 *
+	 * @type _ -> List(String)
+	 */
+	sxbld-env-get-atom-sorts =
+		<sxbld-env-get> "atom-sorts"
 
 /**
  * Handling of the failed flag.

@@ -65,3 +65,6 @@ exports
     SXInfRulePremisesEnum SXInfRulePremises ->
       SXInfRulePremises {cons("SXInfRulePremisesCons"),
                          layout("1.first.col == 2.first.col")}
+
+    "concat" "(" SXAtom "," SXAtom ")" "=" SXAtom -> SXJudgement {cons("SXConcat")}
+    "suffix" "(" SXAtom ")" "=" SXAtom            -> SXJudgement {cons("SXSuffix")}

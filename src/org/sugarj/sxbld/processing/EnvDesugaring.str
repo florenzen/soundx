@@ -65,6 +65,7 @@ strategies
   	    sxbld-env-make-toplevel-dec-import-grm => grm-elems-import-dec;
   	    sxbld-env-make-toplevel-dec-namespace-grm => grm-elems-namespace-dec;
   	    sxbld-env-make-extension-delimiters => grm-elems-delims;
+  	    sxbld-env-make-atoms-grm => grm-atoms;
   	    <conc> (grm-elems-plain,
 	    	    grm-elems-toplevel-decs,
 	    	    grm-elems-intf-judg,
@@ -72,9 +73,10 @@ strategies
 	    	    grm-elems-delims,
 	    	    grm-elems-body-dec,
 	    	    grm-elems-namespace-dec,
-	    	    grm-elems-import-dec) => grammar-elems;
+	    	    grm-elems-import-dec,
+	    	    grm-atoms) => grammar-elems;
 	    !SXBldExtensionDecl(grammar-elems)
-		
+
     /**
      * Generates SDF2 and Stratego from the definitions in the environment.
      *
@@ -174,6 +176,23 @@ strategies
 		  	[prod([sort(sort-end)], sort("SXExtensionEnd"), no-attrs())]))]
 		 ) <+ ![]) => grm-end;
 		<conc> (grm-begin, grm-end)
+
+    /**
+     * Generates a production for SXAtom for each sort in atom-sorts and
+     * the namespace identifier.
+     *
+     * @type _ -> List(ExtensionElem)
+     */
+	sxbld-env-make-atoms-grm =
+		sxbld-env-get-atom-sorts => sort-names;
+		if sxbld-env-is-namespace-identifier-defined then
+			sxbld-env-get-namespace-identifier => namespace-name;
+			![namespace-name|sort-names]
+		else
+			!sort-names
+		end => atom-names;
+		<map(\name -> prod([sort(name)], sort("SXAtom"), no-attrs())\)> atom-names => prods;
+		![grammar-elem(context-free-syntax(prods))]
 
     /**
      * Saves toplevel-declaration in Stratego file.
