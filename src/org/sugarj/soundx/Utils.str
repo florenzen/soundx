@@ -63,6 +63,14 @@ strategies
 	sx-generate-pp-table =
 		prim("SUGARJ_generate_pp_table")
 
+ 	/**
+ 	 * Calls the pretty printer of the base language.
+ 	 *
+ 	 * @type a -> String
+ 	 */
+	sx-base-lang-pretty-print =
+		prim("SUGARJ_sx_base_lang_pretty_print")
+
 	/**
 	 * Removes duplicates from the list.
 	 *
