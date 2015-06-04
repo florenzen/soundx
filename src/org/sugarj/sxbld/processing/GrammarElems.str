@@ -399,6 +399,7 @@ strategies
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => ground-symbol;
     	<sxbld-analyze-atoms> (attributes, prefixed-symbol) => cf-prods;
     	<sxbld-analyze-namespace-kind> (attributes, prefixed-symbol);
+    	<sxbld-analyze-module-identifier> (attributes, prefixed-symbol);
     	!([prod(prefixed-symbols, prefixed-symbol, attributes),
     	   prod(ground-symbols, ground-symbol, attributes)],
     	  cf-prods)
@@ -430,7 +431,27 @@ strategies
     	end
     	    
     /**
-     * Records the module identifier sort and namespace kind if
+     * Records the module identifier if sx-module-identifier is given.
+     *
+     * @type (Sdf2Attributes, Sdf2Symbol) -> (Sdf2Attributes, Sdf2Symbol)
+     */
+    sxbld-analyze-module-identifier =
+    	?(attributes, symbol);
+    	where(
+    		if <sx-sdf2-is-aterm-attribute-defined(|"sx-module-identifier")> attributes then
+    			if sxbld-env-is-module-identifier-defined then
+    				<sx-sdf2-extract-aterm-attribute(|"sx-module-identifier")> attributes => attrib;
+    				<sxbld-analyze-fail(|"Only one module identifier attribute allowed")> attrib
+    			else
+    				<sxbld-env-set-module-identifier> symbol
+    			end
+    		else
+    			id
+    		end
+    	)
+
+    /**
+     * Records the namespace identifier sort and namespace kind if
      * sx-namespace-flat, sx-namespace-nested, or sx-namespace-prefixed
      * is given.
      *

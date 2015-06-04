@@ -41,6 +41,7 @@ imports org/sugarj/transformations/GenerateSignatures
 imports org/sugarj/soundx/SDF2
 		org/sugarj/soundx/MetaExplode
 		org/sugarj/soundx/PrettyPrint
+		org/sugarj/soundx/AbstractSyntax
 
 imports org/sugarj/soundx/PPTable
 
@@ -281,14 +282,40 @@ strategies
 	 */
 	sxbld-env-make-get-intf-judg =
 		(sxbld-env-is-interface-defined;
-		 sxbld-env-is-namespace-identifier-defined;
 		 sxbld-env-get-interface; sxbld-env-prefix-name => intf;
-		 sxbld-env-get-namespace-identifier => symbol;
+		 sxbld-env-determine-import-identifier => symbol;
 		 ![grammar-elem(context-free-syntax([
 		 	prod([sort(intf), lit("="), lit("interface"), lit("("), symbol, lit(")")],
 		 	     sort("SXJudgement"), 
 		 	     attrs([<sx-sdf2-cons-attribute> "SXGetInterface"]))
 		 ]))]) <+ ![]
+
+	/**
+	 * Return the sort of the module identifier for the import. For flat and
+	 * nested namespaces this is the namespace identifier sort, for
+	 * prefixed namespaces this is the module identifier sort, of given, otherwise
+	 * the namespace identifier sort.
+	 *
+	 * @type _ -> Sdf2Symbol
+	 */
+	sxbld-env-determine-import-identifier =
+		sxbld-env-is-namespace-kind-defined;
+		sxbld-env-get-namespace-kind => kind;
+		((!kind; (?SXNamespaceFlat() + ?SXNamespaceNested(_));
+		  sxbld-env-is-namespace-identifier-defined;
+		  sxbld-env-get-namespace-identifier
+		 ) <+
+		 (!kind; ?SXNamespacePrefixed(_);
+		  if sxbld-env-is-module-identifier-defined then
+		  	sxbld-env-get-module-identifier
+		  else
+		  	if sxbld-env-is-namespace-identifier-defined then
+		  		sxbld-env-get-namespace-identifier
+		  	else
+		  		fail
+		  	end
+		  end)
+		)
 
 	/**
 	 * Generates productions that adds all body sorts to the toplevel sort.
