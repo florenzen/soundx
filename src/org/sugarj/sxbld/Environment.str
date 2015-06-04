@@ -95,6 +95,7 @@ strategies
   	    hashtable-put(|"interface-judgement", ());
   	    hashtable-put(|"failed", SXBldFalse());
   	    hashtable-put(|"namespace-identifier", "");
+  	    hashtable-put(|"module-identifier", "");
   	    hashtable-put(|"namespace-kind", ());
   	    hashtable-put(|"body-decs", []);
   	    hashtable-put(|"namespace-dec", ());
@@ -486,6 +487,35 @@ strategies
      */
     sxbld-env-is-interface-judgement-defined =
     	sxbld-env-get-interface-judgement; not(?())
+
+/**
+ * Handling of module-identifier.
+ */
+strategies
+	/**
+	 * Gets module-identifier.
+	 *
+	 * @type _ -> String
+	 */
+	sxbld-env-get-module-identifier =
+		<sxbld-env-get> "module-identifier"
+
+	/**
+	 * Sets module-identifier.
+	 *
+	 * @type String -> SXEnv
+	 */		
+    sxbld-env-set-module-identifier =
+    	?sort-name;
+    	<sxbld-env-set> ("module-identifier", sort-name)
+
+    /**
+     * Succeeds if module-identifier is defined.
+     *
+     * @type _ -> String
+     */
+    sxbld-env-is-module-identifier-defined =
+    	sxbld-env-get-module-identifier; not(?"")
 
 /**
  * Handling of namespace-identifier.
