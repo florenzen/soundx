@@ -229,11 +229,16 @@ strategies
 		<sx-sub-empty> ()
 	sx-bfsbc-solve-prim =
 		// Get interface judgement
-		?SXGetInterface(var, mid);
-		<sx-is-metavar> var;
+		?SXGetInterface(lhs, mid);
 		<is-string> mid;
 		<sx-interface-expr> mid => interface; // Get interface
-		<sx-sub-singleton> (var, interface)
+		<sx-vars> lhs => vars-unify;
+		<sx-unify(|vars-unify)> (lhs, interface) => result;
+		if !result; ?SXUnificationFailure(_) then
+			fail
+		else
+			!result
+		end
 	sx-bfsbc-solve-prim =
 		// Concat judgement
 		?SXConcat(expr1, expr2, var);

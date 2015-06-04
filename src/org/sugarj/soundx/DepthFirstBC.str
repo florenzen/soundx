@@ -100,25 +100,35 @@ strategies
 		!(sub, [SXDerivInst([], "=/=", judg) | derivs])
 	sx-dfsbc-build-derivations-by-prim(|vars-asms) =
 		// get interface judgement
-		?(asms, inf-rules, [judg@SXGetInterface(var, mid) | judgs]);
+		?(asms, inf-rules, [judg@SXGetInterface(lhs, mid) | judgs]);
 		// first argument must be a metavariable, second one must be bound to a string
-		<sx-is-metavar> var;
+		<sx-debug(|"trying to solve get interface ")> judg;
 		<is-string> mid;
 		<sx-interface-expr> mid => interface; // Get interface
-		<sx-sub-singleton> (var, interface) => sub-intf;
-		<sx-sub-apply> (sub-intf, judgs) => judgs1;
-		<sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs1) => (sub, derivs);
-		<sx-sub-compose> (sub, sub-intf) => sub1;
-		<sx-sub-apply> (sub1, judg) => judg1;
-		!(sub1, [SXDerivInst([], "=interface()", judg1) | derivs])
+		<sx-debug(|"obtained interface ")> interface;
+		<sx-vars> lhs => lhs-vars;
+		<diff> (lhs-vars, vars-asms) => vars-unify;
+		<sx-unify(|vars-unify)> (lhs, interface) => result;
+		if !result; ?SXUnificationFailure(_) then
+			fail
+		else
+			!result => sub-intf;
+			<sx-sub-apply> (sub-intf, judgs) => judgs1;
+			<sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs1) => (sub, derivs);
+			<sx-sub-compose> (sub, sub-intf) => sub1;
+			<sx-sub-apply> (sub1, judg) => judg1;
+			!(sub1, [SXDerivInst([], "=interface()", judg1) | derivs])
+		end
 	sx-dfsbc-build-derivations-by-prim(|vars-asms) =
 		// concat judgement
 		?(asms, inf-rules, [judg@SXConcat(expr1, expr2, var) | judgs]);
+		<sx-debug(|"trying to solve concat ")> judg;
 		<sx-is-metavar> var;
 		<is-string> expr1;
 		<is-string> expr2;
 		(sx-namespace-kind; ?SXNamespaceNested(sep) + sx-namespace-kind; ?SXNamespacePrefixed(sep));
 		<sx-sub-singleton> (var, <conc-strings> (expr1, sep, expr2)) => sub-conc;
+		<sx-debug(|"successfully concatenated ")> (<conc-strings> (expr1, sep, expr2));
 		<sx-sub-apply> (sub-conc, judgs) => judgs1;
 		<sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs1) => (sub, derivs);
 		<sx-sub-compose> (sub, sub-conc) => sub1;
@@ -127,11 +137,13 @@ strategies
 	sx-dfsbc-build-derivations-by-prim(|vars-asms) =
 		// suffix-judgement
 		?(asms, inf-rules, [judg@SXSuffix(expr, var) | judgs]);
+		<sx-debug(|"trying to solve suffix ")> judg;
 		<sx-is-metavar> var;
 		<is-string> expr;
 		(sx-namespace-kind; ?SXNamespaceNested(sep) + sx-namespace-kind; ?SXNamespacePrefixed(sep));
 		<sx-split-string(|sep)> expr => strings;
 		<sx-sub-singleton> (var, <last> strings) => sub-conc;
+		<sx-debug(|"successfully obtained suffix ")> (<last> strings);
 		<sx-sub-apply> (sub-conc, judgs) => judgs1;
 		<sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs1) => (sub, derivs);
 		<sx-sub-compose> (sub, sub-conc) => sub1;
