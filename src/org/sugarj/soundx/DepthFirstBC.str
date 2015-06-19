@@ -49,6 +49,7 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Declarations
 		org/sugarj/soundx/FreshAtoms
 		org/sugarj/soundx/Utils
+		org/sugarj/soundx/PrettyPrint
 
 imports org/sugarj/soundx/Debug
 
@@ -65,7 +66,8 @@ strategies
 		!(<sx-sub-empty> (), [])
 	sx-dfsbc-build-derivations(|vars-asms) =
 		?(asms, inf-rules, goals@[judg|_]);
-		// <sx-debug(|"trying ")> judg;
+		<sx-debug(|"trying ")> (<sx-pretty-print-term> judg);
+		//<sx-debug(|"assumption ")> (<map(\SXDerivAsm(j) -> j\); sx-pretty-print-list-nl> asms);
 		(<sx-dfsbc-build-derivations-by-asm(|vars-asms)> (asms, asms, inf-rules, goals) <+
 		 (<sx-is-prim-judgement> judg;
 		  // <sx-debug(|"is prim judgement ")> "";
@@ -81,6 +83,7 @@ strategies
 		?(all-asms, [asm|asms], inf-rules, goals@[judg|judgs]);
 		((<sx-dfsbc-unify(|vars-asms)> (judg, <sx-concl> asm) => mgu;
 		  <sx-sub-apply> (mgu, judgs) => judgs1;
+		  <sx-debug(|"solved by asm ")> (<sx-concl; sx-pretty-print-term> asm);
 		  <sx-dfsbc-build-derivations(|vars-asms)> (all-asms, inf-rules, judgs1) => (sub, derivs);
 		  <sx-sub-compose> (sub, mgu) => sub1;
 		  !(sub1, [asm|derivs])) <+
@@ -93,11 +96,15 @@ strategies
 		// inequality judgement
 		?(asms, inf-rules, [judg@SXNeq(expr1, expr2) | judgs]);
 		// both arguments must be bound to a ground expression
-		<sx-vars> expr1 => [];
-		<sx-vars> expr2 => [];
-		not(<eq> (expr1, expr2));
-		<sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs) => (sub, derivs);
-		!(sub, [SXDerivInst([], "=/=", judg) | derivs])
+		if <eq> (expr1, expr2) then
+			fail
+		else
+			<sx-vars> expr1 => [];
+			<sx-vars> expr2 => [];
+			not(<eq> (expr1, expr2));
+			<sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, judgs) => (sub, derivs);
+			!(sub, [SXDerivInst([], "=/=", judg) | derivs])
+		end
 	sx-dfsbc-build-derivations-by-prim(|vars-asms) =
 		// get interface judgement
 		?(asms, inf-rules, [judg@SXGetInterface(lhs, mid) | judgs]);
@@ -184,12 +191,13 @@ strategies
 		?(asms, all-inf-rules, [inf-rule|inf-rules], goals@[judg|judgs]);
 		((<sx-fresh-inf-rule> inf-rule => SXInfRule(premises, name, concl);
 		  <sx-dfsbc-unify(|vars-asms)> (judg, concl) => mgu;
-		  // <sx-debug(|"found matching rule w/ premises ")> premises;
+		  <sx-debug(|"rule ")> name;
 		  <sx-sub-apply> (mgu, <conc> (premises, judgs)) => judgs1;
 		  <sx-dfsbc-build-derivations(|vars-asms)> (asms, all-inf-rules, judgs1) => (sub, derivs);
 		  <split-at(|<length> premises)> derivs => (derivs-prem, derivs-other);
 		  <sx-sub-compose> (sub, mgu) => sub1;
 		  <sx-sub-apply> (sub1, judg) => judg1;
+		  <sx-debug(|"solved ")> (<sx-pretty-print-term> judg1);
 		  !(sub1, [SXDerivInst(derivs-prem, name, judg1) | derivs-other])) <+
 		 <sx-dfsbc-build-derivations-by-rule(|vars-asms)> (asms, all-inf-rules, inf-rules, goals))
 
