@@ -41,6 +41,15 @@ imports org/sugarj/languages/Sdf2
 
 strategies
 	/**
+	 * Gets name of sort and parameterized-sort symbol.
+	 *
+	 * @type Sdf2Symbol -> String
+	 */
+	sx-sdf2-symbol-name =
+		(?sort(name); !name) +
+		(?parameterized-sort(name, _); !name)
+
+	/**
 	 * Generate the SDF2 cons attribute as ATerm
 	 *
 	 * @type String -> Sdf2Attribute
