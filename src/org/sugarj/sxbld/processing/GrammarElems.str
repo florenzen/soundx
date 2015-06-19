@@ -152,6 +152,16 @@ strategies
     	// <map(sxbld-analyze-symbol); sxbld-prefix-all-sorts-base-lang> symbols => analyzed-symbols;
    	 //    !'sorts(analyzed-symbols)
 
+	/**
+	 * Stores the rhs symbol in the environment.
+	 *
+	 * @type Sdf2Symbol -> _
+	 */
+	sxbld-analyze-store-rhs =
+		?symbol;
+		try(<sx-sdf2-symbol-name> symbol => name;
+			<sxbld-env-add-rhs-sort-name> name)
+
     /**
      * Analyzes a context-free syntax section
      *
@@ -169,6 +179,7 @@ strategies
      */
     sxbld-analyze-cf-production =
     	?prod(symbols, symbol, attributes);
+    	<sxbld-analyze-store-rhs> symbol;
     	<sxbld-analyze-cf-attributes> attributes => analyzed-attributes;
     	<sxbld-analyze-body-dec> (symbol, analyzed-attributes);
     	<sxbld-analyze-namespace-dec> (symbols, symbol, analyzed-attributes);
@@ -394,6 +405,7 @@ strategies
      */
     sxbld-analyze-lex-production =
     	?prod(symbols, symbol, attributes);
+    	<sxbld-analyze-store-rhs> symbol;
     	<sxbld-prefix-all-sorts-base-lang> [symbol|symbols] => [prefixed-symbol|prefixed-symbols];
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => ground-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => ground-symbol;

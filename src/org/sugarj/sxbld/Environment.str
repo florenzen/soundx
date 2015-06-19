@@ -108,7 +108,8 @@ strategies
   	    hashtable-put(|"base-file-ext", "");
   	    hashtable-put(|"atom-sorts", []);
   	    hashtable-put(|"freshness-conditions", <new-hashtable> ());
-  	    hashtable-put(|"error-annotations", <new-hashtable> ())
+  	    hashtable-put(|"error-annotations", <new-hashtable> ());
+  	    hashtable-put(|"rhs-sort-names", [])
 
     /**
      * Looks up a key in the environment.
@@ -310,6 +311,29 @@ strategies
 		?name;
 		<sxbld-env-get> "cons-names" => names;
 		<elem> (name, names)
+
+/**
+ * Handling of rhs-sort-names
+ */
+strategies
+	/**
+	 * Adds a sort name.
+	 *
+	 * @type String -> SXEnv
+	 */
+	sxbld-env-add-rhs-sort-name =
+		?name;
+		<sxbld-env-get> "rhs-sort-names" => names;
+		<union> ([name], names) => new-names;
+		<sxbld-env-set> ("rhs-sort-names", new-names)
+
+	/**
+	 * Returns rhs-sort-names.
+	 *
+	 * @type _ -> List(String)
+	 */
+	sxbld-env-get-rhs-sort-names =
+		<sxbld-env-get> "rhs-sort-names"
 
 /**
  * Handling of atom sorts.
