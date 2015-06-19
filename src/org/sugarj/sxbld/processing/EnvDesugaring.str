@@ -180,7 +180,8 @@ strategies
 
     /**
      * Generates a production for SXAtom for each sort in atom-sorts and
-     * the namespace identifier.
+     * the namespace identifier. The concat and the suffix judgement
+     * (predefined) are available for atom sorts.
      *
      * @type _ -> List(ExtensionElem)
      */
