@@ -238,7 +238,6 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 				Integer index = namespaceSuffices.get(consName);
 				String moduleIdentifierFromDecl = prettyPrint(getApplicationSubterm(
 						toplevelDecl, consName, index));
-				Debug.print("found suffix: " + moduleIdentifierFromDecl);
 				String moduleIdentifierFromFile = FileCommands
 						.dropExtension(FileCommands.fileName(sourceFile
 								.getRelativePath()));
@@ -281,7 +280,6 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 		String importedModule = prettyPrint(getApplicationSubterm(toplevelDecl,
 				consName, index));
 		String importedModulePath = "";
-		Debug.print("kind " + kind);
 		if (kind instanceof SXNamespaceNested) {
 			char sep = ((SXNamespaceNested) kind).getSeparator();
 			importedModulePath = importedModule
@@ -293,7 +291,6 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 		} else { // Take flat namespace as default
 			importedModulePath = importedModule;
 		}
-		Debug.print("importedModulePath " + importedModulePath);
 		return importedModulePath;
 	}
 
@@ -339,7 +336,6 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 
 	@Override
 	public IStrategoTerm getExtensionBody(IStrategoTerm decl) {
-		Debug.print("getExtensionBody: " + decl);
 		// SXExtensionBegin or -End may contain a namespace
 		// suffix. This is extracted here and checked against the
 		// file's name.
@@ -360,7 +356,6 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 					Integer index = namespaceSuffices.get(consName);
 					String moduleIdentifierFromDecl = prettyPrint(getApplicationSubterm(
 							term, consName, index));
-					Debug.print("found suffix: " + moduleIdentifierFromDecl);
 					String moduleIdentifierFromFile = FileCommands
 							.dropExtension(FileCommands.fileName(sourceFile
 									.getRelativePath()));

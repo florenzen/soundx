@@ -281,10 +281,8 @@ public class BaseLanguageDefinition {
 	private void postProcessStratego() {
 		IStrategoTerm strTerm = parseStratego();
 		extractDeclarations(strTerm);
-		// Debug.print("Stratego parse result " + strTerm);
 		IStrategoTerm strTermImportsFixed = fixStrategoImports(strTerm);
 		String strString = ppStratego(strTermImportsFixed);
-		// Debug.print("Post processed Stratego " + strString);
 		try {
 			FileCommands.writeToFile(strPath, strString);
 		} catch (Exception e) {
@@ -328,14 +326,12 @@ public class BaseLanguageDefinition {
 					TermFactory.EMPTY_LIST, decls.getStorageType());
 		}
 
-		// Debug.print("Subterm decls " + declsTerm);
 		IStrategoTerm trm = new StrategoAppl(new StrategoConstructor("Module",
 				2), new IStrategoTerm[] { header, declsTerm },
 				term.getAnnotations(), term.getStorageType());
-		// Debug.print("Result term " + trm);
 
 		return ATermCommands.atermFromString(trm.toString());
-		// Without the to-and-from String the pretty printer crashes.
+		// without the to-and-from String the pretty printer crashes
 	}
 
 	/**
@@ -380,15 +376,12 @@ public class BaseLanguageDefinition {
 						// rhs =
 						// Build(NoAnnoList(List([NoAnnoList(Str("\"SXCons10\""))])))
 						IStrategoTerm current = rhs.getSubterm(0);
-						// Debug.print("Conses " + list.toString());
 
 						while (current != null) {
 							StrategoAppl listCons = (StrategoAppl) current
 									.getSubterm(0); // Unwrap NoAnnoList
-							// Debug.print("listCons " + listCons);
 							String applConsName = listCons.getConstructor()
 									.getName();
-							// Debug.print("applConsName " + applConsName);
 							if (applConsName.equals("List")) {
 								StrategoList elems = (StrategoList) listCons
 										.getSubterm(0);
@@ -407,12 +400,9 @@ public class BaseLanguageDefinition {
 							} else if (applConsName.equals("ListTail")) {
 								StrategoList hd = (StrategoList) listCons
 										.getSubterm(0);
-								// Debug.print("hd " + hd);
 								IStrategoTerm elem = hd.head();
-								// Debug.print("elem " + elem);
 								String consName = unquote(((StrategoString) elem
 										.getSubterm(0).getSubterm(0)).getName());
-								// Debug.print("consName " + consName);
 								bodyDecCons.add(consName);
 								Debug.print("body-dec " + consName);
 
@@ -619,7 +609,6 @@ public class BaseLanguageDefinition {
 	 */
 	private void postProcessSdf() {
 		IStrategoTerm sdfTerm = parseSdf();
-		// Debug.print("SDF parse result " + sdfTerm);
 		IStrategoTerm sdfTermNoImports = fixSdfImports(sdfTerm);
 		IStrategoTerm sdfTermWithToplevelDec = fixSdfToplevelDec(sdfTermNoImports);
 		IStrategoTerm sdfTermFixed = null;
@@ -632,7 +621,6 @@ public class BaseLanguageDefinition {
 		}
 		Debug.print("Fixed SDF imports");
 		String sdfString = ppSdf(sdfTermFixed);
-		// Debug.print("Post processed Sdf " + sdfString);
 		try {
 			FileCommands.writeToFile(sdfPath, sdfString);
 		} catch (Exception e) {
