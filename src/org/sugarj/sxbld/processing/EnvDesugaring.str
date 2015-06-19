@@ -67,6 +67,7 @@ strategies
   	    sxbld-env-make-toplevel-dec-namespace-grm => grm-elems-namespace-dec;
   	    sxbld-env-make-extension-delimiters => grm-elems-delims;
   	    sxbld-env-make-atoms-grm => grm-atoms;
+  	    sxbld-env-make-neq-judgement-grm => grm-neq;
   	    <conc> (grm-elems-plain,
 	    	    grm-elems-toplevel-decs,
 	    	    grm-elems-intf-judg,
@@ -75,7 +76,8 @@ strategies
 	    	    grm-elems-body-dec,
 	    	    grm-elems-namespace-dec,
 	    	    grm-elems-import-dec,
-	    	    grm-atoms) => grammar-elems;
+	    	    grm-atoms,
+	    	    grm-neq) => grammar-elems;
 	    !SXBldExtensionDecl(grammar-elems)
 
     /**
@@ -177,6 +179,25 @@ strategies
 		  	[prod([sort(sort-end)], sort("SXExtensionEnd"), no-attrs())]))]
 		 ) <+ ![]) => grm-end;
 		<conc> (grm-begin, grm-end)
+
+	/**
+	 * Generates productions for the =/= judgement for all rhs.
+	 *
+	 * @type _ -> List(ExtensionElem)
+	 */
+	sxbld-env-make-neq-judgement-grm =
+		sxbld-env-get-rhs-sort-names => names;
+		let map-s = {
+			name:
+				?name;
+				!prod([sort(name), lit("=/="), sort(name)], sort("SXJudgement"),
+    	        	attrs([<sx-sdf2-cons-attribute> "SXNeq"]))
+			}
+		in
+			<map(map-s)> names
+		end => prods;
+		![grammar-elem(context-free-syntax(prods))]
+		
 
     /**
      * Generates a production for SXAtom for each sort in atom-sorts and
