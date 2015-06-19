@@ -228,7 +228,6 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 		boolean isExtDec = isApplication(decl, "SXExtensionDecl")
 				|| isApplication(decl, "SXExtensionBegin")
 				|| isApplication(decl, "SXExtensionEnd");
-		Debug.print("is ext dec: " + isExtDec + " " + decl);
 		
 		return isExtDec;
 	}
@@ -237,7 +236,6 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	public boolean isImportDecl(IStrategoTerm decl) {
 		if (decl.getTermType() == IStrategoTerm.APPL) {
 			String consName = ((StrategoAppl) decl).getConstructor().getName();
-			Debug.print("importDecCons " + importDecCons);
 			return importDecCons.containsKey(consName);
 		} else
 			return false;
