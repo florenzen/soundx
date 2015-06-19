@@ -179,13 +179,13 @@ strategies
      */
     sxbld-analyze-cf-production =
     	?prod(symbols, symbol, attributes);
-    	<sxbld-analyze-store-rhs> symbol;
     	<sxbld-analyze-cf-attributes> attributes => analyzed-attributes;
     	<sxbld-analyze-body-dec> (symbol, analyzed-attributes);
     	<sxbld-analyze-namespace-dec> (symbols, symbol, analyzed-attributes);
     	<sxbld-analyze-import-dec> (symbols, symbol, analyzed-attributes);
     	<sxbld-analyze-namespace-suffix> (symbols, symbol, analyzed-attributes);
     	<sxbld-prefix-all-sorts-base-lang> symbol => prefixed-symbol;
+    	<sxbld-analyze-store-rhs> prefixed-symbol;
     	<sxbld-prefix-all-sorts-base-lang> symbols => prefixed-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => prefixed-ground-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-ground-symbol;
@@ -405,8 +405,8 @@ strategies
      */
     sxbld-analyze-lex-production =
     	?prod(symbols, symbol, attributes);
-    	<sxbld-analyze-store-rhs> symbol;
     	<sxbld-prefix-all-sorts-base-lang> [symbol|symbols] => [prefixed-symbol|prefixed-symbols];
+    	<sxbld-analyze-store-rhs> prefixed-symbol;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => ground-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => ground-symbol;
     	<sxbld-analyze-atoms> (attributes, prefixed-symbol) => cf-prods;
