@@ -64,10 +64,7 @@ strategies
 			end)
 
 	/**
-	 * Processes one desugaring
-	 *
-	 * The desugaring is converted to abstract syntax and stored
-	 * in the environment.
+	 * Convert a desugaring to abstract syntax and store it in the environment.
 	 *
 	 * @type SXDesugaring -> SXEnv
 	 */
@@ -76,10 +73,7 @@ strategies
 		sx-process-universal-desugaring
 
 	/**
-	 * Processes a universal desugaring
-	 *
-	 * The desugaring is converted to abstract syntax and stored
-	 * in the environment.
+	 * Store abstract form of universal desugaring in environment.
 	 *
 	 * @type SXDesugaring -> SXEnv
 	 */
@@ -91,48 +85,36 @@ strategies
 		<sx-metavar-to-meta-var> rhs2 => rhs3;
 		!SXUnivDesug(lhs, rhs3) => desugaring;
 		<sx-env-add-desugaring> desugaring
-		// ;<sx-debug(|"added universal desugaring ")> desugaring
 
 	/**
-	 * Processes a guarded desugaring
-	 *
+	 * Store abstract form of guarded desugaring in environment.
 	 * The conclusion of the left-hand side is split into
-	 * before, subject, and after expressions and converted
-	 * to abstract syntax.
-	 *
-	 * The desugaring is stored in the environment.
+	 * left, target, and right expressions.
 	 *
 	 * @type SXDesugaring -> SXEnv
 	 */
 	sx-process-guarded-desugaring =
 		?con#(args);
-		// <sx-debug(|"processing the following g. d. ")> con#(args);
 		<sx-process-split-guarded-des-cons> con => (index, judg-name);
 		<length> args => len;
 		<index> (1, args) => premises;
 		<collect-all(sx-is-judgement, conc)> premises => premises-list;
 		<index> (<subt> (len, 1), args) => rhs;
-		// <sx-debug(|"rhs is ")> rhs;
 		<index> (len, args) => where-eqs;
-		// <sx-debug(|"where eq is ")> where-eqs;
 		<sx-process-where-clauses> where-eqs => sub; 
 		<drop(|2); take(|<subt> (len, 5))> args => concl-args;
 		<split-at(|<subt> (index, 1))> concl-args => (exprs-before, [expr-subject|exprs-after]);
 		<sx-meta-var-to-sx-metavar> rhs => rhs1;
 		<sx-sub-apply> (sub, rhs1) => rhs2;
 		<sx-metavar-to-meta-var> rhs2 => rhs3;
-		// <sx-debug(|"rhs after applying sub ")> rhs3;
 		!SXGuardDesug(premises-list, exprs-before, expr-subject, exprs-after, judg-name, rhs3) => desugaring;
 		<sx-env-add-desugaring> desugaring
-		// ; <sx-debug(|"added guarded desugaring ")> desugaring
 
 	/**
-	 * Splits the constructor name of a guarded desugaring
-	 *
+	 * Splits the constructor name of a guarded desugaring.
 	 * It returns the judgement name of the left-hand side's
 	 * conclusion and the index of the subject expression.
-	 *
-	 * It fails if the input is not the cinstructor name of a
+	 * It fails if the input is not the constructor name of a
 	 * guarded desugaring.
 	 *
 	 * @type String -> (Int, String)
@@ -154,7 +136,6 @@ strategies
 	 */
 	sx-process-where-clauses =
 		?SXWhereClauses(where-eqs);
-		// <sx-debug(|"clauses ")> where-eqs;
 		<sx-process-where-equations> where-eqs
 
 	/**
@@ -168,17 +149,10 @@ strategies
 		<sx-sub-empty> ()
 	sx-process-where-equations =
 		?[eq|eqs];
-		// sx-debug(|"11111");
-		// The later where equations are substituted into the earlier
-		// where equations
 		<sx-process-where-equations> eqs => sub;
-		// sx-debug(|"22222");
 		<sx-sub-apply> (sub, eq) => eq1;
-		// sx-debug(|"33333");
 		<sx-process-where-equation> eq1 => sub1;
-		// sx-debug(|"44444");
 		<sx-sub-compose> (sub1, sub)
-		// ;sx-debug(|"55555")
 
 	/**
 	 * Analyzes a where equation. It returns a substitution
@@ -190,9 +164,7 @@ strategies
 	sx-process-where-equation =
 		?eq@SXWhereClause(SXWhereEquation(lhs, rhs));
 		<sx-meta-var-to-sx-metavar> (lhs, rhs) => (lhs1, rhs1);
-		// <sx-debug(|"process ")> (lhs1, rhs1);
 		<sx-vars> lhs1 => lhs1-vars;
-		// <sx-debug(|"vars ")> lhs1-vars;
 		<sx-unify(|lhs1-vars)> (lhs1, rhs1) => result;
 		if !result; ?SXUnificationFailure(_) then
 			<sx-analysis-fail(|"lhs and rhs do not match structurally")> eq
