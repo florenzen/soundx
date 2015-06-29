@@ -171,6 +171,8 @@ strategies
     /**
      * Analyzes a context-free production.
      *
+     * TODO generate fewer where equations
+     *
      * @type Sdf2Production -> List(Sdf2Production)
      */
     sxbld-analyze-cf-production =
@@ -186,11 +188,11 @@ strategies
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbols => prefixed-ground-symbols;
     	<sxbld-prefix-all-sorts(|"Gnd"); sxbld-prefix-all-sorts-base-lang> symbol => prefixed-ground-symbol;
     	<sxbld-analyze-universal-desugaring-prod> prefixed-symbol => univ-prod;
-    	<sxbld-analyze-where-equation-prod> prefixed-symbol => where-eq-prod;
-    	![univ-prod,
-    	  where-eq-prod,
-    	  prod(prefixed-symbols, prefixed-symbol, analyzed-attributes),
-    	  prod(prefixed-ground-symbols, prefixed-ground-symbol, analyzed-attributes)]
+    	<sxbld-analyze-where-equation-prod> (symbol, prefixed-symbol) => where-eq-prods;
+    	<conc> (where-eq-prods,
+    		[univ-prod,
+    	     prod(prefixed-symbols, prefixed-symbol, analyzed-attributes),
+    	     prod(prefixed-ground-symbols, prefixed-ground-symbol, analyzed-attributes)])
 
 	/**
 	 * Generates a production for a universal desugaring.
@@ -208,13 +210,21 @@ strategies
 	/**
 	 * Generates a production for a where clause.
 	 *
-	 * @type Sdf2Symbol -> Sdf2Production
+	 * @type (Sdf2Symbol, Sdf2Symbol) -> List(Sdf2Production)
 	 */
 	sxbld-analyze-where-equation-prod =
-		?symbol;
-		!prod([symbol, lit("="), symbol],
+		?(symbol, prefixed-symbol);
+		!prod([prefixed-symbol, lit("="), prefixed-symbol],
 			sort("SXWhereEquation"),
-			attrs([<sx-sdf2-cons-attribute> "SXWhereEquation"]))
+			attrs([<sx-sdf2-cons-attribute> "SXWhereEquation"])) => unqualified-prod;
+		if !symbol; ?sort(name) then
+			!prod([prefixed-symbol, lit(<conc-strings> ("=", name)), prefixed-symbol],
+				sort("SXWhereEquation"),
+				attrs([<sx-sdf2-cons-attribute> "SXWhereEquation"])) => qualified-prod;
+			![qualified-prod, unqualified-prod]
+		else
+			![unqualified-prod]
+		end
 
     /**
      * Checks attributes of context-free production. Generates a constructor name
@@ -367,17 +377,17 @@ strategies
     /**
      * Analyzes a lexical syntax section.
 –     *
-     * @type Grammar -> Gramar
+     * @type Grammar -> Grammar
      */
     sxbld-analyze-lex-syntax =
     	?lexical-syntax(prods);
-    	<map(sxbld-analyze-lex-production); concat> prods => lex-prods;
-        ![lexical-syntax(lex-prods)]
+    	<map(sxbld-analyze-lex-production); unzip> prods => (cf-prod-lists, lex-prod-lists);
+        ![context-free-syntax(<concat> cf-prod-lists), lexical-syntax(<concat> lex-prod-lists)]
 
     /**
      * Analyzes a lexical production.
      *
-     * @type Sdf2Production -> List(Sdf2Production)
+     * @type Sdf2Production -> (List(Sdf2Production), List(Sdf2Production))
      */
     sxbld-analyze-lex-production =
     	?prod(symbols, symbol, attributes);
@@ -388,8 +398,10 @@ strategies
     	<sxbld-analyze-atoms> (attributes, prefixed-symbol);
     	<sxbld-analyze-namespace-kind> (attributes, prefixed-symbol);
     	<sxbld-analyze-module-identifier> (attributes, prefixed-symbol);
-    	![prod(prefixed-symbols, prefixed-symbol, attributes),
-    	  prod(ground-symbols, ground-symbol, attributes)]
+    	<sxbld-analyze-where-equation-prod> (symbol, prefixed-symbol) => where-eq-prods;
+    	!(where-eq-prods,
+    	  [prod(prefixed-symbols, prefixed-symbol, attributes),
+    	   prod(ground-symbols, ground-symbol, attributes)])
 
     /**
      * Stores the rhs symbol name as atom sort if sx-atoms is given.
