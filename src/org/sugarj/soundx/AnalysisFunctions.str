@@ -45,13 +45,13 @@ imports org/sugarj/soundx/Environment
 
 strategies
     /**
-     * Annotates error message, set failed flag, and abort analysis with fail
-     *
-     * Analysis is aborted after the first error to avoid
+     * Annotates error message, sets failed flag, and aborts analysis with fail.
+     * The analysis is aborted after the first error to avoid
      * follow-up errors. Otherwise, all analyses would have
      * to check the failed flag and ignore certain errors as follow-ups.
      *
      * @param String
+     *
      * @type a -> a
      */
     sx-analysis-fail(|msg) =
@@ -66,12 +66,12 @@ strategies
     	fail
 
     /**
-     * Annotates error message only if not failed and sets failed flag
-     *
+     * Annotates error message only if not already failed and sets failed flag.
      * This strategy is intended for default case handling, e. g.
      * using (... + ... + ...) <+ sxbld-analyze-unsupported(...)
      *
      * @param msg String
+     *
      * @type a -> a
      */
     sx-analysis-unsupported(|msg) =
@@ -81,9 +81,10 @@ strategies
     	fail
 
     /**
-     * Adds error message to the environment
+     * Adds error message to the environment.
      *
      * @param msg String
+     *
      * @type a -> a
      */
     sx-analysis-store-error(|msg) =
@@ -146,4 +147,3 @@ strategies
 				!term
 			end
 		end
-	

@@ -324,12 +324,10 @@ strategies
 	sx-is-freshness-judgement =
 		?cons#(args);
 		<string-starts-with(|"SXFreshness")> cons;
-		//<sx-debug(|"is freshness judg ")> "";
 		<explode-string> cons => chars;
 		<drop(|11)> chars => tail; // drop SXFreshness
 		<take-until(?'_')> tail => sort-chars;
 		<implode-string> sort-chars => sort-name;
-		//<sx-debug(|"Sort name " )> sort-name;
 		!(sort-name, args)
 
 /**
