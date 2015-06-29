@@ -45,6 +45,7 @@ imports org/sugarj/soundx/AbstractSyntax
 imports org/sugarj/soundx/processing/Prefixing
 
 // TODO: generate =/= judgement for sorts that are introduced in this extension
+// TODO: generate qualified where equation productions for sorts introduced in this extension
 
 strategies
 	/**
@@ -154,6 +155,8 @@ strategies
 
     /**
      * Analyzes a context-free production
+     *
+     * TODO generate fewer where equations
      *
      * @type Sdf2Production -> Sdf2Production
      */
