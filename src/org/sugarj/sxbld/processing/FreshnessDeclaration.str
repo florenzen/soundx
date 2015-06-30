@@ -51,26 +51,24 @@ imports org/sugarj/soundx/Debug
 
 
 /**
- * Register analyses.
+ * Register analysis.
  */
 strategies
 	sxbld-start-analysis = sxbld-analyze-freshness-declaration
 
 /**
- * Analyses
+ * Analysis.
  */
 strategies
 	/**
-	 * Stores sort of toplevel declaration in environment
+	 * Stores sort of toplevel declaration in environment.
 	 *
 	 * @type String -> String
 	 */
 	sxbld-analyze-freshness-declaration =
 		?decl@SXBldFreshnessDeclaration(lab-atom, sort-atom, lab-expr, sort-expr, judg);
 		where(
-			<sx-debug(|"found this freshness declaration ")> decl;
 			// check that sort-atom is an atom-sort
-			
 			// check that judg has two vars and that lab-atom and lab-expr are
 			// the names of these vars
 			<sx-sdf2-label-to-string> lab-atom => name-atom;
@@ -84,21 +82,16 @@ strategies
 			// check that there is not already a freshness condition for that sort
 			(<not(sxbld-env-get-freshness-condition)> sort-expr <+
 			 <sxbld-analyze-fail(|"Only one freshness condition per sort allowed")> decl);
- 			<sx-debug(|"Freshness condition ok so far 0")> "";
  			
  			// store freshness condition and name-atom/name-expr in environment
  			<sxbld-env-set-freshness-condition> (sort-expr, name-atom, name-expr, judg1);
- 			<sx-debug(|"Freshness condition ok so far 1")> "";
  			
  			sxbld-analyze-fresh-max-args => num-args;
  			// store grammar elements in environment
  			<sxbld-env-prefix-name> sort-atom => prefixed-sort-atom;
  			<sxbld-analyze-fresh-function> (sort-atom, sort-expr, num-args) => grm-fresh-fun;
- 			<sx-debug(|"Freshness condition ok so far 2")> "";
  			<sxbld-analyze-fresh-judg> (sort-atom, sort-expr, num-args) => grm-fresh-judg;
- 			<sx-debug(|"Freshness condition ok so far 3")> "";
  			<conc> (grm-fresh-fun, grm-fresh-judg) => grm-fresh;
- 			<sx-debug(|"Freshness condition ok so far 4")> "";
  			// add reject production for "fresh"
  			!lexical-syntax([prod([lit("fresh")], sort(prefixed-sort-atom),
  				attrs([reject()]))]) => grm-reject;
@@ -108,18 +101,13 @@ strategies
  				grammar-elem(grm-reject-prefixed)] => grms;
 
  			<sxbld-env-add-grammar-elems> grms;
- 			<sx-debug(|"Freshness condition ok so far 5")> "";
- 			<sx-debug(|"grammar elems for fresh ")> grm-fresh;
  			
  			// store axioms about fresh function and freshness judgement in environment
  			<sxbld-analyze-freshness-inf-rules-fun> (sort-expr, name-atom, name-expr, judg1, num-args) => inf-rules-fun;
  			<sxbld-analyze-freshness-inf-rules-judg> (sort-expr, name-atom, name-expr, judg1, num-args) => inf-rules-judg;
- 			//![] => inf-rules-judg;
  			<conc> (inf-rules-fun, inf-rules-judg) => inf-rules;
  			
- 			<map(sxbld-env-add-inference-rule)> inf-rules;
-
-			<sx-debug(|"Freshness condition ok so far")> ""
+ 			<map(sxbld-env-add-inference-rule)> inf-rules
 		)
 
 	/**
@@ -181,9 +169,7 @@ strategies
 		?(sort-expr, name-atom, name-expr, judg, n);
 		<gt> (n, 0);
 		<sxbld-analyze-freshness-numbered-args> (name-expr, n) => numbered-args;
-		// <sx-debug(|"numbered args ")> numbered-args;
 		<unzip> numbered-args => (_, args);
-		// <sx-debug(|"args ")> (<length> numbered-args);
 		<map(sxbld-analyze-freshness-inf-rule-fun(|sort-expr, args, n, name-atom, name-expr, judg))> numbered-args => inf-rules;
 		<sxbld-analyze-freshness-inf-rules-fun> (sort-expr, name-atom, name-expr, judg, <subt> (n, 1)) => more-inf-rules;
 		<conc> (inf-rules, more-inf-rules)
@@ -192,7 +178,7 @@ strategies
 	 * Generates the inference fules for the fresh function
 	 * of exactly n arguments for the m-th argument.
 	 *
-	 * @ param sort-expr String
+	 * @param sort-expr String
 	 * @param args List((Int, String))
 	 * @param n Int
 	 * @param name-atom String
@@ -206,7 +192,7 @@ strategies
 		<conc-strings> ("SXFreshFun", sort-expr) => cons-name-prefix;
 		<sxbld-analyze-fresh-numbered-name(|cons-name-prefix)> n => cons-name;
 		<sx-sub-singleton> (SXMetaVar(name-atom), cons-name#(args)) => sub1;
-		<sx-sub-singleton> (SXMetaVar(name-expr), SXMetaVar(arg)) => sub2;
+		<sx-sub-singleton> (SXMetaVar(name-expr), arg) => sub2;
 		<sx-sub-apply> (sub1, judg) => judg1;
 		<sx-debug(|"judg1 ")> judg1;
 		<sx-sub-apply> (sub2, judg1) => judg2;
@@ -229,9 +215,7 @@ strategies
 		?(sort-expr, name-atom, name-expr, judg, n);
 		<gt> (n, 0);
 		<sxbld-analyze-freshness-numbered-args> (name-expr, n) => numbered-args;
-		// <sx-debug(|"numbered args ")> numbered-args;
 		<unzip> numbered-args => (_, args);
-		// <sx-debug(|"args ")> (<length> numbered-args);
 		<map(sxbld-analyze-freshness-inf-rule-judg(|sort-expr, args, n, name-atom, name-expr, judg))> numbered-args => inf-rules;
 		<sxbld-analyze-freshness-inf-rules-judg> (sort-expr, name-atom, name-expr, judg, <subt> (n, 1)) => more-inf-rules;
 		<conc> (inf-rules, more-inf-rules)
@@ -254,7 +238,7 @@ strategies
 		<conc-strings> ("SXFreshness", sort-expr) => cons-name-prefix;
 		<sxbld-analyze-fresh-numbered-name(|cons-name-prefix)> n => cons-name;
 		!cons-name#([SXMetaVar(name-atom) | args]) => premise;
-		<sx-sub-singleton> (SXMetaVar(name-expr), SXMetaVar(arg)) => sub;
+		<sx-sub-singleton> (SXMetaVar(name-expr), arg) => sub;
 		<sx-sub-apply> (sub, judg) => concl;
 		<conc-strings> ("_freshness", sort-expr) => rule-name-prefix;
 		<sxbld-analyze-fresh-numbered-name(|rule-name-prefix)> n => rule-name1;
@@ -303,8 +287,7 @@ strategies
 		<conc-strings> (prefix, "_", num)
 
 	/**
-	 * Maximum number of arguments for fresh function
-	 * and freshness judgement.
+	 * Maximum number of arguments for fresh function and freshness judgement.
 	 *
 	 * @type _ -> Int
 	 */
