@@ -92,6 +92,7 @@ strategies
  			
  			sxbld-analyze-fresh-max-args => num-args;
  			// store grammar elements in environment
+ 			<sxbld-env-prefix-name> sort-atom => prefixed-sort-atom;
  			<sxbld-analyze-fresh-function> (sort-atom, sort-expr, num-args) => grm-fresh-fun;
  			<sx-debug(|"Freshness condition ok so far 2")> "";
  			<sxbld-analyze-fresh-judg> (sort-atom, sort-expr, num-args) => grm-fresh-judg;
@@ -99,7 +100,7 @@ strategies
  			<conc> (grm-fresh-fun, grm-fresh-judg) => grm-fresh;
  			<sx-debug(|"Freshness condition ok so far 4")> "";
  			// add reject production for "fresh"
- 			!lexical-syntax([prod([lit("fresh")], sort(sort-atom),
+ 			!lexical-syntax([prod([lit("fresh")], sort(prefixed-sort-atom),
  				attrs([reject()]))]) => grm-reject;
  			<sx-prefix-all-sorts-base-lang> grm-reject => grm-reject-prefixed;
  			
@@ -132,11 +133,13 @@ strategies
 	sxbld-analyze-fresh-function =
 		?(sort-atom, sort-expr, n);
 		<gt> (n, 0);
+		<sxbld-env-prefix-name> sort-atom => prefixed-sort-atom;
+ 		<sxbld-env-prefix-name> sort-expr => prefixed-sort-expr;
 		<conc-strings> ("SXFreshFun", sort-expr) => cons-name-prefix;
 		<sxbld-analyze-fresh-numbered-name(|cons-name-prefix)> n => cons-name;
-		<sxbld-analyze-fresh-arg-list> (n, sort(sort-expr)) => expr-list;
+		<sxbld-analyze-fresh-arg-list> (n, sort(prefixed-sort-expr)) => expr-list;
 		<conc> ([lit("fresh"), lit("(")], expr-list, [lit(")")]) => lhs;
-		!prod(lhs, sort(sort-atom),
+		!prod(lhs, sort(prefixed-sort-atom),
 			attrs([<sx-sdf2-cons-attribute> cons-name])) => grm;
 		<sx-prefix-all-sorts-base-lang> grm => grm-prefixed;
 		<sxbld-analyze-fresh-function> (sort-atom, sort-expr, <subt> (n, 1)) => grms;
@@ -153,10 +156,12 @@ strategies
 	sxbld-analyze-fresh-judg =
 		?(sort-atom, sort-expr, n);
 		<gt> (n, 0);
+ 		<sxbld-env-prefix-name> sort-atom => prefixed-sort-atom;
+ 		<sxbld-env-prefix-name> sort-expr => prefixed-sort-expr;
 		<conc-strings> ("SXFreshness", sort-expr) => cons-name-prefix;
 		<sxbld-analyze-fresh-numbered-name(|cons-name-prefix)> n => cons-name;
-		<sxbld-analyze-fresh-arg-list> (n, sort(sort-expr)) => expr-list;
-		<conc> ([sort(sort-atom) , lit("="), lit("fresh"), lit("(")], expr-list, [lit(")")]) => lhs;
+		<sxbld-analyze-fresh-arg-list> (n, sort(prefixed-sort-expr)) => expr-list;
+		<conc> ([sort(prefixed-sort-atom) , lit("="), lit("fresh"), lit("(")], expr-list, [lit(")")]) => lhs;
 		<sx-prefix-all-sorts-base-lang> lhs => lhs-prefixed;
 		!prod(lhs-prefixed, sort("SXJudgement"),
 			attrs([<sx-sdf2-cons-attribute> cons-name])) => grm;
