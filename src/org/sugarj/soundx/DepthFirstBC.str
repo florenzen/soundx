@@ -66,7 +66,7 @@ strategies
 		!(<sx-sub-empty> (), [])
 	sx-dfsbc-build-derivations(|vars-asms) =
 		?(asms, inf-rules, goals@[judg|_]);
-		<sx-debug(|"trying ")> (<sx-pretty-print-term> judg);
+		// <sx-debug(|"trying ")> (<sx-pretty-print-term> judg);
 		//<sx-debug(|"assumption ")> (<map(\SXDerivAsm(j) -> j\); sx-pretty-print-list-nl> asms);
 		(<sx-dfsbc-build-derivations-by-asm(|vars-asms)> (asms, asms, inf-rules, goals) <+
 		 (<sx-is-prim-judgement> judg;
@@ -191,7 +191,7 @@ strategies
 		?(asms, all-inf-rules, [inf-rule|inf-rules], goals@[judg|judgs]);
 		((<sx-fresh-inf-rule> inf-rule => SXInfRule(premises, name, concl);
 		  <sx-dfsbc-unify(|vars-asms)> (judg, concl) => mgu;
-		  <sx-debug(|"rule ")> name;
+		  // <sx-debug(|"rule ")> name;
 		  <sx-sub-apply> (mgu, <conc> (premises, judgs)) => judgs1;
 		  <sx-dfsbc-build-derivations(|vars-asms)> (asms, all-inf-rules, judgs1) => (sub, derivs);
 		  <split-at(|<length> premises)> derivs => (derivs-prem, derivs-other);
