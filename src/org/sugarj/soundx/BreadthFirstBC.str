@@ -58,6 +58,7 @@ imports org/sugarj/soundx/Debug
 // TODO could we drop a non-derivable judgement and continue and find more error w/o diverging?
 // TODO should also support assumptions to use it for in verification for better
 // error messages
+// TODO generalize suffix and concat like in DFS.
 
 strategies
 	/**
