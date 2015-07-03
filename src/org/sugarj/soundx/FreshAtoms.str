@@ -30,7 +30,7 @@
  */
 
 /**
- * Generation of fresh atoms
+ * Generation of fresh atoms.
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */
@@ -62,6 +62,7 @@ strategies
 		?term;
 		<sx-is-fresh-fun> term => (sort-name, args);
 		sx-freshness-conditions => freshness-conds;
+		<sx-debug(|"trying to find fresh name for ")> term; 
 		<lookup> (sort-name, freshness-conds) => freshness-cond;
 		<sx-fresh-atom> (freshness-cond, args)
 
@@ -82,13 +83,15 @@ strategies
 	 */
 	sx-fresh-atom(|count) =
 		?(freshness-cond, args);
+		<sx-debug(|"args to sx fresh atom ")> args;
 		<int-to-string> count => num;
 		<conc-strings> (<sx-fresh-atom-prefix> (), num) => cand;
-		// <sx-debug(|"candidate ")> cand;
+		<sx-debug(|"candidate ")> cand;
 		if <sx-fresh-atom-ok(|freshness-cond, args)> cand then
-			// <sx-debug(|"cand was ok ")> cand;
+			<sx-debug(|"cand was ok ")> cand;
 			!cand
 		else
+			<sx-debug(|"cand was not ok ")> cand;
 			<sx-fresh-atom(|<add> (count, 1))> (freshness-cond, args)
 		end
 
@@ -122,7 +125,7 @@ strategies
 		<sx-sub-singleton> (SXMetaVar(sort-name), arg) => sub2;
 		<sx-sub-apply> (sub1, judg) => judg1;
 		<sx-sub-apply> (sub2, judg1) => judg2;
-		// <sx-debug(|"checking freshness condition ")> judg2;
+		<sx-debug(|"checking freshness condition ")> judg2;
 		<sx-dfsbc-build-derivation> ([], <sx-fresh-inference-rules> (), judg2)
 
 	/**
@@ -132,8 +135,26 @@ strategies
 	 */
 	sx-fresh-inference-rules =
 		sx-inference-rules => inf-rules-base;
+		<sx-fresh-remove-fresh-judg-implies-freshness-cond-rules> inf-rules-base => inf-rules-base1;
 		sx-inference-rules-from-extensions => inf-rules-ext;
-		<conc> (inf-rules-base, inf-rules-ext)
+		<conc> (inf-rules-base1, inf-rules-ext)
+
+    /**
+     * Removes the rules x = fresh(<expr>) => freshness-cond(x, <expr>) from
+     * the base language rules. They are only necessary for verification
+     * and may lead fresh name generation into a loop.
+     *
+     * @type List(SXInfRule) -> List(SXInfRule)
+     */
+    sx-fresh-remove-fresh-judg-implies-freshness-cond-rules =
+    	let filter-s = {
+    		rule-name:
+    			?SXInfRule(_, rule-name, _);
+    			<not(string-starts-with(|"_freshness"))> rule-name
+    		}
+    	in
+    		filter(where(filter-s))
+    	end
 
 	/**
 	 * Returns the prefix for the generated atoms.
