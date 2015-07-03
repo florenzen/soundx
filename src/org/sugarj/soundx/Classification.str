@@ -160,31 +160,28 @@ strategies
 	 */
 	sx-classify-inf-rule-x(|current-ext, ext-inf-rules, base-inf-rules) =
 		?rule@SXInfRule(premises, name, concl);
-		//<sx-debug(|"trying to verify as X: ")> rule;
+		// <sx-debug(|"trying to verify as X: ")> (<sx-pretty-print-term> rule);
 		<sx-basic-desugar-inf-rule(|current-ext)> rule => des-rule@SXInfRule(des-premises, _, des-concl);
-	    //<sx-debug(|"desugared rule ")> des-rule;
+	    // <sx-debug(|"desugared rule ")> des-rule;
 		<map(!SXDerivAsm(<id>))> premises => asms;
 		<conc> (ext-inf-rules, base-inf-rules) => all-inf-rules;
 		if <sx-dfsbc-build-derivation> (asms, all-inf-rules, des-concl) => deriv then
 			if !deriv; ?SXDerivInst(_, rule-name, _) then
 				<map(sx-inf-rule-name)> base-inf-rules => base-rule-names;
 				if <elem> (rule-name, base-rule-names) then
-					//<sx-debug(|"successfully classified as X: ")> name;
+					// <sx-debug(|"successfully classified as X: ")> name;
 					!SXRuleX()
 				else
 					!SXClassNotBase(rule-name)
 					//; <sx-debug(|"failed to classify as X rule (last rule not from base): ")> name
-					// fail
 				end
 			else
 				!SXClassConclAsm()
 				//; <sx-debug(|"failed to classify as X rule (conclusion in assumptions): ")> name
-				// fail
 			end
 		else
 			!SXClassNoDeriv()
 			//; <sx-debug(|"failed to classify as X rule (no derivation): ")> name
-			// fail
 		end
 
 	/**
@@ -199,7 +196,7 @@ strategies
 	 */
 	sx-classify-inf-rule-b(|current-ext, ext-inf-rules, base-inf-rules) =
 		?rule@SXInfRule(premises, name, concl);
-		// <sx-debug(|"trying to verify as B: ")> rule;
+		// <sx-debug(|"trying to verify as B: ")> (<sx-pretty-print-term> rule);
 		<sx-basic-desugar-inf-rule(|current-ext)> rule => des-rule@SXInfRule(des-premises, _, des-concl);
 		// <sx-debug(|"desugared rule ")> des-rule;
 		<sx-extension-cons-names> current-ext => ext-cons-names;
@@ -212,11 +209,9 @@ strategies
 				!SXRuleB()
 			else
 				!SXClassNoDeriv()
-				//<sx-debug(|"failed to classify as B rule (no derivation): ")> name;
-				//fail
+				// <sx-debug(|"failed to classify as B rule (no derivation): ")> name;
 			end
 		else
 			!SXClassExtPrem()
-			//<sx-debug(|"failed to classify as B rule (extended expressions in premises): ")> name;
-			//fail
+			// <sx-debug(|"failed to classify as B rule (extended expressions in premises): ")> name;
 		end

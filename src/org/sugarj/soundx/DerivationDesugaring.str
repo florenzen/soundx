@@ -179,7 +179,6 @@ strategies
 		  			[concl-fresh|premises-fresh], [concl|concl-subderivs], vars-fresh-rule)
 		  	else
 		  		<sx-sub-apply> (result, concl-des) => concl-des-instantiated;
-		  		// <sx-debug(|"instantiated conclusion before freshening ")> concl-des-instantiated;
 		  		<sx-fresh-atom-replace-all> concl-des-instantiated => concl-des-fresh-atoms;
 		  		<conc> (ext-inf-rules, base-inf-rules) => all-inf-rules;
 		  		if <sx-dfsbc-build-derivation> (subderivs, all-inf-rules, concl-des-fresh-atoms) => deriv-des then
@@ -277,7 +276,6 @@ strategies
 		  		<sx-basic-desugar-sub(|current-ext)> sub21 => sub21-desugared;
 		  		<sx-sub-compose> (sub21-desugared, result1) => sub;
 		  		<sx-sub-apply> (sub, concl-des) => desugared-goal;
-		  		// <sx-debug(|"instantiated conclusion before freshening ")> desugared-goal;
 		  		<sx-fresh-atom-replace-all> desugared-goal => desugared-goal-fresh-atoms;
 				if <sx-dfsbc-build-derivation> (subderivs, base-rules, desugared-goal-fresh-atoms)
 					=> deriv-des then
