@@ -248,9 +248,9 @@ signature constructors
 
 strategies
 	/**
-	 * Checks if an aterm is a judgement.A judgement has a
+	 * Checks if an aterm is a judgement. A judgement has a
 	 * constructor named SXJudgement<number> or
-	 * is one of the primitive judgement SXNeq, SXGetInterface.
+	 * is one of the primitive judgement SXNeq, SXGetInterface, etc.
 	 *
 	 * @type a -> a
 	 */
@@ -315,7 +315,7 @@ strategies
     	?SXSuffix(_, _)
   	
 	/**
-	 * Checks if ATerm is application of freshness judgement.
+	 * Checks if aterm is application of freshness judgement.
 	 * If so, it returns the sort-name and the arguments for
 	 * the freshness condition.
 	 *
@@ -338,11 +338,16 @@ signature constructors
 	SXUnivDesug:  SXExpr * SXExpr                                                            -> SXDesug
 
 strategies
+	/**
+	 * Checks if aterm is universal desugaring.
+	 *
+	 * @type a -> a
+	 */
 	sx-is-universal-desugaring =
 		?SXUnivDesug(_, _)
 
 	/**
-	 * Checks if ATerm is application of fresh function.
+	 * Checks if aterm is application of fresh function.
 	 * If so, it returns the sort-name and the arguments for
 	 * the freshness condition.
 	 *
@@ -418,7 +423,7 @@ signature constructors
 
 strategies
 	/**
-	 * Collects all constructor names of some term.
+	 * Collects all constructor names of some aterm.
 	 *
 	 * @type a -> List(String)
 	 */

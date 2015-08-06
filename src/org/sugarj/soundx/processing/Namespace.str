@@ -46,9 +46,8 @@ imports org/sugarj/soundx/Declarations
 strategies
 	/**
 	 * Adds a namespace declaration to the list of toplevel declarations and
-	 * stores the namespace identifier in the environment
-	 *
-	 * It aborts if there was already a previous namespace declaration.
+	 * stores the namespace identifier in the environment. It aborts if
+	 * there was already a previous namespace declaration.
 	 *
 	 * @type ToplevelDeclaration -> SXEnv
 	 */
@@ -60,13 +59,11 @@ strategies
 		else
 			<sx-env-add-toplevel-declaration> decl;
 			<sx-process-register-namespace> decl
-			// ;<sx-debug(|"processsed namespace decl")> ""
 		end
 
 	/**
-	 * Stores the namespace identifier in the environment
-	 *
-	 * It aborts if the import declaration is inside an extension definition.
+	 * Stores the namespace identifier in the environment. It aborts if
+	 * the import declaration is inside an extension definition.
 	 *
 	 * @type ToplevelDeclaration -> SXEnv
 	 */
@@ -79,7 +76,6 @@ strategies
 			else
 				if <eq> (con, cons-name) then
 					<index> (<add> (index, 1), args) => namespace;
-					// <sx-debug(|"registered namespace ")> namespace;
 					<sx-env-set-namespace> namespace
 				else
 					id

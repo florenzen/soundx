@@ -59,11 +59,11 @@ imports org/sugarj/sxbld/processing/AnalysisFunctions
 
 
 /**
- * Analyses
+ * Analyses.
  */
 strategies
 	/**
-     * Collects all errors from the annotations
+     * Collects all errors from the annotations.
      *
      * @type a -> List((a, String))
      */
@@ -80,13 +80,12 @@ strategies
 	// driver.
 
 	/**
-	 * Starts the analysis only if failed is not set
+	 * Starts the analysis only if failed is not set.
 	 *
 	 * @type a -> a
 	 */
 	start-analysis =
 	    sxbld-analyze-unless-failed(changed-tree-or-analysis-data(sxbld-start-analysis))
-
 	// TODO: when the last toplevel declaration has been seen, check that all
 	// the required stuff has been mentioned in the base language definition.
 	// This way, the language library can assume that all necessary declarations
@@ -94,19 +93,15 @@ strategies
 	// This can be done using the new SUGARJ_is_last_toplevel_declaration primitive.
 
     /**
-     * Performs the actual analysis
-     *
-     * The different analyses must be added to this strategy.
+     * Performs the actual analysis. The different analyses must be added to this strategy.
      *
      * @type a -> a
      */
     sxbld-start-analysis = fail
 
 	/**
-	 * Analyzes a term unless the failed flag is set
-	 *
-	 * All analyses for toplevel declarations must be wrapped
-	 * by this strategy to avoid follow-up errors.
+	 * Analyzes a term unless the failed flag is set. All analyses for toplevel declarations
+	 * must be wrapped by this strategy to avoid follow-up errors.
 	 *
 	 * @param s a -> a
 	 * @type a -> a
@@ -115,7 +110,7 @@ strategies
 		where(<sxbld-env-get-failed> () => SXBldFalse()); s
 
 /**
- * Desugaring
+ * Desugaring.
  */
 strategies
     /**
@@ -136,7 +131,7 @@ strategies
 		end
 
     /**
-     * Succeeds if toplevel term contributes to extension declarations
+     * Succeeds if toplevel term contributes to extension declarations.
      *
      * @type ToplevelDeclaration -> ToplevelDeclaration
      */
@@ -155,15 +150,15 @@ strategies
 		?SXBldFreshnessDeclaration(_, _ , _, _, _)
 	
 	/**
-	 * Register BLD processing as SugarJ desugarings
+	 * Register BLD processing as Sugar* desugarings.
 	 *
 	 * @type a -> a
 	 */
 	sxbld-desugaring = sxbld-desugaring-env-to-extension-elem
-	sxbld-desugaring = sxbld-process-header // TODO: put into desugar and remove sxbld-desugaring-strategy
+	sxbld-desugaring = sxbld-process-header
 
     /**
-     * The main desugaring strategy
+     * The main desugaring strategy.
      *
      * @type a -> a
      */

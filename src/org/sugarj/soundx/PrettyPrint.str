@@ -119,9 +119,7 @@ strategies
 	 */
 	sx-pretty-print-term =
 		?expr;
-		// <sx-debug(|"expr ")> expr;
 		sx-get-pp-table => tbl;
-		// <sx-debug(|"pp table ")> tbl;
 		<bottomup(try(\SXMetaVarGen(name, _) -> SXMetaVar(name)\))> expr => expr1;
 		<bottomup(try(\SXMetaVar(name) -> name\))> expr1 => expr2;
 		(// <sx-pretty-print(|tbl)> expr1 <+

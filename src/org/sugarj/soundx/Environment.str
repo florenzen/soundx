@@ -41,25 +41,21 @@ imports org/sugarj/soundx/AbstractSyntax
 
 
 /**
- * Basic handling of the environment hash table
- *
+ * Basic handling of the environment hash table.
  * The environment is a hash table from Strings to values.
  * We use SXEnv in type annotation.
  */
 strategies
 	/**
-	 * The environment hash table
-	 *
-	 * Do not call directly, use sx-env-get-hashtable instead.
+	 * The environment hash table. Do not call directly, use
+	 * sx-env-get-hashtable instead.
 	 *
 	 * @type _ -> SXEnv
 	 */
     sx-env-hashtable = fail
 
     /**
-     * Returns the environment
-     *
-     * Creates an empty hash table if called for the first time.
+     * Returns the environment. Creates an empty hash table if called for the first time.
      *
      * @type _ -> SXEnv
      */
@@ -70,7 +66,7 @@ strategies
   	    !ht)
 
     /**
-     * Creates empty environment containing all keys
+     * Creates empty environment containing all keys.
      *
      * @type _ -> SXEnv
      */
@@ -94,7 +90,7 @@ strategies
   	    hashtable-put(|"pp-table", SXFalse())
 
     /**
-     * Looks up a key in the environment
+     * Looks up a key in the environment.
      *
      * @type String -> a
      */
@@ -105,7 +101,7 @@ strategies
   		    hashtable-get(|key) => value
 
     /**
-     * Sets a key to a value in the environment
+     * Sets a key to a value in the environment.
      *
      * @type String * a -> SXEnv
      */
@@ -115,11 +111,11 @@ strategies
   	    hashtable-put(|key, value)
 
 /**
- * Handling of re-exports
+ * Handling of re-exports.
  */
 strategies
 	/**
-	 * Gets re-exports
+	 * Gets re-exports.
 	 *
 	 * @type _ -> List(String)
 	 */
@@ -127,7 +123,7 @@ strategies
 		<sx-env-get> "re-exports"
 
 	/**
-	 * Sets re-exports
+	 * Sets re-exports.
 	 *
 	 * @type List(String) -> SXEnv
 	 */
@@ -136,7 +132,7 @@ strategies
 		<sx-env-set> ("re-exports", re-exports)
 
 	/**
-	 * Succeeds if re-exports are set
+	 * Succeeds if re-exports are set.
 	 *
 	 * @type _ -> _
 	 */
@@ -144,11 +140,11 @@ strategies
 		sx-env-get-re-exports; not(?SXFalse())
 
 /**
- * Handling of derivation
+ * Handling of derivation.
  */
 strategies
 	/**
-	 * Gets derivation
+	 * Gets derivation.
 	 *
 	 * @type _ -> SXExpr
 	 */
@@ -156,7 +152,7 @@ strategies
 		<sx-env-get> "derivation"
 
 	/**
-	 * Sets derivation
+	 * Sets derivation.
 	 *
 	 * @type SXExpr -> SXEnv
 	 */
@@ -165,7 +161,7 @@ strategies
 		<sx-env-set> ("derivation", deriv)
 
 	/**
-	 * Succeeds if derivation has been set
+	 * Succeeds if derivation has been set.
 	 *
 	 * @type _ -> _
 	 */
@@ -173,11 +169,11 @@ strategies
 		sx-env-get-derivation; not(?SXFalse())
 
 /**
- * Handling of pp-table
+ * Handling of pp-table.
  */
 strategies
 	/**
-	 * Gets pp-table
+	 * Gets pp-table.
 	 *
 	 * @type _ -> SXExpr
 	 */
@@ -185,7 +181,7 @@ strategies
 		<sx-env-get> "pp-table"
 
 	/**
-	 * Sets pp-table
+	 * Sets pp-table.
 	 *
 	 * @type SXExpr -> SXEnv
 	 */
@@ -194,7 +190,7 @@ strategies
 		<sx-env-set> ("pp-table", pp-table)
 
 	/**
-	 * Succeeds if pp-table has been set
+	 * Succeeds if pp-table has been set.
 	 *
 	 * @type _ -> _
 	 */
@@ -202,11 +198,11 @@ strategies
 		sx-env-get-pp-table; not(?SXFalse())
 
 /**
- * Handling of interface
+ * Handling of interface.
  */
 strategies
 	/**
-	 * Gets interface
+	 * Gets interface.
 	 *
 	 * @type _ -> SXExpr
 	 */
@@ -214,7 +210,7 @@ strategies
 		<sx-env-get> "interface"
 
 	/**
-	 * Sets interface
+	 * Sets interface.
 	 *
 	 * @type SXExpr -> SXEnv
 	 */
@@ -223,7 +219,7 @@ strategies
 		<sx-env-set> ("interface", intf)
 
 	/**
-	 * Succeeds if interface has been set
+	 * Succeeds if interface has been set.
 	 *
 	 * @type _ -> _
 	 */
@@ -231,11 +227,11 @@ strategies
 		sx-env-get-interface; not(?SXFalse())
 
 /**
- * Fresh names
+ * Fresh names.
  */
 strategies
 	/**
-	 * Gets name-counter
+	 * Gets name-counter.
 	 *
 	 * @type _ -> integer
 	 */
@@ -243,7 +239,7 @@ strategies
 		<sx-env-get> "name-counter"
 
     /**
-     * Sets name-counter
+     * Sets name-counter.
      *
      * @type integer -> SXEnv
      */
@@ -252,7 +248,7 @@ strategies
     	<sx-env-set> ("name-counter", counter)
 
     /**
-     * Generates a fresh name with the given prefix
+     * Generates a fresh name with the given prefix.
      *
      * @type String -> String
      */
@@ -265,10 +261,8 @@ strategies
     	    <conc-strings> (prefix, suffix) => fresh-name
 
     /**
-     * Generates a fresh name for a constructor
-     *
-     * The namespace is included in the constructor name
-     * to make them distinct over all modules.
+     * Generates a fresh name for a constructor. The namespace is
+     * included in the constructor name to make them distinct over all modules.
      *
      * @type _ -> String
      */
@@ -278,11 +272,11 @@ strategies
     	<sx-env-fresh-name> (<conc-strings> ("SXCons", mangled-namespace))
   
 /**
- * Handling of grammar-elems
+ * Handling of grammar-elems.
  */
 strategies
 	/**
-	 * Gets grammar-elems
+	 * Gets grammar-elems.
 	 *
 	 * @type _ -> List(Grammar)
 	 */
@@ -290,7 +284,7 @@ strategies
         <sx-env-get> "grammar-elems"
 
     /**
-     * Sets grammar-elems
+     * Sets grammar-elems.
      *
      * @type List(Grammar) -> SXEnv
      */
@@ -299,7 +293,7 @@ strategies
   	    <sx-env-set> ("grammar-elems", grammar-elems-new)
 
     /**
-     * Adds grammar-elems
+     * Adds grammar-elems.
      *
      * @type List(Grammar) -> SXEnv
      */
@@ -309,11 +303,11 @@ strategies
   	    <sx-env-set-grammar-elems> (<conc> (grammar-elems-new, grammar-elems-old))
 
 /**
- * Handling of desugarings
+ * Handling of desugarings.
  */
 strategies
 	/**
-	 * Adds an error to the list of errors
+	 * Adds an error to the list of errors.
 	 *
 	 * @type (a, String) -> SXEnv
 	 */
@@ -323,7 +317,7 @@ strategies
 		<sx-env-set> ("desugarings", [desugaring|desugarings])
 
 	/**
-	 * Gets all desugarings
+	 * Gets all desugarings.
 	 *
 	 * @type _ -> List(SXDesugaring)
 	 */
@@ -331,11 +325,11 @@ strategies
 		<sx-env-get> "desugarings"
 
 /**
- * Handling of named-inf-rules
+ * Handling of named-inf-rules.
  */
 strategies
     /**
-	 * Gets a named inference rule
+	 * Gets a named inference rule.
 	 *
 	 * @type String -> Option(SXNamedInferenceRule)
 	 */
@@ -345,7 +339,7 @@ strategies
   	    maybe(hashtable-get(|name))
 
     /**
-     * Adds a named inference rule
+     * Adds a named inference rule.
      *
      * @type (String, SXInfRule) -> SXEnv
      */  
@@ -355,11 +349,11 @@ strategies
   	    hashtable-put(|name, rule)
 
 /**
- * Handling of inference rules
+ * Handling of inference rules.
  */
 strategies
     /**
-	 * Gets an inference rule
+	 * Gets an inference rule.
 	 *
 	 * @type String -> Option(SXInfRule)
 	 */
@@ -369,7 +363,7 @@ strategies
   	    maybe(hashtable-get(|name))
 
     /**
-     * Adds an inference rule
+     * Adds an inference rule.
      *
      * @type (String, SXInfRule) -> SXEnv
      */  
@@ -388,11 +382,11 @@ strategies
 		hashtable-values
 
 /**
- * Handling of errors
+ * Handling of errors.
  */
 strategies
 	/**
-	 * Adds an error to the list of errors
+	 * Adds an error to the list of errors.
 	 *
 	 * @type (a, String) -> SXEnv
 	 */
@@ -402,7 +396,7 @@ strategies
 		<sx-env-set> ("errors", [error|errors])
 
 	/**
-	 * Gets all errors
+	 * Gets all errors.
 	 *
 	 * @type _ -> List((a, String))
 	 */
@@ -410,11 +404,11 @@ strategies
 		<sx-env-get> "errors"
 
 /**
- * Handling of toplevel-declarations
+ * Handling of toplevel-declarations.
  */
 strategies
 	/**
-	 * Gets the list of toplevel declarations
+	 * Gets the list of toplevel declarations.
 	 *
 	 * @type _ -> List(SXToplevelDeclarations)
 	 */
@@ -422,7 +416,7 @@ strategies
 		<sx-env-get> "toplevel-declarations"
 
 	/**
-	 * Adds a declaration to the list of toplevel declarations
+	 * Adds a declaration to the list of toplevel declarations.
 	 *
 	 * @type SXToplevelDeclaration -> SXEnv
 	 */
@@ -432,11 +426,11 @@ strategies
     	<sx-env-set> ("toplevel-declarations", <conc> (decls, [decl]))
 
 /**
- * Handling of the failed flags
+ * Handling of the failed flags.
  */
 strategies
 	/**
-	 * Gets failed flag
+	 * Gets failed flag.
 	 *
 	 * @type _ -> SXBool
 	 */
@@ -444,7 +438,7 @@ strategies
         <sx-env-get> "failed"
 
     /**
-     * Sets the failed flag
+     * Sets the failed flag.
      *
      * @type SXBool -> SXEnv
      */
@@ -453,7 +447,7 @@ strategies
   	    <sx-env-set> ("failed", failed-new)
 
     /**
-     * Set failed flag to true
+     * Set failed flag to true.
      *
      * @type _ -> SXEnv
      */
@@ -461,11 +455,11 @@ strategies
     	<sx-env-set-failed> SXTrue()
 
 /**
- * Handling of namespace
+ * Handling of namespace.
  */
 strategies
 	/**
-	 * Gets namespace
+	 * Gets namespace.
 	 *
 	 * @type _ -> String
 	 */
@@ -473,7 +467,7 @@ strategies
 		<sx-env-get> "namespace"
 
 	/**
-	 * Sets namespace
+	 * Sets namespace.
 	 *
 	 * @type String -> SXEnv
 	 */		
@@ -482,7 +476,7 @@ strategies
     	<sx-env-set> ("namespace", string)
 
     /**
-     * Succeeds if namespace is defined
+     * Succeeds if namespace is defined.
      *
      * @type _ -> String
      */
@@ -490,11 +484,11 @@ strategies
     	sx-env-get-namespace; not(?"")
 
 /**
- * Handling of imports
+ * Handling of imports.
  */
 strategies
 	/**
-	 * Adds an import
+	 * Adds an import.
 	 *
 	 * @type String -> SXEnv
 	 */
@@ -504,7 +498,7 @@ strategies
 		<sx-env-set> ("imports", [import|imports])
 
     /**
-     * Gets the list of imports
+     * Gets the list of imports.
      *
      * @type _ -> List(String)
      */
@@ -512,11 +506,11 @@ strategies
 		<sx-env-get> "imports"
 
 /**
- * Handling of extension-processing
+ * Handling of extension-processing.
  */
 strategies
 	/**
-	 * Set extension-processing
+	 * Set extension-processing to true.
 	 *
 	 * @type _ -> SXEnv
 	 */
@@ -524,7 +518,7 @@ strategies
 		<sx-env-set> ("extension-processing", SXTrue())
 
 	/**
-	 * Checks if extension-processing is set
+	 * Checks if extension-processing is set.
 	 *
 	 * @type _ -> _
 	 */
@@ -532,7 +526,7 @@ strategies
 		<sx-env-get> "extension-processing"; not(?SXFalse())
 
 	/**
-	 * Unset extension processing
+	 * Unsets extension processing.
 	 *
 	 * @type _ -> SXEnv
 	 */
@@ -540,11 +534,11 @@ strategies
 		<sx-env-set> ("extension-processing", SXFalse())
 		
 /**
- * Handling of constructor names
+ * Handling of constructor names.
  */
 strategies
 	/**
-	 * Adds a constructor name
+	 * Adds a constructor name.
 	 *
 	 * @type String -> SXEnv
 	 */
@@ -554,7 +548,7 @@ strategies
 		<sx-env-set> ("cons-names", [name|names])
 
     /**
-     * Succeeds if a constructor name is defined
+     * Succeeds if a constructor name is defined.
      *
      * @type String -> List(String)
      */
@@ -564,7 +558,7 @@ strategies
 		<elem> (name, names)
 
 	/**
-	 * Gets cons-names
+	 * Gets cons-names.
 	 *
 	 * @type _ -> List(String)
 	 */

@@ -62,12 +62,9 @@ imports org/sugarj/soundx/processing/GrammarElems
 imports org/sugarj/soundx/Debug
 
 
-/**
- * Hook analysis into SugarJ
- */
 strategies
 	/**
-     * Collects all errors from the annotation all-errors
+     * Collects all errors from the annotation all-errors and hook into Sugar*.
      *
      * @type a -> List((a, String))
      */
@@ -76,14 +73,14 @@ strategies
 		(<get-analysis-data(|"all-errors")> ast <+ ![])
 
 	/**
-	 * Starts the SoundX analysis
+	 * Hook SoundX analysis into Sugar*.
 	 *
 	 * @type a -> a
 	 */
 	start-analysis = sx-analysis-unless-failed(changed-tree(sx-analysis))
 
 	/**
-	 * Analyzes a term with s unless the failed flag is set
+	 * Analyzes a term with s unless the failed flag is set.
 	 *
 	 * @param s a -> a
 	 *
@@ -92,14 +89,8 @@ strategies
 	sx-analysis-unless-failed(s) =
 		where(<sx-env-get-failed> () => SXFalse()); s
 
-/**
- * The main SoundX analysis
- */
-strategies
 	/**
-	 * Runs the SoundX analysis
-	 *
-	 * It is intended to run once for each toplevel declaration.
+	 * Runs the SoundX analysis. It is intended to run once for each toplevel declaration.
 	 * The toplevel declaration is processed depending on what kind of
 	 * declaration it is. If the current declaration is the last toplevel
 	 * declaration the context analysis is started.
@@ -127,7 +118,7 @@ strategies
 		 	 end)
 
 	/**
-	 * Stores the list of re-exports from the module's imports in the environment
+	 * Stores the list of re-exports from the module's imports in the environment.
 	 *
 	 * @type _ -> SXEnv
 	 */
@@ -161,18 +152,13 @@ strategies
 		<sx-classify-all-inf-rules(|namespace, all-inf-rules-base)> inf-rules-ext
 		
 	/**
-	 * Performs the context analysis
-	 *
-	 * It sets up the interface judgement and tries to derive it
-	 * using the rules from the base language and the imported extensions.
-	 *
+	 * Performs the context analysis. It sets up the interface judgement and tries 
+	 * to derive it using the rules from the base language and the imported extensions.
 	 * It stores the module's interface and the derivation in the environment.
 	 *
 	 * If the interface judgement cannot be derived this strategy aborts
 	 * the analysis phase with an error message stating that there are
 	 * context errors.
-	 *
-	 * TODO: integrate some error investigation procedure here.
 	 *
 	 * @type SXToplevelDeclarations -> SXEnv
 	 */
@@ -214,19 +200,15 @@ strategies
 		end
 
 	/**
-	 * Returns a list of inference rules from the imported extensions
+	 * Returns the list of inference rules from the imported extensions.
 	 *
 	 * @type _ -> List(SXInfRule)
 	 */
 	sx-inference-rules-from-extensions =
 		sx-env-get-re-exports; mapconcat(sx-extension-inference-rules)
 
-/**
- * Processing of toplevel declarations
- */
-strategies
 	/**
-	 * Processes all supported toplevel declarations
+	 * Processes all supported toplevel declarations.
 	 *
 	 * @type ToplevelDeclaration-> SXEnv
 	 */
@@ -242,10 +224,9 @@ strategies
 		sx-process-body-decl
 
 	/**
-	 * Processes a body declaration.
-	 *
-	 * The strategy aborts with an error if the body declaration is inside
-	 * an extension definition, otherwise it is stored in the environment.
+	 * Processes a body declaration. The strategy aborts with an error if the
+	 * body declaration is inside an extension definition, otherwise it is stored
+	 * in the environment.
 	 *
 	 * If the base language has a prefixed namespace, it checks if the body
 	 * declaration contains a namespace suffix and adds it to the namespace.
@@ -265,7 +246,7 @@ strategies
 
 	/**
 	 * Checks if the declaration declares a namespace suffix (only
-	 * for prefixed namespaces.
+	 * for prefixed namespaces).
 	 *
 	 * @type ToplevelDeclaration -> SXEnv
 	 */ 
@@ -288,10 +269,9 @@ strategies
 		end
 		
 	/**
-	 * Processes the begin marker of an extension definition
-	 *
-	 * This strategy aborts with an error if extension processing is
-	 * currently on. Otherwise, extension processing is switched to on
+	 * Processes the begin marker of an extension definition. This
+	 * strategy aborts with an error if extension processing is
+	 * currently on. Otherwise, extension processing is switched to on.
 	 *
 	 * @type ToplevelDeclaration -> SXEnv
 	 */
@@ -306,9 +286,8 @@ strategies
 		end
 
 	/**
-	 * Processes the end marker of an extension definition
-	 *
-	 * This strategy fails if extension processing is off. Otherwise,
+	 * Processes the end marker of an extension definition. This
+	 * strategy fails if extension processing is off. Otherwise,
 	 * extension processing is switched to off.
 	 *
 	 * @type ToplevelDeclaration -> SXEnv

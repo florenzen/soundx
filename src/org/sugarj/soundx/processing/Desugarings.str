@@ -48,9 +48,8 @@ imports org/sugarj/soundx/Debug
 
 strategies
 	/**
-	 * Processes a desugarings section
-	 *
-	 * Aborts with an error, if extension processing is off
+	 * Processes a desugarings section. Aborts with an error, if
+	 * extension processing is off.
 	 *
 	 * @type ToplevelDeclaration -> ToplevelDeclaration
 	 */

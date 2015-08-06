@@ -53,10 +53,8 @@ imports org/sugarj/soundx/Debug
 
 strategies
 	/**
-	 * Desugars a derivation
-	 *
-	 * It either returns the desugared list of toplevel declarations
-	 * or it aborts if it is stuck in the forward step
+	 * Desugars a derivation. It either returns the desugared
+	 * list of toplevel declarations or it aborts if it is stuck in the forward step.
 	 *
 	 * @type _ -> List(ToplevelDeclaration)
 	 */
@@ -119,7 +117,7 @@ strategies
 	/**
 	 * Desugars one extension given the name of the current extension
 	 * the inference rules of the extension and the inference rules of
-	 * the base system
+	 * the base system.
 	 *
 	 * @param current-ext String
 	 * @param ext-inf-rules List(SXInfRule)
@@ -151,7 +149,7 @@ strategies
 		// is more direct and performs fewer traversals.
 
 	/**
-	 * The one-step top-down rewriting of derivations
+	 * The one-step top-down rewriting of derivations.
 	 *
 	 * @param current-ext String
 	 * @param ext-inf-rules List(SXInfRule)
@@ -194,7 +192,7 @@ strategies
 		))
 
 	/**
-	 * The one-step bottom-up rewriting of derivations
+	 * The one-step bottom-up rewriting of derivations.
 	 *
 	 * @param current-ext String
 	 * @param ext-inf-rules List(SXInfRule)
@@ -214,9 +212,7 @@ strategies
 		 ))
 
 	/**
-	 * One-step bottom-up rewriting for base language rule
-	 *
-	 * TODO error handling in forward step failure
+	 * One-step bottom-up rewriting for base language rule.
 	 *
 	 * @param current-inf-rule SXInfRule
 	 * @param current-ext String
@@ -247,7 +243,7 @@ strategies
 		end
 
 	/**
-	 * One-step bottom-up rewriting for an extension rule
+	 * One-step bottom-up rewriting for an extension rule.
 	 * 
 	 * @param current-inf-rule SXInfRule
 	 * @param current-ext String

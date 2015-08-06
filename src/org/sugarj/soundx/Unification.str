@@ -30,7 +30,7 @@
  */
 
 /**
- * Unification for ATerms where variables are enclosed in SXMetaVar.
+ * Unification for aterms where variables are enclosed in SXMetaVar.
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */
@@ -42,12 +42,12 @@ imports org/sugarj/soundx/Substitution
 
 strategies
 	/**
-	 * Unifies a list of pairs of expressions
-	 *
-	 * It either returns a substitution or SXUnificationFailure(msg).
-	 * The vars argument takes the list of unification variables.
+	 * Unifies a list of pairs of expressions. It either returns
+	 * a substitution or SXUnificationFailure(msg). The vars argument
+	 * takes the list of unification variables.
 	 *
 	 * @param vars List(SXMetaVar)
+	 *
 	 * @type List((a, a)) -> SXUnificationResult
 	 */
 	sx-unify(|vars) =
@@ -67,7 +67,6 @@ strategies
 				if <elem> (var2, vars) then
 					<sx-sub-singleton> (var2, var1)
 				else
-					// TODO better error message
 					!SXUnificationFailure("could not unify variables")
 				end
 			end => result;
@@ -91,7 +90,6 @@ strategies
 		if <elem> (var1, vars) then
 			<sx-vars> expr2 => vars-expr2;
 			if <elem> (var1, vars-expr2) then
-				// TODO: better error message
 				!SXUnificationFailure("occurs check failed")
 			else
 				<sx-sub-singleton> (var1, expr2) => sub1;
@@ -104,7 +102,6 @@ strategies
 				end
 			end
 		else
-			// TODO: better error message
 			!SXUnificationFailure(
 				<conc-strings> ("not a unification variable: ",
 				<write-to-string> var1))
@@ -126,20 +123,19 @@ strategies
 			if <eq> (<length> args1, <length> args2) then
 				<sx-unify(|vars)> (<conc> (<zip> (args1, args2), pairs))
 			else
-				// TODO: better error message
-				!SXUnificationFailure("differen number of arguments")
+				!SXUnificationFailure("different number of arguments")
 			end
 		else
 			!SXUnificationFailure(<conc-strings> ("different constructor names ", con1, " ", con2))
 		end
 
 	/**
-	 * Unifies a pair of expressions
-	 *	
-	 * It either returns a substitution or SXUnificationFailure(msg).
-	 * The vars argument takes the list of unification variables.
+	 * Unifies a pair of expressions. It either returns a substitution
+	 * or SXUnificationFailure(msg). The vars argument takes the list of
+	 * unification variables.
 	 *
 	 * @param vars List(SXMetaVar)
+	 *
 	 * @type (a, a) -> SXUnificationResult
 	 */	
 	sx-unify(|vars) =

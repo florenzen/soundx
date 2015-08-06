@@ -103,11 +103,6 @@ strategies
 				<sx-analysis-fail(|msg)> input
 			end
 		end
-		// ((sx-classify-inf-rule-x(|current-ext, ext-inf-rules, base-inf-rules) +
-		//   sx-classify-inf-rule-b(|current-ext, ext-inf-rules, base-inf-rules)) <+
-		//  <sx-env-get-named-inf-rule> name => Some(input);
-		//  <sx-analysis-fail(|"Could not verify this rule")> input)
-		//  // TODO give more helpful error message including assumptions and desugared conclusion
 
 	/**
 	 * Makes an error message why a rule is not an X rule.

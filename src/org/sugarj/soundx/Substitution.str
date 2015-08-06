@@ -42,7 +42,7 @@ imports org/sugarj/soundx/AbstractSyntax
 
 strategies
 	/**
-	 * Returns an empty subsitution
+	 * Returns an empty subsitution.
 	 *
 	 * @type _ -> SXSub
 	 */
@@ -50,9 +50,9 @@ strategies
 		new-hashtable
 
 	/**
-	 * Creates a singelton substitution
+	 * Creates a singleton substitution.
 	 *
-	 * @type (SXVar, a) -> SXSub
+	 * @type (SXMetaVar, a) -> SXSub
 	 */
 	sx-sub-singleton =
 		?(var, expr);
@@ -60,21 +60,21 @@ strategies
 		hashtable-put(|var, expr)
 
 	/**
-	 * Returns domain of a substitution
+	 * Returns domain of a substitution.
 	 *
 	 * @type SXSub -> List(SXMetaVar)
 	 */
 	sx-sub-dom = hashtable-keys
 
     /**
-     * Returns range of a substitution
+     * Returns range of a substitution.
      *
      * @type SXSub -> List(a)
      */
     sx-sub-ran = hashtable-values
 
 	/**
-	 * Checks if substition defines a certain metavariable
+	 * Checks if substition defines a certain metavariable.
 	 *
 	 * @type (SXSub, SXMetaVar) -> _
 	 */
@@ -83,7 +83,7 @@ strategies
 		<hashtable-get(|var)> sub
 
 	/**
-	 * Applies the substitution to an expression
+	 * Applies the substitution to an expression.
 	 *
 	 * @type (SXSub, a) -> a
 	 */
@@ -103,7 +103,7 @@ strategies
 		end
 
 	/**
-	 * Maps the expressions of a substitution
+	 * Maps the expressions of a substitution.
 	 *
 	 * @param s a -> b
 	 *
@@ -123,10 +123,8 @@ strategies
 		end
 
 	/**
-	 * Folds a substitution
-	 *
-	 * The folded strategy gets the accumulator as term argument and
-	 * the metavariable and expression paired as current term
+	 * Folds a substitution. The folded strategy gets the accumulator as
+	 * term argument and the metavariable and expression paired as current term.
 	 *
 	 * @param s(|b) (SXMetaVar, a) -> b
 	 * @param acc b
@@ -144,9 +142,8 @@ strategies
 		end
 
     /**
-     * Returns the union of the two substitutions
-     *
-     * Fails if metavariables present in both substitutions are
+     * Returns the union of the two substitutions. Fails
+     * if metavariables present in both substitutions are
      * not mapped to the same expression.
      *
      * @type (SXSub, SXSub) -> SXSub
@@ -175,12 +172,11 @@ strategies
     	end
 
     /**
-     * Filters the substitution by its metavariables
-     *
-     * The result keeps those mappings where s succeeds for
-     * the metavariable.
+     * Filters the substitution by its metavariables. The result
+     * keeps those mappings where s succeeds for the metavariable.
      *
      * @param s SXMetaVar -> _
+     *
      * @type SXSub -> SXSub
      */
 	sx-sub-filter-vars(s) =
@@ -200,7 +196,7 @@ strategies
 		end
 
     /**
-     * Composes two substitutions
+     * Composes two substitutions.
      *
      * <sx-compose-sub> (sub1, sub2) = sub1 o sub2
      *
@@ -213,7 +209,7 @@ strategies
     	<sx-sub-union> (sub1a, sub2a)
 
 	/**
-	 * Restricts domain of substitution to those variables in the list
+	 * Restricts domain of substitution to those variables in the list.
 	 *
 	 * @type (SXSub, List(SXMetaVar)) -> SXSub
 	 */

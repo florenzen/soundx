@@ -52,6 +52,7 @@ imports org/sugarj/sxbld/processing/SortPrefixing
 
 imports org/sugarj/languages/SXBld
 
+
 strategies
 	/**
 	 * Generates SDF2 from the definitions in the environment.
@@ -111,9 +112,9 @@ strategies
 	    <sxbld-env-get> "namespace-suffices" => namespace-suffices;
 	    sxbld-env-decls-to-stratego(|namespace-suffices, "namespace-suffices") => trans-namespace-suffices;
 	    // generate a PP table for the base language
-	    // Empty PP table since it slows down STRJ considerably
 	    // <map(?grammar-elem(<id>))> grammar-elems => sdf2-defs;
 	    // <sx-grammars-to-pp-table> sdf2-defs => pp-table;
+	    // empty PP table since it slows down STRJ considerably
 	    !PP-Table([]) => pp-table;
 	    sxbld-env-decls-to-stratego(|pp-table, "pp-table") => trans-pp-table;
 	    // Since the SXBld desugaring is hooked into internal-main
@@ -140,12 +141,12 @@ strategies
   	    !SXBldExtensionDecl(<conc> (grammar-elems, transformation-elems))
 
 	/**
-	 * Generates a Stratego definition key = term
+	 * Generates a Stratego definition key = term.
 	 *
 	 * @param term The term to explode
 	 * @param key The name of the definition
 	 *
-	 * @type _ -> List()
+	 * @type _ -> List(ExtensionElem)
 	 */
     sxbld-env-decls-to-stratego(|term, key) =
     	<trm-explode> term => stratego-alist;
@@ -156,6 +157,8 @@ strategies
 
 	/**
 	 * Generates a declaration for the namespace kind.
+	 *
+	 * @type _ -> List(ExtensionElem)
 	 */
 	sxbld-env-make-namespace-kind =
 		(sxbld-env-is-namespace-kind-defined;
@@ -164,7 +167,7 @@ strategies
 		![]
 
 	/**
-	 * Generates productions for SXExtensionBegin and End
+	 * Generates productions for SXExtensionBegin and End.
 	 *
 	 * @type _ -> List(ExtensionElem)
 	 */
@@ -226,10 +229,9 @@ strategies
 		![grammar-elem(context-free-syntax(prods))]
 
     /**
-     * Saves toplevel-declaration in Stratego file.
-     *
-     * We cannot write it directly to SDF since this would allow
-     * base language toplevel input in the base language definition itself.
+     * Saves toplevel-declaration in Stratego file. We cannot write it directly to
+     * SDF since this would allow base language toplevel input in the base language
+     * definition itself.
      *
      * @type _ -> List(ExtensionElem)
      */
@@ -240,7 +242,7 @@ strategies
     	) <+ ![]
 
     /**
-     * Saves extensible-file-ext in Stratego file
+     * Saves extensible-file-ext in Stratego file.
      *
      * @type _ -> List(ExtensionElem)
      */
@@ -251,7 +253,7 @@ strategies
     	) <+ ![]
 
     /**
-     * Saves base-file-ext in Stratego file
+     * Saves base-file-ext in Stratego file.
      *
      * @type _ -> List(ExtensionElem)
      */
@@ -262,7 +264,7 @@ strategies
     	) <+ ![]
 
     /**
-     * Saves base-language-name in Stratego file
+     * Saves base-language-name in Stratego file.
      *
      * @type _ -> List(ExtensionElem)
      */
@@ -273,7 +275,7 @@ strategies
     	) <+ ![]
 
 	/**
-	 * Generates productions for list of toplevel declarations
+	 * Generates productions for list of toplevel declarations.
 	 *
 	 * @type _ -> List(ExtensionElem)
 	 */
@@ -290,7 +292,7 @@ strategies
     	) <+ ![]
 
     /**
-     * Generates productions for the interface judgement declaration
+     * Generates productions for the interface judgement declaration.
      *
      * @type _ -> List(ExtensionElem)
      */
@@ -306,7 +308,7 @@ strategies
 	     ) <+ ![]
 
 	/**
-	 * Generates production for the get-interface judgement
+	 * Generates production for the get-interface judgement.
 	 *
 	 * @type _ -> List(ExtensionElem)
 	 */

@@ -42,7 +42,7 @@ imports org/sugarj/soundx/InductiveDefinitions
 
 
 /**
- * Constructors of the concrete input
+ * Constructors of the concrete input.
  */
 signature constructors
 	SXBldHeader:               SXBldNAME                              -> SXBldHeader	
@@ -63,7 +63,7 @@ signature constructors
 	SXBldFreshnessDeclaration: Sdf2Label * Sdf2Sort * Sdf2Label * Sdf2Sort * SXJudgeent     -> ToplevelDeclaration
 
 /**
- * Constructors for the SugarJ compiler
+ * Constructors for the Sugar* compiler.
  */    
 signature constructors
 	SXBldNamespaceDecl: SXBldName           -> SXBldNamespaceDecl

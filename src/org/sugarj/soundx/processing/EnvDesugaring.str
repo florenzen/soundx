@@ -51,7 +51,7 @@ imports org/sugarj/soundx/Debug
 
 strategies
 	/**
-	 * Generates Stratego and SDF code from the environment
+	 * Generates Stratego and SDF code from the environment.
 	 *
 	 * @type _ -> SXExtensionDecl
 	 */
@@ -61,7 +61,7 @@ strategies
 		!SXExtensionDecl(<conc> (grammar-elems, decls))
 	  
 	/**
-	 * Generates Stratego code from the environment
+	 * Generates Stratego code from the environment.
 	 *
 	 * @type _ -> List(ExtensionElem)
 	 */
@@ -88,12 +88,11 @@ strategies
 	    // concatenate everything into one list
 	    <conc> (trans-signatures, trans-infrules, trans-pp-table,
 	    	trans-desugarings, trans-interface, trans-cons-names) => trans;
-	    <sx-debug(|"transformations ")> trans;
 	    !trans
 
 		
 	/**
-	 * Generates a Stratego definition sx-<key> = ?<namespace>; !<term>
+	 * Generates a Stratego definition sx-<key> = ?<namespace>; !<term>.
 	 *
 	 * @param term The term to explode
 	 * @param key The name of the definition
@@ -110,10 +109,8 @@ strategies
     	 )]
 
 	/**
-	 * Generate the code for the desugarings
-	 *
-	 * It produces a definition for guarded and universal
-	 * desugarings each which looks like this:
+	 * Generate the code for the desugarings. It produces a definition for 
+	 * uarded and universal desugarings each which looks like this:
 	 *
 	 * sx-guarded-desugarings =
 	 *   where(sx-desugaring-active-module; ?<module-name>);
@@ -131,7 +128,7 @@ strategies
 		<conc> (trans-univ, trans-guard)
 
 	/**
-	 * Generate Stratego code for list of universal desugarings
+	 * Generate Stratego code for list of universal desugarings.
 	 *
 	 * @type List(SXDesugaring) -> List(ExtensionElem)
 	 */
@@ -146,7 +143,7 @@ strategies
     	 )]
 
 	/**
-	 * Translates universal desugaring into Stratego match and build
+	 * Translates universal desugaring into Stratego match and build.
 	 *
 	 * @type SXDesugaring -> StrategoStrategy
 	 */ 
@@ -157,7 +154,7 @@ strategies
 		!Seq(Match(stratego-lhs), Build(stratego-rhs))
 
 	/**
-	 * Generates Stratego code for list of guarded desugarings
+	 * Generates Stratego code for list of guarded desugarings.
 	 *
 	 * @type List(SXDesugaring) -> List(ExtensionElem)
 	 */
@@ -172,7 +169,7 @@ strategies
     	 )]
 
 	/**
-	 * Translates guarded desugaring into Stratego match and build
+	 * Translates guarded desugaring into Stratego match and build.
 	 *
 	 * A guarded desugaring
 	 *   premise1 ... premisen
@@ -207,7 +204,7 @@ strategies
 
 	/**
 	 * Generates the activation check for desugarings with the name
-	 * of the current module
+	 * of the current module.
 	 *
 	 * @type _ -> StrategoStrategy
 	 */	
@@ -220,7 +217,7 @@ strategies
 			))
 
 	/**
-	 * Folds a list of strategies using <+
+	 * Folds a list of strategies using <+.
 	 *
 	 * @type List(StrategoStrategy) -> StrategoStrategy
 	 */ 
@@ -229,8 +226,7 @@ strategies
 		<foldl(\(strat, output) -> LChoice(strat, output)\)> (strats, Fail())
 
 	/**
-	 * Generates a definition for the module interface
-	 * 
+	 * Generates a definition for the module interface. 
 	 * It contains the interface expression and the names
 	 * of the re-exported modules
 	 *
@@ -241,7 +237,6 @@ strategies
 			sx-env-get-interface => interface;
 			sx-env-get-re-exports => re-exports;
 			sx-env-module-decls-to-stratego(|(interface, re-exports), "interface")
-			// ;sx-debug(|"interface declaration in Stratego ")
 		else
 			![]
 		end

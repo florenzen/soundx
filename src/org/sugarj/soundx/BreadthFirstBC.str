@@ -57,8 +57,10 @@ imports org/sugarj/soundx/Debug
 // TODO why BFS? DFS would also work.
 // TODO could we drop a non-derivable judgement and continue and find more error w/o diverging?
 // TODO should also support assumptions to use it for in verification for better
-// error messages
+//   error messages
 // TODO generalize suffix and concat like in DFS.
+// TODO Clean up the primitives in the two inference engines. There is
+//   too much code duplication.
 
 strategies
 	/**
@@ -159,9 +161,6 @@ strategies
 				<sx-bfsbc> (inf-rules, <conc> (judgs-queue, new-judgs))
 			end
 		end
-
-	// TODO Clean up the primitives in the two inference engines. There is
-	// too much code duplication.
 
 	/**
 	 * Tries to solve primitive judgement. Fails if judgement cannot be solved.
@@ -358,7 +357,7 @@ strategies
 		filter(?SXBfsbcGoalMarker(<id>))
 
 /**
- * Results of error detection.
+ * Possible resutls of the error detection algorithm.
  */
 signature constructors
 	SXBfsbcGoalMarker: SXJudgement                          -> SXBfsbcResult

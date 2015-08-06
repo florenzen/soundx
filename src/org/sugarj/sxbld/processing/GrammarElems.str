@@ -49,16 +49,13 @@ imports org/sugarj/sxbld/processing/SortPrefixing
 imports org/sugarj/soundx/Debug
 
 
-/**
- * Register analyses.
- */
+
 strategies
+    /**
+     * Register analyses.
+     */
 	sxbld-start-analysis = sxbld-analyze-grammar-elems
 
-/**
- * Analyses.
- */
-strategies
 	/**
 	 * Analyzes list of SDF2 sections. Adds SDF2 sections as grammar
 	 * elems to the environment.
@@ -230,7 +227,7 @@ strategies
      * Checks attributes of context-free production. Generates a constructor name
      * if necessary, includes it in the analyzed attributes and also returns it.
      *
-     * @param sort-name String name of the rhs sort to include in constructor name
+     * @param sort-name String
      *
      * @type Sdf2Attributes -> Sdf2Attributes
      */
@@ -248,7 +245,7 @@ strategies
      * A constructor is only returned if the attribute list does not contain a
      * bracket attribute.
      *
-     * @param sort-name String name of the rhs sort to include in constructor name
+     * @param sort-name String
      *
      * @type List(Sdf2Attribute) -> List(Sdf2Attribute)
      */

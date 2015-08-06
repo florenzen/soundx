@@ -49,9 +49,7 @@ imports org/sugarj/soundx/processing/Prefixing
 
 strategies
 	/**
-	 * Analyzes list of SDF2 sections
-	 *
-	 * Adds SDF2 sections as grammar elems to the environment
+	 * Analyzes list of SDF2 sections. Adds SDF2 sections as grammar elems to the environment.
 	 *
 	 * @type ToplevelDeclaration -> ToplevelDeclaration
 	 */
@@ -60,7 +58,7 @@ strategies
 		where(
 			if sx-env-is-extension-processing then
 				<map(sx-process-grammar-elem); concat> grammars;
-		    	// Not using mapconcat here because it traverses the list from the end to front
+		    	// not using mapconcat here because it traverses the list from the end to front
 		    	// which lowers quality of error messages
 				sx-process-add-grammar-elems
 			else
@@ -68,9 +66,7 @@ strategies
 			end)
 
     /**
-     * Analyzes and transforms a single SDF2 section
-     *
-     * Gives an error on an unsupported section
+     * Analyzes and transforms a single SDF2 section. Gives an error on an unsupported section.
      *
      * @type Grammar -> List(Grammar)
      */
@@ -87,7 +83,7 @@ strategies
         (?[_|_] <+ ![<id>])
 
 	/**
-	 * Prefixes sorts in lexical priorities
+	 * Prefixes sorts in lexical priorities.
 	 *
 	 * @type Grammar -> Grammar
 	 */
@@ -98,7 +94,7 @@ strategies
 		!lexical-priorities(prios-prefixed)
 	
    /**
-	 * Prefixes sorts in context-free priorities
+	 * Prefixes sorts in context-free priorities.
 	 *
 	 * @type Grammar -> Grammar
 	 */
@@ -109,7 +105,7 @@ strategies
 		!context-free-priorities(prios-prefixed)
 
     /**
-	 * Prefixes sorts in lexical restrictions
+	 * Prefixes sorts in lexical restrictions.
 	 *
 	 * @type Grammar -> Grammar
 	 */
@@ -120,7 +116,7 @@ strategies
 	    !lexical-restrictions(restr-prefixed)
 
 	/**
-	 * Prefixes sorts in context-free restrictions
+	 * Prefixes sorts in context-free restrictions.
 	 *
 	 * @type Grammar -> Grammar
 	 */
@@ -128,7 +124,7 @@ strategies
 		context-free-restrictions(sx-prefix-all-sorts-base-lang)
 
 	/**
-	 * Prefixes sorts in variables
+	 * Prefixes sorts in variables.
 	 *
 	 * @type Grammar -> Grammar
 	 */
@@ -136,7 +132,7 @@ strategies
 	    variables(sx-prefix-all-sorts-base-lang)
 
     /**
-     * Prefixes sorts in sorts
+     * Prefixes sorts in sorts.
      *
      * @type Grammar -> Grammar
      */
@@ -144,7 +140,7 @@ strategies
         'sorts(sx-prefix-all-sorts-base-lang)
 
     /**
-     * Analyzes a context-free syntax section
+     * Analyzes a context-free syntax section.
      *
      * @type Grammar -> Grammar
      */
@@ -154,7 +150,7 @@ strategies
         !context-free-syntax(analyzed-prods)
 
     /**
-     * Analyzes a context-free production
+     * Analyzes a context-free production.
      *
      * TODO generate fewer where equations
      *
@@ -180,8 +176,8 @@ strategies
 	 * @type Sdf2Symbol -> Sdf2Production
 	 */
 	sx-process-desugaring-prod =
-		// This simple approach generates the production many times for
-		// a single sort blowing up the SDF2 code.
+		// this simple approach generates the production many times for
+		// a single sort blowing up the SDF2 code
 		?symbol;
 		!prod([symbol, sort("SXDESUGARINGSEP"), symbol, sort("SXWhereClauses")],
 			sort("SXUniversalDesugaring"),
@@ -199,13 +195,11 @@ strategies
 			attrs([<sx-sdf2-cons-attribute> "SXWhereEquation"]))
 
     /**
-     * Checks attributes of context-free production
-     *
-     * Generates a constructor name if necessary, includes it in
+     * Checks attributes of context-free production. Generates
+     * a constructor name if necessary, includes it in
      * the analyzed attributes and also returns it.
      *
-     * @param sort-name String name of the rhs sort to include in
-     *   constructor name
+     * @param sort-name String
      *
      * @type Sdf2Attributes -> Sdf2Attributes
      */
@@ -216,31 +210,30 @@ strategies
     	!attrs(attrib-list-with-cons)
 
     /**
-     * Adds or prefixes a cons attribute
-     *
-     * It returns the new attribute list and the name of the constructor.
-     * If a constructor name is given in an attribut the exact string from
-     * the input is returned. Therefore, the constructor name is double-qouted.
+     * Adds or prefixes a cons attribute. It returns the new attribute list
+     * and the name of the constructor. If a constructor name is given in an attribut
+     * the exact string from the input is returned. Therefore, the constructor name
+     * is double-quoted.
      *
      * A constructor is only returned if the attribute list does not contain a
      * bracket attribute.
      *
-     * @param sort-name String name of the rhs sort to include in
-     *   constructor name
+     * @param sort-name String
+     * 
      * @type List(Sdf2Attribute) -> List(Sdf2Attribute)
      */
     sx-process-cf-attribute-list-cons =
     	where(<elem> (bracket(), <id>)) <
     	// bracket attribute, return attributes untouched
     	id +
-    	// No bracket attribute
+    	// no bracket attribute
     	(partition(sx-sdf2-is-attribute(|"cons")) => (cons-attribs, other-attribs);
-    	 ((// No cons attribute, generate one
+    	 ((// no cons attribute, generate one
     	   !cons-attribs; ?[];
      	   sx-env-fresh-cons-name => cons-name;
      	   sx-env-add-cons-name;
     	   ![<sx-sdf2-cons-attribute> cons-name | other-attribs]) <+
-    	  (// One cons attribute, prefix it
+    	  (// one cons attribute, prefix it
     	   !cons-attribs; ?[cons-attrib];
     	   <sx-sdf2-cons-attribute-name-quoted> cons-attrib => cons-name-quoted;
     	   <un-double-quote> cons-name-quoted => cons-name;
@@ -251,12 +244,12 @@ strategies
 		   	   <sx-env-add-cons-name> prefixed-cons-name;
     	       ![<sx-sdf2-cons-attribute> prefixed-cons-name | other-attribs]
     	   end) <+
-    	  (// More than one cons attribute, error
+    	  (// more than one cons attribute, error
     	   !cons-attribs; ?[_,_|_];
     	   <map(sx-analysis-fail(|"Several cons attributes are not allowed"))> cons-attribs)))
 
     /**
-     * Analyzes a lexical syntax section
+     * Analyzes a lexical syntax section.
 –     *
      * @type Grammar -> Gramar
      */
@@ -266,7 +259,7 @@ strategies
         ![lexical-syntax(lex-prods), context-free-syntax(cf-prods)]
 
     /**
-     * Analyzes a lexical production
+     * Analyzes a lexical production.
      *
      * @type Sdf2Production -> (List(Sdf2Production), List(Sdf2Production))
      */
@@ -281,7 +274,7 @@ strategies
     	  cf-prods)
 
     /**
-     * Generates inequality judgement for symbol if sx-requires-inequality is given
+     * Generates inequality judgement for symbol if sx-requires-inequality is given.
      *
      * @type (Sdf2Attributes, Sdf2Symbol) -> List(Sdf2Production)
      */
@@ -295,7 +288,7 @@ strategies
     	end
     	    
     /**
-     * Adds the grammars to the environment
+     * Adds the grammars to the environment.
      *
      * @type SXBldGrammarElems -> SXEnv
      */   

@@ -42,7 +42,7 @@ imports org/sugarj/soundx/Declarations
 
 strategies
 	/**
-	 * Desugars an inference rule sing the guarded and universal desugarings
+	 * Desugars an inference rule using the guarded and universal desugarings
 	 * of the current extension
 	 *
 	 * @param current-ext String
@@ -54,7 +54,7 @@ strategies
 
 	/**
 	 * Desugars a substitution using the universal desugarings of
-	 * the current extension
+	 * the current extension.
 	 *
 	 * @param current-ext String
 	 *
@@ -65,7 +65,7 @@ strategies
 
 	/**
 	 * Applies the universal desugarings of the current extension
-	 * using a repeated bottom-up strategy
+	 * using a repeated bottom-up strategy.
 	 *
 	 * @param String current-ext
 	 *
@@ -76,7 +76,7 @@ strategies
 
 	/**
 	 * Applies the guarded desugarings of the current extension
-	 * using a repeated bottom-up strategy
+	 * using a repeated bottom-up strategy.
 	 *
 	 * @param String current-ext
 	 *
@@ -87,7 +87,7 @@ strategies
 		
 	/**
 	 * Applies the guarded and universal desugarings of the current extension
-	 * using a repeated bottom-up strategy
+	 * using a repeated bottom-up strategy.
 	 *
 	 * @param String current-ext
 	 *
@@ -98,7 +98,9 @@ strategies
 	
 	/**
 	 * Applies the given desugarings of the current extension
-	 * using a repeated bottom-up strategy
+	 * using a repeated bottom-up strategy. The rewrite rules
+	 * of the current extension are activated by a scoped dynamic
+	 * rule sx-desugaring-active-module.
 	 *
 	 * @param a -> a desugarings
 	 * @param String current-ext

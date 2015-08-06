@@ -43,7 +43,7 @@ imports org/sugarj/sxbld/Environment
 
 strategies
 	/**
-	 * Prefixes all sort names with the base language name
+	 * Prefixes all sort names with the base language name.
 	 *
 	 * @type a -> a
 	 */
@@ -59,7 +59,7 @@ strategies
 	sxbld-prefix-all-sorts(|prefix) = topdown(try(sxbld-prefix-sort(|prefix)))
 	
 	/**
-	 * Prefixes the sort name with the base language name
+	 * Prefixes the sort name with the base language name.
 	 *
 	 * @type Sdf2Symbol -> Sdf2Symbol
 	 */
@@ -78,7 +78,7 @@ strategies
 		<conc-strings> (prefix, string)
 
     /**
-     * Prefixes the sort name with the given prefix
+     * Prefixes the sort name with the given prefix.
      *
      * @param prefix String
      *

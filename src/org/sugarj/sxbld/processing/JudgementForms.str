@@ -48,18 +48,15 @@ imports org/sugarj/languages/SXBld
 imports org/sugarj/soundx/Debug
 
 
-/**
- * Register analyses and desugarings
- */
-strategies
-	sxbld-start-analysis = sxbld-analyze-judgement-forms
 
-/**
- * Analysis
- */
 strategies
 	/**
-	 * Analyzes all judgement forms and adds productions to the environment
+     * Register analyses and desugarings.
+     */
+	sxbld-start-analysis = sxbld-analyze-judgement-forms
+
+	/*
+	 * Analyzes all judgement forms and adds productions to the environment.
 	 *
 	 * @type SXBldJudgementForms -> SXBldJudgementForms
 	 */
@@ -70,7 +67,7 @@ strategies
 			<sxbld-env-add-grammar-elems> [grammar-elem(context-free-syntax(prods))])
 
 	/**
-	 * Generates judgement and desugaring productions
+	 * Generates judgement and desugaring productions.
 	 *
 	 * @type SXBldJudgementForm -> List(Sdf2Productions)
 	 */
@@ -85,9 +82,7 @@ strategies
 		![judg-prod|des-prods]
 		
 	/**
-	 * Generates a production for SXJudgement
-	 *
-	 * Generates a constructor name for the judgement and
+	 * Generates a production for SXJudgement. Generates a constructor name for the judgement and
 	 * prefixes all sort names.
 	 *
 	 * @param judgement-name String
@@ -99,12 +94,11 @@ strategies
     	!prod(symbols, sort("SXJudgement"), attrs([<sx-sdf2-cons-attribute> judgement-name]))
 
 	/**
-	 * Generates productions for guarded desugarings
-	 *
-	 * The first list of symbols are go before the subject expression,
+	 * Generates productions for guarded desugarings. The first
+	 * list of symbols are go before the subject expression,
 	 * the second symbol is the subject expression, the third list
 	 * of symbols goes after the subject expression.
-	 * Literal symbols are skipped.<debug(!"BBBBBBBB")> ();
+	 * Literal symbols are skipped.
 	 *
 	 * @param judgement-name String
 	 *
@@ -112,18 +106,18 @@ strategies
 	 *    -> List(Sdf2Production)
 	 */
 	sxbld-analyze-guarded-desugaring-prods(|judgement-name) =
-		// Skip literal, is last symbol
+		// skip literal, is last symbol
 		(?(before-symbols, lit(_), []);
 		 ![]) <+
-		// Skip literal, more symbols to process
+		// skip literal, more symbols to process
 		(?(before-symbols, symb@lit(_), [after-symbol|after-symbols]);
 		 <sxbld-analyze-guarded-desugaring-prods(|judgement-name)>
 		 (<conc> (before-symbols, [symb]), after-symbol, after-symbols)) <+
-		// Termination case (no after symbols left)
+		// termination case (no after symbols left)
 		(?symbols@(before-symbols, subject-symbol, []);
 		 <sxbld-analyze-guarded-desugaring-prod(|judgement-name)> symbols => prod;
 		 ![prod]) <+
-		// Iteration case (some after symbols left)
+		// iteration case (some after symbols left)
 		(?symbols@(before-symbols, subject-symbol, [after-symbol|after-symbols]);
 		 <sxbld-analyze-guarded-desugaring-prod(|judgement-name)> symbols => prod;
 		 <sxbld-analyze-guarded-desugaring-prods(|judgement-name)>
@@ -131,7 +125,7 @@ strategies
 	 	 ![prod|prods])
 
 	/**
-	 * Generates a production for guarded desugaring ending with the given symbols
+	 * Generates a production for guarded desugaring ending with the given symbols.
 	 *
 	 * @param judgement-name String
 	 *
@@ -166,10 +160,8 @@ strategies
 	sxbld-analyze-error-annotation =
 		?(judg-name, symbols, Some(SXBldErrorAnnotation(msg, unquoted(loc))));
 		if <sx-sdf2-find-index-of-labelled-symbol(|loc)> symbols => loc-idx then
-			// <sx-debug(|"loc idx ")> loc-idx;
 			<sx-sdf2-get-labels-and-positions> symbols => labs-pos;
 			<sxbld-analyze-error-annotation-message> (msg, labs-pos) => msg1;
-			// <sx-debug(|"labs pos ")> labs-pos;
 			<sxbld-env-set-error-annotation> (judg-name, msg1, loc-idx)
 		else
 			id

@@ -1,5 +1,5 @@
 /**
- * Convert ATerm into abstract syntax of Stratego of that ATerm.
+ * Convert aterm into abstract syntax of Stratego of that aterm.
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */

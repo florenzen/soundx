@@ -36,6 +36,7 @@
  */
 module org/sugarj/soundx/PPTable
 
+
 signature constructors
 	PP-Table: List(PP-Entry)            -> PP-Table
 	PP-Entry: Path * List(BOX)          -> PP-Entry

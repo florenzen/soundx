@@ -128,7 +128,7 @@ strategies
 		topdown(put-analysis-data(|"is-source", ()))
 
 	/**
-	 * Find the outermost term that has the is-source attribute.
+	 * Find the outermost aterm that has the is-source attribute.
 	 *
 	 * @type a -> Maybe(a)
 	 */

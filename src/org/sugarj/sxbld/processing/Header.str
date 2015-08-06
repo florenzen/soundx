@@ -43,10 +43,8 @@ imports org/sugarj/languages/SXBld
 
 strategies
 	/**
-	 * Processes the base language definition header
-	 *
-	 * Stores the base language name in the environment
-	 * and returns a namespace declaration for the SugarJ compiler.
+	 * Processes the base language definition header. Stores the base language name
+	 * in the environment and returns a namespace declaration for the SugarJ compiler.
 	 *
 	 * @type SXBldHeader -> SXBldNamespaceDec
 	 */

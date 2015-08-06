@@ -45,18 +45,15 @@ imports org/sugarj/soundx/InductiveDefinitions
 		org/sugarj/soundx/AbstractSyntax
 
 
-/**
- * Register analyses
- */
-strategies
-	sxbld-start-analysis = sxbld-analyze-inductive-definitions
 
-/**
- * Analysis
- */
 strategies
 	/**
-	 * Adds all inference rules to the environment
+     * Register analyses
+     */
+	sxbld-start-analysis = sxbld-analyze-inductive-definitions
+
+	/**
+	 * Adds all inference rules to the environment.
 	 *
 	 * @type SXBldInductiveDefinitions -> SXBldInductiveDefinitions
 	 */
@@ -64,9 +61,7 @@ strategies
 		where(SXBldInductiveDefinitions(SXInductiveDefinitions(map(sxbld-analyze-inference-rule))))
 
     /**
-     * Adds one inference rule to the environment
-     *
-     * Converts meta-var to SXMetaVar
+     * Adds one inference rule to the environment. Converts meta-var to SXMetaVar.
      * 
      * @type SXNamedInferenceRule -> SXEnv
      */
@@ -76,7 +71,7 @@ strategies
 		<sxbld-analyze-add-inference-rule> (name, analyzed-rule)
 
     /**
-     * Convert named inference rule to abstract syntax
+     * Convert named inference rule to abstract syntax.
      *
      * @type SXInferenceRule -> SXInfRule
      */
@@ -86,9 +81,7 @@ strategies
 		!SXInfRule(premises-list, name, concl)
 
 	/**
-	 * Adds an inference rule to the environment
-	 *
-	 * Fails if a rule of that name is already defined
+	 * Adds an inference rule to the environment. Fails if a rule of that name is already defined
 	 *
 	 * @type (String, SXInfRule) -> SXEnv
 	 */

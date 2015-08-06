@@ -46,7 +46,7 @@ imports	org/sugarj/soundx/processing/Prefixing
 
 strategies
 	/**
-	 * Adds all inference rules to the environment
+	 * Adds all inference rules to the environment.
 	 *
 	 * @type SXInductiveDefinitions -> SXInductiveDefinitions
 	 */
@@ -60,9 +60,7 @@ strategies
 			end)
 
     /**
-     * Adds one inference rule to the environment
-     *
-     * Converts meta-var to SXMetaVar
+     * Adds one inference rule to the environment. Converts meta-var to SXMetaVar.
      * 
      * @type SXNamedInferenceRule -> SXEnv
      */
@@ -75,7 +73,7 @@ strategies
 		<sx-process-add-inference-rule> (name, analyzed-rule)
 
     /**
-     * Convert named inference rule to abstract syntax
+     * Convert named inference rule to abstract syntax.
      *
      * @type SXInferenceRule -> SXInfRule
      */
@@ -85,11 +83,9 @@ strategies
 		!SXInfRule(premises-list, name, concl)
 
 	/**
-	 * Adds an inference rule to the environment
-	 *
-	 * Aborts with an error if a rule of that name is already defined.
-	 * In the environment, the rules are stored by their original name
-	 * without the prefix.
+	 * Adds an inference rule to the environment. Aborts with an error
+	 * if a rule of that name is already defined. In the environment,
+	 * the rules are stored by their original name without the prefix.
 	 *
 	 * @type (String, SXInfRule) -> SXEnv
 	 */

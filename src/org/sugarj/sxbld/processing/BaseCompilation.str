@@ -41,19 +41,14 @@ imports org/sugarj/sxbld/Environment
 
 imports org/sugarj/languages/SXBld
 
-/**
- * Register analyses
- */
 strategies
+	/**
+	 * Register analyses.
+	 */
 	sxbld-start-analysis = sxbld-analyze-extensible-file-ext
 	sxbld-start-analysis = sxbld-analyze-base-file-ext
 
-/**
- * Analyses
- */
-strategies
-	/**
-	 * Stores extensible file extension in environment
+	 * Stores extensible file extension in environment.
 	 *
 	 * @type String -> String
 	 */
@@ -65,7 +60,7 @@ strategies
 			<sxbld-env-set-extensible-file-ext> string)
 
 	/**
-	 * Stores base file extension in environment
+	 * Stores base file extension in environment.
 	 *
 	 * @type String -> String
 	 */

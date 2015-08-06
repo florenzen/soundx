@@ -50,16 +50,13 @@ imports org/sugarj/soundx/processing/Prefixing
 imports org/sugarj/soundx/Debug
 
 
-/**
- * Register analysis.
- */
+
 strategies
+	/**
+ 	 * Register analysis.
+     */
 	sxbld-start-analysis = sxbld-analyze-freshness-declaration
 
-/**
- * Analysis.
- */
-strategies
 	/**
 	 * Stores sort of toplevel declaration in environment.
 	 *

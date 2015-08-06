@@ -38,10 +38,11 @@
 module org/sugarj/soundx/Declarations
 
 imports org/sugarj/soundx/FreshAtoms
-
+		org/sugarj/soundx/ExtensionDefinition
+		org/sugarj/soundx/InductiveDefinitions
 
 /**
- * Declarations defined in the base language.
+ * Stratego declarations defined in the base language.
  */
 strategies
 	sx-inference-rules = fail
@@ -57,6 +58,10 @@ strategies
 	sx-namespace-suffices = fail
 	sx-base-language-name = fail
 
+/**
+ * Discriminators for toplevel declarations of a module.
+ */
+strategies
 	sx-is-body-decl =
 		?con#(args);
 		sx-body-decs => cons-names;
@@ -72,8 +77,26 @@ strategies
 		sx-import-decs; unzip => (cons-names, _);
 		<elem> (con, cons-names)
 
+	sx-is-extension-end =
+		?SXExtensionEnd(_)
+
+	sx-is-extension-begin =
+		?SXExtensionBegin(_)
+
+	sx-is-grammar-elems =
+		?SXGrammarElems(_)
+
+	sx-is-inductive-definitions =
+		?SXInductiveDefinitions(_)
+
+	sx-is-inductive-defs-desugarings =
+		?SXInductiveDefinitionsDesugarings(_)
+
+	sx-is-desugarings =
+		?SXDesugarings(_)
+
 /**
- * Declarations defined in an extension module
+ * Stratego declarations defined in an extension module.
  */
 strategies
 	sx-interface = fail

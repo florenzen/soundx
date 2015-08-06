@@ -45,8 +45,7 @@ imports org/sugarj/soundx/Debug
 
 strategies
     /**
-     * Annotates error message, set failed flag, and abort analysis with fail
-     *
+     * Annotates error message, set failed flag, and abort analysis with fail.
      * Analysis is aborted after the first error to avoid
      * follow-up errors. Otherwise, all analyses would have
      * to check the failed flag and ignore certain errors as follow-ups.
@@ -61,7 +60,7 @@ strategies
     	fail
 
     /**
-     * Annotates error message only if not failed and sets failed flag
+     * Annotates error message only if not failed and sets failed flag.
      *
      * This strategy is intended for default case handling, e. g.
      * using (... + ... + ...) <+ sxbld-analyze-unsupported(...)
@@ -76,7 +75,7 @@ strategies
     	fail
 
     /**
-     * Extract list of error messages from term
+     * Extract list of error messages from aterm.
      *
      * @type a -> List(String)
      */
@@ -84,7 +83,7 @@ strategies
 		get-analysis-data(|"errors") <+ ![]    	
 
     /**
-     * Adds error message to a term
+     * Adds error message as annotation to a term.
      *
      * @param msg String
      * @type a -> a

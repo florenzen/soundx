@@ -53,6 +53,13 @@ imports org/sugarj/soundx/Debug
 
 
 strategies
+	/**
+	 * Builds a derivation for the given goal judgement from the list
+	 * of assumption derivations and the given rules or if it cannot find
+	 * such a derivation. It uses a depth-first search strategy.
+	 *
+	 * @type (List(SXDeriv), List(SXInfRule), SXJudgement) -> SXDeriv
+	 */
 	sx-dfsbc-build-derivation =
 		?(asms, inf-rules, judg);
 		<sx-vars> asms => vars-asms;
@@ -60,10 +67,17 @@ strategies
 		<sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, [judg]) => (_, [deriv]);
 		!deriv
 
+	/**
+	 * Builds a list of derivations for the given goal judgements.
+	 *
+	 * @type (List(SXDeriv), List(SXInfRule), List(SXJudgement)) -> List(SXDeriv)
+	 */
 	sx-dfsbc-build-derivations(|vars-asms) =
+		// no more goals, finished
 		?(asms, inf-rules, []);
 		!(<sx-sub-empty> (), [])
 	sx-dfsbc-build-derivations(|vars-asms) =
+		// try to derive first goal
 		?(asms, inf-rules, goals@[judg|_]);
 		<sx-debug(|"trying ")> (<sx-pretty-print-term> judg);
 		// <sx-debug(|"assumption ")> (<map(\SXDerivAsm(j) -> j\); sx-pretty-print-list-nl> asms);
@@ -75,6 +89,11 @@ strategies
 		  // <sx-debug(|"ind def judg ")> "";
 		  <sx-dfsbc-build-derivations-by-rule(|vars-asms)> (asms, inf-rules, inf-rules, goals))
 
+	/**
+	 * Tries to derive a goal by an assumption. Fails if not possible.
+	 *
+	 * @type (List(SXDeriv), List(SXDeriv), List(SXInfRule), List(SXJudgement)) -> List(SXDeriv)
+	 */
 	sx-dfsbc-build-derivations-by-asm(|vars-asms) =
 		?(all-asms, [], inf-rules, goals);
 		fail
@@ -88,9 +107,14 @@ strategies
 		  !(sub1, [asm|derivs])) <+
 		 <sx-dfsbc-build-derivations-by-asm(|vars-asms)> (all-asms, asms, inf-rules, goals))
 
-	// Note: the rule names in the SXDerivInst nodes for a primitive judgement
-	// must contain characters that are not allowed in rule names of inductive
-	// definitions since the rule names of the base system are not prefixed.
+	/**
+	 * Tries to derive a primitive judgement. The rule names in the SXDerivInst
+	 * nodes for a primitive judgement contain characters that are not allowed in
+	 * rule names of inductive definitions since the rule names of the base system
+	 * are not prefixed.
+	 *
+	 * @type (List(SXDeriv), List(SXInfRule), List(SXJudgement)) -> List(SXDeriv)
+	 */
 	sx-dfsbc-build-derivations-by-prim(|vars-asms) =
 		// inequality judgement
 		?(asms, inf-rules, [judg@SXNeq(expr1, expr2) | judgs]);
@@ -195,10 +219,17 @@ strategies
 		<conc-strings> ("_", judg-name) => rule-name;
 		!(sub1, [SXDerivInst([], rule-name, judg1) | derivs])
 
+	/**
+	 * Tries to derive a judgement by an inference rule.
+	 *
+	 * @type (List(SXDeriv), List(SXInfRule), List(SXInfRule), List(SXJudgement)) -> List(SXDeriv)
+	 */
 	sx-dfsbc-build-derivations-by-rule(|vars-asms) =
+		// no more rules available, fail
 		?(asms, all-inf-rules, [], goals);
 		fail
 	sx-dfsbc-build-derivations-by-rule(|vars-asms) =
+		// try next rule
 		?(asms, all-inf-rules, [inf-rule|inf-rules], goals@[judg|judgs]);
 		((<sx-fresh-inf-rule> inf-rule => SXInfRule(premises, name, concl);
 		  <sx-debug(|"trying to unify with concl ")> concl;
@@ -216,6 +247,14 @@ strategies
 		  !(sub1, [SXDerivInst(derivs-prem, name, judg1) | derivs-other])) <+
 		 <sx-dfsbc-build-derivations-by-rule(|vars-asms)> (asms, all-inf-rules, inf-rules, goals))
 
+	/**
+	 * Unification of conclusions with judgements. The variables of
+	 * assumptions are never substitued.
+	 *
+	 * @param vars-asms List(SXMetaVar)
+	 *
+	 * @type (a, a) -> SXUnificationResult
+	 */
 	sx-dfsbc-unify(|vars-asms) =
 		?(expr1, expr2);
 		<sx-vars> (expr1, expr2) => vars-exprs;

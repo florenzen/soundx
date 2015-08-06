@@ -65,11 +65,21 @@ strategies
 				sx-analysis-fail(|"desugarings must be inside an extension")
 			end)
 
+	/**
+	 * Procsses a single inference rule with desugaring.
+	 *
+	 * @type SXInferenceRuleDesugaring -> SXEnv
+	 */
 	sx-process-ind-def-desugaring =
 		?SXInferenceRuleDesugaring(name, guarded-des);
 		<sx-process-guarded-desugaring> guarded-des;
 		<sx-process-guarded-des-lhs-as-inf-rule> (name, guarded-des)
 
+	/**
+	 * Translate left hand side of guarded desugaring into rule.
+	 *
+	 * @type (String, SXInferenceRuleDesugarng) -> SXEnv
+	 */
 	sx-process-guarded-des-lhs-as-inf-rule =
 		?(name, guarded-des@con#(args));
 		<sx-process-split-guarded-des-cons> con => (index, judg-name);
@@ -80,8 +90,5 @@ strategies
 		<sx-prefix-name> name => prefixed-name;
 		!SXInfRule(premises-list, prefixed-name, judg-name#(concl-args)) => inf-rule;
 		<sx-meta-var-to-sx-metavar> inf-rule => inf-rule1;
-		<sx-debug(|"Inf rule with meta vars transformed ")> inf-rule1;
 		<sx-env-add-named-inf-rule> (prefixed-name, guarded-des);
-		<sx-process-add-inference-rule> (prefixed-name, inf-rule1);
-		<sx-debug(|"finished lhs processing ")> ""
-		
+		<sx-process-add-inference-rule> (prefixed-name, inf-rule1)

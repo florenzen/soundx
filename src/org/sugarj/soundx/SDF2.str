@@ -50,7 +50,7 @@ strategies
 		(?parameterized-sort(name, _); !name)
 
 	/**
-	 * Generate the SDF2 cons attribute as ATerm
+	 * Generate the SDF2 cons attribute as aterm.
 	 *
 	 * @type String -> Sdf2Attribute
 	 */
@@ -62,7 +62,7 @@ strategies
 			  [fun(quoted(cons-name-quoted))]))) => attribute
 
     /**
-     * Gives the constructor name from a cons attribute
+     * Gives the constructor name from a cons attribute.
      *
      * @type Sdf2Attribute -> String
      */
@@ -70,7 +70,7 @@ strategies
     	term(default(appl(unquoted("cons"), [fun(quoted(cons-name-quoted))]))) -> cons-name-quoted
 
     /**
-     * Succeeds if attribute is ATerm attribute of specified name
+     * Succeeds if attribute is aterm attribute of specified name
      *
      * @param attrib-name String
      *
@@ -81,9 +81,8 @@ strategies
     	?term(default(fun(unquoted(attrib-name))))
 
 	/**
-	 * Generates a ATerm attribute with a string argument
-	 *
-	 * The first string is the name of the attribute, the second
+	 * Generates an aterm attribute with a string argument. The
+	 * first string is the name of the attribute, the second
 	 * string is its value.
 	 *
 	 * @type (String, String) -> Sdf2Attribute
@@ -93,7 +92,7 @@ strategies
 		!term(name#([string]))
 
     /**
-     * Succeeds if ATerm attribute of given name is defined in attributes
+     * Succeeds if aterm attribute of given name is defined in attributes.
      *
      * @param attrib-name String
      *
@@ -109,7 +108,7 @@ strategies
     	end
 
 	/**
-	 * Extracts ATerm attribute of given name from SDF2 ttributes
+	 * Extracts aterm attribute of given name from SDF2 ttributes.
 	 *
 	 * @param attrib-name String
 	 *
@@ -124,9 +123,7 @@ strategies
     	end
 
 	/**
-	 * Gets the n-th argument of an ATerm attribute
-	 *
-	 * Numbering starts with 1.
+	 * Gets the n-th argument of an aterm attribute. Numbering starts with 1.
 	 *
 	 * @param index Int
 	 *
@@ -137,7 +134,7 @@ strategies
     	<index> (index, args)
 
     /**
-     * Gets the arguments of an ATerm attribute
+     * Gets the arguments of an aterm attribute
      *
      * @type Sdf2Attribute -> List(Sdf2ATerm)
      */
@@ -146,8 +143,7 @@ strategies
     	(?term(default(fun(_))); ![])
 
 	/**
-	 * Returns the left-most position of a labelled symbol
-	 *
+	 * Returns the left-most position of a labelled symbol.œ
 	 * Strategy fails if the label is not in the input list.
 	 * The position calculated is the position the corresponding
 	 * subtree appears in the abstract syntax constructor.
@@ -167,7 +163,7 @@ strategies
 		 !(<add> (1, index)))
 
 	/**
-	 * Counts how many abstract syntax subtree as list of symbols generates
+	 * Counts how many abstract syntax subtree as list of symbols generates.
 	 *
 	 * @type List(Sdf2Symbol) -> Int
 	 */

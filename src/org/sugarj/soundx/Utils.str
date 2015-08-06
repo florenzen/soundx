@@ -46,12 +46,10 @@ strategies
  	 * @type _ -> _
  	 */
 	sx-is-last-toplevel-decl =
-		// sx-debug(|"calling is last toplevel declaration");
 		prim("SUGARJ_is_last_toplevel_declaration")
-		// ;sx-debug(|"is last last toplevel decl")
 
 	/**
-	 * Calls the pretty printer.
+	 * Calls the box pretty printer.
 	 *
 	 * @param tbl PPTable
 	 *
@@ -77,9 +75,7 @@ strategies
 		prim("SUGARJ_sx_base_lang_pretty_print")
 
 	/**
-	 * Removes duplicates from the list.
-	 *
-	 * It keeps the last occurence of a specific element.
+	 * Removes duplicates from the list. It keeps the last occurence of a specific element.
 	 *
 	 * @type List(a) -> List(a)
 	 */

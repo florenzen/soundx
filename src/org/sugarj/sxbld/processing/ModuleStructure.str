@@ -44,10 +44,11 @@ imports org/sugarj/soundx/AbstractSyntax
 imports org/sugarj/languages/SXBld
 
 
-/**
- * Register analyses
- */
+
 strategies
+	/**
+ 	 * Register analyses.
+     */
 	sxbld-start-analysis = sxbld-analyze-toplevel-dec
 	sxbld-start-analysis = sxbld-analyze-toplevel-decs
 	sxbld-start-analysis = sxbld-analyze-interface
@@ -55,12 +56,8 @@ strategies
 	sxbld-start-analysis = sxbld-analyze-extension-begin
 	sxbld-start-analysis = sxbld-analyze-extension-end
 
-/**
- * Analyses
- */
-strategies
 	/**
-	 * Stores sort of toplevel declaration in environment
+	 * Stores sort of toplevel declaration in environment.
 	 *
 	 * @type String -> String
 	 */
@@ -72,7 +69,7 @@ strategies
 			<sxbld-env-set-toplevel-declaration> sort-name)
 
     /**
-     * Stores sort of list of toplevel declarations in environment
+     * Stores sort of list of toplevel declarations in environment.
      *
      * @type String -> String
      */
@@ -84,7 +81,7 @@ strategies
     		<sxbld-env-set-toplevel-declarations> sort-name)
 
     /**
-     * Stores sort of the module interface in the environment
+     * Stores sort of the module interface in the environment.
      *
      * @type String -> String
      */
@@ -96,7 +93,7 @@ strategies
     		<sxbld-env-set-interface> sort-name)
 
     /**
-     * Stores the interface judgement in the environment
+     * Stores the interface judgement in the environment.
      *
      * @type (SXBldIntfJudgToplevel, SXBldInfJudgInterface, SXJudgement) ->
      *   (SXBldIntfJudgToplevel, SXBldInfJudgInterface, SXJudgement)
@@ -109,7 +106,7 @@ strategies
     		<sx-meta-var-to-sx-metavar; sxbld-env-set-interface-judgement> (toplevel, intf, judg))
 
     /**
-     * Stores sort of extension begin
+     * Stores sort of extension begin.
      *
      * @type String -> String
      */
@@ -121,7 +118,7 @@ strategies
     		<sxbld-env-set-extension-begin> sort-name)
 
     /**
-     * Stores sort of extension end
+     * Stores sort of extension end.
      *
      * @type String -> String
      */

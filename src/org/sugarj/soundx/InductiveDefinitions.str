@@ -36,8 +36,6 @@
  */
 module org/sugarj/soundx/InductiveDefinitions
 
-//imports org/sugarj/soundx/AbstractSyntax
-
 
 signature constructors
 	SXInductiveDefinitions: List(SXNamedInferenceRule)                  -> SXInductiveDefinitions

@@ -53,12 +53,12 @@ imports org/sugarj/soundx/Debug
 
 strategies
 	/**
- 	 * Hook desugaring into SugarJ
+ 	 * Hook desugaring into Sugar*.
  	 */
 	internal-main = sx-desugar
 
 	/**
-	 * Main SoundX desugaring procedure
+	 * Main SoundX desugaring procedure.
 	 */
 	sx-desugar =
 		?decl;
@@ -66,7 +66,7 @@ strategies
 		sx-is-toplevel-declaration;
 		if sx-is-last-toplevel-decl then
 			sx-env-get-errors => errors;
-			if !errors; ?[] then // Only desugar if there are no errors
+			if !errors; ?[] then // only desugar if there are no errors
 				sx-env-extract-extension-decls => env-decls;
 				if !decl; (sx-is-namespace-decl + sx-is-import-decl) then
 					![decl|env-decls]
@@ -137,14 +137,29 @@ strategies
 				end
 			end
 		end
-		
+
+	/**
+	 * Check if module defines an extension.
+	 *
+	 * @type _ -> _
+	 */
 	sx-module-defines-extension =
 		(sx-env-get-desugarings; ?[_|_]) +
 		(sx-env-get-inference-rules; ?[_|_])
 
+	/**
+	 * Remove imports from list of toplevel declarations.
+	 *
+	 * @type List(ToplevelDeclaration) -> List(ToplevelDeclaration)
+	 */
 	sx-remove-imports =
 		filter(not(sx-is-import-decl))
 
+	/**
+	 * Check if aterm is a toplevel declaration.
+	 *
+	 * @type a -> _
+	 */
 	sx-is-toplevel-declaration =
 		sx-is-extension-end +
 		sx-is-extension-begin +
@@ -155,21 +170,3 @@ strategies
 		sx-is-import-decl +
 		sx-is-namespace-decl +
 		sx-is-body-decl
-
-	sx-is-extension-end =
-		?SXExtensionEnd(_)
-
-	sx-is-extension-begin =
-		?SXExtensionBegin(_)
-
-	sx-is-grammar-elems =
-		?SXGrammarElems(_)
-
-	sx-is-inductive-definitions =
-		?SXInductiveDefinitions(_)
-
-	sx-is-inductive-defs-desugarings =
-		?SXInductiveDefinitionsDesugarings(_)
-
-	sx-is-desugarings =
-		?SXDesugarings(_)
