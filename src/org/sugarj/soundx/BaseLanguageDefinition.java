@@ -75,96 +75,93 @@ import org.sugarj.driver.SDFCommands;
 import org.sugarj.stdlib.StdLib;
 import org.sugarj.util.Pair;
 
-// TODO fail if some essential declaration is missing in the
-// base language definition (like "interface" or "toplevel declaration").
-// This check is better off in the sxbld processing. See TODO in
-// org/sugarj/sxbld/Processing
-
 /**
  * Generation of Sugar* files from a SoundX base language definition.
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+/**
+ * @author florenz
+ *
  */
 public class BaseLanguageDefinition {
 	public BaseLanguageDefinition() {
 		interp = new HybridInterpreter();
 	}
 
-	/**
-	 * File extension of a file in the extended language. It is initialized from
-	 * the base language definition.
-	 */
+	/** File extension of a file in the extended language. */
 	private String extFileExt;
 
-	/**
-	 * File extension of a file in the base language. It is initialized from the
-	 * base language definition.
-	 */
+	/** File extension of a file in the base language. */
 	private String baseFileExt;
 
-	/**
-	 * Name of the nonterminal for toplevel declarations. It is initialized from
-	 * the base language definition.
-	 */
+	/** Name of the nonterminal for toplevel declarations. */
 	private String toplevelDeclarationNonterminal;
 
 	/**
 	 * Name of the constructor of a namespace declaration and the argument
-	 * number of the namespace identifier. It is initialized from the base
-	 * language definition.
+	 * number of the namespace identifier.
 	 */
 	private Pair<String, Integer> namespaceDecCons;
 
-	/**
-	 * Flat, nested, or prefixed namespace.
-	 */
+	/** Flat, nested, or prefixed namespace. */
 	private SXNamespaceKind namespaceKind;
-	
+
 	/**
-	 * Constructor names and argument indices of the namespace suffices
-	 * for prefixed namespaces.
+	 * Constructor names and argument indices of the namespace suffices for
+	 * prefixed namespaces.
 	 */
 	private Map<String, Integer> namespaceSuffices = new HashMap<String, Integer>();
 
 	/**
 	 * Names of the constructors of import declarations and the argument number
-	 * of the name referred to. They are initialized from the base language
-	 * definition.
+	 * of the name referred to.
 	 */
 	private Map<String, Integer> importDecCons = new HashMap<String, Integer>();
 
-	/**
-	 * Names of the constructors of body declarations. They are initialized from
-	 * the base language definition.
-	 */
+	/** Names of the constructors of body declarations. */
 	private Set<String> bodyDecCons = new HashSet<String>();
 
-	/**
-	 * Name of the base language. It is initialized from the base language
-	 * definition.
-	 */
+	/** Name of the base language. */
 	private String baseLanguageName;
 
-	private SoundXBaseLanguage blInstance; // Reference to instance of language
-											// library
-	private HybridInterpreter interp; // For pretty printing etc.
+	/** Language library. */
+	private SoundXBaseLanguage blInstance;
 
-	// File names and module name of the SoundX module imported
-	// by the generated files
+	/** Stratego interpreter for pretty printing etc. */
+	private HybridInterpreter interp;
+
+	/** File name of imported SoundX Stratego file. */
 	private final String soundXStrFileName = "org/sugarj/soundx/SoundX.str";
+
+	/** File name of imported SoundX SDF2 file. */
 	private final String soundXSdfFileName = "org/sugarj/soundx/SoundX.sdf";
+
+	/** Module name of imported SoundX module. */
 	private final String soundXModuleName = "org/sugarj/soundx/SoundX";
 
-	// Paths of the base language plugin
+	/** bin-directory of plugin. */
 	private Path binDir;
+
+	/** src-directory of plguin. */
 	private Path srcDir;
+
+	/** Path of sxbld file. */
 	private RelativePath bldPath;
 
-	// Paths of the generated files
+	/** Path of generated SDF2 code. */
 	private Path sdfPath;
+
+	/** Path of generated Stratego code. */
 	private Path strPath;
+
+	/** Path of generated editor services code. */
 	private Path servPath;
+
+	/** Path of generated def file. */
 	private Path defPath;
+
+	/** Path of generated pretty printer table. */
 	private Path ppPath;
 
 	/**
@@ -182,18 +179,15 @@ public class BaseLanguageDefinition {
 		setSrcDirFromPluginDirectory(pluginDirectory);
 		bldPath = new RelativePath(bldFilename);
 		bldPath.setBasePath(srcDir);
-		Debug.print("bldPath " + bldPath);
 		setBaseLanguageName();
 		setGeneratedFilePaths();
 
 		if (generatedFilesOutdated()) {
-			Debug.print("Generated files are outdated, run lang-sxbld");
 			runCompiler();
-			postProcess(); // Also extracts declarations from Stratego file
+			postProcess(); // also extracts declarations from Stratego file
 			generateDefFile();
 			generatePPTable();
 		} else {
-			Debug.print("Generated files are up-to-date");
 			IStrategoTerm strTerm = parseStratego();
 			extractDeclarations(strTerm);
 		}
@@ -202,9 +196,7 @@ public class BaseLanguageDefinition {
 		initSoundXBaseLanguage();
 	}
 
-	/**
-	 * Generate the def file from the sdf file
-	 */
+	/** Generate the def file from the sdf file. */
 	private void generateDefFile() {
 		try {
 			FileCommands.writeToFile(defPath, "definition\n\n");
@@ -216,8 +208,8 @@ public class BaseLanguageDefinition {
 	}
 
 	/**
-	 * Copies the declarations extracted from the base language definition to the
-	 * language library.
+	 * Copies the declarations extracted from the base language definition to
+	 * the language library.
 	 */
 	private void initSoundXBaseLanguage() {
 		blInstance.setBaseFileExtension(baseFileExt);
@@ -255,7 +247,6 @@ public class BaseLanguageDefinition {
 				+ defFileName);
 		ppPath = new AbsolutePath(binDir.getAbsolutePath() + File.separator
 				+ ppFileName);
-		Debug.print("sdfPath " + sdfPath);
 	}
 
 	/**
@@ -266,7 +257,7 @@ public class BaseLanguageDefinition {
 	}
 
 	/**
-	 * Post processes SugarJ generated sdf and str file.
+	 * Post processes Sugar* generated sdf and str file.
 	 */
 	private void postProcess() {
 		postProcessStratego();
@@ -274,7 +265,7 @@ public class BaseLanguageDefinition {
 	}
 
 	/**
-	 * Post process SugarJ generated str file. The imports are replaced by the
+	 * Post process Sugar* generated str file. The imports are replaced by the
 	 * single import of the SoundX module. The declarations like the constructor
 	 * names for the language processor are extracted and stored.
 	 */
@@ -339,14 +330,10 @@ public class BaseLanguageDefinition {
 	 * language definition.
 	 * 
 	 * @param term
-	 *            The ATerm of the Stratego module generated by SugarJ
+	 *            The ATerm of the Stratego module generated by Sugar*
 	 */
 	private void extractDeclarations(IStrategoTerm term) {
 		IStrategoList decls = (IStrategoList) term.getSubterm(1);
-		// Strategies([SDefNoArgs("STLC-ToplevelDeclaration",Build(NoAnnoList(Str("\"ToplevelDec\""))))])
-		// Strategies([SDefNoArgs("STLC-body-decs",Build(NoAnnoList(List([NoAnnoList(Str("\"SXCons10\""))]))))])
-		// Strategies([SDefNoArgs("STLC-namespace-dec",Build(NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons5\"")),NoAnnoList(Int("2"))]))))])
-		// Strategies([SDefNoArgs("STLC-import-decs",Build(NoAnnoList(ListTail([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons7\"")),NoAnnoList(Int("2"))]))],NoAnnoList(List([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons6\"")),NoAnnoList(Int("2"))]))]))))))])
 		for (IStrategoTerm decl : decls) {
 			if (ATermCommands.isApplication(decl, "Strategies")) {
 				StrategoList defs = (StrategoList) decl.getSubterm(0);
@@ -360,205 +347,214 @@ public class BaseLanguageDefinition {
 						toplevelDeclarationNonterminal = unquote(((StrategoString) rhs
 								.getSubterm(0).getSubterm(0).getSubterm(0))
 								.getName());
-						Debug.print("ToplevelDeclaration = "
-								+ toplevelDeclarationNonterminal);
 					} else if (name.equals("sx-extensible-file-ext")) {
 						extFileExt = unquote(((StrategoString) rhs
 								.getSubterm(0).getSubterm(0).getSubterm(0))
 								.getName());
-						Debug.print("ExtensibleFileExt = " + extFileExt);
 					} else if (name.equals("sx-base-file-ext")) {
 						baseFileExt = unquote(((StrategoString) rhs
 								.getSubterm(0).getSubterm(0).getSubterm(0))
 								.getName());
-						Debug.print("BaseFileExt = " + baseFileExt);
 					} else if (name.equals("sx-body-decs")) {
-						// rhs =
-						// Build(NoAnnoList(List([NoAnnoList(Str("\"SXCons10\""))])))
-						IStrategoTerm current = rhs.getSubterm(0);
-
-						while (current != null) {
-							StrategoAppl listCons = (StrategoAppl) current
-									.getSubterm(0); // Unwrap NoAnnoList
-							String applConsName = listCons.getConstructor()
-									.getName();
-							if (applConsName.equals("List")) {
-								StrategoList elems = (StrategoList) listCons
-										.getSubterm(0);
-								if (elems.size() == 0) {
-									current = null;
-								} else if (elems.size() == 1) {
-									IStrategoTerm elem = elems.head();
-									String consName = unquote(((StrategoString) elem
-											.getSubterm(0).getSubterm(0))
-											.getName());
-									bodyDecCons.add(consName);
-									Debug.print("body-dec " + consName);
-									current = null;
-								} else
-									fail("Error reading end of body-decs list");
-							} else if (applConsName.equals("ListTail")) {
-								StrategoList hd = (StrategoList) listCons
-										.getSubterm(0);
-								IStrategoTerm elem = hd.head();
-								String consName = unquote(((StrategoString) elem
-										.getSubterm(0).getSubterm(0)).getName());
-								bodyDecCons.add(consName);
-								Debug.print("body-dec " + consName);
-
-								current = listCons.getSubterm(1);
-							} else
-								fail("Error reading body-decs");
-						}
+						extractBodyDecsDeclaration(rhs);
 					} else if (name.equals("sx-namespace-dec")) {
-						// rhs =
-						// Build(NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons5\"")),NoAnnoList(Int("2"))]))))])
-						StrategoList tupleComps = (StrategoList) rhs
-								.getSubterm(0).getSubterm(0).getSubterm(0);
-						IStrategoTerm fstComp = tupleComps.head();
-						IStrategoTerm sndComp = tupleComps.tail().head();
-						String consName = unquote(((StrategoString) fstComp
-								.getSubterm(0).getSubterm(0)).getName());
-						Integer index = Integer
-								.valueOf(((StrategoString) sndComp
-										.getSubterm(0).getSubterm(0)).getName());
-						namespaceDecCons = new Pair<String, Integer>(consName,
-								index);
-						Debug.print("sx-namespace-dec " + consName + ","
-								+ index);
+						extractNamespaceDecDeclaration(rhs);
 					} else if (name.equals("sx-import-decs")) {
-						// rhs =
-						// Build(NoAnnoList(ListTail([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons7\"")),NoAnnoList(Int("2"))]))],NoAnnoList(List([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons6\"")),NoAnnoList(Int("2"))]))]))
-						IStrategoTerm current = rhs.getSubterm(0);
-						while (current != null) {
-							StrategoAppl listCons = (StrategoAppl) current
-									.getSubterm(0); // Unwrap NoAnnoList
-							String applConsName = listCons.getConstructor()
-									.getName();
-							if (applConsName.equals("List")) {
-								StrategoList elems = (StrategoList) listCons
-										.getSubterm(0);
-								if (elems.size() == 0) {
-									current = null;
-								} else if (elems.size() == 1) {
-									IStrategoTerm elem = elems.head();
-									StrategoList comps = (StrategoList) elem
-											.getSubterm(0).getSubterm(0);
-									IStrategoTerm fstComp = comps.head();
-									IStrategoTerm sndComp = comps.tail().head();
-									String consName = unquote(((StrategoString) fstComp
-											.getSubterm(0).getSubterm(0))
-											.getName());
-									Integer index = Integer
-											.valueOf(((StrategoString) sndComp
-													.getSubterm(0)
-													.getSubterm(0)).getName());
-									importDecCons.put(consName, index);
-									Debug.print("import-dec " + consName + ","
-											+ index);
-									current = null;
-								} else
-									fail("Error reading end of import-decs list");
-							} else if (applConsName.equals("ListTail")) {
-								StrategoList hd = (StrategoList) listCons
-										.getSubterm(0);
-								IStrategoTerm elem = hd.head();
-								StrategoList comps = (StrategoList) elem
-										.getSubterm(0).getSubterm(0);
-								IStrategoTerm fstComp = comps.head();
-								IStrategoTerm sndComp = comps.tail().head();
-								String consName = unquote(((StrategoString) fstComp
-										.getSubterm(0).getSubterm(0)).getName());
-								Integer index = Integer
-										.valueOf(((StrategoString) sndComp
-												.getSubterm(0).getSubterm(0))
-												.getName());
-								importDecCons.put(consName, index);
-								Debug.print("import-dec " + consName + ","
-										+ index);
-								current = listCons.getSubterm(1);
-							} else
-								fail("Error reading import-decs");
-						}
+						extractImportDecsDeclaration(rhs);
 					} else if (name.equals("sx-namespace-kind")) {
-						// rhs =
-						// Build(NoAnnoList(Op("SXNamespaceNested",[NoAnnoList(Str("\".\""))])))
-						// Strip Build and NoAnnoList
-						IStrategoTerm rhs1 = rhs.getSubterm(0).getSubterm(0);
-						String kind = unquote(rhs1.getSubterm(0).toString());
-						Debug.print("namespace kind: " + kind);
-						if (kind.equals("SXNamespaceFlat")) {
-							namespaceKind = new SXNamespaceFlat();
-						} else if (kind.equals("SXNamespaceNested")) {
-							String sepQuoted = ((IStrategoList) rhs1.getSubterm(1))
-									.head().getSubterm(0).getSubterm(0).toString();
-							char sep = sepQuoted.substring(3, 4).charAt(0);
-							namespaceKind = new SXNamespaceNested(sep);
-							Debug.print("namespace separator: " + sep);
-						} else if (kind.equals("SXNamespacePrefixed")) {
-							String sepQuoted = ((IStrategoList) rhs1.getSubterm(1))
-									.head().getSubterm(0).getSubterm(0).toString();
-							char sep = sepQuoted.substring(3, 4).charAt(0);
-							namespaceKind = new SXNamespacePrefixed(sep);
-							Debug.print("namespace separator: " + sep);
-						}
+						extractNamespaceKindDeclaration(rhs);
 					} else if (name.equals("sx-namespace-suffices")) {
-						// rhs =
-						// Build(NoAnnoList(ListTail([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons7\"")),NoAnnoList(Int("2"))]))],NoAnnoList(List([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons6\"")),NoAnnoList(Int("2"))]))]))
-						IStrategoTerm current = rhs.getSubterm(0);
-						while (current != null) {
-							StrategoAppl listCons = (StrategoAppl) current
-									.getSubterm(0); // Unwrap NoAnnoList
-							String applConsName = listCons.getConstructor()
-									.getName();
-							if (applConsName.equals("List")) {
-								StrategoList elems = (StrategoList) listCons
-										.getSubterm(0);
-								if (elems.size() == 0) {
-									current = null;
-								} else if (elems.size() == 1) {
-									IStrategoTerm elem = elems.head();
-									StrategoList comps = (StrategoList) elem
-											.getSubterm(0).getSubterm(0);
-									IStrategoTerm fstComp = comps.head();
-									IStrategoTerm sndComp = comps.tail().head();
-									String consName = unquote(((StrategoString) fstComp
-											.getSubterm(0).getSubterm(0))
-											.getName());
-									Integer index = Integer
-											.valueOf(((StrategoString) sndComp
-													.getSubterm(0)
-													.getSubterm(0)).getName());
-									namespaceSuffices.put(consName, index);
-									Debug.print("namespace-suffix " + consName + ","
-											+ index);
-									current = null;
-								} else
-									fail("Error reading end of namespace-suffices list");
-							} else if (applConsName.equals("ListTail")) {
-								StrategoList hd = (StrategoList) listCons
-										.getSubterm(0);
-								IStrategoTerm elem = hd.head();
-								StrategoList comps = (StrategoList) elem
-										.getSubterm(0).getSubterm(0);
-								IStrategoTerm fstComp = comps.head();
-								IStrategoTerm sndComp = comps.tail().head();
-								String consName = unquote(((StrategoString) fstComp
-										.getSubterm(0).getSubterm(0)).getName());
-								Integer index = Integer
-										.valueOf(((StrategoString) sndComp
-												.getSubterm(0).getSubterm(0))
-												.getName());
-								namespaceSuffices.put(consName, index);
-								Debug.print("namespace-suffix " + consName + ","
-										+ index);
-								current = listCons.getSubterm(1);
-							} else
-								fail("Error reading namespace-suffices");
-						}
+						extractNamespaceSufficesDeclaration(rhs);
 					}
 				}
 			}
+		}
+	}
+
+	/**
+	 * Helper for extractDeclarations to extract sx-namespace-suffices.
+	 *
+	 * @param rhs
+	 *            right-hand side of sx-namespace-suffices
+	 */
+	private void extractNamespaceSufficesDeclaration(IStrategoTerm rhs) {
+		// rhs =
+		// Build(NoAnnoList(ListTail([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons7\"")),NoAnnoList(Int("2"))]))],NoAnnoList(List([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons6\"")),NoAnnoList(Int("2"))]))]))
+		IStrategoTerm current = rhs.getSubterm(0);
+		while (current != null) {
+			// unwrap NoAnnoList
+			StrategoAppl listCons = (StrategoAppl) current.getSubterm(0);
+			String applConsName = listCons.getConstructor().getName();
+			if (applConsName.equals("List")) {
+				StrategoList elems = (StrategoList) listCons.getSubterm(0);
+				if (elems.size() == 0) {
+					current = null;
+				} else if (elems.size() == 1) {
+					IStrategoTerm elem = elems.head();
+					StrategoList comps = (StrategoList) elem.getSubterm(0)
+							.getSubterm(0);
+					IStrategoTerm fstComp = comps.head();
+					IStrategoTerm sndComp = comps.tail().head();
+					String consName = unquote(((StrategoString) fstComp
+							.getSubterm(0).getSubterm(0)).getName());
+					Integer index = Integer.valueOf(((StrategoString) sndComp
+							.getSubterm(0).getSubterm(0)).getName());
+					namespaceSuffices.put(consName, index);
+					current = null;
+				} else
+					fail("Error reading end of namespace-suffices list");
+			} else if (applConsName.equals("ListTail")) {
+				StrategoList hd = (StrategoList) listCons.getSubterm(0);
+				IStrategoTerm elem = hd.head();
+				StrategoList comps = (StrategoList) elem.getSubterm(0)
+						.getSubterm(0);
+				IStrategoTerm fstComp = comps.head();
+				IStrategoTerm sndComp = comps.tail().head();
+				String consName = unquote(((StrategoString) fstComp.getSubterm(
+						0).getSubterm(0)).getName());
+				Integer index = Integer.valueOf(((StrategoString) sndComp
+						.getSubterm(0).getSubterm(0)).getName());
+				namespaceSuffices.put(consName, index);
+				current = listCons.getSubterm(1);
+			} else
+				fail("Error reading namespace-suffices");
+		}
+	}
+
+	/**
+	 * Helper for extractDeclarations to extract sx-namespace-kind.
+	 *
+	 * @param rhs
+	 *            right-hand side of sx-namespace-kind
+	 */
+	private void extractNamespaceKindDeclaration(IStrategoTerm rhs) {
+		// rhs =
+		// Build(NoAnnoList(Op("SXNamespaceNested",[NoAnnoList(Str("\".\""))])))
+		// strip Build and NoAnnoList
+		IStrategoTerm rhs1 = rhs.getSubterm(0).getSubterm(0);
+		String kind = unquote(rhs1.getSubterm(0).toString());
+		if (kind.equals("SXNamespaceFlat")) {
+			namespaceKind = new SXNamespaceFlat();
+		} else if (kind.equals("SXNamespaceNested")) {
+			String sepQuoted = ((IStrategoList) rhs1.getSubterm(1)).head()
+					.getSubterm(0).getSubterm(0).toString();
+			char sep = sepQuoted.substring(3, 4).charAt(0);
+			namespaceKind = new SXNamespaceNested(sep);
+		} else if (kind.equals("SXNamespacePrefixed")) {
+			String sepQuoted = ((IStrategoList) rhs1.getSubterm(1)).head()
+					.getSubterm(0).getSubterm(0).toString();
+			char sep = sepQuoted.substring(3, 4).charAt(0);
+			namespaceKind = new SXNamespacePrefixed(sep);
+		}
+	}
+
+	/**
+	 * Helper for extractDeclarations to extract sx-import-decs.
+	 *
+	 * @param rhs
+	 *            right-hand side of sx-import-decs
+	 */
+	private void extractImportDecsDeclaration(IStrategoTerm rhs) {
+		// rhs =
+		// Build(NoAnnoList(ListTail([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons7\"")),NoAnnoList(Int("2"))]))],NoAnnoList(List([NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons6\"")),NoAnnoList(Int("2"))]))]))
+		IStrategoTerm current = rhs.getSubterm(0);
+		while (current != null) {
+			// unwrap NoAnnoList
+			StrategoAppl listCons = (StrategoAppl) current.getSubterm(0);
+			String applConsName = listCons.getConstructor().getName();
+			if (applConsName.equals("List")) {
+				StrategoList elems = (StrategoList) listCons.getSubterm(0);
+				if (elems.size() == 0) {
+					current = null;
+				} else if (elems.size() == 1) {
+					IStrategoTerm elem = elems.head();
+					StrategoList comps = (StrategoList) elem.getSubterm(0)
+							.getSubterm(0);
+					IStrategoTerm fstComp = comps.head();
+					IStrategoTerm sndComp = comps.tail().head();
+					String consName = unquote(((StrategoString) fstComp
+							.getSubterm(0).getSubterm(0)).getName());
+					Integer index = Integer.valueOf(((StrategoString) sndComp
+							.getSubterm(0).getSubterm(0)).getName());
+					importDecCons.put(consName, index);
+					current = null;
+				} else
+					fail("Error reading end of import-decs list");
+			} else if (applConsName.equals("ListTail")) {
+				StrategoList hd = (StrategoList) listCons.getSubterm(0);
+				IStrategoTerm elem = hd.head();
+				StrategoList comps = (StrategoList) elem.getSubterm(0)
+						.getSubterm(0);
+				IStrategoTerm fstComp = comps.head();
+				IStrategoTerm sndComp = comps.tail().head();
+				String consName = unquote(((StrategoString) fstComp.getSubterm(
+						0).getSubterm(0)).getName());
+				Integer index = Integer.valueOf(((StrategoString) sndComp
+						.getSubterm(0).getSubterm(0)).getName());
+				importDecCons.put(consName, index);
+				current = listCons.getSubterm(1);
+			} else
+				fail("Error reading import-decs");
+		}
+	}
+
+	/**
+	 * Helper for extractDeclarations to extract sx-namespace-dec.
+	 *
+	 * @param rhs
+	 *            right-hand side of sx-namespace-dec
+	 */
+	private void extractNamespaceDecDeclaration(IStrategoTerm rhs) {
+		// rhs =
+		// Build(NoAnnoList(Tuple([NoAnnoList(Str("\"SXCons5\"")),NoAnnoList(Int("2"))]))))])
+		StrategoList tupleComps = (StrategoList) rhs.getSubterm(0)
+				.getSubterm(0).getSubterm(0);
+		IStrategoTerm fstComp = tupleComps.head();
+		IStrategoTerm sndComp = tupleComps.tail().head();
+		String consName = unquote(((StrategoString) fstComp.getSubterm(0)
+				.getSubterm(0)).getName());
+		Integer index = Integer.valueOf(((StrategoString) sndComp.getSubterm(0)
+				.getSubterm(0)).getName());
+		namespaceDecCons = new Pair<String, Integer>(consName, index);
+	}
+
+	/**
+	 * Helper for extractDeclarations to extract sx-body-decs.
+	 *
+	 * @param rhs
+	 *            right-hand side of sx-namespacebody-decs
+	 */
+	private void extractBodyDecsDeclaration(IStrategoTerm rhs) {
+		// rhs =
+		// Build(NoAnnoList(List([NoAnnoList(Str("\"SXCons10\""))])))
+		IStrategoTerm current = rhs.getSubterm(0);
+
+		while (current != null) {
+			// unwrap NoAnnoList
+			StrategoAppl listCons = (StrategoAppl) current.getSubterm(0);
+			String applConsName = listCons.getConstructor().getName();
+			if (applConsName.equals("List")) {
+				StrategoList elems = (StrategoList) listCons.getSubterm(0);
+				if (elems.size() == 0) {
+					current = null;
+				} else if (elems.size() == 1) {
+					IStrategoTerm elem = elems.head();
+					String consName = unquote(((StrategoString) elem
+							.getSubterm(0).getSubterm(0)).getName());
+					bodyDecCons.add(consName);
+					current = null;
+				} else
+					fail("Error reading end of body-decs list");
+			} else if (applConsName.equals("ListTail")) {
+				StrategoList hd = (StrategoList) listCons.getSubterm(0);
+				IStrategoTerm elem = hd.head();
+				String consName = unquote(((StrategoString) elem.getSubterm(0)
+						.getSubterm(0)).getName());
+				bodyDecCons.add(consName);
+
+				current = listCons.getSubterm(1);
+			} else
+				fail("Error reading body-decs");
 		}
 	}
 
@@ -585,12 +581,12 @@ public class BaseLanguageDefinition {
 		Context ctx = interp.getCompiledContext();
 
 		ctx.addOperatorRegistry(new CompatLibrary());
-		// Necessary because SSL_EXT_topdown_fput is not defined otherwise
+		// necessary because SSL_EXT_topdown_fput is not defined otherwise
 
 		IStrategoTerm sdfTerm = parseSdf();
 		try {
 			IStrategoTerm sdfTermFixed = ATermCommands.fixSDF(sdfTerm, interp);
-			// Without fixSDF, ppgenerate does not recognize the attributes
+			// without fixSDF, ppgenerate does not recognize the attributes
 
 			IStrategoTerm result = ppgenerate_0_0.instance.invoke(ctx,
 					sdfTermFixed);
@@ -600,7 +596,6 @@ public class BaseLanguageDefinition {
 		} catch (Exception e) {
 			externalFail("generating and writing the pretty printer table", e);
 		}
-
 	}
 
 	/**
@@ -619,7 +614,6 @@ public class BaseLanguageDefinition {
 			externalFail("fixing the attributes of the post process SDF code",
 					e);
 		}
-		Debug.print("Fixed SDF imports");
 		String sdfString = ppSdf(sdfTermFixed);
 		try {
 			FileCommands.writeToFile(sdfPath, sdfString);
@@ -652,7 +646,7 @@ public class BaseLanguageDefinition {
 	}
 
 	/**
-	 * Replace imports with import of SoundX module
+	 * Replace imports with import of SoundX module.
 	 * 
 	 * @param term
 	 *            the SDF syntax tree
@@ -673,7 +667,7 @@ public class BaseLanguageDefinition {
 	}
 
 	/**
-	 * Parses the SugarJ generated sdf file.
+	 * Parses the Sugar* generated sdf file.
 	 * 
 	 * @return the syntax tree of the sdf file
 	 */
@@ -683,7 +677,7 @@ public class BaseLanguageDefinition {
 	}
 
 	/**
-	 * Parses the SUgarJ generated str file.
+	 * Parses the Sugar* generated str file.
 	 * 
 	 * @return the syntax tree of the str file
 	 */
@@ -787,7 +781,7 @@ public class BaseLanguageDefinition {
 	}
 
 	/**
-	 * Runs the SugarJ compiler with the sxbld language to generate the str and
+	 * Runs the Sugar* compiler with the sxbld language to generate the str and
 	 * sdf file from the base language definition.
 	 */
 	private void runCompiler() {
@@ -796,10 +790,8 @@ public class BaseLanguageDefinition {
 		Environment environment = new Environment(StdLib.stdLibDir,
 				Stamper.DEFAULT);
 
-		// DEVEL: Create a fresh cache directory.
-		// Otherwise, SugarJ will only reread the SXBld implementation when
-		// the version changes. If development has finished
-		// the FileCommands.TMP_DIR can be used to speed things up.
+		// Create a fresh cache directory. Otherwise, Sugar* will only reread
+		// the SXBld implementation when the version changes.
 		String tmpdir = null;
 		try {
 			tmpdir = Files.createTempDirectory("sugarj-soundx",
@@ -815,8 +807,6 @@ public class BaseLanguageDefinition {
 		environment.setNoChecking(false);
 
 		environment.setMode(new CompilerMode(binDir, false));
-		// environment.setBin(binDir);
-		// environment.setGenerateFiles(true);
 		Result result = null;
 		try {
 			result = Driver.run(DriverParameters.create(environment, baseLang,
@@ -827,7 +817,7 @@ public class BaseLanguageDefinition {
 		} catch (Exception e) {
 			externalFail("writing the editor services file", e);
 		}
-		// Check for errors processing the base language definition
+		// check for errors processing the base language definition
 		List<String> errors = result.getCollectedErrors();
 		if (errors.size() > 0) {
 			String messages = StringCommands.printListSeparated(errors, "\n");

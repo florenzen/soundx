@@ -43,7 +43,6 @@ import org.spoofax.terms.StrategoAppl;
 import org.sugarj.AbstractBaseLanguage;
 import org.sugarj.common.Log;
 import org.sugarj.common.path.Path;
-import org.sugarj.soundx.Debug;
 import org.sugarj.util.Pair;
 
 /**
@@ -126,8 +125,6 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 
 	public void processBaseLanguageDefinition(String bldFilename,
 			Path pluginDirectory) {
-		Debug.print("Processing " + bldFilename);
-		Debug.print("Plugin directory " + pluginDirectory.toString());
 
 		BaseLanguageDefinition bld = new BaseLanguageDefinition();
 		bld.process(this, bldFilename, pluginDirectory);
@@ -141,7 +138,7 @@ public class SoundXBaseLanguage extends AbstractBaseLanguage {
 
 	@Override
 	public String getVersion() {
-		return "0.1"; // TODO set version base language definition
+		return "0.1"; // TODO set version in base language definition
 	}
 
 	@Override

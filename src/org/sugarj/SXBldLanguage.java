@@ -41,11 +41,12 @@ import org.sugarj.common.Log;
 import org.sugarj.common.path.Path;
 
 /**
- * @author Sebastian Erdweg <seba at informatik uni-marburg de>
+ * Sugar* language library for SoundX base language definitions.
+ * 
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */
 
 public class SXBldLanguage extends AbstractBaseLanguage {
-
 	private SXBldLanguage() {
 	}
 
@@ -55,9 +56,6 @@ public class SXBldLanguage extends AbstractBaseLanguage {
 		return instance;
 	}
 
-	/**
-	 * @see org.sugarj.AbstractBaseLanguage#createNewProcessor()
-	 */
 	@Override
 	public AbstractBaseProcessor createNewProcessor() {
 		// TODO leave log level unchanged

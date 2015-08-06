@@ -44,11 +44,11 @@ import org.sugarj.common.path.Path;
 
 /**
  * Eclipse plugin activator for an extensible language defined with SoundX.
+ * The base language definition is processed at plugin load time if necessary.
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */
 public class SoundXActivator extends AbstractUIPlugin {
-
 	private static SoundXActivator plugin;
 
 	public SoundXActivator(String bldFilename) {

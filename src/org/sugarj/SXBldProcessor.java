@@ -48,10 +48,11 @@ import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
 
 /**
+ * Sugar* language processor for SoundX base language definitions.
+ *
  * @author Florian Lorenzen <florian.lorenzen at tu-berlin de>
  */
 public class SXBldProcessor extends AbstractBaseProcessor {
-
 	private static final long serialVersionUID = 6325786656556068937L;
 
 	private String moduleHeader;
@@ -96,10 +97,6 @@ public class SXBldProcessor extends AbstractBaseProcessor {
 	public SXBldLanguage getLanguage() {
 		return SXBldLanguage.getInstance();
 	}
-
-	/*
-	 * processing stuff follows here
-	 */
 
 	@Override
 	public void init(Set<RelativePath> sourceFiles, Environment environment) {

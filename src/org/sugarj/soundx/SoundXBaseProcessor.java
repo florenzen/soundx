@@ -114,10 +114,6 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 		return language;
 	}
 
-	/*
-	 * processing stuff follows here
-	 */
-
 	@Override
 	public void init(Set<RelativePath> sourceFiles, Environment environment) {
 		if (sourceFiles.size() != 1)
@@ -234,7 +230,7 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 			return Collections.emptyList();
 		}
 
-		// Set module name for prefixed namespaces.
+		// set module name for prefixed namespaces
 		if (getLanguage().getNamespaceKind() instanceof SXNamespacePrefixed) {
 			String consName = ((StrategoAppl) toplevelDecl).getConstructor()
 					.getName();
@@ -294,7 +290,7 @@ public class SoundXBaseProcessor extends AbstractBaseProcessor {
 			char sep = ((SXNamespacePrefixed) kind).getSeparator();
 			importedModulePath = importedModule
 					.replace(sep, File.separatorChar);
-		} else { // Take flat namespace as default
+		} else { // take flat namespace as default
 			importedModulePath = importedModule;
 		}
 		return importedModulePath;
