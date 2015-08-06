@@ -144,16 +144,16 @@ strategies
 			[lit("["), subject-symbol, lit("]")],
 			after-symbols) => symbols-concl;
 		<conc> ( // The entire left-hand side with {, ~~~>, }
-			[lit("{"), sort("SXInfRulePremises"), sort("SXRULESEP")],
+			[sort("SXInfRulePremises"), sort("SXRULESEP")],
 			symbols-concl,
-			[sort("SXDESUGARINGSEP"), subject-symbol, sort("SXWhereClauses"), lit("}")]) => lhs-desugaring;
+			[sort("SXDESUGARINGSEP"), subject-symbol, sort("SXWhereClauses")]) => lhs-desugaring;
 		<add> (1, <sx-sdf2-count-subtrees> before-symbols); int-to-string => index;
 		<conc-strings> ("SXGuardedDesugaring", index, judgement-name) => cons-name;
 		![
 			<sx-sdf2-cons-attribute> cons-name,
-			<sx-sdf2-aterm-attribute> ("layout", "2.first.col == 3.first.col && 3.first.col == 4.first.col")
+			<sx-sdf2-aterm-attribute> ("layout", "1.first.col == 2.first.col && 2.first.col == 3.first.col")
 		 ] => attributes;
-		!prod(lhs-desugaring, sort("SXDesugaring"), attrs(attributes))
+		!prod(lhs-desugaring, sort("SXGuardedDesugaring"), attrs(attributes))
 
 	/**
 	 * Analyzes the error annotation, prepares the error string, and

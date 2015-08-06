@@ -124,7 +124,7 @@ strategies
 		// <sx-debug(|"pp table ")> tbl;
 		<bottomup(try(\SXMetaVarGen(name, _) -> SXMetaVar(name)\))> expr => expr1;
 		<bottomup(try(\SXMetaVar(name) -> name\))> expr1 => expr2;
-		(<sx-pretty-print(|tbl)> expr1 <+
+		(// <sx-pretty-print(|tbl)> expr1 <+
 		 <sx-base-lang-pretty-print> expr2 <+
 		 <write-to-string> expr1)
 

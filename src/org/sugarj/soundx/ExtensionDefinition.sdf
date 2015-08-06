@@ -50,7 +50,15 @@ exports
 		SXDesugarings -> ToplevelDeclaration
 		
 		"desugarings" SXDesugaring+ -> SXDesugarings {cons("SXDesugarings")}
+		
+		"{" SXGuardedDesugaring "}"   -> SXDesugaring {bracket}
+		"{" SXUniversalDesugaring "}" -> SXDesugaring {bracket}
 
 		SXWhereClause* -> SXWhereClauses {cons("SXWhereClauses")}
 
 		"where" SXWhereEquation -> SXWhereClause {cons("SXWhereClause")}
+
+		"inductive" "definitions" "and" "desugarings"
+		  SXInferenceRuleDesugaring+ -> ToplevelDeclaration {cons("SXInductiveDefinitionsDesugarings")}
+
+		SXINFRULENAME ":" SXGuardedDesugaring -> SXInferenceRuleDesugaring {cons("SXInferenceRuleDesugaring")}

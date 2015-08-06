@@ -203,8 +203,8 @@ strategies
 		// TODO This simple approach generates the production many times for
 		// a single sort blowing up the SDF2 code. Same for where equations.
 		?symbol;
-		!prod([lit("{"), symbol, sort("SXDESUGARINGSEP"), symbol, sort("SXWhereClauses"), lit("}")],
-			sort("SXDesugaring"),
+		!prod([symbol, sort("SXDESUGARINGSEP"), symbol, sort("SXWhereClauses")],
+			sort("SXUniversalDesugaring"),
 			attrs([<sx-sdf2-cons-attribute> "SXUniversalDesugaring"]))
 
 	/**

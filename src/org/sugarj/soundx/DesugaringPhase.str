@@ -150,6 +150,7 @@ strategies
 		sx-is-extension-begin +
 		sx-is-grammar-elems +
 		sx-is-inductive-definitions +
+		sx-is-inductive-defs-desugarings +
 		sx-is-desugarings +
 		sx-is-import-decl +
 		sx-is-namespace-decl +
@@ -166,6 +167,9 @@ strategies
 
 	sx-is-inductive-definitions =
 		?SXInductiveDefinitions(_)
+
+	sx-is-inductive-defs-desugarings =
+		?SXInductiveDefinitionsDesugarings(_)
 
 	sx-is-desugarings =
 		?SXDesugarings(_)

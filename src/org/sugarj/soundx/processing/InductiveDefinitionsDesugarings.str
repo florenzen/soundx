@@ -1,0 +1,87 @@
+/*
+ * Copyright (c) 2015, TU Berlin
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * - Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ * - Redistributions in binary form must reproduce the above
+ *   copyright notice, this list of conditions and the following
+ *   disclaimer in the documentation and/or other materials provided
+ *   with the distribution.
+ * - Neither the name of the TU Berlin nor the names of its
+ *   contributors may be used to endorse or promote products derived
+ *   from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/**
+ * Processing of an inductive definitions and desugarings section.
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
+module org/sugarj/soundx/processing/InductiveDefinitionsDesugarings
+
+imports org/sugarj/soundx/ExtensionDefinition
+		org/sugarj/soundx/AnalysisFunctions
+		org/sugarj/soundx/Environment
+		org/sugarj/soundx/AbstractSyntax
+		org/sugarj/soundx/InductiveDefinitions
+
+		org/sugarj/soundx/Debug
+
+imports org/sugarj/soundx/processing/Desugarings
+		org/sugarj/soundx/processing/InductiveDefinitions
+		org/sugarj/soundx/processing/Prefixing
+
+
+strategies
+	/**
+	 * Processes an inductive definitions and desugarings section. Aborts
+	 * with an error, if extension processing is off
+	 *
+	 * @type ToplevelDeclaration -> ToplevelDeclaration
+	 */
+	sx-process-inductive-defs-desugarings =
+		?SXInductiveDefinitionsDesugarings(_);
+		where(
+			if sx-env-is-extension-processing then
+				SXInductiveDefinitionsDesugarings(map(sx-process-ind-def-desugaring))
+			else
+				sx-analysis-fail(|"desugarings must be inside an extension")
+			end)
+
+	sx-process-ind-def-desugaring =
+		?SXInferenceRuleDesugaring(name, guarded-des);
+		<sx-process-guarded-desugaring> guarded-des;
+		<sx-process-guarded-des-lhs-as-inf-rule> (name, guarded-des)
+
+	sx-process-guarded-des-lhs-as-inf-rule =
+		?(name, guarded-des@con#(args));
+		<sx-process-split-guarded-des-cons> con => (index, judg-name);
+		<length> args => len;
+		<index> (1, args) => premises;
+		<collect-all(sx-is-judgement, conc)> premises => premises-list;
+		<drop(|2); take(|<subt> (len, 5))> args => concl-args;
+		<sx-prefix-name> name => prefixed-name;
+		!SXInfRule(premises-list, prefixed-name, judg-name#(concl-args)) => inf-rule;
+		<sx-meta-var-to-sx-metavar> inf-rule => inf-rule1;
+		<sx-debug(|"Inf rule with meta vars transformed ")> inf-rule1;
+		<sx-env-add-named-inf-rule> (prefixed-name, guarded-des);
+		<sx-process-add-inference-rule> (prefixed-name, inf-rule1);
+		<sx-debug(|"finished lhs processing ")> ""
+		

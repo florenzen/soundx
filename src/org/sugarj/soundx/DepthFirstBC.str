@@ -58,6 +58,7 @@ strategies
 	sx-dfsbc-build-derivation =
 		?(asms, inf-rules, judg);
 		<sx-vars> asms => vars-asms;
+		<sx-debug(|"ASSUMPTION VARIABLES ")> vars-asms;
 		<sx-dfsbc-build-derivations(|vars-asms)> (asms, inf-rules, [judg]) => (_, [deriv]);
 		!deriv
 
@@ -66,7 +67,7 @@ strategies
 		!(<sx-sub-empty> (), [])
 	sx-dfsbc-build-derivations(|vars-asms) =
 		?(asms, inf-rules, goals@[judg|_]);
-		// <sx-debug(|"trying ")> (<sx-pretty-print-term> judg);
+		<sx-debug(|"trying ")> (<sx-pretty-print-term> judg);
 		// <sx-debug(|"assumption ")> (<map(\SXDerivAsm(j) -> j\); sx-pretty-print-list-nl> asms);
 		(<sx-dfsbc-build-derivations-by-asm(|vars-asms)> (asms, asms, inf-rules, goals) <+
 		 (<sx-is-prim-judgement> judg;
@@ -83,7 +84,7 @@ strategies
 		?(all-asms, [asm|asms], inf-rules, goals@[judg|judgs]);
 		((<sx-dfsbc-unify(|vars-asms)> (judg, <sx-concl> asm) => mgu;
 		  <sx-sub-apply> (mgu, judgs) => judgs1;
-		  // <sx-debug(|"solved by asm ")> (<sx-concl; sx-pretty-print-term> asm);
+		  <sx-debug(|"solved by asm ")> (<sx-concl; sx-pretty-print-term> asm);
 		  <sx-dfsbc-build-derivations(|vars-asms)> (all-asms, inf-rules, judgs1) => (sub, derivs);
 		  <sx-sub-compose> (sub, mgu) => sub1;
 		  !(sub1, [asm|derivs])) <+
@@ -202,9 +203,13 @@ strategies
 	sx-dfsbc-build-derivations-by-rule(|vars-asms) =
 		?(asms, all-inf-rules, [inf-rule|inf-rules], goals@[judg|judgs]);
 		((<sx-fresh-inf-rule> inf-rule => SXInfRule(premises, name, concl);
+		  <sx-debug(|"trying to unify with concl ")> concl;
+		  //<sx-debug(|"of rule ")> name;
 		  <sx-dfsbc-unify(|vars-asms)> (judg, concl) => mgu;
-		  // <sx-debug(|"rule ")> name;
+		  <sx-debug(|"unified concl of rule ")> name;
+		  <sx-debug(|"with sub ")> (<hashtable-getlist> mgu);
 		  <sx-sub-apply> (mgu, <conc> (premises, judgs)) => judgs1;
+		  <sx-debug(|"remaining goals ")> <map(sx-pretty-print-term)> judgs1;
 		  <sx-dfsbc-build-derivations(|vars-asms)> (asms, all-inf-rules, judgs1) => (sub, derivs);
 		  <split-at(|<length> premises)> derivs => (derivs-prem, derivs-other);
 		  <sx-sub-compose> (sub, mgu) => sub1;
@@ -218,7 +223,8 @@ strategies
 		<sx-vars> (expr1, expr2) => vars-exprs;
 		<diff> (vars-exprs, vars-asms) => vars-unify;
 		<sx-unify(|vars-unify)> (expr1, expr2) => result;
-		if !result; ?SXUnificationFailure(_) then
+		if !result; ?SXUnificationFailure(msg) then
+			//<sx-debug(|"unification failed, reason ")> msg;
 			fail
 		else
 			!result
