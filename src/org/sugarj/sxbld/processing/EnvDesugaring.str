@@ -42,7 +42,6 @@ imports org/sugarj/soundx/SDF2
 		org/sugarj/soundx/MetaExplode
 		org/sugarj/soundx/PrettyPrint
 		org/sugarj/soundx/AbstractSyntax
-		org/sugarj/soundx/Debug
 
 imports org/sugarj/soundx/PPTable
 
@@ -51,6 +50,8 @@ imports org/sugarj/sxbld/Environment
 imports org/sugarj/sxbld/processing/SortPrefixing
 
 imports org/sugarj/languages/SXBld
+
+imports org/sugarj/soundx/Debug
 
 
 strategies

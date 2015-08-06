@@ -40,6 +40,8 @@ imports org/sugarj/stdlib/StdTrans
 
 imports org/sugarj/sxbld/Environment
 
+imports org/sugarj/soundx/Utils
+
 imports org/sugarj/soundx/Debug
 
 
@@ -55,7 +57,7 @@ strategies
      */
     sxbld-analyze-fail(|msg) =
     	where(<sxbld-env-failed> ());
-    	<sx-debug(|"sxbld-analyze-fail: ")> msg;
+    	<conc-strings; sx-print-error> ("sxbld-analyze-fail: ", msg);
     	sxbld-analyze-annotate-error(|msg);
     	fail
 

@@ -40,8 +40,7 @@ imports org/sugarj/stdlib/StdTrans
 
 imports org/sugarj/soundx/Environment
 		org/sugarj/soundx/AbstractSyntax
-		org/sugarj/soundx/Debug
-
+		org/sugarj/soundx/Utils
 
 strategies
     /**
@@ -57,11 +56,11 @@ strategies
     sx-analysis-fail(|msg) =
     	?term;
     	where(<sx-env-failed> ());
-    	<sx-debug(|"*** The following error occured ***")> "";
-    	<sx-debug(|<conc-strings> ("  ", <indent-text(|2)> msg))> "";
-    	<sx-debug(|"  The input to blame is")> "";
-    	<sx-debug(|"  ")> term;
-    	<sx-debug(|"  (if a parse error follows this error it may not be reported at the end)")> "";
+    	<sx-print-error> "*** The following error occured ***";
+    	<sx-print-error> (<conc-strings> ("  ", <indent-text(|2)> msg));
+    	<sx-print-error> "  The input to blame is";
+    	<sx-print-error> term;
+    	<sx-print-error> "  (if a parse error follows this error it may not be reported at the end)";
     	<sx-analysis-store-error(|msg)> term;
     	fail
 

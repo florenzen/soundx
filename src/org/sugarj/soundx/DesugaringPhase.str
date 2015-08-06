@@ -62,7 +62,6 @@ strategies
 	 */
 	sx-desugar =
 		?decl;
-		<sx-debug(|"process decl ")> decl;
 		sx-is-toplevel-declaration;
 		if sx-is-last-toplevel-decl then
 			sx-env-get-errors => errors;
@@ -108,7 +107,6 @@ strategies
 		else
 			if sx-env-is-extension-processing then
 				sx-env-extract-extension-decls => ext-decls;
-				<sx-debug(|"is extension processing")> "";
 				if <sx-is-extension-begin> decl then
 					![decl|ext-decls]
 				else

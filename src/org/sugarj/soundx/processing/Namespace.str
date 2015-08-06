@@ -40,7 +40,7 @@ imports org/sugarj/soundx/Declarations
 		org/sugarj/soundx/Environment
 		org/sugarj/soundx/AnalysisFunctions
 
-// imports org/sugarj/soundx/Debug
+imports org/sugarj/soundx/Debug
 
 
 strategies

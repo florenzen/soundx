@@ -38,6 +38,11 @@ module org/sugarj/soundx/Debug
 
 strategies
 	/**
+	 * Set this to id for debug mode on, fail for off.
+	 */
+	sx-debug-mode = id
+
+	/**
 	 * Print the message followed by the aterm.
 	 *
 	 * @param msg String
@@ -45,4 +50,5 @@ strategies
 	 * @type a -> a
 	 */
 	sx-debug(|msg) =
+		where(sx-debug-mode);
 		debug(!<conc-strings> ("DEBUG: ", msg))

@@ -51,10 +51,10 @@ strategies
 	 * @type List((a, a)) -> SXUnificationResult
 	 */
 	sx-unify(|vars) =
-		// Empty list, termination case
+		// empty list, termination case
 		?[]; sx-sub-empty
 	sx-unify(|vars) =
-		// Two variables
+		// two variables
 		?[(var1, var2) | pairs];
 		<sx-is-metavar> var1;
 		<sx-is-metavar> var2;
@@ -83,7 +83,7 @@ strategies
 			end
 		end
 	sx-unify(|vars) =
-		// One variable, one other expression
+		// one variable, one other expression
 		?[(var1, expr2) | pairs];
 		<sx-is-metavar> var1;
 		<not(sx-is-metavar)> expr2;
@@ -107,13 +107,13 @@ strategies
 				<write-to-string> var1))
 		end
 	sx-unify(|vars) =
-		// One other expression, one variable
+		// one other expression, one variable
 		?[(expr1, var2) | pairs];
 		<not(sx-is-metavar)> expr1;
 		<sx-is-metavar> var2;
 		<sx-unify(|vars)> [(var2, expr1) | pairs]
 	sx-unify(|vars) =
-		// Two non-variable expressions
+		// two non-variable expressions
 		?[(expr1, expr2) | pairs];
 		<not(sx-is-metavar)> expr1;
 		<not(sx-is-metavar)> expr2;

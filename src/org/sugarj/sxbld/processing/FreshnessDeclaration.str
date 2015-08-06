@@ -65,8 +65,8 @@ strategies
 	sxbld-analyze-freshness-declaration =
 		?decl@SXBldFreshnessDeclaration(lab-atom, sort-atom, lab-expr, sort-expr, judg);
 		where(
-			// check that sort-atom is an atom-sort
-			// check that judg has two vars and that lab-atom and lab-expr are
+			// check that sort-atom is an atom-sort and that
+			// judg has two vars and that lab-atom and lab-expr are
 			// the names of these vars
 			<sx-sdf2-label-to-string> lab-atom => name-atom;
 			<sx-sdf2-label-to-string> lab-expr => name-expr;
@@ -191,9 +191,7 @@ strategies
 		<sx-sub-singleton> (SXMetaVar(name-atom), cons-name#(args)) => sub1;
 		<sx-sub-singleton> (SXMetaVar(name-expr), arg) => sub2;
 		<sx-sub-apply> (sub1, judg) => judg1;
-		<sx-debug(|"judg1 ")> judg1;
 		<sx-sub-apply> (sub2, judg1) => judg2;
-		<sx-debug(|"judg2 ")> judg2;
 		<conc-strings> ("_fresh", sort-expr) => rule-name-prefix;
 		<sxbld-analyze-fresh-numbered-name(|rule-name-prefix)> n => rule-name1;
 		<sxbld-analyze-fresh-numbered-name(|rule-name1)> m => rule-name2;

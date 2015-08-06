@@ -48,7 +48,6 @@ imports org/sugarj/languages/SXBld
 imports org/sugarj/soundx/Debug
 
 
-
 strategies
 	/**
      * Register analyses and desugarings.
@@ -133,11 +132,11 @@ strategies
 	 */
 	sxbld-analyze-guarded-desugaring-prod(|judgement-name) =
 		?(before-symbols, subject-symbol, after-symbols);
-		<conc> ( // The symbols of the conclusion with [, ]
+		<conc> ( // the symbols of the conclusion with [, ]
 			before-symbols,
 			[lit("["), subject-symbol, lit("]")],
 			after-symbols) => symbols-concl;
-		<conc> ( // The entire left-hand side with {, ~~~>, }
+		<conc> ( // the entire left-hand side with {, ~~~>, }
 			[sort("SXInfRulePremises"), sort("SXRULESEP")],
 			symbols-concl,
 			[sort("SXDESUGARINGSEP"), subject-symbol, sort("SXWhereClauses")]) => lhs-desugaring;

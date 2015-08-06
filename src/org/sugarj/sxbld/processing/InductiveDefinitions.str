@@ -48,7 +48,7 @@ imports org/sugarj/soundx/InductiveDefinitions
 
 strategies
 	/**
-     * Register analyses
+     * Register analyses.
      */
 	sxbld-start-analysis = sxbld-analyze-inductive-definitions
 

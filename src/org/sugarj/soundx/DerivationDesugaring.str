@@ -91,7 +91,7 @@ strategies
 		  !deriv
 		 ) <+
 		 (?[imp-ext|imp-exts];
-		  <sx-debug(|"Desugar extension ")> imp-ext;
+		  <sx-debug(|"Desugar extension: ")> imp-ext;
 		  <sx-deriv-desugar-from-imports(|imp-ext, imp-exts)> deriv => deriv-des;
 		  <sx-deriv-desugar-from-imports(|imp-exts)> deriv-des
 		 )

@@ -133,10 +133,8 @@ strategies
 	 */
 	sx-grammars-to-pp-table =
 		?grms;
-		((<sx-generate-pp-table> grms => pptable
-		  // ;<sx-debug(|"PP Table ")> pptable
-		  )
-		 <+ <sx-debug(|"Gen PP Table failed")> ())
+		((<sx-generate-pp-table> grms => pptable)
+		 <+ <sx-debug(|"Gen PP Table failed.")> "")
 	
 	/**
 	 * Returns the current PP table from the environment. It is

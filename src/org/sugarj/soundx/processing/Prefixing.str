@@ -139,9 +139,7 @@ strategies
 				<string-replace(|char, repl)> current-namespace
 			}
 		in
-			<sx-debug(|"mangle in ")> namespace; 
 			<foldl(fold-s)> (mangle-map, namespace) => mangled-namespace;
-			<sx-debug(|"mangle out ")> mangled-namespace;
 			!mangled-namespace
 		end
 	

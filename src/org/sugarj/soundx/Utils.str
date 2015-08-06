@@ -41,6 +41,14 @@ imports org/sugarj/soundx/Debug
 
 strategies
 	/**
+	 * Print something to the error console.
+	 *
+	 * @type a -> _
+	 *
+	 */
+	sx-print-error = debug(!"")
+
+	/**
  	 * Checks if the current toplevel declaration is the last one.
  	 *
  	 * @type _ -> _

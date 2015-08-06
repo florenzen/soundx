@@ -77,7 +77,7 @@ strategies
 	    <map(?grammar-elem(<id>))> grammar-elems => sdf2-defs;
 	    <sx-grammars-to-pp-table> sdf2-defs => pp-table;
 	    <sx-env-module-decls-to-stratego(|pp-table, "extension-pp-table")> pp-table => trans-pp-table;
-	    // Since the SoundX desugaring is hooked into the strategy internal-main
+	    // since the SoundX desugaring is hooked into the strategy internal-main
 	    // instead of desugaring gen-signature has to be called manually here
 	    (<gen-signature> grammar-elems <+ ![]) => trans-signatures;
 	    // generate a Stratego definition for the interface
@@ -199,7 +199,7 @@ strategies
 		!Op("SXInfRule", [stratego-premises, Var("sx-rule-name"), stratego-lhs-concl]) => stratego-lhs;
 		// rhs rule pattern
 		!Op("SXInfRule", [stratego-premises, Var("sx-rule-name"), stratego-rhs-concl]) => stratego-rhs;
-		// Rule
+		// rule
 		!Seq(Match(stratego-lhs), Build(stratego-rhs))		
 
 	/**

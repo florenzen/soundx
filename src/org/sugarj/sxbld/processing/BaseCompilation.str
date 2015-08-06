@@ -48,6 +48,7 @@ strategies
 	sxbld-start-analysis = sxbld-analyze-extensible-file-ext
 	sxbld-start-analysis = sxbld-analyze-base-file-ext
 
+	/*
 	 * Stores extensible file extension in environment.
 	 *
 	 * @type String -> String
