@@ -36,7 +36,9 @@ import org.sugarj.BaseLanguageRegistry;
 import org.sugarj.SXBldLanguage;
 
 /**
- * The activator class controls the plug-in life cycle
+ * Activator of the Sugar* plugin for SoundX base language definitions.
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */
 public class Activator extends AbstractUIPlugin {
 

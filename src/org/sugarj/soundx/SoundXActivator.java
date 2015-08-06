@@ -42,6 +42,11 @@ import org.sugarj.BaseLanguageRegistry;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
 
+/**
+ * Eclipse plugin activator for an extensible language defined with SoundX.
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
 public class SoundXActivator extends AbstractUIPlugin {
 
 	private static SoundXActivator plugin;

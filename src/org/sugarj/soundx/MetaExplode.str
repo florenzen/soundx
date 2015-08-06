@@ -1,11 +1,20 @@
+/**
+ * Convert ATerm into abstract syntax of Stratego of that ATerm.
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ */
 module org/sugarj/soundx/MetaExplode
 
 imports org/sugarj/languages/Stratego
 
 /*
  * copied from the Stratego svn repository at Sept. 20, 2010:
+ *
  *   https://svn.strategoxt.org/repos/StrategoXT/strategoxt/trunk/strc-core/lib/stratego/strc/parse/meta-explode.str
+ * published under GNU LGPL 2.1, see https://svn.strategoxt.org/repos/StrategoXT/strategoxt/trunk/strc-core/COPYING
+ *
  *   https://svn.strategoxt.org/repos/StrategoXT/strategoxt/trunk/stratego-front/sig/Stratego-MetaTransition.str
+ * published under GNU LGPL 2.1, see https://svn.strategoxt.org/repos/StrategoXT/strategoxt/trunk/stratego-front/COPYING
  */
 	signature
 	  constructors

@@ -46,6 +46,12 @@ import org.sugarj.common.path.Path;
 import org.sugarj.soundx.Debug;
 import org.sugarj.util.Pair;
 
+/**
+ * Sugar* language library implementation for a language defined by SoundX.
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ *
+ */
 public class SoundXBaseLanguage extends AbstractBaseLanguage {
 	private String languageName;
 	private String baseFileExtension;

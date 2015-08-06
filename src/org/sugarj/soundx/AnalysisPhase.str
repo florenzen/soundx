@@ -30,7 +30,7 @@
  */
  
  /**
- * SoundX analysis phase: building the derivation
+ * SoundX analysis phase: build the derivation and verify the extension.
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */

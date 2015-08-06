@@ -81,7 +81,7 @@ import org.sugarj.util.Pair;
 // org/sugarj/sxbld/Processing
 
 /**
- * Generation of SugarJ files from a SoundX base language definition.
+ * Generation of Sugar* files from a SoundX base language definition.
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */

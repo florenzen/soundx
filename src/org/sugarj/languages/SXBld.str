@@ -30,7 +30,7 @@
  */
 
 /**
- * Signature for the constructors of SXBld.def
+ * Stratego signatures for the constructors of SXBld.def.
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */

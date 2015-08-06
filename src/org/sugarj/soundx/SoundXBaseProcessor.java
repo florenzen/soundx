@@ -54,6 +54,12 @@ import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
 import org.sugarj.util.Pair;
 
+/**
+ * Sugar* language processor for a language defined with SoundX.
+ *
+ * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+ *
+ */
 public class SoundXBaseProcessor extends AbstractBaseProcessor {
 
 	private static final long serialVersionUID = 8867450741041891584L;

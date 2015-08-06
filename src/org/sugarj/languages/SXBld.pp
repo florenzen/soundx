@@ -28,6 +28,13 @@
 %% (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 %% OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 %%
+
+%%
+%% Dummy pretty printer definition for the desugared base language definition.
+%%
+%% Author: Florian Lorenzen <florian.lorenzen@tu-berlin.de>
+%%
+
 [
    SXBldNamespaceDecl        -- KW["base"] KW["language"] KW["definition"] _1
 ]

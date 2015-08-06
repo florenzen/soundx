@@ -30,10 +30,8 @@
  */
 
 /**
- * Depth-first search backward chaining that build a derivation
- *
- * If no derivation can be found for the goal judgement
- * the algorithm simply fails.
+ * Depth-first search backward chaining that builds a derivation.
+ * If no derivation can be found for the goal judgement the algorithm simply fails.
  *
  * Primitive judgements like inequality or concatenation of lexical
  * elements require their input arguments to be bound. That is, it works

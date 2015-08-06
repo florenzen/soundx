@@ -30,7 +30,7 @@
  */
 
 /**
- * SoundX desugaring phase: desugaring the derivation
+ * SoundX desugaring phase: desugaring the derivation.
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */

@@ -30,8 +30,7 @@
  */
 
 /**
- * Main SoundX module
- *
+ * Main SoundX module that activates SoundX analysis and desugaring.
  * Is imported by the initial Grammar of a base language
  * generated from a SoundX base language definition.
  *

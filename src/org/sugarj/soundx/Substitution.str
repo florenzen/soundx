@@ -30,10 +30,8 @@
  */
 
 /**
- * Functions to manipulate substitutions
- *
- * Substitutions are stores as hash tables and SXSub is used
- * in type annotations.
+ * Functions to manipulate substitutions. Substitutions are stores as
+ * hash tables and SXSub is used in type annotations.
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */

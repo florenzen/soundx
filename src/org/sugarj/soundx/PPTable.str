@@ -30,7 +30,7 @@
  */
 
 /**
- * Signature of pretty printer tables.
+ * Stratego signatures of box pretty printer tables.
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */

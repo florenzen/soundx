@@ -30,7 +30,7 @@
  */
 
 /**
- * SoundX Base Language Definition environment
+ * SoundX base language definition environment to collect processed elements.
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */

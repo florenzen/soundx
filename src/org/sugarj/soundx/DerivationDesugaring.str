@@ -30,7 +30,7 @@
  */
 
 /**
- * The SoundX derivation desugaring procedure
+ * The SoundX derivation top-down/bottom-up desugaring procedure.
  *
  * @author Florian Lorenzen <florian.lorenzen>
  */

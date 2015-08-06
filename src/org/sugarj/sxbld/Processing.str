@@ -30,9 +30,8 @@
  */
 
 /**
- * Processing of base language definitions
- *
- * Performs analysis and desugaring
+ * Processing of base language definitions. This is the definition
+ * of the Sugar* analysis and desugaring.
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */

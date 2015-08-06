@@ -30,7 +30,7 @@
  */
 
 /**
- * Desugar environmnt to SDF2 and Stratego
+ * Desugar environmnt to SDF2 and Stratego.
  *
  * @author Florian Lorenzen <florian.lorenzen@tu-berlin.de>
  */
