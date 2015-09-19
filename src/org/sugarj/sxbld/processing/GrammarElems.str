@@ -210,16 +210,13 @@ strategies
 	 */
 	sxbld-analyze-where-equation-prod =
 		?(symbol, prefixed-symbol);
-		!prod([prefixed-symbol, lit("="), prefixed-symbol],
-			sort("SXWhereEquation"),
-			attrs([<sx-sdf2-cons-attribute> "SXWhereEquation"])) => unqualified-prod;
 		if !symbol; ?sort(name) then
 			!prod([prefixed-symbol, lit(<conc-strings> ("=", name)), prefixed-symbol],
 				sort("SXWhereEquation"),
 				attrs([<sx-sdf2-cons-attribute> "SXWhereEquation"])) => qualified-prod;
-			![qualified-prod, unqualified-prod]
+			![qualified-prod]
 		else
-			![unqualified-prod]
+			![]
 		end
 
     /**

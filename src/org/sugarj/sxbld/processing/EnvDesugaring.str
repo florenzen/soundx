@@ -198,9 +198,9 @@ strategies
 				<sxbld-env-unprefix-name> name => unprefixed-name;
 				<conc-strings> ("=/=", unprefixed-name) => qualified-neq;
 				<sx-sdf2-cons-attribute> "SXNeq" => cons-attr;
-				![prod(
-					[sort(name), lit("=/="), sort(name)], sort("SXJudgement"),
-    	        	attrs([cons-attr])),
+				![//prod(
+					//[sort(name), lit("=/="), sort(name)], sort("SXJudgement"),
+    	        	//attrs([cons-attr])),
     	          prod(
     	          	[sort(name), lit(qualified-neq), sort(name)], sort("SXJudgement"),
     	          	attrs([cons-attr]))]

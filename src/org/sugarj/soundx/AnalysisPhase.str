@@ -51,6 +51,7 @@ imports org/sugarj/soundx/AbstractSyntax
 		org/sugarj/soundx/Utils
 		org/sugarj/soundx/Classification
 		org/sugarj/soundx/PrettyPrint
+		org/sugarj/soundx/FreshAtoms
 
 imports org/sugarj/soundx/processing/GrammarElems
 		org/sugarj/soundx/processing/Namespace
@@ -162,8 +163,9 @@ strategies
 		?toplevel-decls@SXToplevelDeclarationsCons(head, tail);
 		// fetch all inference rules
 		sx-inference-rules => inf-rules-base;
+		<sx-fresh-remove-fresh-judg-implies-freshness-cond-rules> inf-rules-base => inf-rules-base1;
 		sx-inference-rules-from-extensions => inf-rules-extensions;
-		<conc> (inf-rules-extensions, inf-rules-base) => inf-rules;
+		<conc> (inf-rules-extensions, inf-rules-base1) => inf-rules;
 		// set up the interface judgement
 		sx-interface-judgement => (tlds-pattern, intf-pattern, judg);
 		<sx-vars> tlds-pattern => vars-tlds;

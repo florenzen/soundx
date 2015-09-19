@@ -111,7 +111,8 @@ strategies
 		<sx-extension-inference-rules> current-ext => ext-inf-rules;
 		<mapconcat(sx-extension-inference-rules)> imported-exts => inf-rules-imported;
 		sx-inference-rules => base-inf-rules;
-		<conc> (base-inf-rules, inf-rules-imported) => base-imp-rules;
+		<sx-fresh-remove-fresh-judg-implies-freshness-cond-rules> base-inf-rules => base-inf-rules1;
+		<conc> (base-inf-rules1, inf-rules-imported) => base-imp-rules;
 		<sx-deriv-desugar-ext-base(|current-ext, ext-inf-rules, base-imp-rules)> deriv
 
 	/**
@@ -179,6 +180,8 @@ strategies
 		  		<sx-sub-apply> (result, concl-des) => concl-des-instantiated;
 		  		<sx-fresh-atom-replace-all> concl-des-instantiated => concl-des-fresh-atoms;
 		  		<conc> (ext-inf-rules, base-inf-rules) => all-inf-rules;
+		  		<map(\SXDerivInst(_,_,c) -> c\); sx-debug(|"filling subderivs: ")> subderivs;
+		  		<sx-debug(|"filling goal: ")> concl-des-fresh-atoms;
 		  		if <sx-dfsbc-build-derivation> (subderivs, all-inf-rules, concl-des-fresh-atoms) => deriv-des then
 		  			!deriv-des
 		  		else
