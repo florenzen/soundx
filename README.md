@@ -12,10 +12,4 @@ This repository contains the SoundX plugin including the plugin to edit base lan
 
 - [Simply typed lambda calculus](https://github.com/florenzen/soundx-base-language-definitions/tree/master/lang-stlcweak)
 
-
-
 - [JavaLight](https://github.com/florenzen/soundx-base-language-definitions/tree/master/lang-javalight)
-
-Examples of base language definitions are available are available in the repository [soundx-base-language-definitions](https://github.com/florenzen/soundx-base-language-definitions) and the repository [soundx-experiments](https://github.com/florenzen/soundx-experiments) contains several case studies.
-
-In particular, SoundX has been instantiated for 
