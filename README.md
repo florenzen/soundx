@@ -10,11 +10,15 @@ SoundX poses only very mild requirements on the module system of the base langua
 
 This repository contains the SoundX plugin including the plugin to edit base language definitions in Eclipse. SoundX has been applied to two base languages with several extensions each:
 
-- [Simply typed lambda calculus](https://github.com/florenzen/soundx-base-language-definitions/tree/master/lang-stlcweak)
+- [Simply typed lambda calculus](https://github.com/florenzen/soundx-base-language-definitions/tree/master/lang-stlcweak/src/STLCWeak.sxbld)
 
   Extensions:
-  - foo
-  - bar
+  - [Let-expressions](https://github.com/florenzen/soundx-experiments/blob/master/TestSTLCWeak/src/LetSeqExtension.xstw)
+  - [Pairs](https://github.com/florenzen/soundx-experiments/blob/master/TestSTLCWeak/src/PairExtension.xstw)
+  - [Pattern matching for pairs](https://github.com/florenzen/soundx-experiments/blob/master/TestSTLCWeak/src/LetPairExtension.xstw)
 
+- [JavaLight](https://github.com/florenzen/soundx-base-language-definitions/tree/master/lang-javalight/src/JavaLight.sxbld)
 
-- [JavaLight](https://github.com/florenzen/soundx-base-language-definitions/tree/master/lang-javalight)
+  Extensions:
+  - [Enhanced for-loops](https://github.com/florenzen/soundx-experiments/blob/master/TestJavaLight/ForComprehensions/src/extensions/EnhancedForStatement.xjl)
+  - [For-comprehensions](https://github.com/florenzen/soundx-experiments/blob/master/TestJavaLight/ForComprehensions/src/extensions/ForComprehensions.xjl)
